@@ -1,0 +1,34 @@
+# CHANG_AI_TEAM Memory System .gitignore
+
+# 不同步未压缩的原始会话记录
+memory/sessions/ceo-daily/*.jsonl
+memory/sessions/cto-daily/*.jsonl
+memory/sessions/ceo-daily/
+memory/sessions/cto-daily/
+
+# 不同步临时文件
+memory/*.tmp
+*.log
+*.bak
+
+# 不同步敏感信息
+**/credentials.md
+**/secrets.md
+**/private.md
+**/.env
+**/api_keys.md
+
+# 不同步本地配置
+.openclaw/
+agents/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
