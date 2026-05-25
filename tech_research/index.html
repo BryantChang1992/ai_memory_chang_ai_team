@@ -154,35 +154,75 @@
   footer a { color: var(--accent1); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
 
-  .top-nav {
+  /* ====== Global Navbar ====== */
+  .global-nav {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 10px 24px;
-    background: var(--card);
+    gap: 0;
+    padding: 0 24px;
+    background: rgba(15,23,42,0.92);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
-    font-size: 0.88rem;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
+    height: 52px;
   }
-  .top-nav .nav-home {
-    color: var(--accent1);
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
     text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+  }
+  .global-nav .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover {
+    background: var(--card);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--card);
+    color: var(--accent1);
     font-weight: 500;
   }
-  .top-nav .nav-home:hover { text-decoration: underline; }
-  .top-nav .nav-breadcrumb {
-    color: var(--muted);
-    font-size: 0.82rem;
+  .global-nav .nav-link .badge {
+    font-size: 0.7rem;
+    background: var(--accent1);
+    color: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
   }
 </style>
 </head>
 <body>
 
-<nav class="top-nav">
-  <a href="../index.html" class="nav-home">← 返回门户首页</a>
-  <span class="nav-breadcrumb">🔬 技术调研周报</span>
+<nav class="global-nav">
+  <a href="../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../index.html" class="nav-link">🏠 首页</a>
+    <a href="index.html" class="nav-link active">🔬 技术调研 <span class="badge">3</span></a>
+  </div>
 </nav>
 
 <div class="container">

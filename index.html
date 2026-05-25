@@ -26,6 +26,66 @@
     min-height: 100vh;
   }
 
+  /* ====== Global Navbar ====== */
+  .global-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    background: rgba(9,9,11,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+  }
+  .global-nav .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .global-nav .nav-link .badge {
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+
   /* Hero */
   .hero {
     text-align: center;
@@ -156,12 +216,23 @@
   @media (max-width: 600px) {
     .hero { padding: 60px 16px 40px; }
     .hero h1 { font-size: 2rem; }
+    .global-nav { padding: 0 12px; }
+    .global-nav .brand { margin-right: 12px; font-size: 0.85rem; }
     .container { padding: 24px 16px; }
     .module-card { padding: 20px 24px; }
   }
 </style>
 </head>
 <body>
+
+<!-- ====== Global Navbar ====== -->
+<nav class="global-nav">
+  <a href="index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link active">🏠 首页</a>
+    <a href="tech_research/" class="nav-link">🔬 技术调研 <span class="badge">3</span></a>
+  </div>
+</nav>
 
 <!-- ====== HERO ====== -->
 <section class="hero">
