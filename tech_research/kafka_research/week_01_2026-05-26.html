@@ -350,6 +350,21 @@
     color: var(--text-secondary);
     font-size: 0.82rem;
   }
+
+  .refs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .refs-list a {
+    color: var(--accent-kafka);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 0;
+    word-break: break-all;
+  }
+  .refs-list a:hover { text-decoration: underline; }
+  .refs-list a::before { content: '🔗 '; font-size: 0.8rem; }
 </style>
 </head>
 <body>
@@ -719,6 +734,27 @@
       <p style="color:#666; font-size:14px; margin-top:16px;">
         💡 <strong>投资关注点：</strong>Kafka 4.3 引入的诸多运维增强（Cordon、Follower Tiered Fetch）标志着 Kafka 在云原生运维能力上的持续投入。AutoMQ 的 License 机制值得关注——可能预示商业化策略调整。Fluss 的技术博客密度和质量是三个项目中最高的，AI 基础设施定位的差异化战略清晰，值得持续跟踪。
       </p>
+    </div>
+  </article>
+
+  <!-- 参考链接 -->
+  <article class="section">
+    <h2 class="section-title">📎 参考链接</h2>
+    <div class="refs-list">
+      <a href="https://kafka.apache.org/blog/2026/05/22/apache-kafka-4.3.0-release-announcement/" target="_blank">Apache Kafka 4.3.0 发布公告</a>
+      <a href="https://downloads.apache.org/kafka/4.3.0/RELEASE_NOTES.html" target="_blank">Kafka 4.3.0 Release Notes</a>
+      <a href="https://kafka.apache.org/blog/2026/03/17/apache-kafka-4.1.2-release-announcement/" target="_blank">Kafka 4.1.2 发布公告</a>
+      <a href="https://kafka.apache.org/blog/2026/03/16/apache-kafka-4.0.2-release-announcement/" target="_blank">Kafka 4.0.2 发布公告</a>
+      <a href="https://kafka.apache.org/blog/2026/02/21/apache-kafka-3.9.2-release-announcement/" target="_blank">Kafka 3.9.2 发布公告</a>
+      <a href="https://github.com/AutoMQ/automq/releases" target="_blank">AutoMQ GitHub Releases</a>
+      <a href="https://www.automq.com/" target="_blank">AutoMQ 官方网站</a>
+      <a href="https://docs.automq.com/" target="_blank">AutoMQ 官方文档</a>
+      <a href="https://github.com/apache/fluss/releases" target="_blank">Apache Fluss GitHub Releases</a>
+      <a href="https://fluss.apache.org/blog/" target="_blank">Apache Fluss 官方博客</a>
+      <a href="https://fluss.apache.org/blog/releases/0.9/" target="_blank">Fluss 0.9.x 版本总览</a>
+      <a href="https://fluss.apache.org/blog/column-pruning-streaming-storage/" target="_blank">Fluss 流式存储列裁剪技术博客</a>
+      <a href="https://fluss.apache.org/blog/why-fluss-chose-rust-for-multi-language-sdk/" target="_blank">Fluss Rust 多语言 SDK 选型</a>
+      <a href="https://fluss.apache.org/downloads/" target="_blank">Fluss 下载页面</a>
     </div>
   </article>
 

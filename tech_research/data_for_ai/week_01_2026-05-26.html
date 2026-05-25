@@ -301,6 +301,21 @@
     color: var(--text-muted);
     font-size: 0.82rem;
   }
+
+  .refs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .refs-list a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 0;
+    word-break: break-all;
+  }
+  .refs-list a:hover { text-decoration: underline; }
+  .refs-list a::before { content: '🔗 '; font-size: 0.8rem; }
 </style>
 </head>
 <body>
@@ -678,13 +693,28 @@
   </div>
 
   <!-- Footer -->
+  <!-- 参考链接 -->
+  <div class="section">
+    <h2 class="section-title">📎 参考链接</h2>
+    <div class="refs-list">
+      <a href="https://iceberg.apache.org/releases/" target="_blank">Apache Iceberg 官方 Releases</a>
+      <a href="https://tuts.alexmercedcoder.dev/2026/2026-05-23-apache-iceberg-1-11-0-deep-dive/" target="_blank">Iceberg 1.11.0 深度解读 (Alex Merced)</a>
+      <a href="https://www.icebergsummit.org/" target="_blank">Iceberg Summit 2026</a>
+      <a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0 GitHub Release</a>
+      <a href="https://medium.com/@cralle/what-developers-need-to-know-about-delta-lake-4-2-1c2b73dd2747" target="_blank">Delta Lake 4.2 开发者解读</a>
+      <a href="https://delta.io/blog/2026-03-01-delta-lake-4-1-0-released/" target="_blank">Delta Lake 4.1.0 官方博客</a>
+      <a href="https://docs.snowflake.com/en/release-notes/2026/other/2026-05-07-iceberg-v3-ga" target="_blank">Snowflake Iceberg v3 GA Release Notes</a>
+      <a href="https://github.com/apache/hudi/releases" target="_blank">Apache Hudi GitHub Releases</a>
+      <a href="https://github.com/apache/hudi/pull/13924" target="_blank">Hudi RFC-100: 非结构化数据存储 (PR #13924)</a>
+      <a href="https://dataforest.ai/blog/state-of-modern-data-architecture-benchmark-report" target="_blank">DataForest 2026 数据架构基准报告</a>
+      <a href="https://www.cloudera.com/blog/business/2026-predictions-the-architecture-governance-and-ai-trends-every-enterprise-must-prepare-for.html" target="_blank">Cloudera 2026 数据与 AI 趋势</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
   <div class="footer">
     <p><strong>调研周期</strong>：2026-W22（2026年5月18日 — 5月25日）</p>
     <p><strong>作者</strong>：CHANG_AI_TEAM · 技术调研专家</p>
-    <p style="margin-top: 8px;">本文档基于公开信息源整理，所有外部链接均标注来源。内容仅供内部参考，不构成技术选型建议。</p>
-    <p style="margin-top: 8px; font-size: 12px;">
-      信息来源：Apache Iceberg、Delta Lake、Apache Hudi 官方仓库及博客 · Snowflake Release Notes · Cloudera Blog · DataForest.ai · Iceberg Summit 2026 · Medium 社区技术博客
-    </p>
   </div>
 
 </div>

@@ -239,6 +239,22 @@
     color: var(--text-secondary);
     font-size: 0.82rem;
   }
+
+  .refs-section { margin-top: 40px; }
+  .refs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .refs-list a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 0;
+    word-break: break-all;
+  }
+  .refs-list a:hover { text-decoration: underline; }
+  .refs-list a::before { content: '🔗 '; font-size: 0.8rem; }
 </style>
 </head>
 <body>
@@ -512,9 +528,28 @@
 </section>
 
 <!-- ============ FOOTER ============ -->
+<!-- 参考链接 -->
+<section class="section refs-section">
+  <h2 class="section-title">📎 参考链接</h2>
+  <div class="refs-list">
+    <a href="https://openai.com/index/gartner-2026-agentic-coding-leader/" target="_blank">Gartner 2026: OpenAI Codex 被评为 Agentic Coding 领导者</a>
+    <a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank">Codex 移动端上线 + Remote SSH GA</a>
+    <a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank">Codex Windows 沙箱工程实践</a>
+    <a href="https://openai.com/index/dell-codex-enterprise-partnership/" target="_blank">Dell × Codex 企业混合云部署</a>
+    <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Project Glasswing: 发现 10,000+ 高危漏洞</a>
+    <a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank">Teaching Claude Why: misalignment 降至 0%</a>
+    <a href="https://www.anthropic.com/news" target="_blank">Anthropic 官方新闻</a>
+    <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic 自然语言自编码器研究</a>
+    <a href="https://www.langchain.com/blog/introducing-langchain-labs" target="_blank">LangChain Labs 持续学习</a>
+    <a href="https://www.langchain.com/blog" target="_blank">LangChain 官方博客</a>
+    <a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen 0.4+ 官方文档 (MCP 集成)</a>
+    <a href="https://docs.crewai.com/" target="_blank">CrewAI 企业编排文档</a>
+    <a href="https://arxiv.org/" target="_blank">arXiv 预印本 (Agent 安全与评估)</a>
+  </div>
+</section>
+
 <footer>
   <p>CHANG_AI_TEAM · AI Harness 技术调研周报 · 第 1 期 · 2026-05-26</p>
-  <p>信息来源：<a href="https://openai.com/news/" target="_blank">OpenAI</a> · <a href="https://www.anthropic.com/news" target="_blank">Anthropic</a> · <a href="https://www.anthropic.com/research" target="_blank">Anthropic Research</a> · <a href="https://www.langchain.com/blog" target="_blank">LangChain</a> · <a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen</a> · <a href="https://docs.crewai.com/" target="_blank">CrewAI</a> · <a href="https://arxiv.org/" target="_blank">arXiv</a></p>
 </footer>
 
 </body>
