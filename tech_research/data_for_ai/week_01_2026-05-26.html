@@ -114,6 +114,32 @@
     font-size: 15px;
   }
 
+  /* TOC */
+  .toc {
+    background: var(--accent-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .toc h2 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--accent-dark);
+  }
+  .toc ol {
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .toc li a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .toc li a:hover { text-decoration: underline; }
+
   /* Section */
   .section {
     margin-bottom: 28px;
@@ -370,6 +396,18 @@
 
 <div class="container">
 
+  <!-- TOC -->
+  <div class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#sec1">数据存储 — 开放表格式 &amp; 存储引擎</a></li>
+      <li><a href="#sec2">数据湖 / Lakehouse 架构</a></li>
+      <li><a href="#sec3">数据集成 — ETL/ELT 与实时管道</a></li>
+      <li><a href="#sec4">多模态数据 — 存储与检索</a></li>
+      <li><a href="#sec5">趋势分析</a></li>
+    </ol>
+  </div>
+
   <!-- Overview -->
   <div class="overview-banner">
     <h2>📌 本周概述</h2>
@@ -404,7 +442,7 @@
 
   <!-- 1. Data Storage -->
   <div class="section">
-    <div class="section-title"><span class="emoji">💾</span> 数据存储 — 开放表格式 & 存储引擎</div>
+    <div class="section-title" id="sec1"><span class="emoji">💾</span> 数据存储 — 开放表格式 & 存储引擎</div>
     <div class="section-desc">面向 AI 训练/推理的存储系统最新进展：Delta Lake、Iceberg、Hudi、Snowflake</div>
 
     <!-- Iceberg 1.11.0 -->
@@ -526,7 +564,7 @@
 
   <!-- 2. Data Lakehouse -->
   <div class="section">
-    <div class="section-title"><span class="emoji">🏞️</span> 数据湖 / Lakehouse 架构</div>
+    <div class="section-title" id="sec2"><span class="emoji">🏞️</span> 数据湖 / Lakehouse 架构</div>
     <div class="section-desc">Lakehouse 生态、架构演进、行业趋势与代表性论文/报告</div>
 
     <div class="card">
@@ -568,7 +606,7 @@
 
   <!-- 3. Data Integration -->
   <div class="section">
-    <div class="section-title"><span class="emoji">🔗</span> 数据集成 — ETL/ELT 与实时管道</div>
+    <div class="section-title" id="sec3"><span class="emoji">🔗</span> 数据集成 — ETL/ELT 与实时管道</div>
     <div class="section-desc">多源数据接入、实时/批处理数据集成方案</div>
 
     <div class="card">
@@ -609,7 +647,7 @@
 
   <!-- 4. Multimodal -->
   <div class="section">
-    <div class="section-title"><span class="emoji">🎬</span> 多模态数据 — 存储与检索</div>
+    <div class="section-title" id="sec4"><span class="emoji">🎬</span> 多模态数据 — 存储与检索</div>
     <div class="section-desc">多模态数据（文本、图像、视频、音频）的存储与检索方案，向量数据库进展</div>
 
     <div class="card">
@@ -665,7 +703,7 @@
 
   <!-- Trend Analysis -->
   <div class="section">
-    <div class="section-title"><span class="emoji">📊</span> 趋势分析</div>
+    <div class="section-title" id="sec5"><span class="emoji">📊</span> 趋势分析</div>
 
     <div class="card">
       <div class="card-header">
