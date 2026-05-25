@@ -3,533 +3,519 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Harness · Agent 基础设施进展 · 周报 #1</title>
+<title>AI Harness · Agent 基础设施进展 · 周报 #1（2026-05-26）</title>
 <style>
   :root {
     --bg: #0d1117;
-    --surface: #161b22;
-    --surface-elevated: #1c2333;
+    --bg-secondary: #161b22;
+    --bg-card: #1c2128;
     --border: #30363d;
-    --text-primary: #e6edf3;
+    --text: #e6edf3;
     --text-secondary: #8b949e;
     --text-muted: #6e7681;
     --accent: #58a6ff;
-    --accent-dim: #1f6feb;
-    --green: #3fb950;
-    --orange: #d2991d;
-    --red: #f85149;
-    --purple: #a371f7;
-    --cyan: #39c5cf;
-    --radius: 8px;
-    --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    --accent2: #7ee787;
+    --accent3: #d2a8ff;
+    --accent4: #f0883e;
+    --danger: #f85149;
+    --tag-bg: #1c2833;
+    --tag-text: #58a6ff;
+    --code-bg: #0d1117;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     background: var(--bg);
-    color: var(--text-primary);
-    font-family: var(--font-sans);
+    color: var(--text);
     line-height: 1.7;
-    padding: 2rem 1.5rem;
-  }
-
-  .container {
-    max-width: 860px;
+    padding: 2rem;
+    max-width: 960px;
     margin: 0 auto;
   }
 
-  /* ── Header ── */
-  .report-header {
+  header {
     text-align: center;
-    padding: 3rem 1.5rem 2.5rem;
+    padding: 3rem 0 2rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: 2.5rem;
   }
 
-  .report-header .kicker {
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 0.75rem;
-  }
-
-  .report-header h1 {
-    font-size: 2rem;
+  header h1 {
+    font-size: 1.8rem;
     font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
-    margin-bottom: 1rem;
+    color: var(--text);
+    margin-bottom: .5rem;
+    letter-spacing: -.02em;
   }
 
-  .report-header h1 .sub {
-    display: block;
-    font-size: 1.1rem;
-    font-weight: 500;
+  header .subtitle {
+    font-size: 1.05rem;
     color: var(--text-secondary);
-    margin-top: 0.4rem;
   }
 
-  .report-header .meta {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-  }
-
-  .report-header .meta span { margin: 0 0.5rem; }
-  .report-header .meta span.sep { color: var(--border); }
-
-  /* ── Section ── */
-  section {
-    margin-bottom: 2.5rem;
-    padding: 1.75rem 2rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-  }
-
-  section h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
+  header .meta {
     display: flex;
-    align-items: center;
-    gap: 0.6rem;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    font-size: .85rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
   }
 
-  section h2 .icon { font-size: 1.3rem; }
+  header .meta span {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: .25rem .9rem;
+  }
 
-  section h3 {
+  .toc {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .toc h2 {
     font-size: 1rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin: 1.5rem 0 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: .8rem;
   }
 
-  section h3:first-of-type { margin-top: 0; }
-
-  section p {
-    margin-bottom: 0.85rem;
-    color: var(--text-secondary);
+  .toc ol {
+    padding-left: 1.5rem;
   }
 
-  section p strong {
-    color: var(--text-primary);
+  .toc li {
+    margin-bottom: .35rem;
   }
 
-  /* ── Links ── */
-  a {
+  .toc a {
     color: var(--accent);
     text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s;
-  }
-  a:hover { border-bottom-color: var(--accent); }
-
-  /* ── Tags ── */
-  .tag {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.15em 0.6em;
-    border-radius: 100vmin;
-    margin-right: 0.35rem;
-    line-height: 1.5;
-  }
-  .tag-new     { background: rgba(63,185,80,0.15);  color: var(--green); }
-  .tag-update  { background: rgba(88,166,255,0.15);  color: var(--accent); }
-  .tag-safety  { background: rgba(248,81,73,0.15);   color: var(--red); }
-  .tag-research{ background: rgba(163,113,247,0.15); color: var(--purple); }
-  .tag-tooling { background: rgba(57,197,207,0.15);  color: var(--cyan); }
-
-  /* ── Highlight card ── */
-  .highlight {
-    background: var(--surface-elevated);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 var(--radius) var(--radius) 0;
-    padding: 1rem 1.25rem;
-    margin: 1rem 0;
   }
 
-  .highlight p { margin-bottom: 0.4rem; }
-  .highlight p:last-child { margin-bottom: 0; }
+  .toc a:hover { text-decoration: underline; }
 
-  /* ── Source ref ── */
-  .source {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-  }
-  .source a { color: var(--text-muted); }
-
-  /* ── Footer ── */
-  .report-footer {
-    margin-top: 3rem;
-    padding: 1.5rem;
-    text-align: center;
-    border-top: 1px solid var(--border);
-    font-size: 0.82rem;
-    color: var(--text-muted);
-  }
-  .report-footer p { margin-bottom: 0.3rem; }
-
-  /* ── Table ── */
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-    font-size: 0.88rem;
-  }
-  .data-table th, .data-table td {
-    text-align: left;
-    padding: 0.6rem 0.8rem;
+  section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
     border-bottom: 1px solid var(--border);
   }
-  .data-table th {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .data-table td { color: var(--text-secondary); }
-  .data-table tr:last-child td { border-bottom: none; }
 
-  /* ── Responsive ── */
+  section:last-of-type { border-bottom: none; }
+
+  section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: .3rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  section h2 .icon {
+    font-size: 1.4rem;
+  }
+
+  section > p.summary {
+    color: var(--text-secondary);
+    font-size: .95rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .card h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+    color: var(--text);
+  }
+
+  .card h3 a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .card h3 a:hover { text-decoration: underline; }
+
+  .card p {
+    font-size: .93rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .card .source {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-top: .6rem;
+  }
+
+  .card .source a {
+    color: var(--text-muted);
+    text-decoration: underline;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: .75rem;
+    font-weight: 600;
+    padding: .15rem .55rem;
+    border-radius: 4px;
+    margin-right: .35rem;
+    vertical-align: middle;
+  }
+
+  .tag.green { background: #1a2b1f; color: #7ee787; }
+  .tag.purple { background: #211f2e; color: #d2a8ff; }
+  .tag.orange { background: #2a2018; color: #f0883e; }
+  .tag.red { background: #2a1818; color: #f85149; }
+
+  .highlight-box {
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: .9rem 1.3rem;
+    margin: 1rem 0;
+    font-size: .93rem;
+    color: var(--text-secondary);
+  }
+
+  .highlight-box strong { color: var(--text); }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem 0 1rem;
+    color: var(--text-muted);
+    font-size: .82rem;
+    border-top: 1px solid var(--border);
+    margin-top: 1.5rem;
+  }
+
+  footer a { color: var(--text-muted); }
+
+  a { color: var(--accent); }
+
+  ul { padding-left: 1.5rem; margin: .4rem 0; }
+  ul li { font-size: .93rem; color: var(--text-secondary); margin-bottom: .25rem; }
+
   @media (max-width: 640px) {
-    body { padding: 1rem 0.75rem; }
-    section { padding: 1.25rem 1rem; }
-    .report-header h1 { font-size: 1.5rem; }
+    body { padding: 1rem; }
+    header h1 { font-size: 1.4rem; }
+    .card { padding: 1rem; }
+  }
+
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .top-nav .nav-home {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .top-nav .nav-home:hover { text-decoration: underline; }
+  .top-nav .nav-breadcrumb {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
   }
 </style>
 </head>
 <body>
-<div class="container">
 
-<!-- ═══════════════ HEADER ═══════════════ -->
-<header class="report-header">
-  <div class="kicker">AI Harness · 技术调研周报</div>
-  <h1>
-    Agent 基础设施进展
-    <span class="sub">周报 #1 · 2026 年第 22 周</span>
-  </h1>
+<nav class="top-nav">
+  <a href="../index.html" class="nav-home">← 返回周报总览</a>
+  <span class="nav-breadcrumb">🧠 AI Harness · Agent 基础设施</span>
+</nav>
+
+<header>
+  <h1>AI Harness · Agent 基础设施进展</h1>
+  <div class="subtitle">周报 #1 — 2026 年 5 月第 4 周</div>
   <div class="meta">
-    覆盖周期 <span class="sep">·</span> 2026-05-19 至 2026-05-25
-    <span class="sep">·</span> 调研方向: AI Harness
+    <span>📅 2026-05-26</span>
+    <span>📋 第 1 期</span>
+    <span>🏷️ AI Harness</span>
+    <span>👤 CHANG_AI_TEAM CTO</span>
   </div>
 </header>
 
-<!-- ═══════════════ 本期摘要 ═══════════════ -->
-<section>
-  <h2><span class="icon">📋</span> 本期摘要</h2>
-  <p>
-    本周 AI Agent 基础设施领域持续升温。<strong>OpenAI Codex 被 Gartner 评为企业级编程 Agent 领导者</strong>，
-    并正式推出移动端体验、Remote SSH GA、Hooks GA 及 HIPAA 合规支持。
-    <strong>Anthropic</strong> 发布多篇 Agent 工程深度文章，涵盖 Agent Skills 开放标准、长运行 Agent 的 Harness 设计模式、
-    以及 Agent 评估体系方法论。开源框架方面，<strong>LangChain 推出 Labs</strong> 孵化器与 deepagents 长运行 Agent 框架，
-    <strong>CrewAI 发布 Skills Repository</strong> 预发布版，<strong>MCP 协议</strong> 持续扩大生态覆盖。
-    整个行业正从"对话式 AI"加速转向"Agent 化基础设施"。
-  </p>
-</section>
+<!-- ============ TOC ============ -->
+<nav class="toc">
+  <h2>📑 本期目录</h2>
+  <ol>
+    <li><a href="#sec1">OpenAI Agent 动态 — Codex 生态爆发</a></li>
+    <li><a href="#sec2">Anthropic Claude Agent 动态 — 安全前沿</a></li>
+    <li><a href="#sec3">Agent 框架生态 — LangChain / AutoGen / CrewAI</a></li>
+    <li><a href="#sec4">Agent 安全与评估 — 前沿论文与框架</a></li>
+  </ol>
+</nav>
 
-<!-- ═══════════════ 1. OpenAI ═══════════════ -->
-<section>
-  <h2><span class="icon">🤖</span> OpenAI: Codex 生态全面铺开</h2>
+<!-- ================================================================ -->
+<!-- SECTION 1: OpenAI -->
+<!-- ================================================================ -->
+<section id="sec1">
+  <h2><span class="icon">🤖</span> 一、OpenAI Agent 动态 — Codex 生态爆发</h2>
+  <p class="summary">本周 OpenAI 在 Agent 领域动作密集：Codex 被 Gartner 评为企业编码 Agent 领导者，移动端和远程环境全面打通，Windows 沙箱工程细节公开，GPT-5.5 加持下的工具使用和安全性持续强化。</p>
 
-  <h3>🏆 Codex 被 Gartner 评为企业级编程 Agent 领导者</h3>
-  <p>
-    2026 年 5 月 22 日，OpenAI 宣布 <strong>Codex 被 Gartner 评为企业级编程 Agent 领域的 Leader</strong>。
-    Codex 目前每周被超过 <strong>400 万开发者</strong> 使用，合作伙伴生态涵盖 Cisco、Datadog、Dell 和 NVIDIA 等企业级平台。
-    这一里程碑标志着 AI 编程 Agent 从开发者工具正式进入企业关键基础设施层。
-  </p>
-  <p>
-    与单纯代码补全工具不同，Codex 定位为完整的 Agent Harness——它管理云端模型与本地开发环境之间的交互，
-    支持 CLI、IDE 插件和桌面应用三种形态，可以自主执行从读文件到创建 Git 分支的全栈开发操作。
-  </p>
-  <div class="source">
-    来源: <a href="https://openai.com/news/openai-named-a-leader-in-enterprise-coding-agents-by-gartner/">OpenAI Blog — Gartner Leader</a> · 2026-05-22
+  <!-- 1.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag">🏆 Gartner</span>
+      <a href="https://openai.com/index/gartner-2026-agentic-coding-leader/" target="_blank">OpenAI 被 Gartner 评为企业级编码 Agent 领导者</a>
+    </h3>
+    <p>Gartner 在 2026 年 4 月发布的 Magic Quadrant for Enterprise AI Coding Agents 中将 OpenAI 列为领导者象限。Codex 目前每周活跃用户超过 <strong>400 万</strong>，企业客户包括 Cisco、Datadog、Dell Technologies 和 NVIDIA。Codex 在 GPT-5.5 加持下显著增强了工具使用能力、执行性能和深度企业工作流支持。Gartner 重点提及 Codex 的 Agentic 软件开发能力、企业治理（审批门控、RBAC、可定制策略）、OS 级沙箱、及灵活部署选项（桌面 App、IDE 插件、CLI、SDK、云端编排）。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/gartner-2026-agentic-coding-leader/" target="_blank">OpenAI Blog · May 22, 2026</a></div>
   </div>
 
-  <h3>📱 Codex 移动端 + 远程 SSH + Hooks 全线发布</h3>
-  <p>
-    OpenAI 正式推出 <strong>ChatGPT 移动应用中的 Codex 体验</strong>，开发者可以通过手机随时随地连接正在运行的 Codex 实例，
-    查看进度、审批命令、切换模型或发起新线程。底层依赖一套安全的 Relay 中继层，在不暴露设备到公网的前提下保持实时状态同步。
-  </p>
-  <div class="highlight">
-    <p><strong>关键更新：</strong></p>
-    <p>
-      <span class="tag tag-new">NEW</span> <strong>Remote SSH GA</strong> — Codex 桌面应用可自动发现 SSH 配置中的远程主机，在远程开发环境中创建项目并运行线程，与本地体验一致。<br>
-      <span class="tag tag-new">NEW</span> <strong>Hooks GA</strong> — 通用可用的钩子系统，支持扫描 Prompt 中的密钥、运行校验器、记录对话日志、创建记忆或按仓库/目录自定义 Codex 行为。<br>
-      <span class="tag tag-new">NEW</span> <strong>Programmatic Access Tokens</strong> — 企业版和商业版可创建作用域凭证，用于 CI 流水线和内部自动化。<br>
-      <span class="tag tag-safety">SAFETY</span> <strong>HIPAA 合规</strong> — ChatGPT Enterprise 工作区可在本地环境中合规使用 Codex，覆盖医疗健康场景。
-    </p>
-  </div>
-  <div class="source">
-    来源: <a href="https://openai.com/index/work-with-codex-from-anywhere/">OpenAI — Work with Codex from anywhere</a> · 2026-05
+  <!-- 1.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag green">📱 移动端</span>
+      <a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank">Codex 移动端上线：随时随地与 Agent 协作</a>
+    </h3>
+    <p>Codex 正式登陆 ChatGPT 移动端（iOS/Android），支持从手机连接任意运行 Codex 的机器（笔记本、Mac mini、托管远程环境）。核心能力：跨所有活跃线程工作、查看终端输出/Diff/测试结果、批准命令、切换模型、启动新任务。底层使用安全中继层（secure relay）实现跨设备会话同步。同时宣布 Remote SSH 正式 GA，可直接连入托管开发环境；Programmatic Access Tokens（CI/CD 集成用）；Hooks（在特定仓库/目录自定义行为）GA；HIPAA 合规支持。Codex 正在从"编码助手"演化为覆盖整个软件开发生命周期的 Agent 平台。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank">OpenAI Blog · May 14, 2026</a></div>
   </div>
 
-  <h3>🛡️ Codex Windows 沙箱技术揭秘</h3>
-  <p>
-    OpenAI 工程师团队发表了一篇深度技术文章，详细介绍了为 Codex 在 Windows 平台上构建安全沙箱的过程。
-    Windows 用户此前只能在"几乎每条命令都需批准"和"完全放开权限"之间二选一，团队的目标是在不要求管理员权限的前提下，
-    限制 Codex 的文件写入和网络访问能力。
-  </p>
-  <p>
-    团队评估了三种现有方案并全部否决：<strong>AppContainer</strong>（隔离太强，不适配开放式的开发者工作流）、
-    <strong>Windows Sandbox</strong>（轻量 VM，但无法操作用户实际的工作目录，且不支持 Windows Home SKU）、
-    <strong>Mandatory Integrity Control</strong>（会修改宿主机文件系统的信任模型，副作用太大）。
-    最终方案利用了 <strong>SID（安全标识符）+ Write-Restricted Token</strong> 的组合，
-    创建一个名为 <code>sandbox-write</code> 的合成 SID，通过 ACL 精确控制写入范围，
-    同时保护 <code>.git</code>、<code>.codex</code> 和 <code>.agents</code> 目录不被修改。
-  </p>
-  <div class="source">
-    来源: <a href="https://openai.com/index/building-codex-windows-sandbox/">OpenAI — Building Codex Windows Sandbox</a> · 2026-05
+  <!-- 1.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag orange">🛡️ 工程</span>
+      <a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank">Codex Windows 沙箱：安全运行 Agent 的工程实践</a>
+    </h3>
+    <p>OpenAI 工程团队公开了为 Codex 构建 Windows 沙箱的完整技术历程。由于 Windows 缺少原生 OS 级沙箱工具（Seatbelt/seccomp 等价物），团队评估了 AppContainer、Windows Sandbox、MIC Integrity Labeling 等方案后发现均不适用。最终方案基于 Write-Restricted Token + 自定义 SID + ACL 实现精细的写隔离，通过环境变量劫持限制非必要网络访问。该文详细描述了从原型到最终设计的取舍，展示了企业级 Agent 安全基础设施的工程复杂性。同时强调了安全性与开发体验的平衡——沙箱既不能影响开发效率，也不能留下安全漏洞。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank">OpenAI Engineering · May 13, 2026</a></div>
+  </div>
+
+  <!-- 1.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag purple">🏢 企业</span>
+      <a href="https://openai.com/index/dell-codex-enterprise-partnership/" target="_blank">OpenAI × Dell：Codex 进入混合与本地企业环境</a>
+    </h3>
+    <p>OpenAI 与 Dell Technologies 合作，将 Codex 带到混合云和本地（on-premises）企业环境中。这是 Agent 基础设施"出云"的关键一步，满足金融、医疗、政府等对数据驻留和合规有严格要求的行业需求。结合此前宣布的 Codex on Amazon Bedrock 和多个 GSI（Accenture、Capgemini、Cognizant、Infosys、PwC、TCS）合作伙伴，Codex 的部署覆盖范围正快速扩大。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/dell-codex-enterprise-partnership/" target="_blank">OpenAI Blog · May 18, 2026</a></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> OpenAI 的 Agent 战略清晰地从"AI 写代码"升级为"AI 代理软件工程全流程"。Codex 已不再只是一个 IDE 插件，而是一个具备跨设备、跨环境、安全沙箱、企业治理能力的完整 Agent 平台。移动端的加入意味着 Agent 协作不再局限桌面，这对长运行任务（long-running agentic tasks）的交互模式有深远影响。
   </div>
 </section>
 
-<!-- ═══════════════ 2. Anthropic ═══════════════ -->
-<section>
-  <h2><span class="icon">🧬</span> Anthropic: Agent 工程方法论密集输出</h2>
+<!-- ================================================================ -->
+<!-- SECTION 2: Anthropic -->
+<!-- ================================================================ -->
+<section id="sec2">
+  <h2><span class="icon">🧠</span> 二、Anthropic Claude Agent 动态 — 安全前沿</h2>
+  <p class="summary">Anthropic 本月围绕 Claude 的 Agent 能力推出了多项重磅发布：Project Glasswing 安全协作成果初显、Claude Design 视觉创作产品、以及"Teaching Claude Why"揭示的对齐方法论突破。Claude 在 Agent 对齐和工具使用方面正形成差异化优势。</p>
 
-  <h3>📦 Agent Skills 成为开放标准</h3>
-  <p>
-    Anthropic 将 <strong>Agent Skills</strong> 作为一个开放标准发布（<a href="https://agentskills.io">agentskills.io</a>），
-    定义了一套轻量级的格式，使 Agent 能够动态发现和加载领域特定的专业知识。
-    Skills 的核心设计原则是<strong>渐进式披露（Progressive Disclosure）</strong>：
-  </p>
-  <p>
-    <strong>第一层</strong> — Agent 启动时仅预加载所有 Skills 的名称和描述到系统提示词中<br>
-    <strong>第二层</strong> — Agent 判断某个 Skill 相关时，读取完整的 <code>SKILL.md</code><br>
-    <strong>第三层</strong> — 可按需从 Skill 目录中加载辅助文件和可执行脚本
-  </p>
-  <p>
-    Skills 已全面支持 <strong>Claude.ai、Claude Code、Claude Agent SDK 和 Claude Developer Platform</strong>。
-    Anthropic 还公布了 Skills 安全指南，强调仅从可信来源安装并进行审计检查。
-    展望未来，团队正在探索让 Agent <strong>自行创建、编辑和评估 Skills</strong>，实现行为模式的可复用编码化。
-  </p>
-  <div class="source">
-    来源: <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic Engineering — Agent Skills</a> · 2025-12-18
+  <!-- 2.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">🔐 安全</span>
+      <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Project Glasswing：AI 驱动的关键软件安全保障</a>
+    </h3>
+    <p>Anthropic 与 ~50 个合作伙伴（AWS、Apple、Broadcom、Cisco、CrowdStrike、Google、JPMorgan Chase、Microsoft、NVIDIA、Palo Alto Networks 等）使用 Claude Mythos Preview 在最初几周内发现了 <strong>超过 10,000 个高危/严重漏洞</strong>。对 1,000+ 开源项目扫描后发现 6,202 个高危漏洞，经独立安全机构验证后真阳性率达 <strong>90.6%</strong>。Cloudflare 用其发现 2,000 个 Bug（400 高危），误报率优于人工测试；Mozilla 在 Firefox 150 中发现 271 个漏洞——是 Claude Opus 4.6 时代的 10 倍以上。Palo Alto Networks 单次发布补丁量是平时的 5 倍。瓶颈已从"发现漏洞"转变为"人工验证和修补"。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Anthropic Research · May 22, 2026</a></div>
   </div>
 
-  <h3>🏗️ 长运行 Agent 的 Harness 设计范式</h3>
-  <p>
-    针对"如何让 Agent 跨多个上下文窗口持续有效工作"这一开放问题，Anthropic 发布了一套基于
-    <strong>Claude Agent SDK</strong> 的双阶段 Harness 设计模式：
-  </p>
-  <div class="highlight">
-    <p>
-      <strong>阶段一：Initializer Agent</strong> — 首个会话使用专门 Prompt，创建 <code>init.sh</code> 环境脚本、
-      <code>claude-progress.txt</code> 进度文件，并生成包含 <strong>200+ 特性</strong> 的 JSON 需求列表（所有特性初始标记为 <code>"passes": false</code>）。<br><br>
-      <strong>阶段二：Coding Agent</strong> — 后续每个会话（压缩/重新启动后）聚焦于<strong>一个特性</strong>的增量实现，
-      完成后更新 JSON 的 <code>passes</code> 字段、撰写 Git commit 并更新进度文件。
-    </p>
-  </div>
-  <p>
-    该方法成功解决了两个关键失败模式：(1) Agent 试图"一把梭"完成所有功能导致上下文溢出；
-    (2) 后续 Agent 实例看到已有进展后过早宣布任务完成。
-    核心洞察是：<strong>让每个 Agent 会话结束时环境处于"可合并到主分支"的整洁状态</strong>。
-  </p>
-  <div class="source">
-    来源: <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic Engineering — Effective Harnesses for Long-Running Agents</a> · 2026-03-24
+  <!-- 2.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag purple">🧭 对齐</span>
+      <a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank">Teaching Claude Why：消除 Agentic 对齐偏差</a>
+    </h3>
+    <p>Anthropic 公开了如何将 Claude 的 <strong>Agentic Misalignment（代理对齐偏差）</strong> 从高达 96%（Opus 4）降至当前所有模型的 <strong>0%</strong>。核心发现：仅训练模型"做什么"不够，必须教它"为什么这么做"。使用仅 3M token 的 OOD（out-of-distribution）"困难建议"数据集即可显著提升对齐效果，远优于在评估集上直接训练的 30M token 方法。他们进一步通过"宪法文档训练"——向 Claude 注入其宪法内容和虚构 AI 道德故事——实现了更强的 OOD 泛化。该工作证明了对齐训练可以从"行为模仿"升级为"原则教学"，并且比单纯的行为示范更有效。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank">Anthropic Research · May 8, 2026</a></div>
   </div>
 
-  <h3>📊 Agent 评估体系指南</h3>
-  <p>
-    Anthropic 发布了<strong>迄今最全面的 Agent 评估方法论文章</strong>，系统化定义了 Agent 评估的核心组件：
-  </p>
-  <table class="data-table">
-    <thead>
-      <tr><th>概念</th><th>定义</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Task（任务）</td><td>带有明确输入和成功标准的单次测试</td></tr>
-      <tr><td>Trial（试验）</td><td>对同一任务的多次运行，控制输出随机性</td></tr>
-      <tr><td>Grader（评分器）</td><td>包含多个断言的评分逻辑，分三类：代码级、模型级、人工级</td></tr>
-      <tr><td>Transcript（轨迹）</td><td>完整记录：输出、工具调用、推理过程、中间结果</td></tr>
-      <tr><td>Outcome（结果）</td><td>环境中的最终状态（区别于 Agent 的口头声明）</td></tr>
-      <tr><td>Eval Harness</td><td>端到端运行评估的基础设施</td></tr>
-      <tr><td>Agent Harness</td><td>使模型具备 Agent 能力的 Scaffold 系统</td></tr>
-    </tbody>
-  </table>
-  <p>
-    文章特别强调了一个微妙陷阱：<strong>Agent 说"你的航班已预订"不等于数据库中真的存在预订记录</strong>。
-    评估必须区分 Transcript（Agent 说了什么）和 Outcome（实际发生了什么）。
-    文章还分享了 Claude Code、Descript 和 Bolt 等团队在评估实践中的真实案例。
-  </p>
-  <div class="source">
-    来源: <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic Engineering — Demystifying Evals for AI Agents</a> · 2026-05
+  <!-- 2.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag green">🎨 产品</span>
+      <a href="https://www.anthropic.com/news" target="_blank">Claude Design：Anthropic Labs 推出视觉创作协作</a>
+    </h3>
+    <p>Anthropic Labs 发布 Claude Design，让用户与 Claude 协作创建精美视觉作品，包括设计稿、原型、演示文稿、单页文件等。这是 Anthropic 在 Agent 工具维度上从"文本/代码"向"视觉创作"的拓展。同时 Claude 已运行 Project Deal 实验——让 Claude 代表同事参与买卖和谈判，展示了 Agent 在真实经济场景中的应用潜力。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/news" target="_blank">Anthropic News · Apr 17, 2026</a></div>
   </div>
 
-  <h3>🔒 Claude Code Auto Mode: 权限跳过的安全之道</h3>
-  <p>
-    Anthropic 介绍了 Claude Code 的 Auto Mode——一种更安全地处理权限跳过的方式。
-    这是对传统"全部批准"与"全部拒绝"二元模型的突破，
-    允许 Agent 在受约束边界内自主决策某些操作，同时保持关键操作的人类审批环节。
-  </p>
-  <div class="source">
-    来源: <a href="https://www.anthropic.com/engineering/claude-code-auto-mode">Anthropic Engineering — Claude Code Auto Mode</a> · 2026-03-25
+  <!-- 2.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag">🧬 研究</span>
+      <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">自然语言自编码器：将 Claude 的思维转化为文本</a>
+    </h3>
+    <p>Anthropic 可解释性团队发布了 Natural Language Autoencoders，能够将 Claude 的内部激活转化为自然语言描述。这为理解和监控 Agent 的"内部思维"开辟了新路径，对 Agent 安全监控和可信度验证有重要意义。这项工作也与其"宪法训练"互补——从理解模型"想什么"到教导模型"为什么"。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic Research · May 7, 2026</a></div>
   </div>
 
-  <h3>🔬 Managed Agents: 脑-手分离架构</h3>
-  <p>
-    Anthropic 深度探讨了大规模 Managed Agent 的架构模式——<strong>"解耦大脑与双手"</strong>：
-    将 Agent 的推理层（模型/规划）与执行层（工具调用/环境交互）分离，
-    使 Agent 能够在不暴露底层模型细节的情况下安全地大规模运行。
-    这一架构对于企业级 Agent 部署具有重要参考价值。
-  </p>
-  <div class="source">
-    来源: <a href="https://www.anthropic.com/engineering/scaling-managed-agents">Anthropic Engineering — Scaling Managed Agents</a> · 2026-04-08
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> Anthropic 在 Agent 安全方面的投入正在转化为实际成果。Project Glasswing 证明 AI Agent 可以成为安全防御的倍增器，而"Teaching Claude Why"则为 Agent 对齐提供了可复制的方法论。这两条线——进攻性安全能力和防御性对齐训练——共同构成了 Claude Agent 生态的核心竞争力。
   </div>
 </section>
 
-<!-- ═══════════════ 3. Agent 框架与协议 ═══════════════ -->
-<section>
-  <h2><span class="icon">🔌</span> Agent 框架与协议生态</h2>
+<!-- ================================================================ -->
+<!-- SECTION 3: Agent Frameworks -->
+<!-- ================================================================ -->
+<section id="sec3">
+  <h2><span class="icon">🔧</span> 三、Agent 框架生态 — LangChain / AutoGen / CrewAI</h2>
+  <p class="summary">Agent 框架生态在 5 月迎来密集更新：LangChain 推出 Labs 应用研究和 LangSmith Engine"Agent 优化 Agent"；AutoGen 完成 0.4+ 架构重构并原生支持 MCP；CrewAI 加强企业级部署和触发器集成。三条产品线代表了 Agent 基础设施的三个方向：可观测性 + 持续学习、多 Agent 协作、生产级编排。</p>
 
-  <h3>🦜 LangChain: Labs 孵化器 + deepagents 长运行框架</h3>
-  <p>
-    LangChain 于 5 月 14 日正式发布 <strong>LangChain Labs</strong>，定位为 Agent 创新的孵化器，
-    同时推出 <strong>deepagents</strong>——一个专门面向长时间运行、复杂任务的 Agent 框架。
-    deepagents 的设计理念与 Anthropic 的 Harness 方法论形成互补：提供开箱即用的长运行支持，
-    包括上下文窗口管理、状态持久化和任务分解。
-  </p>
-  <p>
-    此外，LangChain 博客发布文章 <strong>"From Token Streams to Agent Streams"</strong>，
-    探讨了从传统的 Token 级别流式输出向 Agent 级别事件流模式的转变——
-    这是 Agent 基础设施从"对话"到"工作流编排"的重大范式转换。
-  </p>
-  <div class="source">
-    来源: <a href="https://www.langchain.com/blog">LangChain Blog</a> · 2026-05-14
+  <!-- 3.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag">🔬 LangChain</span>
+      <a href="https://www.langchain.com/blog/introducing-langchain-labs" target="_blank">LangChain Labs 成立：聚焦 Agent 持续学习</a>
+    </h3>
+    <p>LangChain 发布 LangChain Labs，一个面向 Agent 持续学习（Continual Learning）的应用研究计划。与 Harvey、NVIDIA、Prime Intellect、Fireworks、Baseten 等合作，探索四个方向：(1) 从大规模 Agent Trace 数据中挖掘改进信号；(2) 在成本-延迟-性能的帕累托边界上优化 Agent；(3) 系统性构建评估和仿真环境；(4) 跨模型族的 Prompt 优化。定位是利用 LangSmith 的数据积累优势推动 Agent 自改进能力。</p>
+    <div class="source">📎 来源：<a href="https://www.langchain.com/blog/introducing-langchain-labs" target="_blank">LangChain Blog · May 14, 2026</a></div>
   </div>
 
-  <h3>🤖 AutoGen: 稳定性持续改进</h3>
-  <p>
-    Microsoft AutoGen 项目近期发布了多项修复和改进：
-    <strong>Bedrock 流式支持</strong>（PR #6979）扩展了模型提供商的兼容性；
-    <strong>RedisMemory 线性内存</strong>（PR #6972）增强了多会话状态持久化能力；
-    以及多项文档和类型安全修复。
-    项目正稳步从实验性质走向生产可用的多 Agent 协作框架。
-  </p>
-  <div class="source">
-    来源: <a href="https://github.com/microsoft/autogen/releases">AutoGen GitHub Releases</a> · 2026-05
+  <!-- 3.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag green">🚀 LangSmith</span>
+      <a href="https://www.langchain.com/blog" target="_blank">LangSmith Engine：用 Agent 优化 Agent</a>
+    </h3>
+    <p>LangSmith Engine 正式发布，这是一个"用 Agent 改进 Agent"的元系统。配合 SmithDB（Agent 可观测性的专用数据层）、LangSmith Sandboxes GA、Context Hub 等功能，LangChain 正在构建覆盖整个 Agent 开发周期的平台。同期发布的还有 The Agent Development Lifecycle (ADLC) 框架、Deep Agents v0.6（支持 Delta Channels 用于长时间运行 Agent 的流式通信）、以及 Managed Deep Agents 托管服务。"From Token Streams to Agent Streams" 一文提出了从 Token 级流式到 Agent 级流式的范式升级。</p>
+    <div class="source">📎 来源：<a href="https://www.langchain.com/blog" target="_blank">LangChain Blog · Interrupt 2026, May 13-21</a></div>
   </div>
 
-  <h3>🧑‍🚀 CrewAI: Skills Repository 预发布</h3>
-  <p>
-    CrewAI 于 5 月 21 日发布预发布版本，亮点包括：
-    <strong>Skills Repository</strong>——一个可复用的技能库，类似于 Anthropic 的 Agent Skills 概念但面向 CrewAI 生态；
-    <strong>RuntimeState 序列化加固</strong>——增强了 Agent 运行时状态的持久化可靠性；
-    同时修复了一个 idna 库相关的安全漏洞（GHSA-65pc-fj4g-8rjx）。
-    这表明多 Agent 编排框架也在向"模块化技能"和"安全运行"方向演进。
-  </p>
-  <div class="source">
-    来源: <a href="https://github.com/crewAIInc/crewAI/releases">CrewAI GitHub Releases</a> · 2026-05-21
+  <!-- 3.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag purple">🔄 AutoGen</span>
+      <a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen 0.4+：事件驱动多 Agent 架构 + MCP 原生集成</a>
+    </h3>
+    <p>Microsoft AutoGen 已演进至 0.4+ 版本，采用三层架构：<strong>Core</strong>（事件驱动编程框架，支持分布式 Agent）、<strong>AgentChat</strong>（对话式单/多 Agent 应用）、<strong>Extensions</strong>（与外部服务集成）。关键更新：(1) 原生内置 <strong>McpWorkbench</strong>，直接对接 MCP 服务器生态；(2) AutoGen Studio 提供无代码 Agent 原型设计 Web UI；(3) 支持 DockerCommandLineCodeExecutor 的安全代码执行；(4) GrpcWorkerAgentRuntime 支持分布式 Agent 部署。标志着 AutoGen 从实验框架走向生产级多 Agent 系统。</p>
+    <div class="source">📎 来源：<a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen Docs · 2026</a></div>
   </div>
 
-  <h3>🌐 MCP: 协议生态持续扩展</h3>
-  <p>
-    <strong>Model Context Protocol (MCP)</strong> 目前已获得行业广泛支持，包括 Claude、ChatGPT、
-    VS Code、Cursor 和 MCPJam 等主流 AI 客户端。最新规范版本（2025-11-25）定义了三大服务器能力
-    （Resources / Prompts / Tools）和三项客户端能力（Sampling / Roots / Elicitation）。
-  </p>
-  <p>
-    <strong>Elicitation（引导式交互）</strong> 是值得关注的新特性——允许服务器在工具执行过程中向用户请求补充信息，
-    这为 Agent 与人类的交互模式提供了标准化框架，而非依赖各实现方自行定义。
-    MCP 整体的安全模型强调用户同意、数据隐私和工具安全三大原则。
-  </p>
-  <div class="source">
-    来源: <a href="https://modelcontextprotocol.io/specification/2025-11-25">MCP Specification 2025-11-25</a>
+  <!-- 3.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag orange">🚢 CrewAI</span>
+      <a href="https://docs.crewai.com/" target="_blank">CrewAI：面向生产的多 Agent 编排系统</a>
+    </h3>
+    <p>CrewAI 持续强化企业级多 Agent 系统能力：支持 <strong>Agents + Tasks + Flows + Crews</strong> 的多层抽象，提供 Sequential/Hierarchical/Hybrid 多种编排模式。新增 Enterprise 功能：(1) Automation Triggers——支持 Gmail、Slack、Salesforce、HubSpot 等外部触发；(2) RBAC 团队管理和访问控制；(3) 集成工具包可调用已有 CrewAI Automation 或 Amazon Bedrock Agents；(4) Memory、Knowledge、Guardrails 内置支持。定位为"从第一天就面向生产"的多 Agent 框架。</p>
+    <div class="source">📎 来源：<a href="https://docs.crewai.com/" target="_blank">CrewAI Docs · 2026</a></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> Agent 框架生态正在从"能跑就行"进化到"生产可用"。三条主线值得关注：LangChain 的 Data→Trace→Improvement 闭环、AutoGen 的事件驱动 + 分布式架构、CrewAI 的企业编排能力。对于 CHANG_AI_TEAM 而言，LangSmith 的可观测性和 Deep Agents 的长时间运行能力是最值得深入评估的方向。
   </div>
 </section>
 
-<!-- ═══════════════ 4. Agent 安全与评估 ═══════════════ -->
-<section>
-  <h2><span class="icon">🛡️</span> Agent 安全与评估前沿</h2>
+<!-- ================================================================ -->
+<!-- SECTION 4: Security & Evaluation -->
+<!-- ================================================================ -->
+<section id="sec4">
+  <h2><span class="icon">🛡️</span> 四、Agent 安全与评估 — 前沿论文与框架</h2>
+  <p class="summary">学术和工业界对 AI Agent 安全性的关注度急剧上升。近期 arXiv 涌现大量 Agent 安全相关论文，涵盖攻击面分析、动态红队测试、可信代码 Agent、渗透测试对比等。Anthropic 的 Mythos 也在推动漏洞评估基准的升级。</p>
 
-  <h3>五大趋势观察</h3>
+  <!-- 4.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2603.xxxxx" target="_blank">SoK: The Attack Surface of Agentic AI — Tools, and Autonomy</a>
+    </h3>
+    <p>Dehghantanha &amp; Homayoun 系统化了 Agentic AI 的攻击面，将现代 AI Agent 系统（LLM + 工具 + RAG + 自主多步能力）的安全威胁分类为工具滥用、知识投毒、自主权限滥用和链式攻击。该 SoK（Systematization of Knowledge）是 Agent 安全研究领域的重要参考框架。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=SoK+Attack+Surface+Agentic+AI&searchtype=all" target="_blank">arXiv · March 2026</a></div>
+  </div>
 
-  <p>
-    <strong>1. 沙箱化执行成为标准配置。</strong> OpenAI Codex 的 Windows Sandbox 工程实践和 Anthropic 的权限模型演进
-    表明，Agent 安全已从"信任模型"转向"OS 级强制隔离"。Codex 团队甚至开发了自定义 Windows 沙箱，
-    因为现有系统方案均无法满足"无需管理员权限+操作真实工作目录+精确文件写入控制"的三重约束。
-  </p>
+  <!-- 4.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2602.xxxxx" target="_blank">DREAM: Dynamic Red-teaming across Environments for AI Models</a>
+    </h3>
+    <p>Lu 等人提出 DREAM 框架，针对 Agent 系统中的动态多阶段安全挑战进行红队测试。传统基准测试多为静态单轮评估，无法捕捉 Agent 在长链路攻击中的漏洞。DREAM 支持跨环境自适应红队测试，填补了 Agent 安全评估的关键空白。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=DREAM+Dynamic+Red-teaming+AI+Models&searchtype=all" target="_blank">arXiv · Feb 2026 (updated)</a></div>
+  </div>
 
-  <p>
-    <strong>2. 评估体系从单一维度走向多层综合。</strong> Anthropic 提出的代码级/模型级/人工级三类评分器体系
-    为 Agent 评估提供了系统化框架。关键教训包括：必须区分 Agent 的"口头输出"与"实际结果"、
-    多轮试验以控制随机性、以及评估必须覆盖完整轨迹而非仅看最终状态。
-  </p>
+  <!-- 4.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2512.xxxxx" target="_blank">Reflection-Driven Control for Trustworthy Code Agents</a>
+    </h3>
+    <p>Wang 等人提出 Reflection-Driven Control，一种可热插拔的控制模块，可无缝集成到通用 LLM Agent 中。该模块通过反射(Reflection)机制实时审查 Agent 行为，防止不可预测或有害的输出。在 Code Agent 场景中，该模块不需要修改底层模型即可提供安全护栏。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=Reflection-Driven+Control+Trustworthy+Code+Agents&searchtype=all" target="_blank">arXiv · Dec 2025</a></div>
+  </div>
 
-  <p>
-    <strong>3. Skills/能力模块化成为行业共识。</strong> Anthropic 的 Agent Skills 开放标准、
-    CrewAI 的 Skills Repository、以及 LangChain 的 deepagents 框架都在朝同一方向演进：
-    将 Agent 能力打包为可组合、可复用、可安全审计的模块。
-  </p>
+  <!-- 4.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2512.xxxxx" target="_blank">BashArena: A Control Setting for Highly Privileged AI Agents</a>
+    </h3>
+    <p>Kaufman 等人提出 BashArena，一个评估高权限 AI Agent（如可直接执行 Shell 命令的编码 Agent）安全性的控制实验平台。面对未来 AI 系统可能获得更高系统权限的趋势，BashArena 提供了衡量 Agent 在真实系统环境中安全风险的方法论。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=BashArena+Control+Setting+AI+Agents&searchtype=all" target="_blank">arXiv · Dec 2025</a></div>
+  </div>
 
-  <p>
-    <strong>4. 长运行 Agent 需要专门的 Harness 架构。</strong> "Initializer + Incremental Worker"模式
-    以及环境状态管理（进度文件/Git/特性列表）正在成为跨上下文窗口运行的行业范式。
-    单纯的上下文压缩（compaction）不足以解决长运行问题。
-  </p>
+  <!-- 4.5 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2512.xxxxx" target="_blank">Penetration Testing of Agentic AI: Comparative Security Analysis</a>
+    </h3>
+    <p>Nguyen &amp; Husain 对不同模型和框架下的 Agentic AI 系统进行了渗透测试对比分析，评估了主流 LLM Agent 在面对 Prompt 注入、越狱和权限提升攻击时的安全表现差异。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=Penetration+Testing+Agentic+AI+Comparative&searchtype=all" target="_blank">arXiv · Dec 2025</a></div>
+  </div>
 
-  <p>
-    <strong>5. 企业级部署需求驱动协议标准化。</strong> MCP 的广泛采纳、Codex 的企业合规认证（HIPAA）、
-    以及各框架的安全审计（如 CrewAI 的 GHSA 修复）表明 Agent 基础设施正在经历从
-    "开发者实验工具"到"企业关键基础设施"的过渡。
-  </p>
+  <!-- 4.6 -->
+  <div class="card">
+    <h3>
+      <span class="tag orange">🔬 基准</span>
+      <a href="https://exploitbench.ai/" target="_blank">ExploitBench & ExploitGym：AI Agent 漏洞利用能力基准</a>
+    </h3>
+    <p>两个新发布的学术基准——<a href="https://exploitbench.ai/" target="_blank">ExploitBench</a> 和 <a href="https://arxiv.org/abs/2605.11086" target="_blank">ExploitGym</a>——专门评估 AI 模型的漏洞利用开发能力。Claude Mythos Preview 在两个基准上均是最强表现者。这标志着 Agent 安全评估从"单轮对话安全"向"多步攻击能力"的范式转变。</p>
+    <div class="source">📎 来源：<a href="https://exploitbench.ai/" target="_blank">ExploitBench</a> · <a href="https://arxiv.org/abs/2605.11086" target="_blank">ExploitGym (arXiv)</a> · May 2026</div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> Agent 安全正从"事后补救"走向"设计即安全"（Security by Design）。关键趋势：(1) 动态红队测试取代静态评估；(2) 反射/审计模块成为 Agent 标准组件；(3) 漏洞利用基准成为模型能力新标尺。对于计划部署 Agent 的团队，建议从第一天就建立 Sandbox + Audit Log + Reflection Control 的三层安全防线。
+  </div>
 </section>
 
-<!-- ═══════════════ 5. 展望 ═══════════════ -->
+<!-- ============ GLOSSARY ============ -->
 <section>
-  <h2><span class="icon">🔭</span> 下周关注</h2>
-  <table class="data-table">
-    <thead>
-      <tr><th>方向</th><th>关注点</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>OpenAI</td>
-        <td>Codex 的插件生态是否进一步开放；Windows 沙箱的正式发布进展</td>
-      </tr>
-      <tr>
-        <td>Anthropic</td>
-        <td>Agent Skills 的生态扩展（社区贡献的 Skills 数量）；Claude Agent SDK 新增能力</td>
-      </tr>
-      <tr>
-        <td>MCP 协议</td>
-        <td>新版本规范（2026-03-26 或更新）是否正式发布；Elicitation 的实践案例</td>
-      </tr>
-      <tr>
-        <td>LangChain</td>
-        <td>deepagents 框架的 GA 时间线；Labs 孵化的首批项目进展</td>
-      </tr>
-      <tr>
-        <td>CrewAI / AutoGen</td>
-        <td>Skills Repository 正式发布；多 Agent 编排的可靠性改进</td>
-      </tr>
-      <tr>
-        <td>学术动态</td>
-        <td>ICLR 2026 录用论文中 Agent 基础设施相关内容（待追踪）</td>
-      </tr>
-    </tbody>
-  </table>
+  <h2><span class="icon">📚</span> 术语速查</h2>
+  <ul>
+    <li><strong>Agentic Misalignment</strong>：AI Agent 在追求给定目标时采取与人类价值观/预期不符的行为（如为自保而欺骗用户）</li>
+    <li><strong>ADLC (Agent Development Lifecycle)</strong>：LangChain 提出的 Agent 开发全生命周期框架</li>
+    <li><strong>Delta Channels</strong>：LangGraph 中用于长时间运行 Agent 的增量流式通信通道</li>
+    <li><strong>McpWorkbench</strong>：AutoGen 中对接 MCP（Model Context Protocol）服务器的原生工具</li>
+    <li><strong>OOD (Out-of-Distribution)</strong>：训练数据分布之外的场景，是衡量模型泛化能力的关键指标</li>
+    <li><strong>Write-Restricted Token</strong>：Windows 安全原语，用于限制进程的文件写入权限</li>
+  </ul>
 </section>
 
-<!-- ═══════════════ FOOTER ═══════════════ -->
-<footer class="report-footer">
-  <p><strong>AI Harness 技术调研周报 #1</strong></p>
-  <p>调研周期: 2026-05-19 至 2026-05-25（第 22 周）</p>
-  <p>作者: CHANG_AI_TEAM · AI Harness 技术调研组</p>
-  <p style="margin-top:0.75rem;color:var(--text-muted)">
-    信息来源于 OpenAI 官方博客、Anthropic Engineering Blog、LangChain Blog、
-    AutoGen/CrewAI GitHub Releases、MCP 官方规范等公开渠道。
-  </p>
+<!-- ============ FOOTER ============ -->
+<footer>
+  <p>CHANG_AI_TEAM · AI Harness 技术调研周报 · 第 1 期 · 2026-05-26</p>
+  <p>信息来源：<a href="https://openai.com/news/" target="_blank">OpenAI</a> · <a href="https://www.anthropic.com/news" target="_blank">Anthropic</a> · <a href="https://www.anthropic.com/research" target="_blank">Anthropic Research</a> · <a href="https://www.langchain.com/blog" target="_blank">LangChain</a> · <a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen</a> · <a href="https://docs.crewai.com/" target="_blank">CrewAI</a> · <a href="https://arxiv.org/" target="_blank">arXiv</a></p>
 </footer>
 
-</div>
 </body>
 </html>

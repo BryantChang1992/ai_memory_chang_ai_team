@@ -330,9 +330,34 @@
     .section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
     .source-links { display: none; }
   }
+
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 24px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .top-nav .nav-home {
+    color: var(--accent-kafka);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .top-nav .nav-home:hover { text-decoration: underline; }
+  .top-nav .nav-breadcrumb {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+  }
 </style>
 </head>
 <body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="nav-home">← 返回周报总览</a>
+  <span class="nav-breadcrumb">🐘 Kafka / AutoMQ / Fluss 社区动态</span>
+</nav>
 
 <div class="container">
 
