@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面向 AI 的数据平台建设 · 周报 #1（2026-05-26）</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --accent-dark: #1d4ed8;
+    --green: #059669;
+    --green-bg: #d1fae5;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --purple: #7c3aed;
+    --purple-bg: #ede9fe;
+    --border: #e2e8f0;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #7c3aed 100%);
+    color: #fff;
+    padding: 48px 0 40px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .header-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 16px;
+    opacity: 0.85;
+    font-weight: 400;
+  }
+
+  /* Overview Banner */
+  .overview-banner {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--accent);
+  }
+  .overview-banner h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--accent-dark);
+  }
+  .overview-banner p {
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .emoji {
+    font-size: 22px;
+  }
+  .section-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  .card:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .card-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tag-breaking { background: var(--red-bg); color: var(--red); }
+  .tag-release { background: var(--green-bg); color: var(--green); }
+  .tag-trend { background: var(--amber-bg); color: var(--amber); }
+  .tag-preview { background: var(--purple-bg); color: var(--purple); }
+  .tag-industry { background: var(--accent-light); color: var(--accent-dark); }
+
+  .card-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .card-body {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .card-body ul {
+    margin: 8px 0 0 18px;
+  }
+  .card-body li {
+    margin-bottom: 4px;
+  }
+  .card-body a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card-body a:hover {
+    text-decoration: underline;
+  }
+  .card-body strong {
+    color: var(--text);
+  }
+
+  /* Key Insights */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .insight-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .insight-card .insight-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .insight-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .insight-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .footer strong {
+    color: var(--text-secondary);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 24px; }
+    .container { padding: 20px 16px 48px; }
+    .card { padding: 16px 18px; }
+    .insights-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Print */
+  @media print {
+    body { background: #fff; }
+    .header { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* Table styling */
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .mini-table th {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .mini-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .mini-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-content">
+    <div class="badge">📋 技术调研周报 · 第 1 期 · W22</div>
+    <h1>面向 AI 的数据平台建设</h1>
+    <div class="subtitle">Data Platform for AI — 2026年5月26日</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Overview -->
+  <div class="overview-banner">
+    <h2>📌 本周概述</h2>
+    <p>
+      2026年5月第三至四周，开放表格式（Open Table Format）生态迎来密集发布期。<strong>Apache Iceberg 1.11.0</strong>（5月19日）引入 Manifest List 加密与可插拔文件格式 API，标志 V3 规范进入生产就绪阶段；<strong>Delta Lake 4.2.0</strong>（4月16日）强化 Catalog-Managed Table 体系并新增 Flink Kernel 连接器；<strong>Snowflake</strong> 于 5月7日宣布 Iceberg v3 表格式全面 GA；<strong>Apache Hudi</strong> 社区发布 RFC-100，首次提出非结构化数据存储方案。数据湖仓（Lakehouse）市场以 22.9% CAGR 向 2033 年 $660 亿目标高速增长，而 GenAI 的规模化部署正倒逼底层数据架构全面升级。
+    </p>
+  </div>
+
+  <!-- Key Insights -->
+  <div class="insights-grid">
+    <div class="insight-card">
+      <div class="insight-icon">🔐</div>
+      <h4>元数据安全成新焦点</h4>
+      <p>Iceberg 1.11 引入 Manifest List GCM 加密，打破"数据加密 + 元数据明文"的旧模式，满足金融/医疗合规需求。</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🧩</div>
+      <h4>文件格式走向可插件化</h4>
+      <p>Iceberg 推出 File Format API，支持 Vortex、Lance 等下一代格式，Delta 4.2 的 Variant 和 geospatial 类型进入 GA。</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🏛️</div>
+      <h4>Catalog 成为架构中枢</h4>
+      <p>Delta Lake 的 Catalog-Managed Tables + Server-Side Planning 将治理、权限、查询计划统一到 Catalog 层。</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🤖</div>
+      <h4>AI 驱动架构升级</h4>
+      <p>Gartner 预测 2026 年底 40% 企业应用将嵌入 AI Agent，但仅 20% 数据领导者对分析能力有信心。</p>
+    </div>
+  </div>
+
+  <!-- 1. Data Storage -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">💾</span> 数据存储 — 开放表格式 & 存储引擎</div>
+    <div class="section-desc">面向 AI 训练/推理的存储系统最新进展：Delta Lake、Iceberg、Hudi、Snowflake</div>
+
+    <!-- Iceberg 1.11.0 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Apache Iceberg 1.11.0 正式发布 — V3 规范生产就绪</div>
+        <span class="card-tag tag-breaking">🚀 重大更新</span>
+      </div>
+      <div class="card-date">📅 2026-05-19 · <a href="https://iceberg.apache.org/releases/" target="_blank">Apache Iceberg Releases</a> · <a href="https://tuts.alexmercedcoder.dev/2026/2026-05-23-apache-iceberg-1-11-0-deep-dive/" target="_blank">深度解读</a></div>
+      <div class="card-body">
+        <p>Apache Iceberg 1.11.0 于 5 月 19 日发布，是一次结构性里程碑更新，核心变化包括：</p>
+        <ul>
+          <li><strong>Manifest List 加密（GCM）</strong>：采用 Galois/Counter Mode 流密码对 Manifest List 进行加密，支持并行随机访问解密，查询引擎可按需解密特定区块，解决了"数据加密但元数据明文"的安全缺陷。这在金融合规和医疗 HIPAA 场景下意义重大。</li>
+          <li><strong>可插拔 File Format API</strong>：将 Parquet/ORC/Avro 的硬编码路径抽象为插件式接口，允许社区接入 <strong>Vortex</strong>（Parquet 继任者，支持 SIMD 过滤）和 <strong>Lance</strong>（面向 ML 的列式格式）等下一代格式，为 AI 训练场景的格式创新铺路。</li>
+          <li><strong>V3 规范稳定化</strong>：半结构化数据类型、空间坐标（geometry/geography）进入默认特性集，SQL UDF 规范正式引入。</li>
+          <li><strong>平台清理</strong>：停止支持 Java 11、Spark 3.4 标记弃用、Flink 1.19 移除，全面转向 Java 17 和 Spark 4.x。</li>
+          <li><strong>引擎支持</strong>：同时支持 Spark 4.1、4.0、3.5 和 Flink 2.1、2.0、1.20 多版本运行时。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Iceberg v4 Roadmap -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Iceberg Summit 2026 — V4 路线图公布</div>
+        <span class="card-tag tag-preview">🔮 路线图</span>
+      </div>
+      <div class="card-date">📅 2026-05 · <a href="https://www.icebergsummit.org/" target="_blank">Iceberg Summit 2026</a></div>
+      <div class="card-body">
+        <p>在 Iceberg Summit 2026 上，核心维护者公布了 Apache Iceberg v4 路线图方向：</p>
+        <ul>
+          <li>新一代 <strong>REST Catalog</strong> 能力扩展，增强多引擎互操作和细粒度权限控制</li>
+          <li><strong>改进的 Compaction</strong> 机制，面向高频写入场景优化</li>
+          <li>扩展引擎互操作性，降低跨计算引擎的元数据延迟</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Delta Lake 4.2.0 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Delta Lake 4.2.0 — Catalog-Managed Table 体系完善</div>
+        <span class="card-tag tag-release">📦 版本发布</span>
+      </div>
+      <div class="card-date">📅 2026-04-16 · <a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">GitHub Release</a> · <a href="https://medium.com/@cralle/what-developers-need-to-know-about-delta-lake-4-2-1c2b73dd2747" target="_blank">开发者解读</a></div>
+      <div class="card-body">
+        <p>Delta Lake 4.2.0 于 4 月 16 日发布，构建于 Apache Spark 4.1.0 / 4.0.1 之上，亮点包括：</p>
+        <ul>
+          <li><strong>Catalog-Managed Table 增强</strong>：支持 REPLACE TABLE / RTAS（原子操作）、Dynamic Partition Overwrite，表创建时自动同步 Schema/属性至 Catalog</li>
+          <li><strong>Delta Spark V2 Streaming Read（实验性）</strong>：支持 startingTimestamp、skipChangeCommits 等关键选项，补齐流式读取能力</li>
+          <li><strong>Kernel-based Flink 连接器（实验性）</strong>：基于 Delta Kernel 的全新 Flink 连接器，使 Flink 可读写 Catalog-Managed Delta 表</li>
+          <li><strong>Geospatial & Variant GA</strong>：geometry/geography 类型支持 Bounding-Box Data Skipping；Variant 列正式 GA，成为半结构化数据默认格式</li>
+          <li><strong>Server-Side Planning OAuth</strong>：扫描计划委托至 Catalog 服务器时支持 OAuth 认证</li>
+          <li><strong>INSERT BY NAME + Schema Evolution</strong>：SQL 插入语句支持自动 Schema 演化</li>
+          <li><strong>安全加固</strong>：多表面安全审计、依赖扫描，主动降低供应链风险</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Delta Lake 4.1.0 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Delta Lake 4.1.0 — Catalog-Managed Table 功能落地</div>
+        <span class="card-tag tag-release">📦 版本发布</span>
+      </div>
+      <div class="card-date">📅 2026-03-01 · <a href="https://delta.io/blog/2026-03-01-delta-lake-4-1-0-released/" target="_blank">官方博客</a></div>
+      <div class="card-body">
+        <p>3 月发布的 Delta Lake 4.1.0 为 4.2 版本奠定了基础：</p>
+        <ul>
+          <li><strong>Catalog-Managed Table 生产支持</strong>：建立以 Catalog 为协调者的表访问模式，提交协调从文件系统迁移至 Catalog</li>
+          <li><strong>Server-Side Planning（预览）</strong>：将扫描计划（文件发现、谓词过滤、凭证配置）委托至 Catalog 服务器，核心动机是细粒度访问控制（FGAC）</li>
+          <li><strong>原子 CTAS</strong>：CREATE TABLE AS SELECT 对 Unity Catalog 表实现完全原子化</li>
+          <li><strong>冲突自由特性启用</strong>：可在不阻塞并发写入的情况下启用 Deletion Vectors 和 Column Mapping</li>
+          <li>正式放弃 Spark 3.5 支持，全面转向 Java 17 和 Spark 4.x</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Snowflake Iceberg v3 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Snowflake Iceberg v3 表格式全面 GA</div>
+        <span class="card-tag tag-release">📦 GA 发布</span>
+      </div>
+      <div class="card-date">📅 2026-05-07 · <a href="https://docs.snowflake.com/en/release-notes/2026/other/2026-05-07-iceberg-v3-ga" target="_blank">Snowflake Release Notes</a></div>
+      <div class="card-body">
+        <p>Snowflake 于 5 月 7 日正式宣布 Apache Iceberg v3 表规范的全面 GA，成为三大云数仓中首个完成 V3 适配的厂商：</p>
+        <ul>
+          <li><strong>支持 V3 数据类型</strong>：geography、geometry、nanosecond timestamp、variant</li>
+          <li><strong>默认值（Default Values）</strong>：支持为 Iceberg 表列定义默认值</li>
+          <li><strong>删除向量（Deletion Vectors）</strong>：提升更新/删除操作的性能</li>
+          <li><strong>行级血统（Row Lineage）</strong>：追踪 CDC 变更的行级血统信息</li>
+          <li><strong>Horizon REST Catalog API</strong>：外部引擎可通过该 API 读取 Snowflake 管理的 Iceberg v3 表（外部写入暂不支持）</li>
+          <li>GET_DDL 函数对所有 Iceberg 表返回 ICEBERG_VERSION 属性</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Apache Hudi -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Apache Hudi 1.2.0-SNAPSHOT — RFC-100 非结构化数据存储提案</div>
+        <span class="card-tag tag-preview">🔮 提案</span>
+      </div>
+      <div class="card-date">📅 2026-05-23 · <a href="https://github.com/apache/hudi/releases" target="_blank">GitHub Releases</a> · <a href="https://github.com/apache/hudi/pull/13924" target="_blank">RFC-100 PR</a></div>
+      <div class="card-body">
+        <p>Apache Hudi 社区活跃推进 1.2.0 开发，本周最值得关注的是 <strong>RFC-100: Unstructured Data Storage in Hudi</strong>（初始 Strawman 提案），由 @vinothchandar 提交。这是 Hudi 首次系统性提出在湖仓框架内管理非结构化数据（图片、视频、音频、文档）的方案，直接面向多模态 AI 场景。</p>
+        <p>其他活跃改进：</p>
+        <ul>
+          <li><strong>二级索引修复</strong>：正确处理 secondary index 中的更新和删除操作</li>
+          <li><strong>Flink 改进</strong>：MDT compaction 优化、stream read key selector 修复</li>
+          <li><strong>Spark Schema Evolution</strong>：修复嵌套列的 Schema 演化问题</li>
+          <li><strong>性能优化</strong>：降低 HFile log block 的内存占用</li>
+          <li><strong>新 Demo 应用</strong>：hudi-notebooks 用于交互式体验</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Data Lakehouse -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🏞️</span> 数据湖 / Lakehouse 架构</div>
+    <div class="section-desc">Lakehouse 生态、架构演进、行业趋势与代表性论文/报告</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">2026 年数据架构现状基准报告：GenAI 倒逼架构升级</div>
+        <span class="card-tag tag-industry">📊 行业报告</span>
+      </div>
+      <div class="card-date">📅 2026-05 · <a href="https://dataforest.ai/blog/state-of-modern-data-architecture-benchmark-report" target="_blank">DataForest.ai</a></div>
+      <div class="card-body">
+        <p>该报告对 2026 年数据架构市场进行了量化分析：</p>
+        <ul>
+          <li>数据架构现代化市场：<strong>$88 亿（2023）→ $244 亿（2033）</strong>，CAGR 10.7%</li>
+          <li>数据湖仓市场增速最快：<strong>22.9% CAGR → 2033 年 $660 亿</strong></li>
+          <li><strong>67%</strong> 企业已部署 GenAI，但仅 <strong>20%</strong> 对数据分析能力高度自信</li>
+          <li><strong>78%</strong> 企业在 10 个以上异构平台上管理数据 — 架构蔓延已成常态</li>
+          <li>Gartner 预测 2026 年底 <strong>40%</strong> 企业应用将嵌入 AI Agent，但多数现有架构无法可靠服务</li>
+          <li><strong>64%</strong> 企业管理超过 1 PB 数据；<strong>41%</strong> 管理超过 500 PB</li>
+          <li><strong>60%</strong> 数据基础设施项目超预算至少 30%（Gartner）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Cloudera 2026 预测：数据平台成为 AI 的"组织记忆"</div>
+        <span class="card-tag tag-trend">📈 趋势</span>
+      </div>
+      <div class="card-date">📅 2026 · <a href="https://www.cloudera.com/blog/business/2026-predictions-the-architecture-governance-and-ai-trends-every-enterprise-must-prepare-for.html" target="_blank">Cloudera Blog</a></div>
+      <div class="card-body">
+        <p>Cloudera 领导层发表 2026 年度预测，核心观点：</p>
+        <ul>
+          <li><strong>数据基础即智能层</strong>：数据必须功能化为"活的、语义化的、受治理的记忆系统"，每个数据集（结构化/非结构化/实时/模型生成）必须携带自身的语义、血统和防护规则</li>
+          <li><strong>Agentic AI 进入生产</strong>：企业从 PoC 转向生产级智能体部署，需要强治理框架、清晰的访问控制、可观测性和 Agent 注册表/版本管理</li>
+          <li><strong>统一控制平面</strong>：混合基础设施不再是对立妥协，而是智能规模化的架构基石——工作负载（含 AI Agent）应在策略和数据引力指导下运行于最优位置</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Data Integration -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🔗</span> 数据集成 — ETL/ELT 与实时管道</div>
+    <div class="section-desc">多源数据接入、实时/批处理数据集成方案</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Delta Kernel 跨引擎连接器矩阵形成</div>
+        <span class="card-tag tag-trend">📈 趋势</span>
+      </div>
+      <div class="card-date">📅 2026-Q2</div>
+      <div class="card-body">
+        <p>Delta Lake 4.1/4.2 版本通过 Delta Kernel 实现了跨引擎集成能力的质变：</p>
+        <ul>
+          <li><strong>Spark</strong>：V2 DataSource 连接器，支持 Catalog-Managed Table 的流式读写</li>
+          <li><strong>Flink</strong>：全新 Kernel-based Flink 连接器（实验性），读写 Catalog-Managed 表</li>
+          <li><strong>Delta Connect</strong>：Server-Side Planning + OAuth，将查询计划委托至 Catalog 服务器，降低客户端开销</li>
+          <li>这一架构使 Delta 从"Spark 专属格式"演变为真正的多引擎湖仓格式，与 Iceberg 的 REST Catalog 生态形成对标</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Apache Hudi 1.2.0 流式集成增强</div>
+        <span class="card-tag tag-release">📦 进展</span>
+      </div>
+      <div class="card-date">📅 2026-05 · <a href="https://github.com/apache/hudi/releases" target="_blank">GitHub</a></div>
+      <div class="card-body">
+        <ul>
+          <li>Flink stream read key selector 类型提取修复</li>
+          <li>Flink 升级时禁用 embedded timeline service</li>
+          <li>MDT (Metadata Table) compaction 优化：完成 pending compactions 优先</li>
+          <li>二级索引正确处理更新和删除操作</li>
+          <li>Spark Schema Evolution 修复嵌套列问题</li>
+          <li>Presto/Trino bundle 依赖升级（Parquet-Avro 1.15.1）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Multimodal -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🎬</span> 多模态数据 — 存储与检索</div>
+    <div class="section-desc">多模态数据（文本、图像、视频、音频）的存储与检索方案，向量数据库进展</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Hudi RFC-100：湖仓原生非结构化数据存储</div>
+        <span class="card-tag tag-breaking">🚀 突破性提案</span>
+      </div>
+      <div class="card-date">📅 2026-05-23 · <a href="https://github.com/apache/hudi/pull/13924" target="_blank">RFC-100 (GitHub #13924)</a></div>
+      <div class="card-body">
+        <p>这是本周最值得关注的提案之一。<strong>Apache Hudi RFC-100</strong> 首次在湖仓框架内系统性设计了非结构化数据（图片、视频、音频、文档）的存储方案。其核心意义在于：</p>
+        <ul>
+          <li>将湖仓从"结构化/SQL 数据"的边界扩展到多模态领域</li>
+          <li>为 AI 训练场景提供统一的、带版本管理和增量处理能力的非结构化数据存储</li>
+          <li>结合 Hudi 已有的增量处理框架，可构建端到端的"数据摄入 → 非结构化存储 → AI 训练"流水线</li>
+        </ul>
+        <p>该提案目前处于 Strawman（草案）阶段，但方向性意义重大，值得持续跟踪。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Iceberg 1.11 + Delta 4.2：Geospatial 类型 GA</div>
+        <span class="card-tag tag-trend">📈 趋势</span>
+      </div>
+      <div class="card-date">📅 2026-05</div>
+      <div class="card-body">
+        <p>Iceberg 1.11 和 Delta 4.2 在不同路径上同时推进了对复杂数据类型的支持：</p>
+        <ul>
+          <li><strong>Iceberg</strong>：在 V3 规范中明确了 geometry 类型的限制，增加了 geospatial bounding box API 用于查询优化</li>
+          <li><strong>Delta Kernel</strong>：geometry/geography 类型正式 GA，支持 Bounding-Box Data Skipping 进行空间查询加速</li>
+          <li><strong>Variant 类型</strong>：Delta 4.2 中 Variant 列正式 GA，Variant Shredding 为高频字段提供准列式读取性能，成为半结构化事件数据的推荐存储格式</li>
+          <li>这标志着开放表格式在 AI 特征存储、时空数据分析等场景的能力边界正在快速扩展</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">下一代文件格式：Vortex 与 Lance 进入 Iceberg 生态</div>
+        <span class="card-tag tag-preview">🔮 预览</span>
+      </div>
+      <div class="card-date">📅 2026-05 · <a href="https://tuts.alexmercedcoder.dev/2026/2026-05-23-apache-iceberg-1-11-0-deep-dive/" target="_blank">Iceberg 1.11 深度解读</a></div>
+      <div class="card-body">
+        <p>Iceberg 1.11 的 File Format API 为下一代文件格式打开了生态入口：</p>
+        <ul>
+          <li><strong>Vortex</strong>：由 Apache Arrow/DataFusion 社区推动的 Parquet 继任者，采用定宽列 + Bitmap Null Mask，支持 SIMD 指令直接在内存映射文件上进行过滤，无需 CPU 解压周期。社区正基于新 API 构建 Vortex-backed Iceberg 插件</li>
+          <li><strong>Lance</strong>：专为 ML/AI 工作负载设计的列式格式，在随机访问和向量化读取方面有先天优势，适合嵌入向量和特征存储场景</li>
+        </ul>
+        <p>对 AI 数据平台的意义：这些格式专为高性能分析和 ML 训练设计，将显著提升 AI 训练管道的 I/O 效率。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend Analysis -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📊</span> 趋势分析</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">三大趋势重塑 AI 数据平台</div>
+      </div>
+      <div class="card-body">
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th>趋势</th>
+              <th>关键信号</th>
+              <th>对 AI 平台的影响</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Catalog 中心化</strong></td>
+              <td>Delta 4.1/4.2 的 Catalog-Managed Tables；Iceberg REST Catalog 生态扩展；Snowflake Horizon API</td>
+              <td>数据治理、权限、查询优化集中到 Catalog 层，AI 训练管道的数据访问更安全可控</td>
+            </tr>
+            <tr>
+              <td><strong>2. 格式可组合化</strong></td>
+              <td>Iceberg File Format API；Delta Kernel 的多引擎适配；Hudi RFC-100 非结构化数据</td>
+              <td>打破 Parquet 垄断，AI 工作负载可按需选择最优格式（Vortex 用于分析、Lance 用于 ML）</td>
+            </tr>
+            <tr>
+              <td><strong>3. 元数据安全</strong></td>
+              <td>Iceberg Manifest List GCM 加密；Delta 4.2 安全加固 + OAuth</td>
+              <td>满足金融/医疗合规要求，为 AI 在受监管行业的落地扫清存储层障碍</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📈 市场数据速览</div>
+      </div>
+      <div class="card-body">
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>数据</th>
+              <th>来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>数据湖仓市场（2033）</td><td>$660 亿（CAGR 22.9%）</td><td>MarketResearch</td></tr>
+            <tr><td>企业数据管理市场（2025 → 2034）</td><td>$1249 亿 → $3495 亿</td><td>Precedence Research</td></tr>
+            <tr><td>数据架构现代化市场（2023 → 2033）</td><td>$88 亿 → $244 亿</td><td>Business Research Insights</td></tr>
+            <tr><td>AI 训练数据市场（2025 → 2033）</td><td>$32 亿 → $163 亿</td><td>Grand View Research</td></tr>
+            <tr><td>DBaaS 市场（2026）</td><td>$208 亿</td><td>Business Research Insights</td></tr>
+            <tr><td>企业管理 10+ 平台比例</td><td>78%</td><td>Market Reports World (2026)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p><strong>调研周期</strong>：2026-W22（2026年5月18日 — 5月25日）</p>
+    <p><strong>作者</strong>：CHANG_AI_TEAM · 技术调研专家</p>
+    <p style="margin-top: 8px;">本文档基于公开信息源整理，所有外部链接均标注来源。内容仅供内部参考，不构成技术选型建议。</p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      信息来源：Apache Iceberg、Delta Lake、Apache Hudi 官方仓库及博客 · Snowflake Release Notes · Cloudera Blog · DataForest.ai · Iceberg Summit 2026 · Medium 社区技术博客
+    </p>
+  </div>
+
+</div>
+
+</body>
+</html>

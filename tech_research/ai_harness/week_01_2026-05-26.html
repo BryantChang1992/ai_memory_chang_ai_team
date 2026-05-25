@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Harness · Agent 基础设施进展 · 周报 #1</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-elevated: #1c2333;
+    --border: #30363d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --accent: #58a6ff;
+    --accent-dim: #1f6feb;
+    --green: #3fb950;
+    --orange: #d2991d;
+    --red: #f85149;
+    --purple: #a371f7;
+    --cyan: #39c5cf;
+    --radius: 8px;
+    --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.7;
+    padding: 2rem 1.5rem;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .report-header {
+    text-align: center;
+    padding: 3rem 1.5rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .report-header .kicker {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .report-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .report-header h1 .sub {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+  }
+
+  .report-header .meta {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .report-header .meta span { margin: 0 0.5rem; }
+  .report-header .meta span.sep { color: var(--border); }
+
+  /* ── Section ── */
+  section {
+    margin-bottom: 2.5rem;
+    padding: 1.75rem 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  section h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  section h2 .icon { font-size: 1.3rem; }
+
+  section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1.5rem 0 0.6rem;
+  }
+
+  section h3:first-of-type { margin-top: 0; }
+
+  section p {
+    margin-bottom: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  section p strong {
+    color: var(--text-primary);
+  }
+
+  /* ── Links ── */
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  a:hover { border-bottom-color: var(--accent); }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15em 0.6em;
+    border-radius: 100vmin;
+    margin-right: 0.35rem;
+    line-height: 1.5;
+  }
+  .tag-new     { background: rgba(63,185,80,0.15);  color: var(--green); }
+  .tag-update  { background: rgba(88,166,255,0.15);  color: var(--accent); }
+  .tag-safety  { background: rgba(248,81,73,0.15);   color: var(--red); }
+  .tag-research{ background: rgba(163,113,247,0.15); color: var(--purple); }
+  .tag-tooling { background: rgba(57,197,207,0.15);  color: var(--cyan); }
+
+  /* ── Highlight card ── */
+  .highlight {
+    background: var(--surface-elevated);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+  }
+
+  .highlight p { margin-bottom: 0.4rem; }
+  .highlight p:last-child { margin-bottom: 0; }
+
+  /* ── Source ref ── */
+  .source {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+  .source a { color: var(--text-muted); }
+
+  /* ── Footer ── */
+  .report-footer {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .report-footer p { margin-bottom: 0.3rem; }
+
+  /* ── Table ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+  }
+  .data-table th, .data-table td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table th {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .data-table td { color: var(--text-secondary); }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    body { padding: 1rem 0.75rem; }
+    section { padding: 1.25rem 1rem; }
+    .report-header h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="report-header">
+  <div class="kicker">AI Harness · 技术调研周报</div>
+  <h1>
+    Agent 基础设施进展
+    <span class="sub">周报 #1 · 2026 年第 22 周</span>
+  </h1>
+  <div class="meta">
+    覆盖周期 <span class="sep">·</span> 2026-05-19 至 2026-05-25
+    <span class="sep">·</span> 调研方向: AI Harness
+  </div>
+</header>
+
+<!-- ═══════════════ 本期摘要 ═══════════════ -->
+<section>
+  <h2><span class="icon">📋</span> 本期摘要</h2>
+  <p>
+    本周 AI Agent 基础设施领域持续升温。<strong>OpenAI Codex 被 Gartner 评为企业级编程 Agent 领导者</strong>，
+    并正式推出移动端体验、Remote SSH GA、Hooks GA 及 HIPAA 合规支持。
+    <strong>Anthropic</strong> 发布多篇 Agent 工程深度文章，涵盖 Agent Skills 开放标准、长运行 Agent 的 Harness 设计模式、
+    以及 Agent 评估体系方法论。开源框架方面，<strong>LangChain 推出 Labs</strong> 孵化器与 deepagents 长运行 Agent 框架，
+    <strong>CrewAI 发布 Skills Repository</strong> 预发布版，<strong>MCP 协议</strong> 持续扩大生态覆盖。
+    整个行业正从"对话式 AI"加速转向"Agent 化基础设施"。
+  </p>
+</section>
+
+<!-- ═══════════════ 1. OpenAI ═══════════════ -->
+<section>
+  <h2><span class="icon">🤖</span> OpenAI: Codex 生态全面铺开</h2>
+
+  <h3>🏆 Codex 被 Gartner 评为企业级编程 Agent 领导者</h3>
+  <p>
+    2026 年 5 月 22 日，OpenAI 宣布 <strong>Codex 被 Gartner 评为企业级编程 Agent 领域的 Leader</strong>。
+    Codex 目前每周被超过 <strong>400 万开发者</strong> 使用，合作伙伴生态涵盖 Cisco、Datadog、Dell 和 NVIDIA 等企业级平台。
+    这一里程碑标志着 AI 编程 Agent 从开发者工具正式进入企业关键基础设施层。
+  </p>
+  <p>
+    与单纯代码补全工具不同，Codex 定位为完整的 Agent Harness——它管理云端模型与本地开发环境之间的交互，
+    支持 CLI、IDE 插件和桌面应用三种形态，可以自主执行从读文件到创建 Git 分支的全栈开发操作。
+  </p>
+  <div class="source">
+    来源: <a href="https://openai.com/news/openai-named-a-leader-in-enterprise-coding-agents-by-gartner/">OpenAI Blog — Gartner Leader</a> · 2026-05-22
+  </div>
+
+  <h3>📱 Codex 移动端 + 远程 SSH + Hooks 全线发布</h3>
+  <p>
+    OpenAI 正式推出 <strong>ChatGPT 移动应用中的 Codex 体验</strong>，开发者可以通过手机随时随地连接正在运行的 Codex 实例，
+    查看进度、审批命令、切换模型或发起新线程。底层依赖一套安全的 Relay 中继层，在不暴露设备到公网的前提下保持实时状态同步。
+  </p>
+  <div class="highlight">
+    <p><strong>关键更新：</strong></p>
+    <p>
+      <span class="tag tag-new">NEW</span> <strong>Remote SSH GA</strong> — Codex 桌面应用可自动发现 SSH 配置中的远程主机，在远程开发环境中创建项目并运行线程，与本地体验一致。<br>
+      <span class="tag tag-new">NEW</span> <strong>Hooks GA</strong> — 通用可用的钩子系统，支持扫描 Prompt 中的密钥、运行校验器、记录对话日志、创建记忆或按仓库/目录自定义 Codex 行为。<br>
+      <span class="tag tag-new">NEW</span> <strong>Programmatic Access Tokens</strong> — 企业版和商业版可创建作用域凭证，用于 CI 流水线和内部自动化。<br>
+      <span class="tag tag-safety">SAFETY</span> <strong>HIPAA 合规</strong> — ChatGPT Enterprise 工作区可在本地环境中合规使用 Codex，覆盖医疗健康场景。
+    </p>
+  </div>
+  <div class="source">
+    来源: <a href="https://openai.com/index/work-with-codex-from-anywhere/">OpenAI — Work with Codex from anywhere</a> · 2026-05
+  </div>
+
+  <h3>🛡️ Codex Windows 沙箱技术揭秘</h3>
+  <p>
+    OpenAI 工程师团队发表了一篇深度技术文章，详细介绍了为 Codex 在 Windows 平台上构建安全沙箱的过程。
+    Windows 用户此前只能在"几乎每条命令都需批准"和"完全放开权限"之间二选一，团队的目标是在不要求管理员权限的前提下，
+    限制 Codex 的文件写入和网络访问能力。
+  </p>
+  <p>
+    团队评估了三种现有方案并全部否决：<strong>AppContainer</strong>（隔离太强，不适配开放式的开发者工作流）、
+    <strong>Windows Sandbox</strong>（轻量 VM，但无法操作用户实际的工作目录，且不支持 Windows Home SKU）、
+    <strong>Mandatory Integrity Control</strong>（会修改宿主机文件系统的信任模型，副作用太大）。
+    最终方案利用了 <strong>SID（安全标识符）+ Write-Restricted Token</strong> 的组合，
+    创建一个名为 <code>sandbox-write</code> 的合成 SID，通过 ACL 精确控制写入范围，
+    同时保护 <code>.git</code>、<code>.codex</code> 和 <code>.agents</code> 目录不被修改。
+  </p>
+  <div class="source">
+    来源: <a href="https://openai.com/index/building-codex-windows-sandbox/">OpenAI — Building Codex Windows Sandbox</a> · 2026-05
+  </div>
+</section>
+
+<!-- ═══════════════ 2. Anthropic ═══════════════ -->
+<section>
+  <h2><span class="icon">🧬</span> Anthropic: Agent 工程方法论密集输出</h2>
+
+  <h3>📦 Agent Skills 成为开放标准</h3>
+  <p>
+    Anthropic 将 <strong>Agent Skills</strong> 作为一个开放标准发布（<a href="https://agentskills.io">agentskills.io</a>），
+    定义了一套轻量级的格式，使 Agent 能够动态发现和加载领域特定的专业知识。
+    Skills 的核心设计原则是<strong>渐进式披露（Progressive Disclosure）</strong>：
+  </p>
+  <p>
+    <strong>第一层</strong> — Agent 启动时仅预加载所有 Skills 的名称和描述到系统提示词中<br>
+    <strong>第二层</strong> — Agent 判断某个 Skill 相关时，读取完整的 <code>SKILL.md</code><br>
+    <strong>第三层</strong> — 可按需从 Skill 目录中加载辅助文件和可执行脚本
+  </p>
+  <p>
+    Skills 已全面支持 <strong>Claude.ai、Claude Code、Claude Agent SDK 和 Claude Developer Platform</strong>。
+    Anthropic 还公布了 Skills 安全指南，强调仅从可信来源安装并进行审计检查。
+    展望未来，团队正在探索让 Agent <strong>自行创建、编辑和评估 Skills</strong>，实现行为模式的可复用编码化。
+  </p>
+  <div class="source">
+    来源: <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic Engineering — Agent Skills</a> · 2025-12-18
+  </div>
+
+  <h3>🏗️ 长运行 Agent 的 Harness 设计范式</h3>
+  <p>
+    针对"如何让 Agent 跨多个上下文窗口持续有效工作"这一开放问题，Anthropic 发布了一套基于
+    <strong>Claude Agent SDK</strong> 的双阶段 Harness 设计模式：
+  </p>
+  <div class="highlight">
+    <p>
+      <strong>阶段一：Initializer Agent</strong> — 首个会话使用专门 Prompt，创建 <code>init.sh</code> 环境脚本、
+      <code>claude-progress.txt</code> 进度文件，并生成包含 <strong>200+ 特性</strong> 的 JSON 需求列表（所有特性初始标记为 <code>"passes": false</code>）。<br><br>
+      <strong>阶段二：Coding Agent</strong> — 后续每个会话（压缩/重新启动后）聚焦于<strong>一个特性</strong>的增量实现，
+      完成后更新 JSON 的 <code>passes</code> 字段、撰写 Git commit 并更新进度文件。
+    </p>
+  </div>
+  <p>
+    该方法成功解决了两个关键失败模式：(1) Agent 试图"一把梭"完成所有功能导致上下文溢出；
+    (2) 后续 Agent 实例看到已有进展后过早宣布任务完成。
+    核心洞察是：<strong>让每个 Agent 会话结束时环境处于"可合并到主分支"的整洁状态</strong>。
+  </p>
+  <div class="source">
+    来源: <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic Engineering — Effective Harnesses for Long-Running Agents</a> · 2026-03-24
+  </div>
+
+  <h3>📊 Agent 评估体系指南</h3>
+  <p>
+    Anthropic 发布了<strong>迄今最全面的 Agent 评估方法论文章</strong>，系统化定义了 Agent 评估的核心组件：
+  </p>
+  <table class="data-table">
+    <thead>
+      <tr><th>概念</th><th>定义</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Task（任务）</td><td>带有明确输入和成功标准的单次测试</td></tr>
+      <tr><td>Trial（试验）</td><td>对同一任务的多次运行，控制输出随机性</td></tr>
+      <tr><td>Grader（评分器）</td><td>包含多个断言的评分逻辑，分三类：代码级、模型级、人工级</td></tr>
+      <tr><td>Transcript（轨迹）</td><td>完整记录：输出、工具调用、推理过程、中间结果</td></tr>
+      <tr><td>Outcome（结果）</td><td>环境中的最终状态（区别于 Agent 的口头声明）</td></tr>
+      <tr><td>Eval Harness</td><td>端到端运行评估的基础设施</td></tr>
+      <tr><td>Agent Harness</td><td>使模型具备 Agent 能力的 Scaffold 系统</td></tr>
+    </tbody>
+  </table>
+  <p>
+    文章特别强调了一个微妙陷阱：<strong>Agent 说"你的航班已预订"不等于数据库中真的存在预订记录</strong>。
+    评估必须区分 Transcript（Agent 说了什么）和 Outcome（实际发生了什么）。
+    文章还分享了 Claude Code、Descript 和 Bolt 等团队在评估实践中的真实案例。
+  </p>
+  <div class="source">
+    来源: <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic Engineering — Demystifying Evals for AI Agents</a> · 2026-05
+  </div>
+
+  <h3>🔒 Claude Code Auto Mode: 权限跳过的安全之道</h3>
+  <p>
+    Anthropic 介绍了 Claude Code 的 Auto Mode——一种更安全地处理权限跳过的方式。
+    这是对传统"全部批准"与"全部拒绝"二元模型的突破，
+    允许 Agent 在受约束边界内自主决策某些操作，同时保持关键操作的人类审批环节。
+  </p>
+  <div class="source">
+    来源: <a href="https://www.anthropic.com/engineering/claude-code-auto-mode">Anthropic Engineering — Claude Code Auto Mode</a> · 2026-03-25
+  </div>
+
+  <h3>🔬 Managed Agents: 脑-手分离架构</h3>
+  <p>
+    Anthropic 深度探讨了大规模 Managed Agent 的架构模式——<strong>"解耦大脑与双手"</strong>：
+    将 Agent 的推理层（模型/规划）与执行层（工具调用/环境交互）分离，
+    使 Agent 能够在不暴露底层模型细节的情况下安全地大规模运行。
+    这一架构对于企业级 Agent 部署具有重要参考价值。
+  </p>
+  <div class="source">
+    来源: <a href="https://www.anthropic.com/engineering/scaling-managed-agents">Anthropic Engineering — Scaling Managed Agents</a> · 2026-04-08
+  </div>
+</section>
+
+<!-- ═══════════════ 3. Agent 框架与协议 ═══════════════ -->
+<section>
+  <h2><span class="icon">🔌</span> Agent 框架与协议生态</h2>
+
+  <h3>🦜 LangChain: Labs 孵化器 + deepagents 长运行框架</h3>
+  <p>
+    LangChain 于 5 月 14 日正式发布 <strong>LangChain Labs</strong>，定位为 Agent 创新的孵化器，
+    同时推出 <strong>deepagents</strong>——一个专门面向长时间运行、复杂任务的 Agent 框架。
+    deepagents 的设计理念与 Anthropic 的 Harness 方法论形成互补：提供开箱即用的长运行支持，
+    包括上下文窗口管理、状态持久化和任务分解。
+  </p>
+  <p>
+    此外，LangChain 博客发布文章 <strong>"From Token Streams to Agent Streams"</strong>，
+    探讨了从传统的 Token 级别流式输出向 Agent 级别事件流模式的转变——
+    这是 Agent 基础设施从"对话"到"工作流编排"的重大范式转换。
+  </p>
+  <div class="source">
+    来源: <a href="https://www.langchain.com/blog">LangChain Blog</a> · 2026-05-14
+  </div>
+
+  <h3>🤖 AutoGen: 稳定性持续改进</h3>
+  <p>
+    Microsoft AutoGen 项目近期发布了多项修复和改进：
+    <strong>Bedrock 流式支持</strong>（PR #6979）扩展了模型提供商的兼容性；
+    <strong>RedisMemory 线性内存</strong>（PR #6972）增强了多会话状态持久化能力；
+    以及多项文档和类型安全修复。
+    项目正稳步从实验性质走向生产可用的多 Agent 协作框架。
+  </p>
+  <div class="source">
+    来源: <a href="https://github.com/microsoft/autogen/releases">AutoGen GitHub Releases</a> · 2026-05
+  </div>
+
+  <h3>🧑‍🚀 CrewAI: Skills Repository 预发布</h3>
+  <p>
+    CrewAI 于 5 月 21 日发布预发布版本，亮点包括：
+    <strong>Skills Repository</strong>——一个可复用的技能库，类似于 Anthropic 的 Agent Skills 概念但面向 CrewAI 生态；
+    <strong>RuntimeState 序列化加固</strong>——增强了 Agent 运行时状态的持久化可靠性；
+    同时修复了一个 idna 库相关的安全漏洞（GHSA-65pc-fj4g-8rjx）。
+    这表明多 Agent 编排框架也在向"模块化技能"和"安全运行"方向演进。
+  </p>
+  <div class="source">
+    来源: <a href="https://github.com/crewAIInc/crewAI/releases">CrewAI GitHub Releases</a> · 2026-05-21
+  </div>
+
+  <h3>🌐 MCP: 协议生态持续扩展</h3>
+  <p>
+    <strong>Model Context Protocol (MCP)</strong> 目前已获得行业广泛支持，包括 Claude、ChatGPT、
+    VS Code、Cursor 和 MCPJam 等主流 AI 客户端。最新规范版本（2025-11-25）定义了三大服务器能力
+    （Resources / Prompts / Tools）和三项客户端能力（Sampling / Roots / Elicitation）。
+  </p>
+  <p>
+    <strong>Elicitation（引导式交互）</strong> 是值得关注的新特性——允许服务器在工具执行过程中向用户请求补充信息，
+    这为 Agent 与人类的交互模式提供了标准化框架，而非依赖各实现方自行定义。
+    MCP 整体的安全模型强调用户同意、数据隐私和工具安全三大原则。
+  </p>
+  <div class="source">
+    来源: <a href="https://modelcontextprotocol.io/specification/2025-11-25">MCP Specification 2025-11-25</a>
+  </div>
+</section>
+
+<!-- ═══════════════ 4. Agent 安全与评估 ═══════════════ -->
+<section>
+  <h2><span class="icon">🛡️</span> Agent 安全与评估前沿</h2>
+
+  <h3>五大趋势观察</h3>
+
+  <p>
+    <strong>1. 沙箱化执行成为标准配置。</strong> OpenAI Codex 的 Windows Sandbox 工程实践和 Anthropic 的权限模型演进
+    表明，Agent 安全已从"信任模型"转向"OS 级强制隔离"。Codex 团队甚至开发了自定义 Windows 沙箱，
+    因为现有系统方案均无法满足"无需管理员权限+操作真实工作目录+精确文件写入控制"的三重约束。
+  </p>
+
+  <p>
+    <strong>2. 评估体系从单一维度走向多层综合。</strong> Anthropic 提出的代码级/模型级/人工级三类评分器体系
+    为 Agent 评估提供了系统化框架。关键教训包括：必须区分 Agent 的"口头输出"与"实际结果"、
+    多轮试验以控制随机性、以及评估必须覆盖完整轨迹而非仅看最终状态。
+  </p>
+
+  <p>
+    <strong>3. Skills/能力模块化成为行业共识。</strong> Anthropic 的 Agent Skills 开放标准、
+    CrewAI 的 Skills Repository、以及 LangChain 的 deepagents 框架都在朝同一方向演进：
+    将 Agent 能力打包为可组合、可复用、可安全审计的模块。
+  </p>
+
+  <p>
+    <strong>4. 长运行 Agent 需要专门的 Harness 架构。</strong> "Initializer + Incremental Worker"模式
+    以及环境状态管理（进度文件/Git/特性列表）正在成为跨上下文窗口运行的行业范式。
+    单纯的上下文压缩（compaction）不足以解决长运行问题。
+  </p>
+
+  <p>
+    <strong>5. 企业级部署需求驱动协议标准化。</strong> MCP 的广泛采纳、Codex 的企业合规认证（HIPAA）、
+    以及各框架的安全审计（如 CrewAI 的 GHSA 修复）表明 Agent 基础设施正在经历从
+    "开发者实验工具"到"企业关键基础设施"的过渡。
+  </p>
+</section>
+
+<!-- ═══════════════ 5. 展望 ═══════════════ -->
+<section>
+  <h2><span class="icon">🔭</span> 下周关注</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>方向</th><th>关注点</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>OpenAI</td>
+        <td>Codex 的插件生态是否进一步开放；Windows 沙箱的正式发布进展</td>
+      </tr>
+      <tr>
+        <td>Anthropic</td>
+        <td>Agent Skills 的生态扩展（社区贡献的 Skills 数量）；Claude Agent SDK 新增能力</td>
+      </tr>
+      <tr>
+        <td>MCP 协议</td>
+        <td>新版本规范（2026-03-26 或更新）是否正式发布；Elicitation 的实践案例</td>
+      </tr>
+      <tr>
+        <td>LangChain</td>
+        <td>deepagents 框架的 GA 时间线；Labs 孵化的首批项目进展</td>
+      </tr>
+      <tr>
+        <td>CrewAI / AutoGen</td>
+        <td>Skills Repository 正式发布；多 Agent 编排的可靠性改进</td>
+      </tr>
+      <tr>
+        <td>学术动态</td>
+        <td>ICLR 2026 录用论文中 Agent 基础设施相关内容（待追踪）</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="report-footer">
+  <p><strong>AI Harness 技术调研周报 #1</strong></p>
+  <p>调研周期: 2026-05-19 至 2026-05-25（第 22 周）</p>
+  <p>作者: CHANG_AI_TEAM · AI Harness 技术调研组</p>
+  <p style="margin-top:0.75rem;color:var(--text-muted)">
+    信息来源于 OpenAI 官方博客、Anthropic Engineering Blog、LangChain Blog、
+    AutoGen/CrewAI GitHub Releases、MCP 官方规范等公开渠道。
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
