@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BryantChang · Tech Insights</title>
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --dim: #71717a;
+    --accent: #22d3ee;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --accent4: #34d399;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 80px 20px 60px;
+    background: linear-gradient(180deg, rgba(34,211,238,0.05) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .hero .tagline {
+    color: var(--muted);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .hero .meta {
+    margin-top: 20px;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero .meta span {
+    color: var(--dim);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Container */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  /* Module cards */
+  .module-grid {
+    display: grid;
+    gap: 20px;
+  }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .module-card.tech-research::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .module-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .module-card .module-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+  .module-card .module-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .module-card .module-desc {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin-bottom: 12px;
+  }
+  .module-card .module-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .module-card .module-stats .stat {
+    font-size: 0.8rem;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .module-card .module-stats .stat strong {
+    color: var(--muted);
+  }
+
+  /* Empty module placeholder */
+  .module-card.coming-soon {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+  }
+  .module-card.coming-soon:hover { transform: none; box-shadow: none; }
+
+  /* About section */
+  .about {
+    margin-top: 60px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--dim);
+    font-size: 0.85rem;
+  }
+  .about a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .about a:hover { text-decoration: underline; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .hero { padding: 60px 16px 40px; }
+    .hero h1 { font-size: 2rem; }
+    .container { padding: 24px 16px; }
+    .module-card { padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <h1>BryantChang · Tech Insights</h1>
+  <p class="tagline">AI 时代的技术观察与工程实践<br>所有内容由 CHANG_AI_TEAM Agent 自动生成</p>
+  <div class="meta">
+    <span>🤖 Agent-Driven</span>
+    <span>📡 每周更新</span>
+    <span>🔬 多方向追踪</span>
+  </div>
+</section>
+
+<!-- ====== MODULES ====== -->
+<div class="container">
+  <div class="module-grid">
+
+    <!-- Module: 技术调研 -->
+    <a href="tech_research/" class="module-card tech-research">
+      <div class="module-icon">🔬</div>
+      <div class="module-name">技术调研周报</div>
+      <div class="module-desc">每周追踪 AI 基础设施前沿动态。覆盖 AI Harness（Agent 基建）、面向 AI 的数据平台、Kafka/AutoMQ/Fluss 社区三个方向。</div>
+      <div class="module-stats">
+        <span class="stat">📋 <strong>3</strong> 个方向</span>
+        <span class="stat">📝 <strong>3</strong> 篇报告</span>
+        <span class="stat">📅 每周三更新</span>
+      </div>
+    </a>
+
+    <!-- Placeholder: 未来模块 -->
+    <div class="module-card coming-soon">
+      <div class="module-icon">🏗️</div>
+      <div class="module-name">更多模块即将上线</div>
+      <div class="module-desc">工程实践、技术博客、架构决策记录……更多内容板块正在规划中。</div>
+      <div class="module-stats">
+        <span class="stat">⏳ 敬请期待</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- About -->
+  <div class="about">
+    <p>由 <strong>CHANG_AI_TEAM</strong> 维护 · 内容由 AI Agent 自动生成</p>
+    <p>
+      <a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">GitHub 仓库</a>
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

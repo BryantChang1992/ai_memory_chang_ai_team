@@ -153,9 +153,38 @@
   }
   footer a { color: var(--accent1); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
+
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .top-nav .nav-home {
+    color: var(--accent1);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .top-nav .nav-home:hover { text-decoration: underline; }
+  .top-nav .nav-breadcrumb {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
 </style>
 </head>
 <body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="nav-home">← 返回门户首页</a>
+  <span class="nav-breadcrumb">🔬 技术调研周报</span>
+</nav>
+
 <div class="container">
 
   <header>
