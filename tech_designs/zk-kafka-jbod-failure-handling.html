@@ -158,29 +158,8 @@
 
 <p>在 ZK 模式中，当一块磁盘发生 I/O 错误时，现有的处理链路是：</p>
 
-<div class="flow-chart">
-<pre>Disk I/O Error
-    |
-    v
-ReplicaManager 捕获 IOException
-    |
-    v
-LogDirFailureChannel.maybeAddOfflineLogDir()
-    |
-    v
-KafkaServer LogDirFailure 处理线程收到通知
-    |
-    v ---- 默认行为（log.dir.failure.timeout.ms）
-    |     超时后 broker 主动 SHUTDOWN
-    |
-    v
-Broker 在 ZK /brokers/ids/{id} 会话超时
-    |
-    v
-Controller 感知 broker 下线 -> 对所有副本触发 LEADER_ELECTION
-    |
-    v
-其他 broker 上的 ISR follower 成为新 Leader</pre>
+<div class="arch-diagram">
+  <img src="images/02-current-flow@2x.png" alt="ZK 模式现有磁盘故障处理流程" style="max-width:100%;height:auto;border-radius:6px" loading="lazy" />
 </div>
 
 <p><strong>核心问题</strong>：直到 broker 整机 shutdown，Controller 才知道有问题。在此之前，故障盘上的 Leader 分区处于不可读写状态，但 Controller 不会触发 Leader 切换。</p>
@@ -215,33 +194,7 @@ Controller 感知 broker 下线 -> 对所有副本触发 LEADER_ELECTION
 <p>核心思路：<strong>利用 ZooKeeper 作为 Broker &harr; Controller 之间的元数据通信通道，新增目录级别的故障报告机制，让 Controller 在 Broker 仍存活时就能感知到磁盘故障并采取行动。</strong></p>
 
 <div class="arch-diagram">
-<pre>
-                            +----------------------+
-                            |     ZooKeeper         |
-                            |                      |
-                            | /brokers/ids/{id}    | &lt;-- Broker 注册（已有）
-                            | /brokers/dirs/{id}   | &lt;-- &#x2605; 目录健康状态（新增）
-                            | /controller          | &lt;-- Controller 选举（已有）
-                            | /admin/reassign...   | &lt;-- 分区重分配（已有）
-                            | /log_dir_event_...   | &lt;-- &#x2605; 事件通知（增强）
-                            +----------+-----------+
-                                       |
-                    +------------------+------------------+
-                    |                  |                  |
-              +-----v-----+     +-----v-----+     +-----v-----+
-              |  Broker 1  |     |  Broker 2  |     | Controller |
-              |            |     |            |     |            |
-              | +--------+ |     | +--------+ |     | listens:   |
-              | | DirMgr | |     | | DirMgr | |     | /brokers/  |
-              | | (新增)  | |     | | (新增)  | |     |   dirs/*   |
-              | +--------+ |     | +--------+ |     |            |
-              |            |     |            |     | on dir     |
-              | /data1 &#x2705; |     | /data1 &#x2705; |     | failure:   |
-              | /data2 &#x274C; |     | /data2 &#x2705; |     | 1. Mark    |
-              | /data3 &#x2705; |     |            |     | 2. Migrate |
-              +------------+     +------------+     | 3. Notify  |
-                                                    +------------+
-</pre>
+  <img src="images/01-architecture@2x.png" alt="ZK 版 Kafka JBOD 磁盘故障处理架构总览" style="max-width:100%;height:auto;border-radius:6px" loading="lazy" />
 </div>
 
 <h3 id="sec3b">3.2 新增 ZK Znode 协议</h3>
@@ -323,32 +276,8 @@ Controller 感知 broker 下线 -> 对所有副本触发 LEADER_ELECTION
 
 <p>在 Kafka 2.7.x Broker 端新增一个轻量级的管理器组件，不改变现有 ReplicaManager 的核心逻辑：</p>
 
-<div class="flow-chart">
-<pre>
-+---------------------------------------------+
-|           DirectoryHealthManager            |
-|                                             |
-|  +--------------+    +-------------------+  |
-|  | LogDirFailure |    |  DirectoryState   |  |
-|  |   Channel     |--->|     Machine        |  |
-|  |  (已有/复用)  |    |                   |  |
-|  +--------------+    | - per-dir state   |  |
-|                      | - failure count   |  |
-|  +--------------+    | - transition time |  |
-|  |  Periodic     |    +---------+---------+  |
-|  |  Health Check |             |             |
-|  |  (30s 间隔)   |             |             |
-|  +--------------+              |             |
-|                       +--------v---------+  |
-|                       |  ZK Reporter     |  |
-|                       |  (异步上报)      |  |
-|                       +------------------+  |
-+---------------------------------------------+
-
-   上报动作:
-   1. 更新 /brokers/dirs/{id}
-   2. 写入 /log_dir_event_notification/ (sequence node)
-</pre>
+<div class="arch-diagram">
+  <img src="images/03-dir-health-mgr@2x.png" alt="DirectoryHealthManager 组件架构" style="max-width:100%;height:auto;border-radius:6px" loading="lazy" />
 </div>
 
 <p><strong>核心职责</strong>：</p>
@@ -407,29 +336,8 @@ Controller 感知 broker 下线 -> 对所有副本触发 LEADER_ELECTION
 
 <h4>3.4.2 状态机设计</h4>
 
-<div class="flow-chart">
-<pre>
-                 +--------+
-        +------->| ONLINE |<--------+
-        |        +--------+         |
-        |            |              |
-        |            | I/O Error    | Recovery
-        |            v              |
-        |       +---------+         |
-        |       | OFFLINE |---------+
-        |       +---------+
-        |            |
-        |            | Controller 确认
-        |            v
-        |       +----------+     Recovery
-        |       | DISABLED |---------------+
-        |       +----------+               |
-        |                                  |
-        +-------+---------+<---------------+
-                | CORDONED|
-                +---------+
-                  (管理员手动隔离, 不迁移但禁止新分配)
-</pre>
+<div class="arch-diagram">
+  <img src="images/04-state-machine@2x.png" alt="LogDir 目录状态机" style="max-width:100%;height:auto;border-radius:6px" loading="lazy" />
 </div>
 
 <h3 id="sec3e">3.5 副本迁移策略</h3>
@@ -485,32 +393,8 @@ kafka-dirs.sh --describe --bootstrap-server localhost:9092
 
 <h3>4.1 自动故障处理时间线</h3>
 
-<div class="flow-chart">
-<pre>
-T+0s    磁盘 I/O 错误发生
-T+0s    LogDirFailureChannel 检测到异常
-T+0s    DirectoryHealthManager 标记目录 OFFLINE，写入 ZK 事件
-T+1s    Controller ZK Watcher 触发，读取 /log_dir_event_notification
-T+1s    Controller 查询受影响分区，发起 Leader 切换
-T+2s    Leader 切换完成，生产/消费恢复正常（如果 ISR 中有其他副本）
-T+3s    Controller 生成重分配计划，写入 /admin/reassign_partitions
-T+5s    副本迁移开始（按 throttle 速率）
-T+N     迁移完成，集群完全恢复健康
-</pre>
-</div>
-
-<h3>4.2 计划内维护时间线（Cordon）</h3>
-
-<div class="flow-chart">
-<pre>
-T-10min  管理员执行 Cordon 操作
-T-10min  新分区不再分配到 Cordon 目录
-T-5min   管理员手动重分配 Cordon 目录上的现有副本
-T-0      迁移完成，Cordon 目录为空
-T+0      安全下线磁盘/更换硬件
-T+1h     硬件更换完成，执行 Uncordon
-T+1h     目录恢复 ONLINE，可重新接收分配
-</pre>
+<div class="arch-diagram">
+  <img src="images/05-auto-timeline@2x.png" alt="自动故障处理完整时间线" style="max-width:100%;height:auto;border-radius:6px" loading="lazy" />
 </div>
 
 <h2 id="sec5">5. 与 KRaft 方案的对比</h2>
@@ -606,6 +490,10 @@ kafka-reassign-partitions.sh --verify \
 </code></pre>
 
 <h4>场景 B：计划内磁盘维护（Cordon）</h4>
+
+<div class="arch-diagram">
+  <img src="images/06-maintenance@2x.png" alt="计划内磁盘维护完整流程" style="max-width:100%;height:auto;border-radius:6px" loading="lazy" />
+</div>
 
 <pre><code># 1. Cordon 目录
 kafka-dirs.sh --cordon --bootstrap-server localhost:9092 \
