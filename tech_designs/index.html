@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHANG_AI_TEAM · 技术方案设计</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent1: #38bdf8;
+    --accent2: #a78bfa;
+    --accent3: #f472b6;
+    --tag-bg: #334155;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0 16px 40px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    text-align: center;
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title .icon {
+    font-size: 1.5rem;
+  }
+  .section-title .count {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-left: auto;
+  }
+  .designs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+  }
+  .design-card {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .design-card:hover {
+    border-color: var(--accent1);
+    transform: translateY(-1px);
+  }
+  .design-card .design-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .design-card .design-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .design-card .design-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .design-card .design-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--tag-bg);
+    color: var(--muted);
+    margin-right: 4px;
+    margin-top: 10px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+  }
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent1);
+  }
+  .stat .label {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  footer {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--accent1); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ====== Global Navbar ====== */
+  .global-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    background: rgba(15,23,42,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+  }
+  .global-nav .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover {
+    background: var(--card);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--card);
+    color: var(--accent1);
+    font-weight: 500;
+  }
+  .global-nav .nav-link .badge {
+    font-size: 0.7rem;
+    background: var(--accent1);
+    color: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../index.html" class="nav-link">🏠 首页</a>
+    <a href="../tech_research/index.html" class="nav-link">🔬 技术调研</a>
+    <a href="index.html" class="nav-link active">📐 技术方案设计 <span class="badge">1</span></a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header>
+    <h1>CHANG_AI_TEAM · 技术方案设计</h1>
+    <p>独立于技术调研之外，针对特定技术问题的方案设计与工程可行性分析</p>
+    <div class="stats-bar">
+      <div class="stat"><div class="num">1</div><div class="label">方案数量</div></div>
+    </div>
+  </header>
+
+  <!-- ==================== 2025 ==================== -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">📐</span> 2026
+      <span class="count">1 篇</span>
+    </h2>
+    <div class="designs-grid">
+      <a class="design-card" href="zk-kafka-jbod-failure-handling.html">
+        <div class="design-label">KAFKA · DESIGN · 2026-05-27</div>
+        <div class="design-name">基于 ZooKeeper 的 Kafka JBOD 磁盘故障处理方案设计</div>
+        <div class="design-meta">参考 KIP-1066 · 面向 Kafka 2.7.x ZK 模式</div>
+        <div class="design-desc">在非 KRaft 的 ZK 架构下，如何实现类似 KIP-1066 Cordon 机制的磁盘故障自动感知、副本迁移与恢复流程。包含架构对比、组件设计、Znode 协议扩展和运维操作手册。</div>
+        <span class="tag">JBOD</span>
+        <span class="tag">ZooKeeper</span>
+        <span class="tag">Fault Tolerance</span>
+        <span class="tag">KIP-1066</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <p>由 <strong>CHANG_AI_TEAM</strong> CTO 技术方案团队维护</p>
+    <p>仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
