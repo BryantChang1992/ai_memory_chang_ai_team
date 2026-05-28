@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 820">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrow-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrow-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+    </marker>
+  </defs>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    text { font-family: 'JetBrains Mono', 'Noto Sans SC', 'PingFang SC', sans-serif; }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <!-- Title -->
+  <text x="30" y="35" fill="#f1f5f9" font-size="15" font-weight="700">系统架构总览 — Agent 基础设施可观测性平台</text>
+
+  <!-- ==================== Layer 1: Dashboard 前端 ==================== -->
+  <rect x="40" y="60" width="870" height="130" rx="10" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="55" y="80" fill="#22d3ee" font-size="9" font-weight="600">LAYER 1 — Dashboard 展示层</text>
+
+  <!-- 4 sub-components -->
+  <rect x="80" y="100" width="170" height="56" rx="6" fill="#0f172a"/>
+  <rect x="80" y="100" width="170" height="56" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="165" y="124" fill="white" font-size="11" font-weight="600" text-anchor="middle">📋 任务看板</text>
+  <text x="165" y="142" fill="#94a3b8" font-size="9" text-anchor="middle">Kanban · 筛选 · 排序</text>
+
+  <rect x="280" y="100" width="170" height="56" rx="6" fill="#0f172a"/>
+  <rect x="280" y="100" width="170" height="56" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="365" y="124" fill="white" font-size="11" font-weight="600" text-anchor="middle">📊 Token 统计</text>
+  <text x="365" y="142" fill="#94a3b8" font-size="9" text-anchor="middle">趋势图 · 饼图</text>
+
+  <rect x="480" y="100" width="170" height="56" rx="6" fill="#0f172a"/>
+  <rect x="480" y="100" width="170" height="56" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="565" y="124" fill="white" font-size="11" font-weight="600" text-anchor="middle">🤖 Agent 列表</text>
+  <text x="565" y="142" fill="#94a3b8" font-size="9" text-anchor="middle">状态 · 模型 · 任务数</text>
+
+  <rect x="680" y="100" width="170" height="56" rx="6" fill="#0f172a"/>
+  <rect x="680" y="100" width="170" height="56" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="765" y="124" fill="white" font-size="11" font-weight="600" text-anchor="middle">🔧 Tool 明细</text>
+  <text x="765" y="142" fill="#94a3b8" font-size="9" text-anchor="middle">耗时 · 状态 · 筛选</text>
+
+  <text x="870" y="130" fill="#64748b" font-size="15" text-anchor="middle">→</text>
+
+  <!-- ==================== Arrow L1 → L2 ==================== -->
+  <line x1="475" y1="195" x2="475" y2="240" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+  <text x="490" y="220" fill="#fbbf24" font-size="9">HTTP GET (JSON)</text>
+
+  <!-- ==================== Layer 2: API ==================== -->
+  <rect x="40" y="245" width="870" height="95" rx="10" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="55" y="265" fill="#34d399" font-size="9" font-weight="600">LAYER 2 — 数据 API 层 (Python FastAPI / Node Express)</text>
+
+  <rect x="80" y="280" width="210" height="46" rx="6" fill="#0f172a"/>
+  <rect x="80" y="280" width="210" height="46" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="185" y="300" fill="white" font-size="10" font-weight="600" text-anchor="middle">GET /api/tasks</text>
+  <text x="185" y="316" fill="#94a3b8" font-size="9" text-anchor="middle">筛选 · 分页</text>
+
+  <rect x="320" y="280" width="210" height="46" rx="6" fill="#0f172a"/>
+  <rect x="320" y="280" width="210" height="46" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="425" y="300" fill="white" font-size="10" font-weight="600" text-anchor="middle">GET /api/tokens</text>
+  <text x="425" y="316" fill="#94a3b8" font-size="9" text-anchor="middle">按天 · 按 Agent</text>
+
+  <rect x="560" y="280" width="210" height="46" rx="6" fill="#0f172a"/>
+  <rect x="560" y="280" width="210" height="46" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="665" y="300" fill="white" font-size="10" font-weight="600" text-anchor="middle">GET /api/agents</text>
+  <text x="665" y="316" fill="#94a3b8" font-size="9" text-anchor="middle">PATCH /api/tasks/:id</text>
+
+  <!-- ==================== Arrow L2 → L3 (SQL 查询) ==================== -->
+  <line x1="475" y1="345" x2="475" y2="390" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-violet)"/>
+  <text x="490" y="370" fill="#a78bfa" font-size="9">SQL 查询 (read-only)</text>
+
+  <!-- ==================== Layer 3: SQLite + Git Backup ==================== -->
+  <rect x="40" y="395" width="870" height="180" rx="10" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="55" y="415" fill="#a78bfa" font-size="9" font-weight="600">LAYER 3 — 数据存储层 (SQLite + Git Backup)</text>
+
+  <!-- 4 tables -->
+  <g transform="translate(60,435)">
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="#0f172a"/>
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="87" y="22" fill="white" font-size="11" font-weight="600" text-anchor="middle">agents</text>
+    <text x="87" y="38" fill="#94a3b8" font-size="9" text-anchor="middle">id · name · role · model</text>
+    <text x="87" y="50" fill="#64748b" font-size="8" text-anchor="middle">status · level</text>
+  </g>
+
+  <g transform="translate(255,435)">
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="#0f172a"/>
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="87" y="22" fill="white" font-size="11" font-weight="600" text-anchor="middle">tasks</text>
+    <text x="87" y="38" fill="#94a3b8" font-size="9" text-anchor="middle">id · agent_id · title</text>
+    <text x="87" y="50" fill="#64748b" font-size="8" text-anchor="middle">status · priority · parent</text>
+  </g>
+
+  <g transform="translate(450,435)">
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="#0f172a"/>
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="87" y="22" fill="white" font-size="11" font-weight="600" text-anchor="middle">sessions</text>
+    <text x="87" y="38" fill="#94a3b8" font-size="9" text-anchor="middle">id · agent_id · task_id</text>
+    <text x="87" y="50" fill="#64748b" font-size="8" text-anchor="middle">token_in/out · model</text>
+  </g>
+
+  <g transform="translate(645,435)">
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="#0f172a"/>
+    <rect x="0" y="0" width="175" height="56" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="87" y="22" fill="white" font-size="11" font-weight="600" text-anchor="middle">tool_calls</text>
+    <text x="87" y="38" fill="#94a3b8" font-size="9" text-anchor="middle">session_id · tool_name</text>
+    <text x="87" y="50" fill="#64748b" font-size="8" text-anchor="middle">duration_ms · status</text>
+  </g>
+
+  <!-- Git backup box -->
+  <rect x="115" y="510" width="680" height="46" rx="6" fill="#0f172a"/>
+  <rect x="115" y="510" width="680" height="46" rx="6" fill="rgba(251,146,60,0.15)" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <text x="455" y="530" fill="#fb923c" font-size="10" font-weight="600" text-anchor="middle">🔄 Git 冷启动备份</text>
+  <text x="455" y="546" fill="#94a3b8" font-size="9" text-anchor="middle">每 5 分钟 SQLite → JSON export → commit &amp; push → GitHub</text>
+
+  <!-- ==================== Arrow L3 → L4 ==================== -->
+  <line x1="475" y1="580" x2="475" y2="625" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+  <text x="490" y="605" fill="#fbbf24" font-size="9">INSERT / UPDATE</text>
+
+  <!-- ==================== Layer 4: Collector ==================== -->
+  <rect x="40" y="630" width="870" height="140" rx="10" fill="none" stroke="#f472b6" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="55" y="650" fill="#f472b6" font-size="9" font-weight="600">LAYER 4 — 数据采集层 (Hooks + Log Parser Daemon)</text>
+
+  <!-- Hook -->
+  <rect x="80" y="668" width="375" height="82" rx="6" fill="#0f172a"/>
+  <rect x="80" y="668" width="375" height="82" rx="6" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="267" y="688" fill="white" font-size="11" font-weight="600" text-anchor="middle">🔗 OpenClaw Hooks</text>
+  <text x="267" y="704" fill="#94a3b8" font-size="9" text-anchor="middle">agent:bootstrap · session:compact:after</text>
+  <text x="267" y="720" fill="#64748b" font-size="8" text-anchor="middle">message:received · lifecycle events</text>
+  <text x="267" y="738" fill="#fb7185" font-size="8" font-weight="500" text-anchor="middle">自定义 Hook: agent-telemetry</text>
+
+  <!-- Log Parser -->
+  <rect x="495" y="668" width="375" height="82" rx="6" fill="#0f172a"/>
+  <rect x="495" y="668" width="375" height="82" rx="6" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="682" y="688" fill="white" font-size="11" font-weight="600" text-anchor="middle">📜 Log Parser 守护进程</text>
+  <text x="682" y="704" fill="#94a3b8" font-size="9" text-anchor="middle">每 2s 增量读取日志 · 正则匹配关键行</text>
+  <text x="682" y="720" fill="#64748b" font-size="8" text-anchor="middle">lifecycle:start/end · tool_call/result</text>
+  <text x="682" y="738" fill="#fb7185" font-size="8" font-weight="500" text-anchor="middle">usage metadata 提取 · session 生命周期</text>
+
+  <!-- ==================== Annotation arrows from L3 to components ==================== -->
+  <!-- Both Hook and Parser feed into SQLite -->
+  <line x1="267" y1="668" x2="267" y2="560" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,3" stroke-opacity="0.5"/>
+  <line x1="682" y1="668" x2="682" y2="560" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,3" stroke-opacity="0.5"/>
+
+  <!-- ==================== Legend ==================== -->
+  <rect x="690" y="15" width="230" height="38" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="805" y="35" fill="#94a3b8" font-size="9" font-weight="500" text-anchor="middle">架构分层 — 四层解耦设计</text>
+</svg>

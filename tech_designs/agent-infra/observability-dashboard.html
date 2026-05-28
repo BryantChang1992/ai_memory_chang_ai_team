@@ -188,6 +188,20 @@
     background: none; border: none; padding: 0; margin: 0;
     line-height: 1.4; letter-spacing: 0.02em;
   }
+  .diagram-figure {
+    margin: 20px 0; text-align: center;
+  }
+  .diagram-figure img {
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 4px 24px rgba(0,0,0,.3);
+  }
+  .diagram-figure img:hover {
+    transform: scale(1.02); box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  }
+  .diagram-caption {
+    color: var(--dim); font-size: 0.8rem; margin-top: 10px;
+    font-style: italic;
+  }
 
   /* Milestone timeline */
   .milestone-list { list-style: none; margin: 12px 0; }
@@ -366,57 +380,11 @@
     </div>
     <div class="section-body">
 
-      <div class="arch-diagram">
-<pre style="color: var(--text);">
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         Dashboard 前端 (纯静态 HTML)                      │
-│                   bryantchang1992.github.io/agent-dash/                  │
-│              ┌──────────┬──────────┬──────────┬──────────┐              │
-│              │ 任务看板  │ Token统计 │ Agent列表 │ 趋势图表  │              │
-│              └──────────┴──────────┴──────────┴──────────┘              │
-└────────────────────────────────┬────────────────────────────────────────┘
-                                 │ HTTP GET (JSON)
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        数据 API 层 (Python FastAPI / Node Express)       │
-│                    GET /api/tasks  ·  GET /api/tokens  ·                │
-│                    GET /api/agents ·  GET /api/sessions                  │
-└────────────────────────────────┬────────────────────────────────────────┘
-                                 │ SQL 查询
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     数据存储层 (SQLite)                                   │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────────┐     │
-│  │  agents     │  │  tasks      │  │  sessions   │  │  tool_calls   │     │
-│  │  · id       │  │  · id       │  │  · id       │  │  · id         │     │
-│  │  · name     │  │  · agent_id │  │  · agent_id │  │  · session_id │     │
-│  │  · role     │  │  · status   │  │  · status   │  │  · tool_name  │     │
-│  │  · model    │  │  · priority │  │  · token_in │  │  · duration_ms│     │
-│  │  · created  │  │  · created  │  │  · token_out│  │  · created_at │     │
-│  └────────────┘  └────────────┘  └────────────┘  └───────────────┘     │
-│                                                                         │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │  Git 冷启动备份: 每 5 分钟 export SQLite → JSON → commit push    │    │
-│  │  repo: BryantChang1992/ai_memory_chang_ai_team/agent-dash/data/ │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-└────────────────────────────────┬────────────────────────────────────────┘
-                                 │ INSERT / UPDATE
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    数据采集层 (Hooks + Log Parser)                       │
-│                                                                         │
-│  ┌──────────────────────┐    ┌──────────────────────────┐              │
-│  │ OpenClaw Hooks        │    │ Log Parser (轮询守护进程)  │              │
-│  │ · agent:bootstrap     │    │ · agent_command: START    │              │
-│  │ · session:patch       │    │ · tool_call: name/params  │              │
-│  │ · message:received    │    │ · tool_result: duration   │              │
-│  │ · lifecycle events    │    │ · lifecycle: end/usage    │              │
-│  └──────────┬────────────┘    └─────────────┬────────────┘              │
-│             │                               │                            │
-│             └───────────────┬───────────────┘                            │
-│                             │ INSERT INTO SQLite                         │
-└─────────────────────────────┴───────────────────────────────────────────┘
-</pre>
+      <div class="diagram-figure">
+        <a href="diagram/architecture-overview.svg" target="_blank" title="点击查看大图">
+          <img src="diagram/architecture-overview.svg" alt="系统架构总览" style="width:100%; border-radius:8px; cursor:zoom-in" loading="lazy"/>
+        </a>
+        <p class="diagram-caption">图 3-1：系统架构总览 — 四层解耦设计（点击查看大图）</p>
       </div>
 
       <div class="highlight-box info">
@@ -671,35 +639,11 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
       </div>
 
       <h3>6.2 页面布局</h3>
-      <div class="arch-diagram">
-<pre style="color: var(--text);">
-┌──────────────────────────────────────────────────────────┐
-│  CHANG_AI_TEAM · Agent 可观测性看板        🟢 2 Active  │
-├────────────┬────────────┬────────────┬──────────────────┤
-│  任务队列   │  Token 消耗 │  Agent 状态 │  最新 Activity   │
-│  ┌────────┐│  ┌────────┐│            │  · CTO: spawn    │
-│  │9 活跃   ││  │12K/今日││  CTO   🟢 │    research-w02  │
-│  │3 阻塞   ││  │图表    ││  RD-1  🟢 │  · RD-1: exec    │
-│  │15 完成  ││  │        ││  RD-2  ⚪ │    npm run build  │
-│  └────────┘│  └────────┘│  SRE-1 🟡 │  · SRE-1: 等待   │
-├────────────┴────────────┴────────────┴──────────────────┤
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │              Token 消耗趋势图 (7 天)               │  │
-│  │  📈  Chart.js 折线图：按 agent 分色              │  │
-│  └──────────────────────────────────────────────────┘  │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │              工具调用分布 (饼图)                   │  │
-│  │  🥧  web_search / exec / sessions_spawn ...       │  │
-│  └──────────────────────────────────────────────────┘  │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │              最近任务列表 (表格)                   │  │
-│  │  ID │ 标题 │ Agent │ 状态 │ 耗时 │ Token │ 时间  │  │
-│  └──────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────┘
-</pre>
+      <div class="diagram-figure">
+        <a href="diagram/dashboard-layout.svg" target="_blank" title="点击查看大图">
+          <img src="diagram/dashboard-layout.svg" alt="Dashboard 前端布局" style="width:100%; border-radius:8px; cursor:zoom-in" loading="lazy"/>
+        </a>
+        <p class="diagram-caption">图 6-1：Dashboard 前端布局 — Kanban + 趋势图 + Activity 流（点击查看大图）</p>
       </div>
 
       <h3>6.3 关键视图</h3>
@@ -786,31 +730,11 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
     </div>
     <div class="section-body">
 
-      <div class="arch-diagram">
-<pre style="color: var(--text);">
-                    ┌──────────┐
-                    │  pending  │ ← 任务创建（用户或父 Agent 下发）
-                    └─────┬────┘
-                          │ Agent 接收任务
-                          ▼
-                    ┌──────────┐
-          ┌─────────│in_progress│─────────┐
-          │         └─────┬────┘         │
-          │ 需要          │               │ 完成
-          │ 外部输入       │ 遇到异常       │
-          ▼               ▼               ▼
-    ┌──────────┐   ┌──────────┐   ┌──────────┐
-    │ blocked   │   │  failed   │   │   done   │
-    └────┬─────┘   └──────────┘   └──────────┘
-         │ 解除阻塞
-         ▼
-    (回到 in_progress)
-
-    额外状态：
-    · stuck     — Supervisor 检测：in_progress + 30min 无 activity
-    · stale     — Supervisor 检测：done + 但 session 仍在
-    · cancelled — 用户手动取消
-</pre>
+      <div class="diagram-figure">
+        <a href="diagram/agent-state-machine.svg" target="_blank" title="点击查看大图">
+          <img src="diagram/agent-state-machine.svg" alt="Agent 状态机" style="width:100%; border-radius:8px; cursor:zoom-in" loading="lazy"/>
+        </a>
+        <p class="diagram-caption">图 8-1：Agent 任务状态机 — 完整状态转移图（点击查看大图）</p>
       </div>
 
       <h3>8.1 状态变更规则</h3>
