@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka / AutoMQ / Fluss 社区动态 · 周报 #2（2026-05-28）</title>
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent-kafka: #231f20;
+    --accent-automq: #6c48f5;
+    --accent-fluss: #0ea5e9;
+    --border: #e5e7eb;
+    --tag-bg: #f0f4ff;
+    --tag-text: #4361ee;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 48px 0 36px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #4361ee, #7209b7);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.3px;
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+
+  .header .meta {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .header .meta span {
+    margin: 0 8px;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    border-left: 4px solid #4361ee;
+  }
+
+  .toc h2 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+  }
+
+  .toc ol {
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toc li a {
+    text-decoration: none;
+    color: var(--tag-text);
+    font-weight: 500;
+    font-size: 0.92rem;
+    transition: color 0.15s;
+  }
+
+  .toc li a:hover { color: #7209b7; }
+
+  /* Section Cards */
+  .section {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .section-header .icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .section-header .info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .section-header .info .ver {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .section-body {
+    padding: 24px 28px 28px;
+  }
+
+  .section-body h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 24px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .section-body h3:first-child { margin-top: 0; }
+
+  .section-body p {
+    margin-bottom: 12px;
+    color: #444;
+    font-size: 15px;
+  }
+
+  /* Tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  .tag.hot {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .tag.new {
+    background: #ecfdf5;
+    color: #059669;
+  }
+
+  /* Feature list */
+  .feature-list {
+    list-style: none;
+    margin: 10px 0 16px;
+  }
+
+  .feature-list li {
+    padding: 8px 0;
+    padding-left: 22px;
+    position: relative;
+    font-size: 14px;
+    color: #444;
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  .feature-list li:last-child { border-bottom: none; }
+
+  .feature-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  /* KIP list */
+  .kip-list {
+    list-style: none;
+    margin: 10px 0 16px;
+  }
+
+  .kip-list li {
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    background: #fafbfc;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #444;
+    border-left: 3px solid #e0e4ea;
+  }
+
+  .kip-list li strong {
+    color: #333;
+  }
+
+  /* Links */
+  a {
+    color: var(--tag-text);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .source-links {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .source-links h4 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .source-links ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+
+  .source-links li { font-size: 13px; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 0 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .footer .team {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  /* Highlights box */
+  .highlight-box {
+    background: linear-gradient(135deg, #eff6ff, #faf5ff);
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .highlight-box strong {
+    color: #4361ee;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 16px; }
+    .header h1 { font-size: 22px; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .section-body { padding: 16px; }
+  }
+
+  /* Print */
+  @media print {
+    body { background: #fff; }
+    .section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+    .source-links { display: none; }
+  }
+
+  /* ====== Global Navbar ====== */
+  .global-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    background: rgba(248,249,251,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent-kafka), var(--accent-fluss));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+  }
+  .global-nav .nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover {
+    background: var(--tag-bg);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 500;
+  }
+
+  .refs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .refs-list a {
+    color: var(--accent-kafka);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 0;
+    word-break: break-all;
+  }
+  .refs-list a:hover { text-decoration: underline; }
+  .refs-list a::before { content: '🔗 '; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link">🔬 技术调研</a>
+    <a href="week_02_2026-05-28.html" class="nav-link active">🐘 Kafka 生态</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="badge">开源社区动态追踪</div>
+    <h1>Kafka / AutoMQ / Fluss 社区动态<br>周报 #2</h1>
+    <div class="meta">
+      <span>📅 2026年5月28日</span>
+      <span>·</span>
+      <span>📊 第22周（W22）</span>
+      <span>·</span>
+      <span>🏷️ 第2期</span>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#summary">🔥 本周综述</a></li>
+      <li><a href="#kafka">🐘 Kafka 4.3.0 深度解读 — 平台工程师视角 &amp; 落地指南</a></li>
+      <li><a href="#fluss">🌊 Apache Fluss 0.9.1 技术深潜</a></li>
+      <li><a href="#fluss-roadmap">🗺️ Fluss 2026 路线图 — 流存储 for AI &amp; Real-Time Analytics</a></li>
+      <li><a href="#automq">⚡ AutoMQ 社区动态</a></li>
+      <li><a href="#trends">📊 趋势观察</a></li>
+      <li><a href="#refs">🔗 参考链接</a></li>
+    </ol>
+  </nav>
+
+  <!-- ==================== 本周综述 ==================== -->
+  <article class="section" id="summary">
+    <div class="section-header" style="border-bottom-color: #dc2626;">
+      <div class="icon" style="background: linear-gradient(135deg, #dc2626, #f97316);">🔥</div>
+      <div class="info">
+        <h2>本周综述</h2>
+        <div class="ver">2026-05-22 ~ 2026-05-28</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📌 本期定位：</strong>距上期仅 2 天，本周换一个视角——不做"发生了什么"，而是"这意味着什么"。我们将深入解读 Kafka 4.3.0 的落地影响、剖析 Fluss 0.9.1 的架构设计意图，并追踪 Fluss 2026 路线图的战略方向。
+      </div>
+
+      <p>相较于 5 月 26 日的第 1 期（聚焦 Kafka 4.3.0 新版本发布新闻），本期更像是上一期的"深度增强版"。自然时间线上没有重大新版本发布，但这正是深入分析的最佳窗口——社区在消化、解读、传播 4.3.0 的影响，Fluss 社区则继续其密集的技术产出。</p>
+
+      <p>本周核心看点：</p>
+      <ul class="feature-list">
+        <li><strong>FactorHouse 发布 Kafka 4.3.0 平台工程师指南</strong>——面向实践者的系统化解读，从升级路径到关键 KIP 的操作指南</li>
+        <li><strong>Red Hat Kafka Monthly Digest 4 月刊</strong>——社区视角的 4.3.0 全景覆盖和新的 KIP 提案动向</li>
+        <li><strong>Fluss 0.9.1 技术深潜</strong>——从 MergeTreeWriter IOManager 泄漏到 Netty 安全加固，分析了 0.9.1 包含的关键修复和架构改进信号</li>
+        <li><strong>Fluss 2026 路线图明确</strong>——"Streaming Storage for Real-Time Analytics & AI"的战略定位进一步清晰</li>
+        <li><strong>AutoMQ 4 月 Newsletter</strong>——简化安装、Playground、社区增长</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ==================== Kafka 4.3.0 深度解读 ==================== -->
+  <article class="section" id="kafka">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-kafka);">🐘</div>
+      <div class="info">
+        <h2>Apache Kafka 4.3.0 深度解读</h2>
+        <div class="ver">发布 5 月 22 日 · 社区反应 &amp; 落地指南</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🔥 社区视角：</strong>Kafka 4.3.0 不是"又一个大版本"，而是 4.x 系列在运维成熟度、安全标准和协议现代化三个维度上的关键锚点。
+      </div>
+
+      <h3>📖 FactorHouse 平台工程师指南</h3>
+
+      <p>FactorHouse（Kafka 运维工具 KPow 背后的公司）发布了一篇面向平台工程师的 <a href="https://factorhouse.io/articles/apache-kafka-4-3-0" target="_blank">Apache Kafka 4.3.0 系统化指南</a>。与官方 Release Notes 的罗列式风格不同，该指南从"你需要做什么"的角度出发，对关键 KIP 做了落地级解读。</p>
+
+      <div class="tags">
+        <span class="tag hot">社区解读</span>
+        <span class="tag">FactorHouse</span>
+        <span class="tag">Platform Engineering</span>
+        <span class="tag">升级指南</span>
+      </div>
+
+      <p>指南重点覆盖了以下几个对平台工程师有直接操作影响的 KIP：</p>
+
+      <ul class="kip-list">
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/x/8op3EQ" target="_blank">KIP-1023 · Follower Fetch from Tiered Offset</a></strong><br>
+          <em>操作影响：高。</em>启用 <code>follower.fetch.last.tiered.offset.enable=true</code> 后，新加入的 follower 可直接从分层存储的最后一个 offset 开始拉取，跳过完整的本地日志复制。这对频繁扩缩容的云原生部署是巨大的网络带宽节省。FactorHouse 建议：启用前确保 Tiered Storage 配置正确且已在生产验证。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/x/Lg_TEg" target="_blank">KIP-1066 · Cordon Brokers &amp; Log Directories</a></strong><br>
+          <em>操作影响：高。</em>这是运维团队期待已久的能力——将 broker 或特定磁盘目录标记为"隔离"状态，新分区不会分配到这些资源上。典型场景包括：磁盘故障预警后的安全下线、滚动升级前的节点排水、以及硬件维护窗口的优雅操作。FactorHouse 评价："安全退役 broker 的缺失拼图终于补上了。"
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/x/hA5JFg" target="_blank">KIP-1196 · Group Coordinator Append Buffer</a></strong><br>
+          <em>操作影响：中。</em>通过 <code>group.coordinator.append.max.buffer.size</code> 和 <code>share.coordinator.append.max.buffer.size</code> 限流 coordinator 内存使用，并暴露对应 metrics。在大规模消费者组（&gt;10k）场景下，这可以有效防止 coordinator OOM。FactorHouse 建议：在监控面板上加入对应的 metrics 并设置告警阈值。
+        </li>
+      </ul>
+
+      <h3>🔴 Red Hat Kafka Monthly Digest（2026-04）</h3>
+
+      <p>Red Hat 的 <a href="https://developers.redhat.com/blog/2026/05/04/kafka-monthly-digest-april-2026" target="_blank">Kafka Monthly Digest April 2026</a> 是 Red Hat AMQ Streams 团队出品的社区月度综述，覆盖了 4.3.0 的发布进展、4.2.1 的开发动态以及新的 KIP 提案。</p>
+
+      <div class="tags">
+        <span class="tag">Red Hat</span>
+        <span class="tag">AMQ Streams</span>
+        <span class="tag">Monthly Digest</span>
+        <span class="tag">社区观察</span>
+      </div>
+
+      <p>从 Red Hat 的视角来看，4.3.0 的发布标志着 Kafka 社区在以下几个方面进入"成熟期"：</p>
+
+      <ul class="feature-list">
+        <li><strong>协议现代化加速：</strong>KIP-1274（废弃经典 Rebalance 协议 Phase 1）和 KIP-1251（Assignment Epochs）的合入，表明社区正全力推动新 Consumer Rebalance Protocol 成为唯一标准。Red Hat 建议所有用户评估应用迁移时间表。</li>
+        <li><strong>安全性持续增强：</strong>KIP-1258（OAuth Client Assertion）的引入是 Kafka 安全体系从"基础 SASL"到"企业级 OAuth 集成"的关键一步，对使用 Okta、Keycloak 等身份提供商的企业尤为关键。</li>
+        <li><strong>运维可观测性：</strong>KIP-1196 的 Coordinator buffer metrics、KIP-1280 的 MirrorMaker 新版 metrics 迁移——Kafka 正系统性提升其可观测性能力。</li>
+        <li><strong>4.2.1 开发中：</strong>Kafka 4.2.1 的 bugfix 版本正在开发中，预计将包含 4.2.x 线的稳定性修复，建议 4.2.x 用户关注。</li>
+      </ul>
+
+      <h3>🎬 Confluent 官方 Demo：Kafka 4.3.0 Highlights</h3>
+
+      <p>Confluent 的 Sandon Jacobs 在 <a href="https://www.youtube.com/watch?v=lePgrOiX11U" target="_blank">YouTube 上发布了 Kafka 4.3.0 的亮点 Demo</a>，以实际操作的视角展示了几个关键特性的使用方式。这从侧面印证了 Confluent 对 4.3.0 版本的重视程度——通常只有重点版本才会配套官方 Demo 视频。</p>
+
+      <h3>🔍 Kafka 4.3.0 落地思考</h3>
+
+      <p>从平台工程和架构决策的角度，Kafka 4.3.0 的落地需要关注以下关键决策点：</p>
+
+      <ul class="feature-list">
+        <li><strong>升级紧迫性评估：</strong>如果你在运行 4.2.x 且计划在近期升级，4.3.0 值得优先考虑——它引入的 KIP-1066（Cordon）和 KIP-1023（Follower Tiered Fetch）对运维效率的提升是即时的。但如果你在 4.0.x/4.1.x 且环境稳定，可以等待 4.3.1 的首次 bugfix 发布后再规划升级。</li>
+        <li><strong>Consumer 协议迁移窗口：</strong>KIP-1274 明确启动了经典 Rebalance 协议的废弃倒计时。如果你的消费者应用仍使用经典协议（<code>group.protocol=classic</code> 或 <code>partition.assignment.strategy</code> 配置），现在就应该开始迁移评估。Kafka 5.0 将彻底移除经典协议。</li>
+        <li><strong>Tiered Storage 能力解锁：</strong>KIP-1023 解锁了 Tiered Storage 场景下的弹性扩缩容能力。如果你们已经部署了 Tiered Storage，启用该特性可以显著减少扩展过程中 follower 的 bootstrap 时间。</li>
+        <li><strong>Streams 应用的 Headers 支持：</strong>KIP-1271/1285 为 State Stores 引入了原生 record headers 存储。如果你的流处理应用需要传播 trace context（如 OpenTelemetry span context），现在有了比"把 trace 信息塞进 value"更优雅的方案。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://factorhouse.io/articles/apache-kafka-4-3-0" target="_blank">FactorHouse · Apache Kafka 4.3.0 Guide</a></li>
+          <li><a href="https://developers.redhat.com/blog/2026/05/04/kafka-monthly-digest-april-2026" target="_blank">Red Hat · Kafka Monthly Digest April 2026</a></li>
+          <li><a href="https://www.youtube.com/watch?v=lePgrOiX11U" target="_blank">Confluent · Kafka 4.3.0 Highlights Demo</a></li>
+          <li><a href="https://kafka.apache.org/blog/2026/05/22/apache-kafka-4.3.0-release-announcement/" target="_blank">Kafka 4.3.0 Release Announcement</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== Fluss 0.9.1 技术深潜 ==================== -->
+  <article class="section" id="fluss">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-fluss);">🌊</div>
+      <div class="info">
+        <h2>Apache Fluss 0.9.1 技术深潜</h2>
+        <div class="ver">v0.9.1-incubating · 2026-05-04 &nbsp;|&nbsp; 补丁发布 · 全面向后兼容</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📌 深潜视角：</strong>Fluss 0.9.1 表面上是一个"平淡无奇"的 patch release，但其中包含的修复和架构改进信号告诉我们这个年轻项目正在快速成熟——从生产环境的边缘 case 修复到安全加固，再到 Helm Chart 云原生化。
+      </div>
+
+      <h3>🐛 Bug 修复揭示的架构信号</h3>
+
+      <p>0.9.1 的 bug 修复列表中，有几个修复值得我们深入解读——它们不是简单的 corner case fix，而是反映了 Fluss 在实际生产部署中暴露出的架构级问题：</p>
+
+      <h4>Paimon IOManager 泄漏 — 分层存储的隐性成本</h4>
+
+      <p><a href="https://github.com/apache/fluss/pull/3193" target="_blank">#3193</a> 修复了 MergeTreeWriter 中的 IOManager 未释放问题，该问题会在 tiering 过程中导致 <code>/tmp</code> 磁盘持续增长直至耗尽。</p>
+
+      <p><strong>深度分析：</strong>这个 bug 的本质是 Fluss 在向 Paimon 执行分层存储归档（tiering）时，MergeTreeWriter 打开了大量临时文件用于排序/合并操作，但 IOManager 的生命周期管理存在缺陷，导致临时文件无法被 GC 回收。在数据量大的生产集群上，可能在数小时内耗尽 /tmp 空间。</p>
+
+      <p>这反映了 Fluss 架构中的一个关键依赖链：<strong>Fluss → Paimon → IOManager → 本地磁盘</strong>。分层存储不是"把数据扔到 S3 就完了"——中间的排序/合并阶段仍然需要本地临时存储。0.9.1 的修复本质上是对这条依赖链的资源管理做了正确的生命周期绑定。</p>
+
+      <h4>Partial Update 的 NULL 语义修正</h4>
+
+      <p><a href="https://github.com/apache/fluss/pull/3157" target="_blank">#3157</a> 修复了首次 insert 时非目标列（non-target columns）未被置 NULL 的问题；<a href="https://github.com/apache/fluss/pull/3090" target="_blank">#3090</a> 修复了 ADD COLUMN 后 partial update/delete 抛出的 OutOfBoundsException。</p>
+
+      <p><strong>深度分析：</strong>Partial Update 是 Fluss 的核心能力之一——允许只更新指定列而不需要重写整行。但这两个 bug 暴露了 Partial Update 与 Schema Evolution（ADD COLUMN）交互时的语义不一致：当表结构发生变化后，新列的 NULL 默认值和旧数据的列偏移量没有正确对齐。</p>
+
+      <p>这是典型的"流存储 + Schema Evolution"场景下的坑。传统消息队列（如 Kafka）不关心 Schema，而传统数据库（如 MySQL）有完整的 DDL 事务保证。Fluss 在这两个世界的交叉点上，Schema Evolution 的正确性是必须打扎实的基础。</p>
+
+      <h4>SortMergeReader 的 Changelog Delete 终止问题</h4>
+
+      <p><a href="https://github.com/apache/fluss/pull/3137" target="_blank">#3137</a> 修复了 SortMergeReader 在处理 changelog delete 记录时的早期终止问题。SortMergeReader 是 Fluss 读取路径的关键组件，负责从多个 sorted run 中合并读取结果。</p>
+
+      <p><strong>深度分析：</strong>这个 bug 的触达条件相对罕见——需要 changelog produce 模式下发送 delete 记录。但它暴露了一个更深层的问题：Fluss 的读取路径在处理 delete tombstone 时的正确性和完整性。在流存储中，delete 记录是特殊的存在——它需要"隐藏"之前的数据但又不能被物理删除（因为下游 consumer 可能还在消费），排序合并逻辑必须正确处理这种逻辑删除。</p>
+
+      <h3>✨ Improvements 的架构含义</h3>
+
+      <h4>Lake Filter 下推 — 查询性能的关键优化</h4>
+
+      <p><a href="https://github.com/apache/fluss/pull/3181" target="_blank">#3181</a> 实现了对非分区扫描的 lake filter 下推。这意味着查询条件会在读取路径的最前端（Fluss → Lake Storage）就被应用，避免全量拉取后再过滤。</p>
+
+      <p><strong>架构含义：</strong>这是 Fluss "Lakehouse-native" 设计理念的体现。传统流存储（如 Kafka）的查询是"拉全量→在客户端过滤"，而 Fluss 利用底层 Lake Storage（Iceberg/Paimon）的谓词下推能力，实现了查询优化器层面的 filter pushdown。这对于 AI/ML 场景中的数据探索查询（select 特定时间范围、特定值范围）尤为关键——可以大大减少网络传输和内存消耗。</p>
+
+      <h4>Netty Max Request Size — 安全边界的建立</h4>
+
+      <p><a href="https://github.com/apache/fluss/pull/3108" target="_blank">#3108</a> 引入了 <code>netty.server.max-request-size</code> 配置来限制请求大小。这是 Fluss 安全体系的基础能力——防止恶意或异常大的请求导致 server 端 OOM。</p>
+
+      <p><strong>架构含义：</strong>这是项目从"功能优先"进入"生产就绪"阶段的标志性改进。早期开源项目往往会忽略安全边界类的配置项，0.9.1 的这次补丁说明 Fluss 社区开始系统性地审视生产部署的安全性考量。</p>
+
+      <h4>S3 凭证链和 RustFS STS 支持</h4>
+
+      <p><a href="https://github.com/apache/fluss/pull/3094" target="_blank">#3094</a> 支持了默认的 AWS 凭证链（credential chain）用于 S3 委托访问；<a href="https://github.com/apache/fluss/pull/2989" target="_blank">#2989</a> 为 RustFS 增加了 AssumeRole STS 支持。</p>
+
+      <p><strong>架构含义：</strong>这两项改进背后是 Fluss 多组件架构的复杂性——Java server 端、Rust filesystem 端（RustFS）、S3 存储层——三方都需要正确的凭证传递。0.9.1 在这方面的投入说明 Fluss 正在应对多租户/多凭证场景下的实际需求，这是企业级部署的前置条件。</p>
+
+      <h3>⛵ Helm Chart — 云原生化的信号</h3>
+
+      <p>0.9.1 的 Helm Chart 升级幅度出乎意料地大：</p>
+
+      <ul class="feature-list">
+        <li><strong>SASL 凭证的 existingSecret 注入：</strong>支持从外部 Secret 挂载 SASL 凭证，避免明文配置在 values.yaml 中</li>
+        <li><strong>PodDisruptionBudget 支持：</strong>引入 PDB 意味着社区开始考虑生产级高可用和滚动更新策略</li>
+        <li><strong>nodeSelector / tolerations / affinity：</strong>完整的 Kubernetes 调度原语支持，允许在生产环境中精细控制 pod 放置</li>
+        <li><strong>环境变量和外部 Secret 注入：</strong>提升与 GitOps 工作流（ArgoCD/Flux）的兼容性</li>
+        <li><strong>Quickstart 镜像重新引入：</strong>降低新用户的入坑门槛，有利于社区增长</li>
+      </ul>
+
+      <p><strong>全貌判断：</strong>一个 patch 版本的 Helm Chart 升级到这个程度，说明 Fluss 社区在积极推动从"开发环境部署"到"生产级 Kubernetes 部署"的跨越。Helm Chart 的完整度是项目成熟度的重要指示器。</p>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/apache/fluss/releases" target="_blank">GitHub Releases · v0.9.1-incubating</a></li>
+          <li><a href="https://github.com/apache/fluss/pull/3193" target="_blank">#3193 · Fix Paimon IOManager leak</a></li>
+          <li><a href="https://github.com/apache/fluss/pull/3181" target="_blank">#3181 · Lake filter pushdown</a></li>
+          <li><a href="https://github.com/apache/fluss/pull/3108" target="_blank">#3108 · Netty max-request-size</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== Fluss 2026 路线图 ==================== -->
+  <article class="section" id="fluss-roadmap">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #0ea5e9, #6366f1);">🗺️</div>
+      <div class="info">
+        <h2>Fluss 2026 路线图</h2>
+        <div class="ver">战略方向：Streaming Storage for Real-Time Analytics &amp; AI</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🎯 战略定位：</strong>Fluss 2026 的核心使命是"为实时分析与 AI 提供流式存储基础设施"。这不仅仅是功能列表的罗列，而是一个清晰的市场差异化战略——在 Kafka 占据通用消息队列市场的格局下，Fluss 选择了一个更垂直、也更有技术壁垒的赛道。
+      </div>
+
+      <h3>🧭 路线图总体方向</h3>
+
+      <p>通过追踪 Fluss 的 <a href="https://github.com/apache/fluss/discussions" target="_blank">GitHub Discussions</a> 和 <a href="https://www.mail-archive.com/issues@fluss.apache.org/msg08541.html" target="_blank">邮件列表讨论</a>，2026 年的战略方向可以归纳为以下几个重点领域：</p>
+
+      <div class="tags">
+        <span class="tag hot">AI Infrastructure</span>
+        <span class="tag">Real-Time Analytics</span>
+        <span class="tag">Streamhouse</span>
+        <span class="tag">Columnar Storage</span>
+        <span class="tag">Zero-State Streaming</span>
+      </div>
+
+      <h3>🎯 重点一：AI 基础设施化</h3>
+
+      <p>Fluss 2026 最明确的战略选择是将自身定位为 <strong>AI 工作负载的数据基础设施</strong>，而不仅仅是"又一个流存储"。这以 3 月发布的 <a href="https://fluss.apache.org/blog/fluss-for-ai/" target="_blank">《Fluss in the Context of AI》</a> 为标志性宣言。</p>
+
+      <p>具体体现在以下方向：</p>
+
+      <ul class="feature-list">
+        <li><strong>特征存储（Feature Store）：</strong>Fluss 的列存储架构天然适合特征存储场景——按需只读取需要的特征列、低延迟实时特征更新、Arrow 格式与 ML 框架（PyTorch/Pandas）的无缝对接。</li>
+        <li><strong>实时上下文注入：</strong>RAG（检索增强生成）和 Agent 场景需要低延迟的实时上下文数据——用户行为、业务指标、事件流。Fluss 的 "Streaming Lakehouse" 架构可以将实时流数据和历史 lake 数据统一查询，避免了流批两套系统的复杂性。</li>
+        <li><strong>向量嵌入存储：</strong>通过 Lance 格式的原生支持，Fluss 在架构上已经为向量嵌入的存储和检索做好了准备。这为 embedding-based 的实时推荐、搜索和异常检测提供了基础设施级别的支持。</li>
+        <li><strong>多语言 SDK 降门槛：</strong>0.1.0 的多语言 SDK（Rust/Python/C++）本质上是面向数据科学家和 ML 工程师的——Python 生态是 AI 开发的主力语言。</li>
+      </ul>
+
+      <h3>🎯 重点二：Streamhouse 架构深化</h3>
+
+      <p>Fluss 提出的 Streamhouse 是最具野心的架构愿景之一——用 Fluss 替代 Kafka 作为 streaming 层，用 Iceberg/Paimon 作为 lake 层，用 Arrow 作为统一数据格式，实现流批一体的存储和查询。</p>
+
+      <ul class="feature-list">
+        <li><strong>淘宝 3 PB 级验证：</strong><a href="https://fluss.apache.org/blog/taobao-instant-commerce-real-time-decision/" target="_blank">淘宝即时零售的案例</a>是目前公开的最大的 Streamhouse 生产部署，3 PB 数据量、40 GB/s 吞吐，验证了架构的可行性。</li>
+        <li><strong>Delta Join &amp; Partial Update：</strong>0.9 引入的 Delta Join 和 Partial Update 能力使得 Flink 作业可以以近似无状态的方式运行——聚合状态存储在 Fluss 端，Flink 只做计算。</li>
+        <li><strong>Lake Filter 下推：</strong>0.9.1 的 filter pushdown 改进（#3181）进一步缩小了流存储和 lake 存储之间的查询性能差距。</li>
+      </ul>
+
+      <h3>🎯 重点三：存储计算分离的终极形态</h3>
+
+      <p>Fluss 的终极目标是实现"Zero-State Streaming"——Flink 作业近乎无状态运行，所有状态（聚合、索引、维度表）都外部化到 Fluss。这对于以下场景有革命性影响：</p>
+
+      <ul class="feature-list">
+        <li><strong>Flink 作业的弹性扩缩容：</strong>无状态或轻状态作业可以近乎即时地 scale up/down，不需要漫长的 state 重分布过程。</li>
+        <li><strong>Savepoint/Crash Recovery：</strong>状态在 Fluss 端，Flink 重启时直接从 Fluss 恢复，savepoint 时间大幅缩短。</li>
+        <li><strong>多作业共享状态：</strong>同一份聚合状态可以被多个 Flink 作业消费，避免重复聚合计算。</li>
+      </ul>
+
+      <h3>🎯 重点四：生态扩展</h3>
+
+      <ul class="feature-list">
+        <li><strong>Spark 集成：</strong>扩展 Fluss 的批处理和交互式查询能力，覆盖 Data Engineering 场景。</li>
+        <li><strong>Azure 支持：</strong>在 AWS S3 之外扩展 Azure Blob Storage / ADLS Gen2 的支持。</li>
+        <li><strong>Helm Chart / Operator：</strong>从 Chart 到 Operator 的演进，目标是"kubectl apply 即可部署生产级 Fluss 集群"。</li>
+        <li><strong>SQL 语法扩展：</strong>更丰富的 DDL（Schema 管理）和 DML（Partial Update / Merge）支持。</li>
+      </ul>
+
+      <h3>📊 成熟度评估</h3>
+
+      <table style="width:100%; border-collapse: collapse; margin:16px 0; font-size:14px;">
+        <thead>
+          <tr style="background:#f8f9fb; text-align:left;">
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">维度</th>
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">状态</th>
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">评估</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">核心引擎</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">🟡 生产中（淘宝）</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">大规模验证完成，但 crash recovery 等边界仍在打磨（见 0.9.1 修复）</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">多语言 SDK</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">🟡 0.1.0 发布</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">架构设计优秀，但版本号偏低，API 稳定性和生态仍需验证</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Kubernetes 部署</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">🟡 有 Chart，无 Operator</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Chart 趋于完善，但缺少 Operator 级别的自动运维能力</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">社区治理</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">🟡 Incubating</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Apache Incubator 阶段，毕业需要更广泛的 contributor 多样性</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;">AI 能力</td>
+            <td style="padding:10px 14px;">🟠 早期规划</td>
+            <td style="padding:10px 14px;">向量存储、特征存储等 AI 基础设施能力处于规划设计阶段</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/apache/fluss/discussions" target="_blank">Fluss GitHub Discussions</a></li>
+          <li><a href="https://www.mail-archive.com/issues@fluss.apache.org/msg08541.html" target="_blank">Fluss 邮件列表 · 路线图讨论</a></li>
+          <li><a href="https://fluss.apache.org/blog/fluss-for-ai/" target="_blank">Fluss in the Context of AI</a></li>
+          <li><a href="https://fluss.apache.org/blog/taobao-instant-commerce-real-time-decision/" target="_blank">淘宝即时零售 · Streamhouse 实战</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== AutoMQ ==================== -->
+  <article class="section" id="automq">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-automq);">⚡</div>
+      <div class="info">
+        <h2>AutoMQ 社区动态</h2>
+        <div class="ver">1.6.5 后续 · 社区运营 &amp; 生态建设</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📌 本周补充：</strong>上周已详细覆盖 AutoMQ 1.6.5 的技术更新（License、多 Metrics、DevKit 等），本周补充社区运营和开发者生态方面的动态。
+      </div>
+
+      <h3>📰 AutoMQ 4 月 Newsletter</h3>
+
+      <p>AutoMQ 通过 <a href="https://www.linkedin.com/pulse/automq-newsletter-april-2026-automq-bd4pc" target="_blank">LinkedIn 发布了 4 月社区通讯</a>（April Newsletter），重点突出了两个方向：降低上手门槛和社区增长。</p>
+
+      <div class="tags">
+        <span class="tag new">社区运营</span>
+        <span class="tag">Newsletter</span>
+        <span class="tag">开发者体验</span>
+      </div>
+
+      <h4>🧪 AutoMQ Playground</h4>
+
+      <p>AutoMQ 推出了 <strong>Playground</strong> 环境，面向想要快速体验 AutoMQ 的开发者。这与 Confluent Cloud 的免费试用、Redpanda Console 的策略类似——降低"从零到运行"的摩擦。对于考虑 Kafka 替代方案的团队来说，这种零门槛体验对于决策效率至关重要。</p>
+
+      <h4>🔧 简化安装流程</h4>
+
+      <p>Newsletter 中强调了安装流程的持续简化。结合 1.6.5 引入的 DevKit（本地一键启动集群），AutoMQ 在开发者体验（DX）上的投入是明确的战略方向。在消息队列/流存储这个拥挤的市场中，DX 是第一道护城河——如果开发者在 5 分钟内跑不起来，他们可能就去试竞品了。</p>
+
+      <h3>🏗️ Nightly Builds 持续活跃</h3>
+
+      <p>AutoMQ 的 nightly builds 流水线持续产出，表明工程团队在保持高频率的迭代节奏。虽然不构成"新版本发布"，但这说明 AutoMQ 的开发活跃度没有放缓——在 1.6.5 之后仍在持续推进新功能和修复。</p>
+
+      <h3>🔍 趋势观察</h3>
+
+      <p>从 1.6.5 的 License 机制、SPI 企业扩展路由，到 Newsletters 的 Playground，AutoMQ 正在走一条"开源+商业"双轨路线：</p>
+
+      <ul class="feature-list">
+        <li><strong>开源侧（社区版）：</strong>DevKit 本地开发、Playground 零门槛体验、Kafka 兼容性</li>
+        <li><strong>商业侧（企业版）：</strong>License 授权管理、SPI 扩展路由、多 Metrics 实例</li>
+      </ul>
+
+      <p>这种"open core + enterprise features"的模式在基础设施软件领域已经非常成熟（参考 Redis、GitLab、Confluent），AutoMQ 的路线与之一致。值得关注的是，License 机制的具体实现方式——是 feature-gated 还是 capacity-gated，这将直接影响社区版用户的体验。</p>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://www.linkedin.com/pulse/automq-newsletter-april-2026-automq-bd4pc" target="_blank">AutoMQ Newsletter · April 2026</a></li>
+          <li><a href="https://github.com/AutoMQ/automq/releases" target="_blank">GitHub Releases</a></li>
+          <li><a href="https://www.automq.com/" target="_blank">AutoMQ 官网</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== 趋势观察 ==================== -->
+  <article class="section" id="trends">
+    <div class="section-header" style="border-bottom-color: #4361ee;">
+      <div class="icon" style="background: linear-gradient(135deg, #4361ee, #7209b7);">📊</div>
+      <div class="info">
+        <h2>趋势观察</h2>
+        <div class="ver">5 月下半月 · 流存储/消息队列生态全景</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <h3>一、Kafka 4.x 进入成熟期</h3>
+
+      <p>Kafka 4.3.0 的发布和社区反应传递了一个清晰的信号：Kafka 4.x 系列已经从"新版本"进入"生产成熟期"。标志包括：</p>
+
+      <ul class="feature-list">
+        <li>运维原语的补全（KIP-1066 Cordon、KIP-1023 Follower Tiered Fetch）</li>
+        <li>安全标准的系统化提升（KIP-1258 OAuth Client Assertion、KIP-1280 新版 Metrics）</li>
+        <li>旧协议的明确废弃路线图（KIP-1274 经典 Rebalance 废弃、streams-scala 废弃）</li>
+        <li>FactorHouse、Red Hat 等第三方社区开始产出面向实践的指南</li>
+      </ul>
+
+      <p><strong>对用户的含义：</strong>如果你在 4.x 上，现在升级的风险回报比是有利的——4.3.0 提供了实质性的运维改进。如果你还在 3.x，4.x 的稳定性已经足够生产使用，但迁移的窗口取决于 Consumer Rebalance Protocol 的切换进度——建议在 Kafka 5.0 发布前完成迁移。</p>
+
+      <h3>二、Fluss 作为新兴流存储的差异化路径</h3>
+
+      <p>Fluss 正在走一条与 Kafka 截然不同的路：</p>
+
+      <table style="width:100%; border-collapse: collapse; margin:16px 0; font-size:14px;">
+        <thead>
+          <tr style="background:#f8f9fb; text-align:left;">
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">维度</th>
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">Kafka</th>
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">Fluss</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">存储格式</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">按分区、按 segment 的日志</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">按主键分区、列存储（Arrow）</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">查询模式</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">顺序扫描（append-only）</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">列裁剪、谓词下推、点查和范围查询</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">表模型</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">无 Schema 约束的 Topic</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">有主键、有 Schema 的 Table</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">更新能力</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">无（append-only）</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Partial Update、Delete、Merge</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Lake 集成</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Tiered Storage（冷数据归档）</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">Streamhouse（流批一体查询）</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;">主要场景</td>
+            <td style="padding:10px 14px;">通用消息队列、事件流</td>
+            <td style="padding:10px 14px;">实时分析、特征存储、AI 基础设施</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>核心判断：</strong>Fluss 不是在"做更好的 Kafka"，而是在"做 Kafka 做不到的事"。如果 2026 年你的工作负载是"海量数据实时分析 + AI 模型在线推理"，Fluss 的技术选型就值得认真评估。如果只是消息队列和事件驱动架构，Kafka/Redpanda/WarpStream 等成熟方案更合适。</p>
+
+      <h3>三、AutoMQ 的企业级转向</h3>
+
+      <p>AutoMQ 正在经历一个微妙的身份转型——从"云原生 Kafka 分发版"到"企业级事件流平台"。信号包括：</p>
+
+      <ul class="feature-list">
+        <li><strong>License 机制引入：</strong>开源侧 + 商业侧的双轨制明确化</li>
+        <li><strong>SPI 企业扩展路由：</strong>面向企业定制的插件化架构</li>
+        <li><strong>ZeroZone 持续投资：</strong>跨 AZ 零流量复制是企业级部署的核心差异化</li>
+        <li><strong>开发者体验的重视：</strong>DevKit、Playground、简化安装——降低用户获取成本</li>
+      </ul>
+
+      <p><strong>需要关注的问题：</strong>AutoMQ 基于的 Kafka 基线版本（3.9.1）与社区最新版（4.3.0）之间存在不小的差距。随着 Kafka 4.x 在运维能力上的持续进步（Cordon、Follower Tiered Fetch、Consumer 协议现代化等），AutoMQ 需要加快与上游的同步节奏，否则可能在功能上落后。</p>
+
+      <h3>四、行业整体趋势</h3>
+
+      <ul class="feature-list">
+        <li><strong>存算分离成为标配：</strong>Kafka 的 Tiered Storage、AutoMQ 的 S3-backed 架构、Fluss 的 Lakehouse-native 设计——三个项目不约而同地走向存算分离。2026 年，依赖本地磁盘的"传统"消息队列架构正在成为过去式。</li>
+        <li><strong>AI + Streaming 深度融合：</strong>Fluss 明确提出了 AI 基础设施定位，Kafka/Confluent 也通过 Flink AI 等生态工具切入——实时数据 + AI 推理的组合正在成为新的技术范式。</li>
+        <li><strong>列存储成为流存储的新方向：</strong>Fluss 的 Arrow 列存储在查询性能（列裁剪 10x 读吞吐提升）和 AI 兼容性（Arrow ↔ Pandas/PyTorch）上的优势，可能推动整个行业重新思考流存储的存储格式。</li>
+        <li><strong>Kubernetes Native 运维：</strong>三个项目都在加强 Kubernetes 部署能力（Helm Chart、Operator、DevKit）——运维的云原生化是所有基础设施软件的共同方向。</li>
+      </ul>
+
+    </div>
+  </article>
+
+  <!-- ==================== 参考链接 ==================== -->
+  <article class="section" id="refs">
+    <div class="section-header" style="border-bottom-color: #6b7280;">
+      <div class="icon" style="background: #6b7280;">🔗</div>
+      <div class="info">
+        <h2>参考链接</h2>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:12px 0 8px;">🐘 Apache Kafka — 深度解读</h3>
+      <div class="refs-list">
+        <a href="https://factorhouse.io/articles/apache-kafka-4-3-0" target="_blank">FactorHouse · Apache Kafka 4.3.0: A Guide for Platform Engineers</a>
+        <a href="https://developers.redhat.com/blog/2026/05/04/kafka-monthly-digest-april-2026" target="_blank">Red Hat · Kafka Monthly Digest April 2026</a>
+        <a href="https://www.youtube.com/watch?v=lePgrOiX11U" target="_blank">Confluent · Kafka 4.3.0 Highlights Demo (YouTube)</a>
+        <a href="https://kafka.apache.org/blog/2026/05/22/apache-kafka-4.3.0-release-announcement/" target="_blank">Apache Kafka 4.3.0 Release Announcement</a>
+        <a href="https://downloads.apache.org/kafka/4.3.0/RELEASE_NOTES.html" target="_blank">Kafka 4.3.0 Release Notes</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">🔑 关键 KIP（Apache Kafka 4.3.0）</h3>
+      <div class="refs-list">
+        <a href="https://cwiki.apache.org/confluence/x/8op3EQ" target="_blank">KIP-1023 · Follower Fetch from Tiered Offset</a>
+        <a href="https://cwiki.apache.org/confluence/x/Lg_TEg" target="_blank">KIP-1066 · Cordon Brokers &amp; Log Directories</a>
+        <a href="https://cwiki.apache.org/confluence/x/hA5JFg" target="_blank">KIP-1196 · Group Coordinator Append Buffer</a>
+        <a href="https://cwiki.apache.org/confluence/x/dwEXG" target="_blank">KIP-1258 · OAuth Client Assertion</a>
+        <a href="https://cwiki.apache.org/confluence/x/8ITMFw" target="_blank">KIP-1251 · Assignment Epochs</a>
+        <a href="https://cwiki.apache.org/confluence/x/PoY8G" target="_blank">KIP-1274 · Deprecate Classic Rebalance Protocol (Phase 1)</a>
+        <a href="https://cwiki.apache.org/confluence/x/QIM8G" target="_blank">KIP-1271 · Store Headers in State Stores</a>
+        <a href="https://cwiki.apache.org/confluence/x/4ow8G" target="_blank">KIP-1285 · DSL Headers-Aware State Stores</a>
+        <a href="https://cwiki.apache.org/confluence/x/XgIXG" target="_blank">KIP-1259 · State Cleanup on Startup</a>
+        <a href="https://cwiki.apache.org/confluence/x/qIE8G" target="_blank">KIP-1270 · ProcessingExceptionHandler for GlobalThread</a>
+        <a href="https://cwiki.apache.org/confluence/x/h4HMFw" target="_blank">KIP-1239 · Batch Offset Translation (Connect)</a>
+        <a href="https://cwiki.apache.org/confluence/x/a4s8G" target="_blank">KIP-1280 · MirrorMaker KIP-877 Metrics</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">🌊 Apache Fluss — 技术深潜 &amp; 路线图</h3>
+      <div class="refs-list">
+        <a href="https://github.com/apache/fluss/releases" target="_blank">Fluss GitHub Releases · v0.9.1-incubating</a>
+        <a href="https://github.com/apache/fluss/pull/3193" target="_blank">#3193 · Fix Paimon IOManager leak in MergeTreeWriter</a>
+        <a href="https://github.com/apache/fluss/pull/3181" target="_blank">#3181 · Push down lake filters for non-partitioned scans</a>
+        <a href="https://github.com/apache/fluss/pull/3157" target="_blank">#3157 · Fix non-target columns not nulled</a>
+        <a href="https://github.com/apache/fluss/pull/3137" target="_blank">#3137 · Fix SortMergeReader early termination</a>
+        <a href="https://github.com/apache/fluss/pull/3108" target="_blank">#3108 · Introduce netty.server.max-request-size</a>
+        <a href="https://github.com/apache/fluss/pull/3094" target="_blank">#3094 · Support default AWS credential chain</a>
+        <a href="https://github.com/apache/fluss/pull/2989" target="_blank">#2989 · Support AssumeRole STS for RustFS</a>
+        <a href="https://github.com/apache/fluss/pull/2905" target="_blank">#2905 · Allow partial updates for AGGREGATION merge engine</a>
+        <a href="https://github.com/apache/fluss/discussions" target="_blank">Fluss GitHub Discussions</a>
+        <a href="https://www.mail-archive.com/issues@fluss.apache.org/msg08541.html" target="_blank">Fluss 邮件列表 · 路线图讨论</a>
+        <a href="https://fluss.apache.org/blog/fluss-for-ai/" target="_blank">Fluss in the Context of AI</a>
+        <a href="https://fluss.apache.org/blog/taobao-instant-commerce-real-time-decision/" target="_blank">淘宝即时零售 · Streamhouse 实战</a>
+        <a href="https://fluss.apache.org/blog/column-pruning-streaming-storage/" target="_blank">列裁剪在流存储中的实现</a>
+        <a href="https://fluss.apache.org/blog/why-fluss-chose-rust-for-multi-language-sdk/" target="_blank">Rust 多语言 SDK 选型</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">⚡ AutoMQ — 社区动态</h3>
+      <div class="refs-list">
+        <a href="https://www.linkedin.com/pulse/automq-newsletter-april-2026-automq-bd4pc" target="_blank">AutoMQ Newsletter · April 2026</a>
+        <a href="https://github.com/AutoMQ/automq/releases" target="_blank">AutoMQ GitHub Releases</a>
+        <a href="https://github.com/AutoMQ/automq/releases/tag/1.6.5" target="_blank">AutoMQ 1.6.5 Release Notes</a>
+        <a href="https://github.com/AutoMQ/automq" target="_blank">AutoMQ GitHub 主页</a>
+        <a href="https://www.automq.com/" target="_blank">AutoMQ 官方网站</a>
+        <a href="https://docs.automq.com/" target="_blank">AutoMQ 官方文档</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="team">CHANG_AI_TEAM · 技术调研</div>
+    <div>调研周期：2026-05-26 ~ 2026-05-28（第 22 周 · 深度分析增刊）</div>
+    <div style="margin-top:4px;">© 2026 CHANG_AI_TEAM — 仅供内部参考</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
