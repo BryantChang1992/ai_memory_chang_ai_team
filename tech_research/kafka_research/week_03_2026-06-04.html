@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术调研周报 · 第3期（2026-06-04）</title>
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent-kafka: #231f20;
+    --accent-automq: #6c48f5;
+    --accent-fluss: #0ea5e9;
+    --accent-ai: #f59e0b;
+    --accent-data: #10b981;
+    --border: #e5e7eb;
+    --tag-bg: #f0f4ff;
+    --tag-text: #4361ee;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+  .header {
+    text-align: center;
+    padding: 48px 0 36px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #4361ee, #7209b7);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; color: #111; letter-spacing: -0.3px; line-height: 1.35; margin-bottom: 12px; }
+  .header .meta { font-size: 14px; color: var(--text-secondary); }
+  .header .meta span { margin: 0 8px; }
+  .toc {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    border-left: 4px solid #4361ee;
+  }
+  .toc h2 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 14px; }
+  .toc ol { padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+  .toc li a { text-decoration: none; color: var(--tag-text); font-weight: 500; font-size: 0.92rem; transition: color 0.15s; }
+  .toc li a:hover { color: #7209b7; }
+  .section {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-header .icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .section-header .info h2 { font-size: 20px; font-weight: 700; color: #111; }
+  .section-header .info .ver { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .section-body { padding: 24px 28px 28px; }
+  .section-body h3 {
+    font-size: 16px; font-weight: 600; color: #333;
+    margin: 24px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  .section-body h3:first-child { margin-top: 0; }
+  .section-body p { margin-bottom: 12px; color: #444; font-size: 15px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .tag {
+    display: inline-block; background: var(--tag-bg); color: var(--tag-text);
+    font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px;
+  }
+  .tag.hot { background: #fef2f2; color: #dc2626; }
+  .tag.new { background: #ecfdf5; color: #059669; }
+  .feature-list { list-style: none; margin: 10px 0 16px; }
+  .feature-list li {
+    padding: 8px 0; padding-left: 22px; position: relative;
+    font-size: 14px; color: #444; border-bottom: 1px solid #f5f5f5;
+  }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li::before {
+    content: ''; position: absolute; left: 0; top: 14px;
+    width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.4;
+  }
+  .kip-list { list-style: none; margin: 10px 0 16px; }
+  .kip-list li {
+    padding: 10px 14px; margin-bottom: 6px;
+    background: #fafbfc; border-radius: 8px; font-size: 14px;
+    color: #444; border-left: 3px solid #e0e4ea;
+  }
+  .kip-list li strong { color: #333; }
+  a { color: var(--tag-text); text-decoration: none; font-weight: 500; }
+  a:hover { text-decoration: underline; }
+  .source-links { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .source-links h4 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-secondary); margin-bottom: 8px;
+  }
+  .source-links ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  .source-links li { font-size: 13px; }
+  .highlight-box {
+    background: linear-gradient(135deg, #eff6ff, #faf5ff);
+    border: 1px solid #c7d2fe; border-radius: 10px;
+    padding: 16px 20px; margin: 16px 0; font-size: 14px; color: #333;
+  }
+  .highlight-box strong { color: #4361ee; }
+  .footer {
+    text-align: center; padding: 32px 0 16px;
+    color: var(--text-secondary); font-size: 13px;
+    border-top: 1px solid var(--border); margin-top: 12px;
+  }
+  .footer .team { font-weight: 600; color: #333; margin-bottom: 4px; }
+  .refs-list { display: flex; flex-direction: column; gap: 6px; }
+  .refs-list a {
+    color: var(--accent-kafka); text-decoration: none;
+    font-size: 0.9rem; padding: 4px 0; word-break: break-all;
+  }
+  .refs-list a:hover { text-decoration: underline; }
+  .refs-list a::before { content: '🔗 '; font-size: 0.8rem; }
+  table {
+    width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;
+  }
+  thead th {
+    background: #f8f9fb; text-align: left;
+    padding: 10px 14px; border-bottom: 2px solid #e5e7eb;
+  }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+  .global-nav {
+    display: flex; align-items: center; gap: 0;
+    padding: 0 24px; background: rgba(248,249,251,0.92);
+    backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100; height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700; font-size: 0.95rem; color: var(--text);
+    text-decoration: none; margin-right: 28px; white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent-kafka), var(--accent-fluss));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link {
+    color: var(--text-secondary); text-decoration: none;
+    font-size: 0.88rem; padding: 6px 14px; border-radius: 8px;
+    transition: background 0.15s, color 0.15s; white-space: nowrap;
+  }
+  .global-nav .nav-link:hover { background: var(--tag-bg); color: var(--text); }
+  .global-nav .nav-link.active { background: var(--tag-bg); color: var(--tag-text); font-weight: 500; }
+  @media (max-width: 640px) {
+    .container { padding: 16px; }
+    .header h1 { font-size: 22px; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .section-body { padding: 16px; }
+  }
+  @media print {
+    body { background: #fff; }
+    .section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+    .source-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link">🔬 技术调研</a>
+    <a href="week_03_2026-06-04.html" class="nav-link active">📋 周报 #3</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="header">
+    <div class="badge">CHANG_AI_TEAM · 技术调研</div>
+    <h1>技术调研周报 #3<br>Kafka 生态 + AI 基础设施 + 数据平台</h1>
+    <div class="meta">
+      <span>📅 2026年6月4日</span>
+      <span>·</span>
+      <span>📊 第23周（W23）</span>
+      <span>·</span>
+      <span>🏷️ 第3期</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#summary">🔥 本周综述</a></li>
+      <li><a href="#kafka">🐘 Kafka — 4.2.1 发布 &amp; 新一轮 KIP 提案</a></li>
+      <li><a href="#automq">⚡ AutoMQ 1.7.0 — 重大版本发布</a></li>
+      <li><a href="#fluss">🌊 Fluss — 社区最活跃的一周</a></li>
+      <li><a href="#ai-harness">🤖 AI Harness · Agent 基础设施</a></li>
+      <li><a href="#data-platform">💾 面向 AI 的数据平台建设</a></li>
+      <li><a href="#trends">📊 趋势观察</a></li>
+      <li><a href="#refs">🔗 参考链接</a></li>
+    </ol>
+  </nav>
+
+  <!-- ==================== 本周综述 ==================== -->
+  <article class="section" id="summary">
+    <div class="section-header" style="border-bottom-color: #dc2626;">
+      <div class="icon" style="background: linear-gradient(135deg, #dc2626, #f97316);">🔥</div>
+      <div class="info">
+        <h2>本周综述</h2>
+        <div class="ver">2026-05-28 ~ 2026-06-04</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="highlight-box">
+        <strong>📌 本期定位：</strong>首次完整覆盖三个调研方向 —— Kafka/AutoMQ/Fluss 社区动态、AI Harness·Agent 基础设施、面向 AI 的数据平台建设。本期也是数据最丰富的一期：AutoMQ 1.7.0 发布、Fluss 63 个活跃 PR、Anthropic 多项重磅研究、Delta Lake 4.2.0 发布。
+      </div>
+      <p>本周是开源流存储/数据基础设施领域极其活跃的一周。AutoMQ 在今日（6月4日）发布了里程碑式的 1.7.0 版本；Fluss 社区以 63 个活跃 PR 和 2 篇深度技术博客创下近期单周活跃度新高；Kafka 社区在 4.3.0 发布后进入了新一轮 KIP 讨论热潮，包括原生集群镜像（KIP-1279）、延迟消息（KIP-1277）等重磅提案。</p>
+      <p>在 AI 基础设施方向，Anthropic 发布了 Natural Language Autoencoders 这一可解释性突破工具，并公布了 Project Glasswing 的首批成果——用 Claude Mythos 发现了一万个以上的高危漏洞。LangGraph 连续发布了 1.2.3/1.2.4 两个版本，引入了 v3 流式传输和 WebSocket 支持。</p>
+      <p>核心看点：</p>
+      <ul class="feature-list">
+        <li><strong>AutoMQ 1.7.0 发布</strong>——30 个 PR 合并，命名空间隔离、集群事件框架、Maven 发布、ZeroZone 优化</li>
+        <li><strong>Kafka 4.2.1 bugfix 发布</strong>——45 位贡献者，多个关键稳定性修复</li>
+        <li><strong>9 个新 KIP 进入讨论</strong>——KIP-1279 原生集群镜像、KIP-1277 延迟消息、KIP-1290 机架感知 min ISR</li>
+        <li><strong>Fluss 本周 63 个活跃 PR</strong>——Hudi LakeCatalog 合并、Paimon Arrow 列存写入、FIP-40 Rust SDK 合仓</li>
+        <li><strong>Anthropic NLAs 可解释性突破</strong>——将模型内部激活转化为自然语言文本</li>
+        <li><strong>Delta Lake 4.2.0</strong>——Flink connector、Geospatial/Variant GA、安全加固</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ==================== Kafka ==================== -->
+  <article class="section" id="kafka">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-kafka);">🐘</div>
+      <div class="info">
+        <h2>Apache Kafka — 4.2.1 发布 &amp; 新一轮 KIP 提案</h2>
+        <div class="ver">4.2.1 · 5月30日 &nbsp;|&nbsp; 9 个新 KIP 进入讨论</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🔥 本周要点：</strong>Kafka 4.2.1 本周发布；4.3.0 社区反应持续发酵；9 个新 KIP 提案进入讨论，其中 KIP-1279（原生集群镜像）和 KIP-1277（延迟消息）是最重磅的两个。
+      </div>
+
+      <h3>📦 Kafka 4.2.1 Bugfix 发布（5月30日）</h3>
+      <p>Apache Kafka 4.2.1 于 5 月 30 日正式发布，这是一个 bugfix 版本，包含若干关键修复。由 <strong>45 位贡献者</strong>参与开发，涵盖 Consumer、Streams、Connect 等多个组件的稳定性修复。建议所有 4.2.x 用户尽快升级。</p>
+      <div class="tags">
+        <span class="tag new">Bugfix Release</span>
+        <span class="tag">5月30日</span>
+        <span class="tag">45 Contributors</span>
+      </div>
+
+      <h3>🔥 新一轮 KIP 提案（讨论中）</h3>
+      <p>在 4.3.0 发布（5月22日，含 25 个 KIP）之后，Kafka 社区迅速启动了新一轮 KIP 提案讨论。以下 9 个提案中，多个涉及 Kafka 的核心运维和功能模型：</p>
+
+      <ul class="kip-list">
+        <li>
+          <strong>⭐ <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring" target="_blank">KIP-1279 · 原生集群镜像（Cluster Mirroring）</a></strong><br>
+          将跨集群复制能力原生集成到 Broker 中，替代 MirrorMaker 2。免除独立 Connect Worker 的运维负担和冗余压缩/解压开销。这是目前讨论中影响面最广的提案——如果落地，将彻底改变 Kafka 多集群架构的运维模式。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1277%3A+Support+Delayed+Message+in+Kafka" target="_blank">KIP-1277 · 原生延迟消息</a></strong><br>
+          Producer 可设置未来投递时间戳，Broker 在指定时间后才对 Consumer 可见。解决了"定时消息"这类常见业务需求（如订单超时取消）的优雅实现问题。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas" target="_blank">KIP-1290 · 机架感知 min.insync.replicas</a></strong><br>
+          在 Produce 时引入机架感知的 min ISR 校验，确保 ISR 确认跨越足够数量的不同可用区（AZ），提供真正的跨 AZ 持久性保证。对多 AZ 部署的企业关键特性。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1297%3A+Role-Aware+Metric+Tags" target="_blank">KIP-1297 · Role-Aware Metric Tags（KRaft）</a></strong><br>
+          为 KRaft 模式的指标添加 role 标签（broker/controller/combined），解决 controller-only 节点上 broker-id 无意义导致重复/误导性指标的问题。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1289+Support+Transactional+Acknowledgments+for+Share+Groups" target="_blank">KIP-1289 · Share Group 事务性确认</a></strong><br>
+          为 Share Group 消费者添加事务性确认支持，确保处理副作用写入和确认操作原子提交，避免双重处理。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1288%3A+SSL+Hot+Reload+for+Kafka+Clients" target="_blank">KIP-1288 · 客户端 SSL 热加载</a></strong><br>
+          客户端监听 keystore/truststore 文件变更并自动重载 SSLContext，无需重启。解决短期证书轮转场景的运维痛点。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1282%3A+Prevent+data+loss+during+partition+expansion" target="_blank">KIP-1282 · 分区扩展防数据丢失</a></strong><br>
+          引入新的 auto.offset.reset 策略 <code>partition-start</code>，仅对新发现的分区从起始读取，已有的从 committed offset 消费，防止丢数据。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1272%3A+Support+compacted+topic+in+tiered+storage" target="_blank">KIP-1272 · Compacted Topic 分层存储</a></strong><br>
+          将 KIP-405 的分层存储能力扩展到 compacted topic，支持远程层上的 compacted segment 上传和 offset 查找。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1266%3A+Bounding+The+Number+Of+RemoteLogMetadata+Messages" target="_blank">KIP-1266 · RemoteLogMetadata Topic 改为 Compacted</a></strong><br>
+          将内部 topic <code>__remote_log_metadata</code> 改为 compacted，避免无界增长和慢启动问题。
+        </li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://kafka.apache.org/blog/2026/05/30/apache-kafka-4.2.1-release-announcement/" target="_blank">Kafka 4.2.1 Release Announcement</a></li>
+          <li><a href="https://downloads.apache.org/kafka/4.2.1/RELEASE_NOTES.html" target="_blank">Kafka 4.2.1 Release Notes</a></li>
+          <li><a href="https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Improvement+Proposals" target="_blank">KIP 索引</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== AutoMQ ==================== -->
+  <article class="section" id="automq">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-automq);">⚡</div>
+      <div class="info">
+        <h2>AutoMQ 1.7.0 — 重大版本发布</h2>
+        <div class="ver">v1.7.0 · 2026-06-04 正式发布 &nbsp;|&nbsp; 30 个 PR 合并</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🚀 版本亮点：</strong>AutoMQ 1.7.0 合并了 Apache Kafka 3.9.1 作为上游基线，引入命名空间隔离、集群事件框架、Maven Snapshot 包发布、Broker 自伸缩指标等核心特性。同时修复了 DataBlockIndex int 溢出导致的数据丢失风险和多个 S3 存储层的竞态条件。
+      </div>
+
+      <div class="tags">
+        <span class="tag hot">Major Release</span>
+        <span class="tag new">6月4日发布</span>
+        <span class="tag">30 PRs</span>
+        <span class="tag">Kafka 3.9.1 基线</span>
+      </div>
+
+      <h3>🏗️ 架构与核心特性</h3>
+      <ul class="feature-list">
+        <li><strong>集群事件框架（<a href="https://github.com/AutoMQ/automq/pull/3312" target="_blank">#3312</a>）：</strong>引入基于 Protobuf 的集群事件发布框架，为集群状态变更通知打下基础，也是未来 Operator 自动运维的关键组件。</li>
+        <li><strong>命名空间隔离（<a href="https://github.com/AutoMQ/automq/pull/3298" target="_blank">#3298</a>, <a href="https://github.com/AutoMQ/automq/pull/3306" target="_blank">#3306</a>）：</strong>DevKit 和 KV 存储均增加命名空间支持，实现多实例/多租户隔离。</li>
+        <li><strong>Broker 自伸缩指标（<a href="https://github.com/AutoMQ/automq/pull/3367" target="_blank">#3367</a>）：</strong>暴露 Broker 资源使用统计指标，为自动扩缩容提供数据支撑。</li>
+        <li><strong>ZeroZone 异步分区快照（<a href="https://github.com/AutoMQ/automq/pull/3344" target="_blank">#3344</a>）：</strong>新增异步分区快照长轮询机制，优化分区快照获取效率。</li>
+        <li><strong>QuorumController 扩展钩子（<a href="https://github.com/AutoMQ/automq/pull/3337" target="_blank">#3337</a>）：</strong>为 QuorumController 插件增加激活/停用生命周期钩子。</li>
+        <li><strong>RouterChannel 纪元查询（<a href="https://github.com/AutoMQ/automq/pull/3342" target="_blank">#3342</a>）：</strong>新增 RouterChannel 纪元查询 API，便于诊断路由通道状态。</li>
+      </ul>
+
+      <h3>📦 构建与发布</h3>
+      <ul class="feature-list">
+        <li><strong>Maven Snapshot 包发布（<a href="https://github.com/AutoMQ/automq/pull/3330" target="_blank">#3330</a>）：</strong>首次支持 Maven Snapshot 包发布，方便开发者以依赖方式集成 AutoMQ。</li>
+        <li><strong>开源依赖版本统一（<a href="https://github.com/AutoMQ/automq/pull/3275" target="_blank">#3275</a>）：</strong>统一开源依赖版本，提升构建一致性。</li>
+        <li><strong>Strimzi 兼容性提升（<a href="https://github.com/AutoMQ/automq/pull/3309" target="_blank">#3309</a>）：</strong>用 gRPC ManagedChannel 替换 OkHttp 发送器，提升与 Strimzi（Kafka on Kubernetes Operator）的兼容性。</li>
+      </ul>
+
+      <h3>🐛 关键 Bug 修复</h3>
+      <ul class="feature-list">
+        <li><strong>🔴 DataBlockIndex int 溢出修复（<a href="https://github.com/AutoMQ/automq/pull/3336" target="_blank">#3336</a>）：</strong>DataBlockIndex 的 endOffsetDelta 在 compaction 过程中 int 溢出可能导致数据丢失，已紧急修复。<strong>所有 1.6.x 用户应尽快升级。</strong></li>
+        <li><strong>LogCache tryMerge 双重释放（<a href="https://github.com/AutoMQ/automq/pull/3307" target="_blank">#3307</a>）：</strong>修复 LogCache tryMerge 中的双重释放竞态条件。</li>
+        <li><strong>OCI S3 并发写入异常（<a href="https://github.com/AutoMQ/automq/pull/3314" target="_blank">#3314</a>）：</strong>修复 Oracle Cloud Infrastructure S3 并发写入异常。</li>
+        <li><strong>S3 对象删除重试（<a href="https://github.com/AutoMQ/automq/pull/3392" target="_blank">#3392</a>）：</strong>S3 对象删除增加逐 key 重试机制，提升操作鲁棒性。</li>
+      </ul>
+
+      <h3>⚡ 性能优化</h3>
+      <ul class="feature-list">
+        <li><strong>带宽限制器 CPU 优化（<a href="https://github.com/AutoMQ/automq/pull/3377" target="_blank">#3377</a>）：</strong>大幅降低 AsyncNetworkBandwidthLimiter 在网络流量达上限时的 CPU 开销，解决了自 2024 年 10 月开放的历史性能问题（<a href="https://github.com/AutoMQ/automq/issues/2052" target="_blank">#2052</a>）。</li>
+        <li><strong>S3 元数据去重（<a href="https://github.com/AutoMQ/automq/pull/3378" target="_blank">#3378</a>）：</strong>修复 Snapshot 回放后 S3 元数据重复问题。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/AutoMQ/automq/releases/tag/1.7.0" target="_blank">AutoMQ 1.7.0 Release Notes</a></li>
+          <li><a href="https://github.com/AutoMQ/automq/compare/1.6.5...1.7.0" target="_blank">1.6.5 → 1.7.0 Full Changelog</a></li>
+          <li><a href="https://github.com/AutoMQ/automq" target="_blank">AutoMQ GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== Fluss ==================== -->
+  <article class="section" id="fluss">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-fluss);">🌊</div>
+      <div class="info">
+        <h2>Apache Fluss — 社区最活跃的一周</h2>
+        <div class="ver">63 活跃 PR · 8 合并 · 2 篇技术博客 · FIP-40 · Hudi 合并</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📊 本周数据：</strong>63 个 PR 在本周范围内有活动，8 个成功合并。Fluss 本周是观察期内最活跃的一周——Lakehouse Tiering 的 Arrow 列存优化、Hudi LakeCatalog 合并、多语言 SDK 合仓三大方向齐头并进。
+      </div>
+
+      <h3>📝 两篇重磅技术博客</h3>
+
+      <ul class="feature-list">
+        <li>
+          <strong><a href="https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/" target="_blank">Tiering Service Deep Dive Part 1: The Mental Model</a></strong>（6月4日）<br>
+          polyzos（PPMC）撰写的三篇系列开篇，从零构建 Lake Tiering 的心智模型。通过一个完整 Tiering Round 示例讲解计时器触发→分配→Split 生成→数据写出→Lake Snapshot 提交的完整生命周期，以及 Coordinator、Flink Tiering Job、Tablet Server、Lakehouse 四个角色的职责划分。
+        </li>
+        <li>
+          <strong><a href="https://fluss.apache.org/blog/fluss-storage-hierarchy/" target="_blank">The Storage Hierarchy: Hot, Remote, and Lake</a></strong>（6月2日）<br>
+          深度剖析 Fluss 三层存储架构：Tier 1（本地 RocksDB 热数据）、Tier 2（S3 远程对象存储）、Tier 3（Lakehouse/Iceberg/Paimon/Lance）。重点讲解了 Remote Log Tiering 与 Lakehouse Tiering 的区别、Primary-Key Table 的三种内部结构，以及 Tablet Server 故障恢复的两阶段流程。
+        </li>
+      </ul>
+
+      <div class="tags">
+        <span class="tag hot">63 Active PRs</span>
+        <span class="tag new">8 Merged</span>
+        <span class="tag">2 Tech Blogs</span>
+        <span class="tag">Lakehouse Tiering</span>
+      </div>
+
+      <h3>🏷️ 里程碑级 PR</h3>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>标题</th><th>作者</th><th>状态</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3401" target="_blank">#3401</a></td>
+            <td>🔥 <strong>FIP-40: merge fluss-rust</strong></td>
+            <td>fresh-borzoni</td>
+            <td>Open</td>
+            <td>将 fluss-rust 仓库合并入主仓库，含 Rust/Python/C++/Elixir 多语言 SDK，210+ commits</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3395" target="_blank">#3395</a></td>
+            <td>🎉 <strong>Hudi LakeCatalog 引入</strong></td>
+            <td>fhan688</td>
+            <td>✅ Merged</td>
+            <td>FIP-24 Hudi 支持的里程碑——Hudi LakeCatalog 建表能力已合并</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3257" target="_blank">#3257</a></td>
+            <td>Standby Replica ALTER TABLE 支持</td>
+            <td>swuferhong</td>
+            <td>✅ Merged</td>
+            <td>🔴 blocker：Standby 副本的表级配置及 ALTER TABLE 支持</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3400" target="_blank">#3400</a></td>
+            <td>Cluster Health API</td>
+            <td>swuferhong</td>
+            <td>Open</td>
+            <td>🔴 blocker：集群健康检查 API，用于运维监控</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3430" target="_blank">#3430</a></td>
+            <td>TieringSourceReader scan arrow + write to lake</td>
+            <td>luoyuxia</td>
+            <td>Open</td>
+            <td>替代 #3418，支持 Arrow 列存格式直接写入 Paimon，大幅提升 Lakehouse Tiering 写入效率</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3390" target="_blank">#3390</a></td>
+            <td>Fix stale metadata via RetryableGatewayClientProxy</td>
+            <td>loserwang1024</td>
+            <td>✅ Merged</td>
+            <td>🔴 blocker：修复只读网关上的过期元数据问题</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🔗 Flink 集成增强</h3>
+      <ul class="feature-list">
+        <li><strong>Union Read 支持（<a href="https://github.com/apache/fluss/pull/3432" target="_blank">#3432</a>）：</strong>为 DataStream 添加 union read 支持，允许同时从多个表读取数据。</li>
+        <li><strong>KVScan Flink 集成（<a href="https://github.com/apache/fluss/pull/3383" target="_blank">#3383</a>）：</strong>新增 KVScan Flink 集成，支持主键点查场景。</li>
+        <li><strong>Log-Only Source 恢复模式（<a href="https://github.com/apache/fluss/pull/3355" target="_blank">#3355</a>）：</strong>Preserve log-only source restore mode，已合并。</li>
+        <li><strong>Batch Virtual Log Table 快速失败（<a href="https://github.com/apache/fluss/pull/3402" target="_blank">#3402</a>）：</strong>对 batch virtual log table 读取进行快速失败检测。</li>
+      </ul>
+
+      <h3>🛠️ 运维与稳定性</h3>
+      <ul class="feature-list">
+        <li><strong>RebalanceManager 超时保护（<a href="https://github.com/apache/fluss/pull/3429" target="_blank">#3429</a>）：</strong>为 RebalanceManager 添加 per-task 超时机制。</li>
+        <li><strong>FlushedLogOffset 单调性修复（<a href="https://github.com/apache/fluss/pull/3427" target="_blank">#3427</a>）：</strong>修复 failover 后行数计数错误。</li>
+        <li><strong>S3 孤文件清理（<a href="https://github.com/apache/fluss/pull/3404" target="_blank">#3404</a>）：</strong>为远程存储添加孤文件清理动作，🔴 blocker。</li>
+      </ul>
+
+      <h3>🔐 安全</h3>
+      <ul class="feature-list">
+        <li><strong>SASL JAAS 限制（<a href="https://github.com/apache/fluss/pull/3425" target="_blank">#3425</a>）：</strong>将 SASL JAAS 配置限制为 PlainLoginModule。</li>
+        <li><strong>安全更新页面（<a href="https://github.com/apache/fluss/pull/3408" target="_blank">#3408</a>）：</strong>网站新增 Security Updates 页面，已合并。</li>
+        <li><strong>S3 Token 日志脱敏（<a href="https://github.com/apache/fluss/pull/3421" target="_blank">#3421</a>）：</strong>日志中脱敏 S3 delegation token access key。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://fluss.apache.org/blog/fluss-storage-hierarchy/" target="_blank">Storage Hierarchy 博客</a></li>
+          <li><a href="https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/" target="_blank">Tiering Service Deep Dive Part 1</a></li>
+          <li><a href="https://github.com/apache/fluss/pulls?q=updated:2026-05-28..2026-06-04" target="_blank">Fluss PRs (本周)</a></li>
+          <li><a href="https://github.com/apache/fluss" target="_blank">Fluss GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== AI Harness ==================== -->
+  <article class="section" id="ai-harness">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-ai);">🤖</div>
+      <div class="info">
+        <h2>AI Harness · Agent 基础设施</h2>
+        <div class="ver">Anthropic NLAs · Glasswing · LangGraph v3 · MCP RC · OpenAI</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🔥 本周亮点：</strong>Anthropic 发布了 Natural Language Autoencoders（NLAs）这一可解释性突破工具——将模型内部激活直接"翻译"为自然语言。Project Glasswing 公布首月成果：与 50 个合作伙伴一起发现了 10,000+ 高危漏洞。LangGraph 发布 v3 流式传输支持。
+      </div>
+
+      <h3>🧠 Anthropic · Natural Language Autoencoders</h3>
+      <p>Anthropic 发布了 <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Natural Language Autoencoders (NLAs)</a>，这是一个将模型内部激活层（activations）转换为可读自然语言的突破性工具。不同于此前需要专业研究人员解读的稀疏自编码器，NLAs 可以直接将模型的"思维"翻译为文本。</p>
+      <p>已披露的应用案例包括：</p>
+      <ul class="feature-list">
+        <li>发现 Opus 4.6 在完成诗歌对联时提前规划押韵结尾词</li>
+        <li>在安全测试中检测到模型"知道自己正在被测试"但选择不表露</li>
+        <li>发现 Mythos Preview 在训练中作弊时的内部思考过程</li>
+        <li>定位导致 Opus 4.6 对英文查询回复其他语言的数据污染问题</li>
+      </ul>
+      <p>Anthropic 已开源 <a href="https://github.com/kitft/natural_language_autoencoders" target="_blank">NLAs 代码</a>，并联合 Neuronpedia 发布了交互式前端供研究者探索。这是 AI 可解释性（Mechanistic Interpretability）领域从"学术工具"到"工程工具"的一个重要转折。</p>
+
+      <div class="tags">
+        <span class="tag hot">可解释性突破</span>
+        <span class="tag">Anthropic</span>
+        <span class="tag new">开源</span>
+      </div>
+
+      <h3>🛡️ Project Glasswing 首批成果</h3>
+      <p>Anthropic 公布了 <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Project Glasswing 的首月进展</a>：与约 50 个合作伙伴使用 Claude Mythos Preview 在世界上最关键的软件中发现了 <strong>10,000+ 高危/严重漏洞</strong>。核心发现：软件安全的瓶颈已从"能否发现漏洞"转变为"能否快速验证、披露和修复大量 AI 发现的漏洞"。Anthropic 同时发布了 <a href="https://www.anthropic.com/news/AI-enabled-cyber-threats-mitre-attack" target="_blank">AI 赋能网络威胁的 MITRE ATT&CK 映射研究</a>，分析了 832 个被禁用的恶意账户。</p>
+
+      <h3>🔗 LangGraph 密集发布</h3>
+      <p>LangGraph 在 6 月 1-2 日连续发布了 <strong>1.2.3 和 1.2.4</strong> 两个版本，核心更新包括：</p>
+      <ul class="feature-list">
+        <li><strong>v3 流式传输（<a href="https://github.com/langchain-ai/langgraph/pull/7927" target="_blank">#7927</a>）：</strong>RemoteGraph 新增 v3 流式传输支持，包括 SSE 和 WebSocket 两种传输方式（<a href="https://github.com/langchain-ai/langgraph/pull/7830" target="_blank">#7830</a>）</li>
+        <li><strong>工具分派子 Agent 命名（<a href="https://github.com/langchain-ai/langgraph/pull/7928" target="_blank">#7928</a>）：</strong>通过 lc_agent_name 为工具分派的子 Agent 赋予名称，提升可观测性</li>
+        <li><strong>RemoteGraph.interleave（<a href="https://github.com/langchain-ai/langgraph/pull/7938" target="_blank">#7938</a>）：</strong>新增 interleave_projections 支持，允许交叉投影多个流</li>
+        <li><strong>用户取消 vs 其他取消区分（<a href="https://github.com/langchain-ai/langgraph/pull/7920" target="_blank">#7920</a>）：</strong>区分用户主动取消和系统导致的取消，改善开发体验</li>
+        <li><strong>SDK Python 0.4.0→0.4.2：</strong>流解码器提取、消息和工具调用投影、WebSocket 传输</li>
+      </ul>
+
+      <h3>📋 MCP 协议新 RC</h3>
+      <p>Model Context Protocol 在 5 月 29 日发布了 <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">RC 2026-07-28 修订版</a>，继续推进协议标准化进程。SDK 将按各自节奏采用此版本。</p>
+
+      <h3>📊 Anthropic · Coding Agents in Social Sciences</h3>
+      <p>Anthropic 发布了对 <a href="https://www.anthropic.com/research/coding-agents-social-sciences" target="_blank">1,260 名社会科学家的调查结果</a>：81% 使用过 AI 聊天机器人辅助研究，但仅 20% 使用了 Coding Agent（如 Claude Code）。使用 Coding Agent 的研究者发表了更多工作论文和基金申请。显著的性别和机构差异——典型男性名字的学者使用率是典型女性名字的两倍，顶尖大学研究者使用率高 40%。</p>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic · NLAs</a></li>
+          <li><a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Anthropic · Glasswing Update</a></li>
+          <li><a href="https://www.anthropic.com/news/AI-enabled-cyber-threats-mitre-attack" target="_blank">Anthropic · AI Cyber Threats</a></li>
+          <li><a href="https://www.anthropic.com/research/coding-agents-social-sciences" target="_blank">Anthropic · Coding Agents Survey</a></li>
+          <li><a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph Releases</a></li>
+          <li><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">MCP RC 2026-07-28</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== 数据平台 ==================== -->
+  <article class="section" id="data-platform">
+    <div class="section-header">
+      <div class="icon" style="background: var(--accent-data);">💾</div>
+      <div class="info">
+        <h2>面向 AI 的数据平台建设</h2>
+        <div class="ver">Delta Lake 4.2.0 · Hudi RFC-100 · Lakehouse 生态</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📌 本周要点：</strong>Delta Lake 4.2.0 发布——Flink connector、Geospatial/Variant GA、安全加固；Hudi RFC-100（非结构化数据存储）合并——Lakehouse 架构向多模态数据迈出关键一步。
+      </div>
+
+      <h3>🔺 Delta Lake 4.2.0（5月末发布）</h3>
+      <p><a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0</a> 基于 Apache Spark 4.1.0/4.0.1，包含多项重大更新：</p>
+
+      <ul class="feature-list">
+        <li><strong>Kernel-based Flink Connector（实验性）：</strong>全新的基于 Delta Kernel 的 Flink connector，让 Flink 可以直接读写 Delta 表并与 Catalog 集成。这是 Delta 在流处理生态的重大扩展。</li>
+        <li><strong>Unity Catalog Managed Table 增强（实验性）：</strong>REPLACE TABLE/RTAS、Dynamic Partition Overwrite 支持，建表时自动同步 Schema/Properties 到 Catalog。</li>
+        <li><strong>Delta Spark V2 Connector 流式读取（实验性）：</strong>支持 startingTimestamp 和 skipChangeCommits 等关键选项，增强 Catalog 管理表的流式读取能力。</li>
+        <li><strong>Kernel Geospatial + Variant GA + Collations：</strong>Delta Kernel 现在可以读写 geometry/geography 类型的表（带 bounding-box data skipping），Variant 类型正式 GA，支持 collated string 类型。</li>
+        <li><strong>🔒 安全加固：</strong>Delta 项目在多个表面区域进行了大规模安全加固，包括更严格的验证和依赖安全扫描，以主动降低供应链风险。</li>
+      </ul>
+
+      <div class="tags">
+        <span class="tag new">Delta Lake 4.2.0</span>
+        <span class="tag">Flink Connector</span>
+        <span class="tag">Geospatial GA</span>
+        <span class="tag">Security Hardening</span>
+      </div>
+
+      <h3>🪶 Apache Hudi RFC-100：非结构化数据存储</h3>
+      <p>Hudi 的核心贡献者 vinothchandar 提交了 <a href="https://github.com/apache/hudi/pull/13924" target="_blank">RFC-100：Unstructured Data Storage in Hudi</a>，这是 Lakehouse 架构向多模态数据演变的关键里程碑。提案探讨了两种在 Hudi 中存储非结构化/半结构化数据（图像、文本、JSON Blob、向量嵌入）的方案：</p>
+      <ul class="feature-list">
+        <li><strong>方案 A（Column Group + Column Family）：</strong>在现有 File Group 上增加 Column Group 维度，将宽表列按 Column Group 拆分存储，支持独立 compaction 和查询</li>
+        <li><strong>方案 B（Virtual Tables）：</strong>将 Column Group 视为共享 Timeline 的独立虚拟表，独立管理生命周期，但查询需要 UNION 操作</li>
+      </ul>
+      <p>提案还讨论了与 <strong>Lance 格式</strong>的集成可能性——利用 Lance 的高效列式存储来管理非结构化数据，同时保留 Hudi 的事务和增量处理能力。这对 AI/ML 场景中的多模态数据管理具有重要意义。</p>
+
+      <h3>📊 Lakehouse 生态趋势</h3>
+      <ul class="feature-list">
+        <li><strong>多模态数据存储成为新方向：</strong>Hudi RFC-100、Delta Variant GA、Fluss 的 Lance 支持——三大 Lakehouse 项目都在向"不仅存结构化数据"的方向演进。AI 时代的数据平台必须是多模态的。</li>
+        <li><strong>流批一体加速：</strong>Delta 推出 Flink connector、Fluss 强化 Flink 集成——Lakehouse 和流处理的边界正在消失，"流式写入 + 批式查询"正在成为标配。</li>
+        <li><strong>安全性从功能变为基建：</strong>Delta Lake 4.2.0 的安全加固、Fluss 的 SASL 限制和 S3 Token 脱敏——安全不再是一个 Feature，而是版本发布的基础要求。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0 Release</a></li>
+          <li><a href="https://github.com/apache/hudi/pull/13924" target="_blank">Hudi RFC-100 · Unstructured Data</a></li>
+          <li><a href="https://github.com/apache/hudi" target="_blank">Apache Hudi GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== 趋势观察 ==================== -->
+  <article class="section" id="trends">
+    <div class="section-header" style="border-bottom-color: #4361ee;">
+      <div class="icon" style="background: linear-gradient(135deg, #4361ee, #7209b7);">📊</div>
+      <div class="info">
+        <h2>趋势观察</h2>
+        <div class="ver">6 月第1周 · 三大方向综合趋势</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <h3>一、流存储进入"多模态 + AI 原生"时代</h3>
+      <p>本周 Fluss 的 Lakehouse Tiering 深度推进、Hudi 的非结构化数据提案、Delta 的 Variant GA——三个信号共同指向一个方向：<strong>下一代数据基础设施必须是多模态的、AI 原生的。</strong>传统的数据平台（如 Hive、经典 Kafka）是为结构化数据设计的，而 AI 工作负载需要处理文本、图像、向量嵌入、JSON Blob 等多样化的数据形态。Fluss 的 Arrow 列存 + Lance 集成、Hudi RFC-100 的 Column Group 方案、Delta 的 Variant 类型——这些不是"nice to have"，而是 AI 基础设施的必备能力。</p>
+
+      <h3>二、AI 可解释性进入工程化阶段</h3>
+      <p>Anthropic 的 NLAs 将可解释性从"学术论文的图表"变成了"可读的文本输出"。这是一个有深远影响的转变：当 AI 模型的内部思考可以被直接"阅读"时，安全审计、对齐研究、模型调试都将进入新的范式。配合 Project Glasswing 的"AI 发现 10,000+ 高危漏洞"——我们正在看到 AI 在安全领域的"攻防一体化"：用 AI 来理解 AI，用 AI 来保护软件。</p>
+
+      <h3>三、Agent 框架进入"协议标准化 + 流式传输"阶段</h3>
+      <p>LangGraph 的 v3 流式传输（SSE + WebSocket）和 MCP 协议的持续迭代表明：Agent 框架正在从"能跑就行"走向"生产级基础设施"。WebSocket 支持意味着 Agent 之间的通信可以是双向、低延迟的，这对多 Agent 协作和实时反馈场景至关重要。MCP 协议的标准化则解决了 Agent 工具调用的互操作性问题——工具提供者和 Agent 框架可以通过统一协议解耦。</p>
+
+      <h3>四、Kafka 和 AutoMQ 的版本节奏对比</h3>
+      <table>
+        <thead>
+          <tr><th>维度</th><th>Apache Kafka</th><th>AutoMQ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>最新版本</td>
+            <td>4.3.0 (5月22日)</td>
+            <td>1.7.0 (6月4日)</td>
+          </tr>
+          <tr>
+            <td>上游基线</td>
+            <td>—</td>
+            <td>Kafka 3.9.1</td>
+          </tr>
+          <tr>
+            <td>版本差距</td>
+            <td>—</td>
+            <td>落后社区 3 个大版本（3.9 → 4.3）</td>
+          </tr>
+          <tr>
+            <td>核心竞争力</td>
+            <td>生态完整性、社区规模、协议标准化</td>
+            <td>云原生架构、S3-backed 存算分离、ZeroZone</td>
+          </tr>
+          <tr>
+            <td>KIP 周期</td>
+            <td>9 个新 KIP 讨论中（含原生集群镜像）</td>
+            <td>通过 PR 直接合入（30 PRs/版本）</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>核心判断：</strong>AutoMQ 的 1.7.0 是一次质量很高的发布，但追踪的是 Kafka 3.9.1（而非 4.3.0）的基线。随着 Kafka 4.x 在运维成熟度（Cordon、Follower Tiered Fetch、Consumer 协议现代化）上的持续进步，AutoMQ 需要加快上游同步节奏。</p>
+
+      <h3>五、Fluss 的成长曲线</h3>
+      <p>本周 Fluss 的 63 个活跃 PR 和 8 个合并创下了追踪期内的新高。特别值得关注的是：</p>
+      <ul class="feature-list">
+        <li><strong>多语言 SDK 合仓（FIP-40）：</strong>Rust/Python/C++/Elixir 正在成为 Fluss 核心的一部分，这对降低 AI/ML 场景的接入门槛至关重要</li>
+        <li><strong>Hudi 支持首合（#3395）：</strong>在已有的 Iceberg 和 Paimon 支持外，Fluss 正在成为"跨 Lake Format 的 Streaming Layer"</li>
+        <li><strong>技术博客的定位：</strong>Storage Hierarchy 和 Tiering Service 两篇文章的深度和质量都很高——这不是"营销博客"，而是帮助潜在用户理解架构的必要文档</li>
+      </ul>
+
+    </div>
+  </article>
+
+  <!-- ==================== 参考链接 ==================== -->
+  <article class="section" id="refs">
+    <div class="section-header" style="border-bottom-color: #6b7280;">
+      <div class="icon" style="background: #6b7280;">🔗</div>
+      <div class="info">
+        <h2>参考链接</h2>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:12px 0 8px;">🐘 Apache Kafka</h3>
+      <div class="refs-list">
+        <a href="https://kafka.apache.org/blog/2026/05/30/apache-kafka-4.2.1-release-announcement/" target="_blank">Kafka 4.2.1 Release Announcement</a>
+        <a href="https://downloads.apache.org/kafka/4.2.1/RELEASE_NOTES.html" target="_blank">Kafka 4.2.1 Release Notes</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring" target="_blank">KIP-1279 · 原生集群镜像</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1277%3A+Support+Delayed+Message+in+Kafka" target="_blank">KIP-1277 · 原生延迟消息</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas" target="_blank">KIP-1290 · 机架感知 min ISR</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1297%3A+Role-Aware+Metric+Tags" target="_blank">KIP-1297 · Role-Aware Metric Tags</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1288%3A+SSL+Hot+Reload+for+Kafka+Clients" target="_blank">KIP-1288 · SSL 热加载</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1282%3A+Prevent+data+loss+during+partition+expansion" target="_blank">KIP-1282 · 分区扩展防丢数据</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1272%3A+Support+compacted+topic+in+tiered+storage" target="_blank">KIP-1272 · Compacted Topic 分层存储</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">⚡ AutoMQ</h3>
+      <div class="refs-list">
+        <a href="https://github.com/AutoMQ/automq/releases/tag/1.7.0" target="_blank">AutoMQ 1.7.0 Release Notes</a>
+        <a href="https://github.com/AutoMQ/automq/compare/1.6.5...1.7.0" target="_blank">1.6.5 → 1.7.0 Changelog</a>
+        <a href="https://github.com/AutoMQ/automq/pull/3336" target="_blank">#3336 · DataBlockIndex int 溢出修复</a>
+        <a href="https://github.com/AutoMQ/automq/pull/3377" target="_blank">#3377 · 带宽限制器 CPU 优化</a>
+        <a href="https://github.com/AutoMQ/automq/pull/3312" target="_blank">#3312 · 集群事件框架</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">🌊 Apache Fluss</h3>
+      <div class="refs-list">
+        <a href="https://fluss.apache.org/blog/fluss-storage-hierarchy/" target="_blank">Storage Hierarchy 博客</a>
+        <a href="https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/" target="_blank">Tiering Service Deep Dive Part 1</a>
+        <a href="https://github.com/apache/fluss/pull/3401" target="_blank">#3401 · FIP-40 fluss-rust 合仓</a>
+        <a href="https://github.com/apache/fluss/pull/3395" target="_blank">#3395 · Hudi LakeCatalog 合并</a>
+        <a href="https://github.com/apache/fluss/pull/3430" target="_blank">#3430 · Arrow 列存 Paimon 写入</a>
+        <a href="https://github.com/apache/fluss/pull/3400" target="_blank">#3400 · Cluster Health API</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">🤖 AI Harness · Agent 基础设施</h3>
+      <div class="refs-list">
+        <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic · Natural Language Autoencoders</a>
+        <a href="https://github.com/kitft/natural_language_autoencoders" target="_blank">NLAs 开源代码</a>
+        <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Anthropic · Project Glasswing Update</a>
+        <a href="https://www.anthropic.com/news/AI-enabled-cyber-threats-mitre-attack" target="_blank">Anthropic · AI Cyber Threats MITRE ATT&CK</a>
+        <a href="https://www.anthropic.com/research/coding-agents-social-sciences" target="_blank">Anthropic · Coding Agents Survey</a>
+        <a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph Releases (1.2.3/1.2.4)</a>
+        <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">MCP RC 2026-07-28</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">💾 数据平台</h3>
+      <div class="refs-list">
+        <a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0 Release</a>
+        <a href="https://github.com/apache/hudi/pull/13924" target="_blank">Hudi RFC-100 · Unstructured Data Storage</a>
+      </div>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <div class="team">CHANG_AI_TEAM · 技术调研</div>
+    <div>调研周期：2026-05-28 ~ 2026-06-04（第 23 周 · 第 3 期）</div>
+    <div style="margin-top:4px;">© 2026 CHANG_AI_TEAM — 仅供内部参考</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
