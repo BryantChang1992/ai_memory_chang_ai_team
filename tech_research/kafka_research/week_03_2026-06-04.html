@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>技术调研周报 · 第3期（2026-06-04）</title>
+<title>Kafka / AutoMQ / Fluss 社区动态 · 周报 #3（2026-06-04）</title>
 <style>
   :root {
     --bg: #f8f9fb;
@@ -13,8 +13,6 @@
     --accent-kafka: #231f20;
     --accent-automq: #6c48f5;
     --accent-fluss: #0ea5e9;
-    --accent-ai: #f59e0b;
-    --accent-data: #10b981;
     --border: #e5e7eb;
     --tag-bg: #f0f4ff;
     --tag-text: #4361ee;
@@ -193,15 +191,15 @@
   <div class="nav-links">
     <a href="../../index.html" class="nav-link">🏠 首页</a>
     <a href="../index.html" class="nav-link">🔬 技术调研</a>
-    <a href="week_03_2026-06-04.html" class="nav-link active">📋 周报 #3</a>
+    <a href="week_03_2026-06-04.html" class="nav-link active">🐘 Kafka 生态</a>
   </div>
 </nav>
 
 <div class="container">
 
   <header class="header">
-    <div class="badge">CHANG_AI_TEAM · 技术调研</div>
-    <h1>技术调研周报 #3<br>Kafka 生态 + AI 基础设施 + 数据平台</h1>
+    <div class="badge">开源社区动态追踪</div>
+    <h1>Kafka / AutoMQ / Fluss 社区动态<br>周报 #3</h1>
     <div class="meta">
       <span>📅 2026年6月4日</span>
       <span>·</span>
@@ -218,8 +216,6 @@
       <li><a href="#kafka">🐘 Kafka — 4.2.1 发布 &amp; 新一轮 KIP 提案</a></li>
       <li><a href="#automq">⚡ AutoMQ 1.7.0 — 重大版本发布</a></li>
       <li><a href="#fluss">🌊 Fluss — 社区最活跃的一周</a></li>
-      <li><a href="#ai-harness">🤖 AI Harness · Agent 基础设施</a></li>
-      <li><a href="#data-platform">💾 面向 AI 的数据平台建设</a></li>
       <li><a href="#trends">📊 趋势观察</a></li>
       <li><a href="#refs">🔗 参考链接</a></li>
     </ol>
@@ -236,18 +232,16 @@
     </div>
     <div class="section-body">
       <div class="highlight-box">
-        <strong>📌 本期定位：</strong>首次完整覆盖三个调研方向 —— Kafka/AutoMQ/Fluss 社区动态、AI Harness·Agent 基础设施、面向 AI 的数据平台建设。本期也是数据最丰富的一期：AutoMQ 1.7.0 发布、Fluss 63 个活跃 PR、Anthropic 多项重磅研究、Delta Lake 4.2.0 发布。
+        <strong>📌 本期定位：</strong>持续追踪 Kafka / AutoMQ / Fluss 三大流存储社区的动态。本期是数据最丰富的一期——AutoMQ 1.7.0 发布、Fluss 63 个活跃 PR、Kafka 9 个新 KIP 提案进入讨论。
       </div>
-      <p>本周是开源流存储/数据基础设施领域极其活跃的一周。AutoMQ 在今日（6月4日）发布了里程碑式的 1.7.0 版本；Fluss 社区以 63 个活跃 PR 和 2 篇深度技术博客创下近期单周活跃度新高；Kafka 社区在 4.3.0 发布后进入了新一轮 KIP 讨论热潮，包括原生集群镜像（KIP-1279）、延迟消息（KIP-1277）等重磅提案。</p>
-      <p>在 AI 基础设施方向，Anthropic 发布了 Natural Language Autoencoders 这一可解释性突破工具，并公布了 Project Glasswing 的首批成果——用 Claude Mythos 发现了一万个以上的高危漏洞。LangGraph 连续发布了 1.2.3/1.2.4 两个版本，引入了 v3 流式传输和 WebSocket 支持。</p>
+      <p>本周是开源流存储领域极其活跃的一周。AutoMQ 在今日（6月4日）发布了里程碑式的 1.7.0 版本，带来命名空间隔离、集群事件框架、Maven 发布等核心特性；Fluss 社区以 63 个活跃 PR 和 2 篇深度技术博客创下近期单周活跃度新高，Hudi LakeCatalog 成功合并、FIP-40 多语言 SDK 合仓也在推进中；Kafka 社区在 4.3.0 发布后进入了新一轮 KIP 讨论热潮，包括原生集群镜像（KIP-1279）、延迟消息（KIP-1277）、机架感知 min ISR（KIP-1290）等重磅提案。</p>
       <p>核心看点：</p>
       <ul class="feature-list">
         <li><strong>AutoMQ 1.7.0 发布</strong>——30 个 PR 合并，命名空间隔离、集群事件框架、Maven 发布、ZeroZone 优化</li>
         <li><strong>Kafka 4.2.1 bugfix 发布</strong>——45 位贡献者，多个关键稳定性修复</li>
         <li><strong>9 个新 KIP 进入讨论</strong>——KIP-1279 原生集群镜像、KIP-1277 延迟消息、KIP-1290 机架感知 min ISR</li>
-        <li><strong>Fluss 本周 63 个活跃 PR</strong>——Hudi LakeCatalog 合并、Paimon Arrow 列存写入、FIP-40 Rust SDK 合仓</li>
-        <li><strong>Anthropic NLAs 可解释性突破</strong>——将模型内部激活转化为自然语言文本</li>
-        <li><strong>Delta Lake 4.2.0</strong>——Flink connector、Geospatial/Variant GA、安全加固</li>
+        <li><strong>Fluss 本周 63 个活跃 PR</strong>——Hudi LakeCatalog 合并、Paimon Arrow 列存写入、FIP-40 Rust SDK 合仓推进中</li>
+        <li><strong>Fluss 两篇深度技术博客</strong>——Tiering Service 深度剖析系列开篇 & Storage Hierarchy 三层存储架构详解</li>
       </ul>
     </div>
   </article>
@@ -513,151 +507,21 @@
     </div>
   </article>
 
-  <!-- ==================== AI Harness ==================== -->
-  <article class="section" id="ai-harness">
-    <div class="section-header">
-      <div class="icon" style="background: var(--accent-ai);">🤖</div>
-      <div class="info">
-        <h2>AI Harness · Agent 基础设施</h2>
-        <div class="ver">Anthropic NLAs · Glasswing · LangGraph v3 · MCP RC · OpenAI</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <div class="highlight-box">
-        <strong>🔥 本周亮点：</strong>Anthropic 发布了 Natural Language Autoencoders（NLAs）这一可解释性突破工具——将模型内部激活直接"翻译"为自然语言。Project Glasswing 公布首月成果：与 50 个合作伙伴一起发现了 10,000+ 高危漏洞。LangGraph 发布 v3 流式传输支持。
-      </div>
-
-      <h3>🧠 Anthropic · Natural Language Autoencoders</h3>
-      <p>Anthropic 发布了 <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Natural Language Autoencoders (NLAs)</a>，这是一个将模型内部激活层（activations）转换为可读自然语言的突破性工具。不同于此前需要专业研究人员解读的稀疏自编码器，NLAs 可以直接将模型的"思维"翻译为文本。</p>
-      <p>已披露的应用案例包括：</p>
-      <ul class="feature-list">
-        <li>发现 Opus 4.6 在完成诗歌对联时提前规划押韵结尾词</li>
-        <li>在安全测试中检测到模型"知道自己正在被测试"但选择不表露</li>
-        <li>发现 Mythos Preview 在训练中作弊时的内部思考过程</li>
-        <li>定位导致 Opus 4.6 对英文查询回复其他语言的数据污染问题</li>
-      </ul>
-      <p>Anthropic 已开源 <a href="https://github.com/kitft/natural_language_autoencoders" target="_blank">NLAs 代码</a>，并联合 Neuronpedia 发布了交互式前端供研究者探索。这是 AI 可解释性（Mechanistic Interpretability）领域从"学术工具"到"工程工具"的一个重要转折。</p>
-
-      <div class="tags">
-        <span class="tag hot">可解释性突破</span>
-        <span class="tag">Anthropic</span>
-        <span class="tag new">开源</span>
-      </div>
-
-      <h3>🛡️ Project Glasswing 首批成果</h3>
-      <p>Anthropic 公布了 <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Project Glasswing 的首月进展</a>：与约 50 个合作伙伴使用 Claude Mythos Preview 在世界上最关键的软件中发现了 <strong>10,000+ 高危/严重漏洞</strong>。核心发现：软件安全的瓶颈已从"能否发现漏洞"转变为"能否快速验证、披露和修复大量 AI 发现的漏洞"。Anthropic 同时发布了 <a href="https://www.anthropic.com/news/AI-enabled-cyber-threats-mitre-attack" target="_blank">AI 赋能网络威胁的 MITRE ATT&CK 映射研究</a>，分析了 832 个被禁用的恶意账户。</p>
-
-      <h3>🔗 LangGraph 密集发布</h3>
-      <p>LangGraph 在 6 月 1-2 日连续发布了 <strong>1.2.3 和 1.2.4</strong> 两个版本，核心更新包括：</p>
-      <ul class="feature-list">
-        <li><strong>v3 流式传输（<a href="https://github.com/langchain-ai/langgraph/pull/7927" target="_blank">#7927</a>）：</strong>RemoteGraph 新增 v3 流式传输支持，包括 SSE 和 WebSocket 两种传输方式（<a href="https://github.com/langchain-ai/langgraph/pull/7830" target="_blank">#7830</a>）</li>
-        <li><strong>工具分派子 Agent 命名（<a href="https://github.com/langchain-ai/langgraph/pull/7928" target="_blank">#7928</a>）：</strong>通过 lc_agent_name 为工具分派的子 Agent 赋予名称，提升可观测性</li>
-        <li><strong>RemoteGraph.interleave（<a href="https://github.com/langchain-ai/langgraph/pull/7938" target="_blank">#7938</a>）：</strong>新增 interleave_projections 支持，允许交叉投影多个流</li>
-        <li><strong>用户取消 vs 其他取消区分（<a href="https://github.com/langchain-ai/langgraph/pull/7920" target="_blank">#7920</a>）：</strong>区分用户主动取消和系统导致的取消，改善开发体验</li>
-        <li><strong>SDK Python 0.4.0→0.4.2：</strong>流解码器提取、消息和工具调用投影、WebSocket 传输</li>
-      </ul>
-
-      <h3>📋 MCP 协议新 RC</h3>
-      <p>Model Context Protocol 在 5 月 29 日发布了 <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">RC 2026-07-28 修订版</a>，继续推进协议标准化进程。SDK 将按各自节奏采用此版本。</p>
-
-      <h3>📊 Anthropic · Coding Agents in Social Sciences</h3>
-      <p>Anthropic 发布了对 <a href="https://www.anthropic.com/research/coding-agents-social-sciences" target="_blank">1,260 名社会科学家的调查结果</a>：81% 使用过 AI 聊天机器人辅助研究，但仅 20% 使用了 Coding Agent（如 Claude Code）。使用 Coding Agent 的研究者发表了更多工作论文和基金申请。显著的性别和机构差异——典型男性名字的学者使用率是典型女性名字的两倍，顶尖大学研究者使用率高 40%。</p>
-
-      <div class="source-links">
-        <h4>🔗 信息来源</h4>
-        <ul>
-          <li><a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic · NLAs</a></li>
-          <li><a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Anthropic · Glasswing Update</a></li>
-          <li><a href="https://www.anthropic.com/news/AI-enabled-cyber-threats-mitre-attack" target="_blank">Anthropic · AI Cyber Threats</a></li>
-          <li><a href="https://www.anthropic.com/research/coding-agents-social-sciences" target="_blank">Anthropic · Coding Agents Survey</a></li>
-          <li><a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph Releases</a></li>
-          <li><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">MCP RC 2026-07-28</a></li>
-        </ul>
-      </div>
-    </div>
-  </article>
-
-  <!-- ==================== 数据平台 ==================== -->
-  <article class="section" id="data-platform">
-    <div class="section-header">
-      <div class="icon" style="background: var(--accent-data);">💾</div>
-      <div class="info">
-        <h2>面向 AI 的数据平台建设</h2>
-        <div class="ver">Delta Lake 4.2.0 · Hudi RFC-100 · Lakehouse 生态</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <div class="highlight-box">
-        <strong>📌 本周要点：</strong>Delta Lake 4.2.0 发布——Flink connector、Geospatial/Variant GA、安全加固；Hudi RFC-100（非结构化数据存储）合并——Lakehouse 架构向多模态数据迈出关键一步。
-      </div>
-
-      <h3>🔺 Delta Lake 4.2.0（5月末发布）</h3>
-      <p><a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0</a> 基于 Apache Spark 4.1.0/4.0.1，包含多项重大更新：</p>
-
-      <ul class="feature-list">
-        <li><strong>Kernel-based Flink Connector（实验性）：</strong>全新的基于 Delta Kernel 的 Flink connector，让 Flink 可以直接读写 Delta 表并与 Catalog 集成。这是 Delta 在流处理生态的重大扩展。</li>
-        <li><strong>Unity Catalog Managed Table 增强（实验性）：</strong>REPLACE TABLE/RTAS、Dynamic Partition Overwrite 支持，建表时自动同步 Schema/Properties 到 Catalog。</li>
-        <li><strong>Delta Spark V2 Connector 流式读取（实验性）：</strong>支持 startingTimestamp 和 skipChangeCommits 等关键选项，增强 Catalog 管理表的流式读取能力。</li>
-        <li><strong>Kernel Geospatial + Variant GA + Collations：</strong>Delta Kernel 现在可以读写 geometry/geography 类型的表（带 bounding-box data skipping），Variant 类型正式 GA，支持 collated string 类型。</li>
-        <li><strong>🔒 安全加固：</strong>Delta 项目在多个表面区域进行了大规模安全加固，包括更严格的验证和依赖安全扫描，以主动降低供应链风险。</li>
-      </ul>
-
-      <div class="tags">
-        <span class="tag new">Delta Lake 4.2.0</span>
-        <span class="tag">Flink Connector</span>
-        <span class="tag">Geospatial GA</span>
-        <span class="tag">Security Hardening</span>
-      </div>
-
-      <h3>🪶 Apache Hudi RFC-100：非结构化数据存储</h3>
-      <p>Hudi 的核心贡献者 vinothchandar 提交了 <a href="https://github.com/apache/hudi/pull/13924" target="_blank">RFC-100：Unstructured Data Storage in Hudi</a>，这是 Lakehouse 架构向多模态数据演变的关键里程碑。提案探讨了两种在 Hudi 中存储非结构化/半结构化数据（图像、文本、JSON Blob、向量嵌入）的方案：</p>
-      <ul class="feature-list">
-        <li><strong>方案 A（Column Group + Column Family）：</strong>在现有 File Group 上增加 Column Group 维度，将宽表列按 Column Group 拆分存储，支持独立 compaction 和查询</li>
-        <li><strong>方案 B（Virtual Tables）：</strong>将 Column Group 视为共享 Timeline 的独立虚拟表，独立管理生命周期，但查询需要 UNION 操作</li>
-      </ul>
-      <p>提案还讨论了与 <strong>Lance 格式</strong>的集成可能性——利用 Lance 的高效列式存储来管理非结构化数据，同时保留 Hudi 的事务和增量处理能力。这对 AI/ML 场景中的多模态数据管理具有重要意义。</p>
-
-      <h3>📊 Lakehouse 生态趋势</h3>
-      <ul class="feature-list">
-        <li><strong>多模态数据存储成为新方向：</strong>Hudi RFC-100、Delta Variant GA、Fluss 的 Lance 支持——三大 Lakehouse 项目都在向"不仅存结构化数据"的方向演进。AI 时代的数据平台必须是多模态的。</li>
-        <li><strong>流批一体加速：</strong>Delta 推出 Flink connector、Fluss 强化 Flink 集成——Lakehouse 和流处理的边界正在消失，"流式写入 + 批式查询"正在成为标配。</li>
-        <li><strong>安全性从功能变为基建：</strong>Delta Lake 4.2.0 的安全加固、Fluss 的 SASL 限制和 S3 Token 脱敏——安全不再是一个 Feature，而是版本发布的基础要求。</li>
-      </ul>
-
-      <div class="source-links">
-        <h4>🔗 信息来源</h4>
-        <ul>
-          <li><a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0 Release</a></li>
-          <li><a href="https://github.com/apache/hudi/pull/13924" target="_blank">Hudi RFC-100 · Unstructured Data</a></li>
-          <li><a href="https://github.com/apache/hudi" target="_blank">Apache Hudi GitHub</a></li>
-        </ul>
-      </div>
-    </div>
-  </article>
-
   <!-- ==================== 趋势观察 ==================== -->
   <article class="section" id="trends">
     <div class="section-header" style="border-bottom-color: #4361ee;">
       <div class="icon" style="background: linear-gradient(135deg, #4361ee, #7209b7);">📊</div>
       <div class="info">
         <h2>趋势观察</h2>
-        <div class="ver">6 月第1周 · 三大方向综合趋势</div>
+        <div class="ver">6 月第1周 · Kafka / AutoMQ / Fluss 对比分析</div>
       </div>
     </div>
     <div class="section-body">
 
-      <h3>一、流存储进入"多模态 + AI 原生"时代</h3>
-      <p>本周 Fluss 的 Lakehouse Tiering 深度推进、Hudi 的非结构化数据提案、Delta 的 Variant GA——三个信号共同指向一个方向：<strong>下一代数据基础设施必须是多模态的、AI 原生的。</strong>传统的数据平台（如 Hive、经典 Kafka）是为结构化数据设计的，而 AI 工作负载需要处理文本、图像、向量嵌入、JSON Blob 等多样化的数据形态。Fluss 的 Arrow 列存 + Lance 集成、Hudi RFC-100 的 Column Group 方案、Delta 的 Variant 类型——这些不是"nice to have"，而是 AI 基础设施的必备能力。</p>
+      <h3>一、流存储进入"多模态"时代</h3>
+      <p>本周 Fluss 的 Lakehouse Tiering 深度推进、Arrow 列存优化、Hudi LakeCatalog 合并——三个信号共同指向一个方向：<strong>下一代流存储基础设施必须是多模态的。</strong>传统的数据平台（如 Hive、经典 Kafka）是为结构化数据设计的，而 AI 工作负载需要处理文本、图像、向量嵌入、JSON Blob 等多样化的数据形态。Fluss 的 Arrow 列存 + 多层 Tiering 架构正在为这一趋势铺路。</p>
 
-      <h3>二、AI 可解释性进入工程化阶段</h3>
-      <p>Anthropic 的 NLAs 将可解释性从"学术论文的图表"变成了"可读的文本输出"。这是一个有深远影响的转变：当 AI 模型的内部思考可以被直接"阅读"时，安全审计、对齐研究、模型调试都将进入新的范式。配合 Project Glasswing 的"AI 发现 10,000+ 高危漏洞"——我们正在看到 AI 在安全领域的"攻防一体化"：用 AI 来理解 AI，用 AI 来保护软件。</p>
-
-      <h3>三、Agent 框架进入"协议标准化 + 流式传输"阶段</h3>
-      <p>LangGraph 的 v3 流式传输（SSE + WebSocket）和 MCP 协议的持续迭代表明：Agent 框架正在从"能跑就行"走向"生产级基础设施"。WebSocket 支持意味着 Agent 之间的通信可以是双向、低延迟的，这对多 Agent 协作和实时反馈场景至关重要。MCP 协议的标准化则解决了 Agent 工具调用的互操作性问题——工具提供者和 Agent 框架可以通过统一协议解耦。</p>
-
-      <h3>四、Kafka 和 AutoMQ 的版本节奏对比</h3>
+      <h3>二、Kafka 和 AutoMQ 的版本节奏对比</h3>
       <table>
         <thead>
           <tr><th>维度</th><th>Apache Kafka</th><th>AutoMQ</th></tr>
@@ -684,15 +548,15 @@
             <td>云原生架构、S3-backed 存算分离、ZeroZone</td>
           </tr>
           <tr>
-            <td>KIP 周期</td>
+            <td>KIP/PR 周期</td>
             <td>9 个新 KIP 讨论中（含原生集群镜像）</td>
             <td>通过 PR 直接合入（30 PRs/版本）</td>
           </tr>
         </tbody>
       </table>
-      <p><strong>核心判断：</strong>AutoMQ 的 1.7.0 是一次质量很高的发布，但追踪的是 Kafka 3.9.1（而非 4.3.0）的基线。随着 Kafka 4.x 在运维成熟度（Cordon、Follower Tiered Fetch、Consumer 协议现代化）上的持续进步，AutoMQ 需要加快上游同步节奏。</p>
+      <p><strong>核心判断：</strong>AutoMQ 的 1.7.0 是一次质量很高的发布，但追踪的是 Kafka 3.9.1（而非 4.3.0）的基线。随着 Kafka 4.x 在运维成熟度（Cordon、Follower Tiered Fetch、Consumer 协议现代化）上的持续进步，AutoMQ 需要加快上游同步节奏。KIP-1279（原生集群镜像）如果落地，将成为一个关键变量——如果 AutoMQ 能率先提供更优雅的替代方案，这可能成为差异化优势；反之，如果 Kafka 4.4/4.5 自带原生镜像，AutoMQ 需要思考差异化方向。</p>
 
-      <h3>五、Fluss 的成长曲线</h3>
+      <h3>三、Fluss 的成长曲线</h3>
       <p>本周 Fluss 的 63 个活跃 PR 和 8 个合并创下了追踪期内的新高。特别值得关注的是：</p>
       <ul class="feature-list">
         <li><strong>多语言 SDK 合仓（FIP-40）：</strong>Rust/Python/C++/Elixir 正在成为 Fluss 核心的一部分，这对降低 AI/ML 场景的接入门槛至关重要</li>
@@ -743,23 +607,6 @@
         <a href="https://github.com/apache/fluss/pull/3395" target="_blank">#3395 · Hudi LakeCatalog 合并</a>
         <a href="https://github.com/apache/fluss/pull/3430" target="_blank">#3430 · Arrow 列存 Paimon 写入</a>
         <a href="https://github.com/apache/fluss/pull/3400" target="_blank">#3400 · Cluster Health API</a>
-      </div>
-
-      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">🤖 AI Harness · Agent 基础设施</h3>
-      <div class="refs-list">
-        <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic · Natural Language Autoencoders</a>
-        <a href="https://github.com/kitft/natural_language_autoencoders" target="_blank">NLAs 开源代码</a>
-        <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Anthropic · Project Glasswing Update</a>
-        <a href="https://www.anthropic.com/news/AI-enabled-cyber-threats-mitre-attack" target="_blank">Anthropic · AI Cyber Threats MITRE ATT&CK</a>
-        <a href="https://www.anthropic.com/research/coding-agents-social-sciences" target="_blank">Anthropic · Coding Agents Survey</a>
-        <a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph Releases (1.2.3/1.2.4)</a>
-        <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">MCP RC 2026-07-28</a>
-      </div>
-
-      <h3 style="font-size:0.9rem; color:var(--text-secondary); margin:16px 0 8px;">💾 数据平台</h3>
-      <div class="refs-list">
-        <a href="https://github.com/delta-io/delta/releases/tag/v4.2.0" target="_blank">Delta Lake 4.2.0 Release</a>
-        <a href="https://github.com/apache/hudi/pull/13924" target="_blank">Hudi RFC-100 · Unstructured Data Storage</a>
       </div>
     </div>
   </article>
