@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 - 分布式协调层分析 · Fluss 源码分析 · CHANG_AI_TEAM</title>
+<style>
+
+  :root {
+    --bg: #f8f9fb;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent-kafka: #231f20;
+    --accent-automq: #6c48f5;
+    --accent-fluss: #0ea5e9;
+    --border: #e5e7eb;
+    --tag-bg: #f0f4ff;
+    --tag-text: #4361ee;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    --code-bg: #1e293b;
+    --danger-bg: #fff5f5;
+    --danger-border: #fc8181;
+    --success-bg: #f0fff4;
+    --success-border: #68d391;
+    --warn-bg: #fffff0;
+    --warn-border: #f6e05e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1000px; margin: 0 auto; padding: 32px 24px 64px; }
+  
+  .global-nav {
+    display: flex; align-items: center; gap: 0; padding: 0 24px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 52px;
+  }
+  .global-nav .brand { font-weight: 700; font-size: 0.95rem; color: var(--accent-kafka); text-decoration: none; margin-right: 24px; white-space: nowrap; }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; padding: 6px 14px; border-radius: 8px; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .global-nav .nav-link:hover { background: #f3f4f6; color: var(--text); }
+  .global-nav .nav-link.active { background: #eef2ff; color: var(--tag-text); font-weight: 500; }
+
+  .header { text-align: center; padding: 40px 0 28px; border-bottom: 2px solid var(--border); margin-bottom: 32px; }
+  .header .badge { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #111; letter-spacing: -0.3px; line-height: 1.35; margin-bottom: 8px; }
+  .header .meta { font-size: 14px; color: var(--text-secondary); }
+
+  h2 { font-size: 22px; font-weight: 700; color: #111; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 18px; font-weight: 600; color: #111; margin: 28px 0 12px; }
+  h4 { font-size: 15px; font-weight: 600; color: #333; margin: 20px 0 8px; }
+  p { margin-bottom: 14px; font-size: 15px; }
+  a { color: var(--tag-text); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  pre { background: var(--code-bg); color: #e2e8f0; padding: 16px 20px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 14px 0; font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", monospace; }
+  code { font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", monospace; font-size: 0.9em; }
+  p code, li code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; color: #e11d48; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f8fafc; font-weight: 600; color: #333; }
+  tr:hover td { background: #f8fafc; }
+
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.red { background: #fee2e2; color: #991b1b; }
+
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+  .callout.info { background: #f8faff; border: 1px solid #a3bffa; }
+  .callout.success { background: var(--success-bg); border: 1px solid var(--success-border); }
+  .callout.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .mermaid { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono", monospace; font-size: 11.5px; line-height: 1.4; color: #333; }
+  
+  /* Page navigation */
+  .page-nav { display: flex; justify-content: space-between; align-items: center; margin: 40px 0 24px; padding: 16px 0; border-top: 2px solid var(--border); }
+  .page-nav a { color: var(--tag-text); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .page-nav a:hover { text-decoration: underline; }
+  .page-nav .prev::before { content: "← "; }
+  .page-nav .next::after { content: " →"; }
+  .page-nav .disabled { color: #ccc; cursor: default; text-decoration: none; }
+
+  .module-toc { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px; }
+  .module-toc h3 { margin-top: 0; font-size: 15px; }
+  .module-toc ol { padding-left: 20px; }
+  .module-toc ol li { font-size: 14px; margin-bottom: 4px; }
+  .module-toc ol li a { color: var(--text-secondary); }
+  .module-toc ol li a:hover, .module-toc ol li a.active { color: var(--tag-text); }
+
+  blockquote { border-left: 3px solid #0ea5e9; background: #f0f9ff; padding: 10px 16px; margin: 14px 0; font-size: 14px; color: #555; border-radius: 0 8px 8px 0; }
+  
+  .end-marker { text-align: center; padding: 24px 0; color: #999; font-size: 13px; border-top: 1px solid var(--border); margin-top: 32px; }
+  
+  hr { border: none; border-top: 2px dashed #e5e7eb; margin: 36px 0; }
+  
+  @media (max-width: 640px) {
+    .container { padding: 16px 12px 48px; }
+    .header h1 { font-size: 20px; }
+    pre { font-size: 11px; padding: 12px 14px; }
+  }
+
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#eef2ff', primaryBorderColor: '#6366f1', lineColor: '#6366f1', secondaryColor: '#f0f9ff', tertiaryColor: '#f8fafc' } });
+</script>
+</head>
+<body>
+<div class="global-nav">
+  <a href="../../../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../../../index.html" class="nav-link">🏠 Home</a>
+    <a href="../../../index.html" class="nav-link">🐘 Kafka / AutoMQ / Fluss</a>
+    <a href="../../index.html" class="nav-link active">🔬 Deep Dives</a>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · 3/7</div>
+  <h1>03 - 分布式协调层分析</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2</p>
+</div>
+
+<div class="module-toc"><h3>📑 本页目录</h3><ol><li><a href="#3.1-整体架构概览">3.1 整体架构概览</a></li><li><a href="#3.2-coordinator-系统">3.2 Coordinator 系统</a></li><li><a href="#3.3-tablebucket-重平衡">3.3 TableBucket 重平衡</a></li><li><a href="#3.4-租约管理（lease）">3.4 租约管理（Lease）</a></li><li><a href="#3.5-producer-id-管理">3.5 Producer ID 管理</a></li><li><a href="#3.6-zookeeper-集成">3.6 ZooKeeper 集成</a></li><li><a href="#3.7-元数据管理">3.7 元数据管理</a></li><li><a href="#3.8-核心类级对照表">3.8 核心类级对照表</a></li><li><a href="#3.9-coordinator-启动与-leader-选举序列">3.9 Coordinator 启动与 Leader 选举序列</a></li><li><a href="#3.10-关键设计总结">3.10 关键设计总结</a></li></ol></div>
+
+<br>
+<h2 id="03---分布式协调层分析">03 - 分布式协调层分析</h2>
+<br>
+<h3>3.1 整体架构概览</h3>
+<br>
+<p>Fluss 的分布式协调层采用 <strong>Coordinator Server（协调器）</strong> 架构，对标 Kafka 的 <strong>Controller</strong> 角色，但进行了现代化重构（Java 实现、事件驱动、统一 RPC 通道）。核心组件关系如下：</p>
+<br>
+<div class="mermaid">
+graph TB
+    subgraph "Coordinator Server"
+        CS[CoordinatorServer]
+        CEP[CoordinatorEventProcessor<br/>事件处理器线程]
+        CEM[CoordinatorEventManager<br/>事件队列]
+        RS[ReplicaStateMachine<br/>副本状态机]
+        TS[TableBucketStateMachine<br/>Bucket 状态机]
+        CRB[CoordinatorRequestBatch<br/>批量请求发送器]
+        CCM[CoordinatorChannelManager<br/>RPC 通道管理]
+        RM[RebalanceManager<br/>重平衡管理器]
+        APM[AutoPartitionManager<br/>自动分区管理器]
+        LSM[KvSnapshotLeaseManager<br/>KV 快照租约管理]
+        CLE[CoordinatorLeaderElection<br/>Leader 选举]
+        CC[CoordinatorContext<br/>内存上下文]
+        CSvc[CoordinatorService<br/>业务 RPC 处理]
+        CMC[CoordinatorMetadataCache<br/>元数据缓存]
+    end
+
+    subgraph "ZooKeeper"
+        ZK[(ZooKeeper)]
+    end
+
+    subgraph "Tablet Server Cluster"
+        TS1[TabletServer-1]
+        TS2[TabletServer-2]
+        TS3[TabletServer-3]
+    end
+
+    subgraph "Remote Storage"
+        RS1[Remote Log / OSS]
+    end
+
+    CS --> CEP
+    CS --> CCM
+    CS --> CLE
+    CS --> CSvc
+    CS --> LSM
+    CS --> RM
+    CS --> APM
+    CS --> CMC
+    CEP --> CEM
+    CEP --> RS
+    CEP --> TS
+    CEP --> CC
+    CEP --> CRB
+    CLE --> ZK
+    CC --> ZK
+    CRB --> CCM
+    CCM -->|NotifyLeaderAndIsr<br/>StopReplica<br/>UpdateMetadata| TS1
+    CCM -->|NotifyLeaderAndIsr<br/>StopReplica<br/>UpdateMetadata| TS2
+    CCM -->|NotifyLeaderAndIsr<br/>StopReplica<br/>UpdateMetadata| TS3
+    LSM --> ZK
+    APM --> ZK
+    RM --> ZK
+    CMC --> ZK
+    TS1 -->|Heartbeat / Register| CSvc
+    TS2 -->|Heartbeat / Register| CSvc
+    TS3 -->|Heartbeat / Register| CSvc
+    TS1 --> RS1
+    TS2 --> RS1
+    TS3 --> RS1
+
+    style CS fill:#e1f5fe
+    style ZK fill:#fff3e0
+    style TS1 fill:#e8f5e9
+    style TS2 fill:#e8f5e9
+    style TS3 fill:#e8f5e9
+</div>
+<br>
+<p><strong>架构要点：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss Coordinator</th><th>Kafka Controller (2.7.2)</th></tr>
+<tr><td>语言</td><td>Java</td><td>Scala</td></tr>
+<tr><td>角色命名</td><td>Coordinator</td><td>Controller</td></tr>
+<tr><td>事件模型</td><td><code>CoordinatorEvent</code> → <code>CoordinatorEventManager</code> → <code>CoordinatorEventProcessor</code></td><td><code>ControllerEvent</code> → <code>ControllerEventManager</code> → <code>KafkaController</code></td></tr>
+<tr><td>状态机</td><td><code>ReplicaStateMachine</code> + <code>TableBucketStateMachine</code></td><td><code>ReplicaStateMachine</code> + <code>PartitionStateMachine</code></td></tr>
+<tr><td>Leader 选举</td><td>Curator <code>LeaderLatch</code></td><td>ZK 临时节点 <code>/controller</code> 竞争</td></tr>
+<tr><td>通道管理</td><td><code>CoordinatorChannelManager</code> (Protobuf RPC)</td><td><code>ControllerChannelManager</code> (Kafka 二进制协议)</td></tr>
+<tr><td>元数据缓存</td><td><code>CoordinatorMetadataCache</code> → <code>ServerMetadataCache</code></td><td><code>MetadataCache</code> (Broker 内)</td></tr>
+<tr><td>唯一 ID 分配</td><td>ZK 序列节点 (<code>table_seqid</code>)</td><td>ZK 序列节点 (topic id 等)</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>3.2 Coordinator 系统</h3>
+<br>
+<h4>3.2.1 CoordinatorServer 架构</h4>
+<br>
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/CoordinatorServer.java</code></p>
+<br>
+<p><code>CoordinatorServer</code> 是协调器的启动入口，负责组装所有子组件：</p>
+<br>
+<pre><code class=" language-java">
+// 组件装配清单（startup 方法中逐项初始化）
+coordinatorMetadataCache = new CoordinatorMetadataCache();       // 元数据缓存
+serverMetadataCache = new ServerMetadataCache(configuration);    // Server 信息缓存
+serverSchemaCache = new ServerSchemaCache();                     // Schema 缓存
+remoteLogMetadataManager = ...;                                  // 远程日志元数据管理器
+authorizer = FlussAuthorizer.create(configuration, ...);         // 权限验证
+zooKeeperClient = new ZooKeeperClient(...);                      // ZK 客户端
+coordinatorLeaderElection = new CoordinatorLeaderElection(...);  // Leader 选举器
+metricGroup = new CoordinatorMetricGroup(...);                   // 指标组
+kvSnapshotLeaseManager = new KvSnapshotLeaseManager(...);        // KV 快照租约
+rebalanceManager = ...;                                          // 重平衡管理器
+autoPartitionManager = ...;                                      // 自动分区管理器
+remoteDirDynamicLoader = new RemoteDirDynamicLoader(...);        // 远程目录加载器
+coordinatorService = new CoordinatorService(...);                // 业务 RPC 处理
+dynamicConfigManager = ...;                                      // 动态配置管理
+rpcServer = ...;                                                 // RPC 服务器
+rpcClient = ...;                                                 // RPC 客户端
+coordinatorChannelManager = ...;                                 // RPC 通道
+coordinatorEventProcessor = new CoordinatorEventProcessor(...);  // 事件处理器
+</code></pre>
+<br>
+<p><strong>启动流程：</strong></p>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant CS as CoordinatorServer
+    participant ZK as ZooKeeper
+    participant CEP as CoordinatorEventProcessor
+    participant TS as TabletServers
+
+    CS->>CS: 初始化 MetadataCache / SchemaCache / Authorizer
+    CS->>ZK: 连接 ZooKeeper
+    CS->>CS: 初始化 CoordinatorLeaderElection
+    CS->>CS: 初始化 MetricGroup
+    CS->>CS: 启动 KvSnapshotLeaseManager
+    CS->>CS: 启动 RebalanceManager
+    CS->>CS: 启动 CoordinatorService (RPC)
+    CS->>CS: 启动 CoordinatorChannelManager
+    CS->>CS: 启动 CoordinatorEventProcessor
+    CEP->>CLE: 等待 Leader 选举结果
+    CLE->>ZK: LeaderLatch.start()
+    ZK-->>CLE: 当选 Leader
+    CEP->>CEP: 初始化 CoordinatorContext
+    CEP->>ZK: 加载 ZK 元数据 (database/table/schema)
+    CEP->>CEP: 启动状态机 (Replica/Bucket)
+    CEP->>CEP: 启动事件处理循环
+    CEP->>TS: 发送 UpdateMetadata / NotifyLeaderAndIsr
+</div>
+<br>
+<h4>3.2.2 事件处理机制</h4>
+<br>
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/event/CoordinatorEvent.java</code></p>
+<br>
+<pre><code class=" language-java">
+// 标记接口 - 所有协调器事件的基础类型
+public interface CoordinatorEvent {}
+</code></pre>
+<br>
+<p><strong>事件管理器：</strong> <code>EventManager.java</code> — 单方法接口 <code>void put(CoordinatorEvent event)</code>，具体实现为 <code>CoordinatorEventManager</code>（带队列的事件处理器）。</p>
+<br>
+<p><strong>事件处理器：</strong> <code>CoordinatorEventProcessor.java</code> — 核心事件分发循环：</p>
+<br>
+<pre><code class=" language-java">
+public class CoordinatorEventProcessor implements Runnable {
+    // 关键字段（参照 Kafka ControllerEventManager 的设计）
+    private final CoordinatorContext coordinatorContext;
+    private final EventManager eventManager;
+    private final RebalanceManager rebalanceManager;
+    private final ReplicaStateMachine replicaStateMachine;
+    private final TableBucketStateMachine tableBucketStateMachine;
+    private final CoordinatorRequestBatch coordinatorRequestBatch;
+    private final ZooKeeperClient zooKeeperClient;
+    
+    // 事件处理方法（switch-case 分发）
+    public void process(CoordinatorEvent event) {
+        if (event instanceof NewCoordinatorEvent) { handleNewCoordinator(); }
+        else if (event instanceof FencedCoordinatorEvent) { handleFencedCoordinator(); }
+        else if (event instanceof DeadCoordinatorEvent) { handleDeadCoordinator(); }
+        else if (event instanceof NewTabletServerEvent) { handleNewTabletServer(); }
+        else if (event instanceof DeadTabletServerEvent) { handleDeadTabletServer(); }
+        else if (event instanceof CreateTableEvent) { handleCreateTable(); }
+        else if (event instanceof DropTableEvent) { handleDropTable(); }
+        else if (event instanceof CreatePartitionEvent) { handleCreatePartition(); }
+        else if (event instanceof DropPartitionEvent) { handleDropPartition(); }
+        else if (event instanceof AdjustIsrReceivedEvent) { handleAdjustIsr(); }
+        else if (event instanceof NotifyLeaderAndIsrResponseReceivedEvent) { handleLeaderAndIsrResp(); }
+        else if (event instanceof DeleteReplicaResponseReceivedEvent) { handleDeleteReplicaResp(); }
+        else if (event instanceof RebalanceEvent) { handleRebalance(); }
+        else if (event instanceof SchemaChangeEvent) { handleSchemaChange(); }
+        else if (event instanceof CommitKvSnapshotEvent) { handleCommitKvSnapshot(); }
+        else if (event instanceof ControlledShutdownEvent) { handleControlledShutdown(); }
+        // ... 更多事件类型
+    }
+}
+</code></pre>
+<br>
+<p><strong>事件类型清单：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>事件类</th><th>触发场景</th><th>对应 Kafka 事件</th></tr>
+<tr><td><code>NewCoordinatorEvent</code></td><td>当前节点当选 Coordinator</td><td><code>BecomeLeader</code> → <code>RegisterBrokerAndReelect</code></td></tr>
+<tr><td><code>FencedCoordinatorEvent</code></td><td>Coordinator Epoch 过期</td><td><code>ControllerMovedException</code></td></tr>
+<tr><td><code>DeadCoordinatorEvent</code></td><td>其他 Coordinator 宕机</td><td><code>BrokerChange</code> 感知 Controller 变化</td></tr>
+<tr><td><code>NewTabletServerEvent</code></td><td>TabletServer 注册</td><td><code>BrokerChange</code></td></tr>
+<tr><td><code>DeadTabletServerEvent</code></td><td>TabletServer 失联</td><td><code>BrokerChange</code></td></tr>
+<tr><td><code>CreateTableEvent</code></td><td>创建表</td><td><code>CreateTopics</code></td></tr>
+<tr><td><code>DropTableEvent</code></td><td>删除表</td><td><code>DeleteTopics</code></td></tr>
+<tr><td><code>CreatePartitionEvent</code></td><td>创建分区</td><td><code>CreatePartitions</code></td></tr>
+<tr><td><code>DropPartitionEvent</code></td><td>删除分区</td><td>(Kafka 无直接等价)</td></tr>
+<tr><td><code>AdjustIsrReceivedEvent</code></td><td>TabletServer 上报 ISR 变更</td><td><code>AlterIsr</code></td></tr>
+<tr><td><code>NotifyLeaderAndIsrResponseReceivedEvent</code></td><td>Leader/ISR 通知响应</td><td><code>LeaderAndIsrResponseReceived</code></td></tr>
+<tr><td><code>DeleteReplicaResponseReceivedEvent</code></td><td>副本删除响应</td><td><code>TopicDeletionStopReplicaResponseReceived</code></td></tr>
+<tr><td><code>RebalanceEvent</code></td><td>触发集群重平衡</td><td>(Kafka 使用 Cruise Control 外挂)</td></tr>
+<tr><td><code>SchemaChangeEvent</code></td><td>Schema 变更</td><td>(Kafka 无 Schema 管理)</td></tr>
+<tr><td><code>CommitKvSnapshotEvent</code></td><td>KV 快照提交</td><td>(Kafka 无 KV 快照)</td></tr>
+<tr><td><code>RebalanceTaskTimeoutEvent</code></td><td>重平衡任务超时</td><td>(无直接等价)</td></tr>
+<tr><td><code>AccessContextEvent</code></td><td>权限上下文变更</td><td>(无直接等价)</td></tr>
+<tr><td><code>AddServerTagEvent</code> / <code>RemoveServerTagEvent</code></td><td>Server 标签管理</td><td>(无直接等价)</td></tr>
+</table></div>
+<br>
+<p><strong>事件驱动流转：</strong></p>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant ZK as ZooKeeper
+    participant Watcher as ZK Watcher
+    participant CEM as CoordinatorEventManager
+    participant CEQ as Event Queue
+    participant CEP as CoordinatorEventProcessor
+    participant RS as ReplicaStateMachine
+    participant TS as TabletServer
+
+    ZK-->>Watcher: NodeDataChanged / NodeChildrenChanged
+    Watcher->>CEM: put(NewTabletServerEvent)
+    CEM->>CEQ: 入队
+    CEP->>CEQ: poll() 出队
+    CEP->>CEP: process(event)
+    Note over CEP: handleNewTabletServer()
+    CEP->>RS: handleStateChanges(replicas, OnlineReplica)
+    RS->>TS: 发送 LeaderAndIsr / StopReplica / UpdateMetadata
+    TS-->>CEP: 响应事件
+    CEP->>CEP: 处理响应，更新 CoordinatorContext
+</div>
+<br>
+<h4>3.2.3 状态机模型</h4>
+<br>
+<p>Fluss 采用 <strong>双状态机模型</strong>，一个管理 TableBucket 生命周期，一个管理 Replica 生命周期。</p>
+<br>
+<h5>ReplicaStateMachine</h5>
+<br>
+<p><strong>Enums: <code>ReplicaState.java</code></strong></p>
+<br>
+<pre><code class="">
+                 ┌──────────────────────┐
+                 │  NonExistentReplica  │ ← ReplicaDeletionSuccessful
+                 └─────────┬────────────┘
+                           │ (创建副本)
+                           ▼
+                 ┌──────────────────────┐
+                 │     NewReplica       │
+                 └─────────┬────────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            │
+    ┌──────────────┐ ┌──────────┐      │
+    │OnlineReplica │ │OfflineReplica│◄──┘
+    └──────┬───────┘ └─────┬─────┘
+           │               │
+           └───────┬───────┘
+                   ▼
+         ┌──────────────────────┐
+         │ReplicaMigrationStarted│ (跨节点迁移)
+         └──────────────────────┘
+                   │
+                   ▼
+         ┌──────────────────────┐
+         │ReplicaDeletionStarted│ (副本删除)
+         └──────────┬───────────┘
+                    ▼
+         ┌──────────────────────┐
+         │ReplicaDeletionSuccessful│
+         └──────────────────────┘
+</code></pre>
+<br>
+<p><strong>关键方法：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>方法</th><th>职责</th></tr>
+<tr><td><code>startup()</code></td><td>从 ZK 加载初始状态，触发 Online/Offline 状态转换</td></tr>
+<tr><td><code>handleStateChanges(Set<TableBucketReplica>, ReplicaState)</code></td><td>批量状态转换，发送对应 RPC 命令</td></tr>
+<tr><td><code>initializeReplicaState()</code></td><td>从 ZK <code>TableAssignment</code> 推导所有 Replica 初始状态</td></tr>
+</table></div>
+<br>
+<h5>TableBucketStateMachine</h5>
+<br>
+<p><strong>Enums: <code>BucketState.java</code></strong></p>
+<br>
+<pre><code class="">
+    ┌──────────────────┐
+    │ NonExistentBucket│
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │    NewBucket     │
+    └────────┬─────────┘
+             │
+    ┌────────┼────────┐
+    ▼        ▼        │
+┌──────────┐ ┌──────────┐
+│OnlineBucket│ │OfflineBucket│◄──┘
+└──────────┘ └──────────┘
+</code></pre>
+<br>
+<p><strong>关键方法：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>方法</th><th>职责</th></tr>
+<tr><td><code>startup()</code></td><td>初始化所有 TableBucket 状态（有 Leader → Online，无 Leader → New/Offline）</td></tr>
+<tr><td><code>handleStateChanges(Set<TableBucket>, BucketState)</code></td><td>从 LeaderAndIsr ZK 数据触发状态流转</td></tr>
+<tr><td><code>electLeaderForBuckets(Set<TableBucket>)</code></td><td>为指定 Bucket 执行 Leader 选举</td></tr>
+</table></div>
+<br>
+<p><strong>Leader 选举策略 (<code>ReplicaLeaderElection.java</code>)：</strong></p>
+<p>- <code>DefaultLeaderElection</code>：在 AR（Assigned Replicas）中选取第一个 ISR 内的副本</p>
+<p>- <code>ControlledShutdownLeaderElection</code>：优雅关闭时的 Leader 迁移</p>
+<p>- <code>ReassignmentLeaderElection</code>：副本迁移期间的特殊选举</p>
+<br>
+<h5>与 Kafka 状态机对照</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td>分区状态机</td><td><code>TableBucketStateMachine</code> (管理 <code>TableBucket</code>)</td><td><code>PartitionStateMachine</code> (管理 <code>TopicPartition</code>)</td></tr>
+<tr><td>副本状态机</td><td><code>ReplicaStateMachine</code> (管理 <code>TableBucketReplica</code>)</td><td><code>ReplicaStateMachine</code> (管理 <code>PartitionAndReplica</code>)</td></tr>
+<tr><td>Online 状态</td><td><code>OnlineBucket</code> / <code>OnlineReplica</code></td><td><code>OnlinePartition</code> / <code>OnlineReplica</code></td></tr>
+<tr><td>Offline 状态</td><td><code>OfflineBucket</code> / <code>OfflineReplica</code></td><td><code>OfflinePartition</code> / <code>OfflineReplica</code></td></tr>
+<tr><td>New 状态</td><td><code>NewBucket</code> / <code>NewReplica</code></td><td><code>NewPartition</code> / <code>NewReplica</code></td></tr>
+<tr><td>删除状态</td><td><code>ReplicaDeletionStarted</code> → <code>ReplicaDeletionSuccessful</code></td><td><code>ReplicaDeletionStarted</code> → <code>ReplicaDeletionSuccessful</code></td></tr>
+<tr><td>迁移状态</td><td><code>ReplicaMigrationStarted</code></td><td>(Kafka 通过 reassign partition 实现)</td></tr>
+<tr><td>Leader 选举</td><td><code>ReplicaLeaderElection</code> 接口（3 种实现）</td><td><code>Election.scala</code>（Preferred / Unclean / Reassign）</td></tr>
+</table></div>
+<br>
+<h4>3.2.4 与 Kafka GroupCoordinator 对照</h4>
+<br>
+<p>⚠️ <strong>重要区别：Fluss Coordinator ≠ Kafka GroupCoordinator</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss Coordinator</th><th>Kafka GroupCoordinator</th></tr>
+<tr><td>职责</td><td>集群全局协调：元数据管理、副本分配、Leader 选举、重平衡</td><td>Consumer Group 管理：组成员、offset 提交、分区分配</td></tr>
+<tr><td>对标角色</td><td><strong>Kafka Controller</strong></td><td>Kafka GroupCoordinator</td></tr>
+<tr><td>运行位置</td><td>独立 Coordinator 节点</td><td>嵌入在某个 Broker 中</td></tr>
+<tr><td>Leader 选举</td><td>ZK LeaderLatch</td><td>Group 内选举（First-Join-Wins）</td></tr>
+<tr><td>分区单位</td><td>TableBucket</td><td>TopicPartition</td></tr>
+<tr><td>状态管理</td><td>Bucket/Replica 双状态机</td><td>Group 状态机（Empty/PreparingRebalance/...）</td></tr>
+</table></div>
+<br>
+<p><strong>Fluss 社区目前没有独立的 GroupCoordinator</strong>，因为 Fluss 是存储系统而非消息队列，消费端 offset 管理通过 Producer（Flink Job）的 <code>ProducerOffsets</code> 快照实现。</p>
+<br>
+<hr>
+<br>
+<h3>3.3 TableBucket 重平衡</h3>
+<br>
+<h4>3.3.1 重平衡算法</h4>
+<br>
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/rebalance/RebalanceManager.java</code></p>
+<br>
+<p>Fluss 的重平衡基于 <strong>Goal 驱动优化模型</strong>，类似 Kafka Cruise Control 的核心思想：</p>
+<br>
+<pre><code class=" language-java">
+public class RebalanceManager {
+    // 核心组件
+    private final ZooKeeperClient zkClient;
+    private final CoordinatorEventProcessor eventProcessor;
+    private final EventManager eventManager;
+    
+    // 进行中的重平衡任务队列
+    private final Queue<TableBucket> inProgressRebalanceTasksQueue;
+    private final Map<TableBucket, RebalanceResultForBucket> inProgressRebalanceTasks;
+    
+    // 超时检查（硬编码 2 分钟超时 / 30 秒检查间隔）
+    private static final long REBALANCE_TASK_TIMEOUT_MS = 2 * 60 * 1000L;
+    private static final long TIMEOUT_CHECK_INTERVAL_MS = 30 * 1000L;
+}
+</code></pre>
+<br>
+<p><strong>重平衡 Goal 体系：</strong></p>
+<br>
+<div class="mermaid">
+graph TB
+    Goal[Goal 接口<br/>+ optimize]
+    AG[AbstractGoal<br/>+ clusterModel<br/>+ excludedBuckets]
+    RAG[RackAwareAbstractGoal<br/>+ rack 感知]
+    RDAG[ReplicaDistributionAbstractGoal<br/>+ 副本分布优化]
+    LRG[LeaderReplicaDistributionGoal<br/>+ Leader 分布优化]
+    RDG[ReplicaDistributionGoal<br/>副本均衡]
+    RAG2[RackAwareGoal<br/>机架感知均衡]
+    GO[GoalOptimizer<br/>+ optimize 入口]
+
+    Goal -.-> AG
+    AG --> RAG
+    AG --> RDAG
+    RAG --> RAG2
+    RDAG --> RDG
+    RDAG --> LRG
+    GO --> Goal
+    
+    style GO fill:#ffcc80
+    style Goal fill:#e1f5fe
+</div>
+<br>
+<p><strong>模型层：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>类</th><th>职责</th></tr>
+<tr><td><code>ClusterModel</code></td><td>集群拓扑模型：包含所有 Server 和 Bucket</td></tr>
+<tr><td><code>ServerModel</code></td><td>单节点模型：承载的 Replica、负载指标</td></tr>
+<tr><td><code>BucketModel</code></td><td>Bucket 模型：Replica 分布、Leader 位置</td></tr>
+<tr><td><code>RackModel</code></td><td>机架模型：机架内 Server 集合</td></tr>
+<tr><td><code>ReplicaModel</code></td><td>副本模型：绑定到特定 Server</td></tr>
+<tr><td><code>ClusterModelStats</code></td><td>集群统计：标准差、均值等均衡度指标</td></tr>
+</table></div>
+<br>
+<p><strong>重平衡流程：</strong></p>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant User as Admin / API
+    participant CEP as CoordinatorEventProcessor
+    participant RM as RebalanceManager
+    participant GO as GoalOptimizer
+    participant ZK as ZooKeeper
+    participant TS as TabletServers
+
+    User->>CEP: 触发 RebalanceEvent
+    CEP->>RM: generateRebalancePlan()
+    RM->>GO: optimize(clusterModel, goals)
+    GO->>GO: 遍历 Goal，逐个优化
+    Note over GO: 1. RackAwareGoal: 机架感知<br/>2. ReplicaDistributionGoal: 副本均衡<br/>3. LeaderReplicaDistributionGoal: Leader 均衡
+    GO-->>RM: RebalancePlanForBucket
+    RM->>ZK: 写入 RebalanceTask (JSON)
+    RM->>RM: 启动超时检查定时器
+    loop 逐个 Bucket 重平衡
+        RM->>TS: StopReplica (老副本) / LeaderAndIsr (新 Leader)
+        TS-->>RM: 响应
+        RM->>CEP: put(adjustIsr / leaderAndIsrResp)
+    end
+    RM->>ZK: 更新 RebalanceTask 状态 (COMPLETED)
+</div>
+<br>
+<p><strong>重平衡状态机：</strong></p>
+<br>
+<pre><code class="">
+NOT_STARTED → REBALANCING → COMPLETED
+                             CANCELED
+</code></pre>
+<br>
+<p><strong>关键方法：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>方法</th><th>职责</th></tr>
+<tr><td><code>generateRebalancePlan()</code></td><td>基于 Goal 优化器生成 Bucket 迁移计划</td></tr>
+<tr><td><code>executeRebalanceSteps()</code></td><td>逐步执行迁移方案（StopReplica + LeaderAndIsr）</td></tr>
+<tr><td><code>completeRebalance()</code></td><td>标记重平衡完成，更新 ZK</td></tr>
+<tr><td><code>cancelRebalance()</code></td><td>取消进行中的重平衡</td></tr>
+<tr><td><code>checkTimeout()</code></td><td>定时检查超时的 RebalanceTask</td></tr>
+</table></div>
+<br>
+<h4>3.3.2 与 Kafka Consumer Rebalance 对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss TableBucket Rebalance</th><th>Kafka Consumer Group Rebalance</th></tr>
+<tr><td>触发方</td><td>Coordinator（集群内）</td><td>GroupCoordinator（消费组内）</td></tr>
+<tr><td>目的</td><td>副本迁移、负载均衡</td><td>分区在 Consumer 之间重新分配</td></tr>
+<tr><td>算法</td><td>Goal 优化（RackAware / Distribution）</td><td>PartitionAssignor（Range/RoundRobin/Sticky）</td></tr>
+<tr><td>粒度</td><td>Bucket 级别（TableBucket）</td><td>Partition 级别（TopicPartition）</td></tr>
+<tr><td>参与者</td><td>TabletServer（存储节点）</td><td>Consumer（消费客户端）</td></tr>
+<tr><td>状态持久化</td><td>ZK RebalanceZNode</td><td><code>__consumer_offsets</code> 内部 Topic</td></tr>
+</table></div>
+<br>
+<p><strong>Fluss 的 Rebalance 本质上对标 Kafka 的数据迁移（Partition Reassignment），而非 Consumer Group Rebalance。</strong></p>
+<br>
+<hr>
+<br>
+<h3>3.4 租约管理（Lease）</h3>
+<br>
+<h4>3.4.1 Lease 机制</h4>
+<br>
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/lease/KvSnapshotLeaseManager.java</code></p>
+<br>
+<pre><code class=" language-java">
+@ThreadSafe
+public class KvSnapshotLeaseManager {
+    // Lease ID → Lease Handler 映射
+    private final ConcurrentHashMap<String, KvSnapshotLeaseHandler> kvSnapshotLeaseMap;
+    
+    // (TableBucket + SnapshotId) → 引用计数（多个 Lease 可共享同一快照）
+    private final Map<TableBucketSnapshot, AtomicInteger> refCount;
+    
+    // 定时过期检查
+    private final ScheduledExecutorService scheduledExecutor;
+    
+    // 核心方法
+    public String acquireKvSnapshotLease(TableBucket tableBucket, long snapshotId, 
+                                          long leaseTimeoutMs);
+    public boolean renewKvSnapshotLease(String leaseId, long renewTimeoutMs);
+    public void releaseKvSnapshotLease(String leaseId);
+    public void dropKvSnapshotLease(String leaseId);
+}
+</code></pre>
+<br>
+<p><strong>Lease 生命周期：</strong></p>
+<br>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> Active: acquireLease()
+    Active --> Active: renewLease() (续租)
+    Active --> Expired: 超时未续租
+    Active --> Released: releaseLease()
+    Expired --> [*]: 清理 Snapshot 引用
+    Released --> [*]: 清理 Snapshot 引用
+</div>
+<br>
+<p><strong>用途场景：</strong> Flink Job 在消费数据时需要保护 KV Snapshot 不被 GC 清理。通过 Lease 机制保证 Snapshot 在消费完成前可用。</p>
+<br>
+<p><strong>ZK 存储位置：</strong> <code>/leases/kv_snapshot/{leaseId}</code> — 存储 <code>KvSnapshotLeaseMetadata</code>（包含 tableId, bucketId, snapshotId, expiration time）。</p>
+<br>
+<h4>3.4.2 类似 Kafka 的心跳/会话机制</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss KvSnapshotLease</th><th>Kafka Group 心跳（Session）</th></tr>
+<tr><td>保护对象</td><td>KV Snapshot（数据快照）</td><td>Consumer Group Membership</td></tr>
+<tr><td>超时处理</td><td>过期后允许 GC 删除 Snapshot</td><td>触发 Rebalance，移除 Consumer</td></tr>
+<tr><td>存储位置</td><td>ZK <code>/leases/</code></td><td><code>__consumer_offsets</code> 内部 Topic</td></tr>
+<tr><td>续租方式</td><td><code>renewKvSnapshotLease()</code></td><td><code>HeartbeatRequest</code></td></tr>
+<tr><td>引用计数</td><td>支持多个 Lease 共享同一 Snapshot</td><td>不支持</td></tr>
+</table></div>
+<br>
+<p><strong>Fluss Lease 不是心跳机制</strong>，而是资源保护锁。Kafka 的 Group 心跳保障 Consumer 存活，Fluss 的 Lease 保障 Snapshot 不被提前回收。</p>
+<br>
+<hr>
+<br>
+<h3>3.5 Producer ID 管理</h3>
+<br>
+<h4>3.5.1 与 Kafka TransactionCoordinator 对照</h4>
+<br>
+<p>Fluss 没有独立的 <code>TransactionCoordinator</code>。Producer ID 的管理通过 ZK 的 <code>/producers/{producerId}</code> 节点实现：</p>
+<br>
+<pre><code class=" language-java">
+// ZK 数据结构
+public static final class ProducersZNode {
+    public static String path() { return "/producers"; }
+}
+
+public static final class ProducerIdZNode {
+    // 存储 ProducerOffsets（JSON 序列化）
+    // 包含：expiration_time, tables(List of TableOffsetMetadata)
+    public static String path(String producerId) {
+        return ProducersZNode.path() + "/" + producerId;
+    }
+}
+</code></pre>
+<br>
+<p><strong><code>ProducerOffsets</code> 数据结构：</strong></p>
+<pre><code class=" language-java">
+// ProducerOffsets JsonSerde
+{
+    "expiration_time": 1718000000000,    // TTL for auto cleanup
+    "tables": [{
+        "table_id": 1,
+        "partition_id": null,
+        "buckets": [{
+            "bucket_id": 0,
+            "remote_log_offset_file": "s3://.../offsets/bucket-0.json"
+        }]
+    }]
+}
+</code></pre>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss Producer 管理</th><th>Kafka TransactionCoordinator</th></tr>
+<tr><td>存储</td><td>ZK <code>/producers/</code> (JSON)</td><td><code>__transaction_state</code> 内部 Topic</td></tr>
+<tr><td>Producer ID</td><td>Flink Job ID (String)</td><td><code>transactional.id</code> → <code>producerId</code> (Long)</td></tr>
+<tr><td>事务支持</td><td>❌ 不支持</td><td>✅ 完整事务语义</td></tr>
+<tr><td>ID 分配</td><td>外部指定（Flink Job ID）</td><td><code>InitProducerIdRequest</code> 分配</td></tr>
+<tr><td>Offset 管理</td><td>快照式（批量 Commit）</td><td>流式（每个消息的 offset）</td></tr>
+<tr><td>过期机制</td><td><code>expiration_time</code> 硬编码 TTL</td><td><code>transaction.timeout.ms</code> 可配置</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>3.6 ZooKeeper 集成</h3>
+<br>
+<h4>3.6.1 Fluss ZK 数据结构</h4>
+<br>
+<p><strong>文件：</strong> <code>fluss-server/.../zk/data/ZkData.java</code></p>
+<br>
+<div class="mermaid">
+graph TB
+    ROOT[/]
+    
+    ROOT --> METADATA[/metadata/]
+    ROOT --> COORDS[/coordinators/]
+    ROOT --> CLUSTER[/cluster/]
+    ROOT --> PRODUCERS[/producers/]
+    ROOT --> LEASES[/leases/]
+    
+    METADATA --> DBS[/metadata/databases/]
+    METADATA --> TSEQ[/metadata/table_seqid]
+    METADATA --> PSEQ[/metadata/partition_seqid]
+    METADATA --> WID[/metadata/writer_id]
+    
+    DBS --> DB[/databases/{dbName}/]
+    DB --> TABLES[/tables/]
+    DB --> TABLES2[tables/{tableName}]
+    
+    TABLES2 --> SCHEMAS[/schemas/]
+    TABLES2 --> PARTS[/partitions/]
+    TABLES2 --> AUTO[/auto_inc/]
+    
+    SCHEMAS --> SCHEMA[/schemas/{schemaId}]
+    PARTS --> PART[/partitions/{partName}]
+    
+    COORDS --> CIDS[/coordinators/ids/]
+    COORDS --> CELEC[/coordinators/election]
+    CIDS --> CID[/ids/{serverId}]
+    
+    CLUSTER --> TIDS[/cluster/table_ids/]
+    CLUSTER --> PIDS[/cluster/partition_ids/]
+    CLUSTER --> SERVERIDS[/cluster/server_ids/]
+    CLUSTER --> TAGS[/cluster/server_tags/]
+    CLUSTER --> REBAL[/cluster/rebalance]
+    CLUSTER --> REMOTEL[/cluster/remote_logs/]
+    
+    TIDS --> TID[/table_ids/{tableId}: TableAssignment]
+    PIDS --> PID[/partition_ids/{partitionId}: PartitionAssignment]
+    SERVERIDS --> SID[/server_ids/{serverId}: TabletServerRegistration]
+    
+    PRODUCERS --> PROD[/producers/{producerId}: ProducerOffsets]
+    LEASES --> KVLEASE[/leases/kv_snapshot/{leaseId}: KvSnapshotLeaseMetadata]
+
+    style METADATA fill:#e1f5fe
+    style COORDS fill:#fff3e0
+    style CLUSTER fill:#e8f5e9
+    style PRODUCERS fill:#fce4ec
+    style LEASES fill:#f3e5f5
+</div>
+<br>
+<p><strong>ZK 数据节点详细说明：</strong></p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>ZK 路径</th><th>节点类型</th><th>存储内容</th><th>用途</th></tr>
+<tr><td><code>/metadata/databases/{db}</code></td><td>持久 (PERSISTENT)</td><td><code>DatabaseRegistration</code> (JSON)</td><td>数据库注册信息</td></tr>
+<tr><td><code>/metadata/databases/{db}/tables/{table}</code></td><td>持久</td><td><code>TableRegistration</code> (JSON)</td><td>表元数据：bucket_count, partition_keys, schema 引用</td></tr>
+<tr><td><code>/metadata/databases/{db}/tables/{table}/schemas/{id}</code></td><td>持久</td><td><code>Schema</code> (JSON)</td><td>Schema 定义</td></tr>
+<tr><td><code>/metadata/databases/{db}/tables/{table}/partitions/{name}</code></td><td>持久</td><td><code>PartitionRegistration</code> (JSON)</td><td>分区注册信息</td></tr>
+<tr><td><code>/metadata/databases/{db}/tables/{table}/auto_inc/col_{id}</code></td><td>持久</td><td>自增列当前值</td><td>Auto Increment Column</td></tr>
+<tr><td><code>/metadata/table_seqid</code></td><td>持久序列</td><td>表唯一 ID 生成器</td><td><code>createSequential()</code></td></tr>
+<tr><td><code>/metadata/partition_seqid</code></td><td>持久序列</td><td>分区唯一 ID 生成器</td><td><code>createSequential()</code></td></tr>
+<tr><td><code>/metadata/writer_id</code></td><td>持久序列</td><td>Writer 唯一 ID 生成器</td><td><code>createSequential()</code></td></tr>
+<tr><td><code>/coordinators/ids/{serverId}</code></td><td>临时 (EPHEMERAL)</td><td><code>CoordinatorAddress</code> (JSON)</td><td>Coordinator 节点注册/存活检测</td></tr>
+<tr><td><code>/coordinators/election</code></td><td>临时序列</td><td>LeaderLatch 选举</td><td>Coordinator Leader 选举</td></tr>
+<tr><td><code>/cluster/table_ids/{tableId}</code></td><td>持久</td><td><code>TableAssignment</code> (JSON)</td><td>Bucket → [Replica IDs] 映射</td></tr>
+<tr><td><code>/cluster/partition_ids/{partitionId}</code></td><td>持久</td><td><code>PartitionAssignment</code> (JSON)</td><td>分区 Bucket 副本分布</td></tr>
+<tr><td><code>/cluster/server_ids/{serverId}</code></td><td>临时</td><td><code>TabletServerRegistration</code> (JSON)</td><td>TabletServer 注册</td></tr>
+<tr><td><code>/cluster/server_tags/{serverId}</code></td><td>持久</td><td><code>ServerTags</code> (JSON)</td><td>Server 资源标签（用于重平衡）</td></tr>
+<tr><td><code>/cluster/rebalance</code></td><td>持久</td><td><code>RebalanceTask</code> (JSON)</td><td>重平衡任务状态</td></tr>
+<tr><td><code>/cluster/remote_logs/</code></td><td>持久</td><td>远程日志清单</td><td><code>RemoteLogManifestHandle</code></td></tr>
+<tr><td><code>/producers/{producerId}</code></td><td>持久</td><td><code>ProducerOffsets</code> (JSON)</td><td>Producer Offset 快照</td></tr>
+<tr><td><code>/leases/kv_snapshot/{leaseId}</code></td><td>持久</td><td><code>KvSnapshotLeaseMetadata</code> (JSON)</td><td>KV Snapshot Lease</td></tr>
+</table></div>
+<br>
+<p><strong>核心数据类：</strong></p>
+<br>
+<p><code>TableAssignment</code> — Bucket 级副本分布：</p>
+<pre><code class=" language-java">
+public class TableAssignment {
+    // Key: bucketId, Value: [replicaId1, replicaId2, replicaId3]
+    // 第一个 replica 默认为 Preferred Leader
+    private final Map<Integer, BucketAssignment> assignments;
+}
+</code></pre>
+<br>
+<p><code>LeaderAndIsr</code> — 每个 Bucket 的 Leader/ISR 状态：</p>
+<pre><code class=" language-java">
+public class LeaderAndIsr {
+    private final int leader;           // Leader replica id, -1 = NO_LEADER
+    private final int leaderEpoch;      // Leader 任期
+    private final List<Integer> isr;    // In-Sync Replica 列表
+    private final List<Integer> standbyReplicas; // 备用副本
+    private final int coordinatorEpoch; // Coordinator 任期
+    private final int bucketEpoch;      // Bucket 状态版本号
+}
+</code></pre>
+<br>
+<h4>3.6.2 Kafka ZK 数据结构对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss ZK Path</th><th>Kafka ZK Path (2.7.2)</th><th>差异说明</th></tr>
+<tr><td><code>/metadata/databases/...</code></td><td><code>/brokers/topics/{topic}</code></td><td>Fluss 多一层 Database 命名空间</td></tr>
+<tr><td><code>/metadata/.../tables/{table}</code></td><td><code>/brokers/topics/{topic}</code></td><td>Fluss 存 Schema 和分区信息；Kafka 仅存分区数</td></tr>
+<tr><td><code>/metadata/table_seqid</code></td><td>(Kafka 无统一 ID，用 topic 名做 key)</td><td>Fluss 统一数字 ID</td></tr>
+<tr><td><code>/coordinators/ids/</code></td><td><code>/controller</code> (单节点临时)</td><td>Fluss 支持多 Coordinator 注册</td></tr>
+<tr><td><code>/coordinators/election</code></td><td><code>/controller</code> (竞争临时节点)</td><td>Fluss 用 Curator LeaderLatch；Kafka 自己竞争</td></tr>
+<tr><td><code>/cluster/table_ids/{id}</code></td><td><code>/brokers/topics/{topic}/partitions/{p}/state</code></td><td>Fluss 存完整 BucketAssignment；Kafka 存 leader/isr</td></tr>
+<tr><td><code>/cluster/server_ids/{id}</code></td><td><code>/brokers/ids/{id}</code></td><td>等价，节点注册信息</td></tr>
+<tr><td><code>/cluster/rebalance</code></td><td><code>/admin/reassign_partitions</code></td><td>Fluss 内置重平衡；Kafka 依赖 admin 操作</td></tr>
+<tr><td><code>/producers/</code></td><td><code>__transaction_state</code> Topic (非 ZK)</td><td>Fluss 用 ZK 存 Producer offset 快照</td></tr>
+<tr><td><code>/leases/</code></td><td>(无直接等价)</td><td>Fluss 特有 KV Snapshot Lease</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>3.7 元数据管理</h3>
+<br>
+<h4>3.7.1 Table/Partition/TableBucket 元数据</h4>
+<br>
+<h5>元数据缓存架构</h5>
+<br>
+<div class="mermaid">
+graph TB
+    subgraph "Coordinator 侧"
+        CMC[CoordinatorMetadataCache<br/>implements ServerMetadataCache]
+        CMS[ServerMetadataCache<br/>interface]
+        CSC[ServerSchemaCache]
+    end
+    
+    subgraph "TabletServer 侧"
+        TMC[TabletServerMetadataCache<br/>implements TabletServerMetadataProvider]
+        TMP[TabletServerMetadataProvider<br/>interface]
+    end
+    
+    subgraph "元数据对象"
+        TM[TableMetadata]
+        PM[PartitionMetadata]
+        BM[BucketMetadata]
+        SI[ServerInfo]
+        CM[ClusterMetadata]
+    end
+    
+    subgraph "数据源"
+        ZK[ZooKeeper]
+    end
+    
+    CMC --> CMS
+    CMC --> CSC
+    TMC --> TMP
+    
+    CMS --> TM
+    CMS --> PM
+    CMS --> BM
+    CMS --> SI
+    
+    TMP --> TM
+    TMP --> PM
+    TMP --> BM
+    
+    ZK --> CMC
+    ZK --> TMC
+
+    style CMC fill:#e1f5fe
+    style TMC fill:#e8f5e9
+    style ZK fill:#fff3e0
+</div>
+<br>
+<p><strong><code>TableMetadata</code>：</strong></p>
+<pre><code class=" language-java">
+public class TableMetadata {
+    private final TableInfo tableInfo;              // 通用表信息（Schema、配置等）
+    private final List<BucketMetadata> bucketMetadataList; // 所有 Bucket 的元数据
+    // 对于分区表，bucketMetadataList 为空；详细信息在 PartitionMetadata 中
+}
+</code></pre>
+<br>
+<p><strong><code>BucketMetadata</code>：</strong></p>
+<pre><code class=" language-java">
+public class BucketMetadata {
+    private final int bucketId;
+    private final @Nullable Integer leaderId;      // 当前 Leader Server ID
+    private final @Nullable Integer leaderEpoch;    // Leader 任期
+    private final List<Integer> replicas;           // 副本分布 [s1, s2, s3]
+}
+</code></pre>
+<br>
+<p><strong><code>PartitionMetadata</code>：</strong></p>
+<pre><code class=" language-java">
+public class PartitionMetadata {
+    private final long partitionId;
+    private final String partitionName;
+    private final List<BucketMetadata> bucketMetadataList;
+}
+</code></pre>
+<br>
+<p><strong><code>TableBucket</code>（公共 API）：</strong></p>
+<pre><code class=" language-java">
+public class TableBucket implements Serializable {
+    private final long tableId;       // 表 ID
+    private final int bucket;         // Bucket 编号
+    private final @Nullable Long partitionId; // 分区 ID（分区表非空）
+    // 缓存 hashCode 用于 RecordAccumulator 等性能敏感路径
+}
+</code></pre>
+<br>
+<p><strong><code>CoordinatorMetadataCache</code> 核心方法：</strong></p>
+<pre><code class=" language-java">
+public class CoordinatorMetadataCache implements ServerMetadataCache {
+    // ReentrantLock 保护的可变快照
+    private volatile NodeMetadataSnapshot metadataSnapshot;
+    
+    // 查询 TabletServer 是否存活
+    public boolean isAliveTabletServer(int serverId);
+    // 获取特定 TabletServer 的 RPC 地址
+    public Optional<ServerNode> getTabletServer(int serverId, String listenerName);
+    // 获取所有存活的 TabletServer
+    public Map<Integer, ServerNode> getAllAliveTabletServers(String listenerName);
+    // 获取 Coordinator Server 地址
+    public @Nullable ServerNode getCoordinatorServer(String listenerName);
+    // 获取 Server Tag 标签
+    public Map<Integer, ServerTag> getServerTags();
+}
+</code></pre>
+<br>
+<h4>3.7.2 与 Kafka Topic/Partition 对照</h4>
+<br>
+<h5>元数据模型对照</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr>
+<tr><td><code>DatabaseDescriptor</code></td><td>(无，Kafka 无 Database 概念)</td><td>Fluss 引入 Database 做逻辑隔离</td></tr>
+<tr><td><code>TableInfo</code></td><td>Topic 元数据（无独立类，散落在 ZK）</td><td>Fluss 结构化为独立 POJO</td></tr>
+<tr><td><code>TablePath</code> (db.table)</td><td>Topic Name (String)</td><td>Fluss 增加命名空间</td></tr>
+<tr><td><code>TableBucket(tableId, bucket)</code></td><td><code>TopicPartition(topic, partition)</code></td><td>Fluss 的 Bucket 比 Kafka Partition 语义更轻</td></tr>
+<tr><td><code>TableBucket(tableId, partitionId, bucket)</code></td><td><code>TopicPartition(topic, partition)</code></td><td>Fluss 分区表有二级结构：Partition → Bucket</td></tr>
+<tr><td><code>BucketMetadata</code></td><td>无，信息散落在 <code>PartitionStateInfo</code></td><td>Fluss 独立抽象</td></tr>
+<tr><td><code>TableMetadata</code></td><td><code>MetadataCache</code> 的内存结构</td><td>Fluss 独立 POJO 传输</td></tr>
+<tr><td><code>PartitionAssignment(bucket → replicas)</code></td><td><code>ReplicaAssignment</code> (replicas + adding + removing)</td><td>Fluss 更简单，无动态迁移字段</td></tr>
+<tr><td><code>LeaderAndIsr</code></td><td><code>LeaderAndIsr</code> (Kafka API)</td><td>结构一致（leader/epoch/isr）</td></tr>
+</table></div>
+<br>
+<h5>RPC 通道消息对照</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss RPC 消息</th><th>Kafka RPC 消息</th><th>说明</th></tr>
+<tr><td><code>NotifyLeaderAndIsrRequest</code></td><td><code>LeaderAndIsrRequest</code></td><td>Leader/ISR 变更通知</td></tr>
+<tr><td><code>StopReplicaRequest</code></td><td><code>StopReplicaRequest</code></td><td>副本删除/下线通知</td></tr>
+<tr><td><code>UpdateMetadataRequest</code></td><td><code>UpdateMetadataRequest</code></td><td>元数据广播</td></tr>
+<tr><td><code>NotifyKvSnapshotOffsetRequest</code></td><td>(无等价)</td><td>Fluss KV Snapshot Offset 通知</td></tr>
+<tr><td><code>NotifyLakeTableOffsetRequest</code></td><td>(无等价)</td><td>Fluss Lake Table (Paimon/Iceberg) Offset</td></tr>
+<tr><td><code>NotifyRemoteLogOffsetsRequest</code></td><td>(无等价)</td><td>远程日志 Offset 通知</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>3.8 核心类级对照表</h3>
+<br>
+<h4>Coordinator → Controller 对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss 类</th><th>Kafka 2.7.2 类 (Scala)</th><th>职责对比</th></tr>
+<tr><td><code>CoordinatorServer</code></td><td><code>KafkaServer</code> (部分) + <code>KafkaController</code></td><td>Fluss 将 Controller 服务独立为单独进程</td></tr>
+<tr><td><code>CoordinatorEventProcessor</code></td><td><code>KafkaController</code> (impl <code>ControllerEventProcessor</code>)</td><td>事件处理循环 + 状态机编排</td></tr>
+<tr><td><code>CoordinatorContext</code></td><td><code>ControllerContext</code></td><td>内存状态：live servers, bucket states, replica states</td></tr>
+<tr><td><code>CoordinatorEventManager</code></td><td><code>ControllerEventManager</code></td><td>事件队列管理</td></tr>
+<tr><td><code>CoordinatorChannelManager</code></td><td><code>ControllerChannelManager</code></td><td>RPC 通道到 Worker 节点（TabletServer / Broker）</td></tr>
+<tr><td><code>CoordinatorRequestBatch</code></td><td>(分散在 Controller 方法中)</td><td>Fluss 隔离批处理逻辑为独立类</td></tr>
+<tr><td><code>CoordinatorLeaderElection</code></td><td>ZK <code>/controller</code> 竞争逻辑 (KafkaController 内部)</td><td>Fluss 用 Curator LeaderLatch 解耦</td></tr>
+<tr><td><code>CoordinatorService</code></td><td><code>KafkaApis</code> (处理 Controller 相关请求部分)</td><td>RPC 请求处理（table/database/rebalance）</td></tr>
+<tr><td><code>CoordinatorMetadataCache</code></td><td>Broker 内 <code>MetadataCache</code></td><td>Fluss Coordinator 专用缓存</td></tr>
+<tr><td><code>AutoPartitionManager</code></td><td>(Kafka 无等价，分区手动创建)</td><td>自动分区创建</td></tr>
+<tr><td><code>KvSnapshotLeaseManager</code></td><td>(无等价)</td><td>KV Snapshot 生命周期管理</td></tr>
+<tr><td><code>RebalanceManager</code></td><td>(Kafka 依赖外挂 Cruise Control)</td><td>内置 Goal 驱动重平衡</td></tr>
+<tr><td><code>RemoteDirDynamicLoader</code></td><td>(无等价)</td><td>远程存储目录动态发现/加载</td></tr>
+</table></div>
+<br>
+<h4>状态机对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td><code>ReplicaStateMachine</code></td><td><code>ReplicaStateMachine</code></td></tr>
+<tr><td><code>TableBucketStateMachine</code></td><td><code>PartitionStateMachine</code></td></tr>
+<tr><td><code>ReplicaState</code> enum (7 states)</td><td><code>ReplicaState</code> enum (6 states, 无 MigrationStarted)</td></tr>
+<tr><td><code>BucketState</code> enum (4 states)</td><td><code>PartitionState</code> enum (4 states)</td></tr>
+<tr><td><code>ReplicaLeaderElection</code> interface</td><td><code>Election</code> object + <code>ElectionStrategy</code></td></tr>
+<tr><td><code>DefaultLeaderElection</code></td><td><code>OfflinePartitionLeaderElectionStrategy</code></td></tr>
+<tr><td><code>ControlledShutdownLeaderElection</code></td><td><code>ControlledShutdownLeaderElectionStrategy</code></td></tr>
+<tr><td><code>ReassignmentLeaderElection</code></td><td><code>ReassignPartitionLeaderElectionStrategy</code></td></tr>
+</table></div>
+<br>
+<h4>ZK 数据对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td><code>ZooKeeperClient</code></td><td><code>KafkaZkClient</code></td></tr>
+<tr><td><code>ZkData</code> (静态内部类)</td><td><code>ZkData</code> (object)</td></tr>
+<tr><td><code>ZkData.DatabaseZNode</code></td><td>(无)</td></tr>
+<tr><td><code>ZkData.TableZNode</code></td><td><code>TopicZNode</code></td></tr>
+<tr><td><code>ZkData.PartitionZNode</code></td><td>(无独立节点)</td></tr>
+<tr><td><code>ZkData.TableIdZNode</code></td><td><code>TopicPartitionStateZNode</code></td></tr>
+<tr><td><code>ZkData.ServerIdZNode</code></td><td><code>BrokerIdZNode</code></td></tr>
+<tr><td><code>ZkData.CoordinatorIdsZNode</code></td><td><code>ControllerIdZNode</code></td></tr>
+<tr><td><code>ZkData.CoordinatorElectionZNode</code></td><td><code>ControllerEpochZNode</code></td></tr>
+<tr><td><code>TableRegistration</code></td><td>(无独立注册类)</td></tr>
+<tr><td><code>TableAssignment</code></td><td><code>ReplicaAssignment</code></td></tr>
+<tr><td><code>LeaderAndIsr</code></td><td><code>LeaderAndIsr</code> (Kafka API 类)</td></tr>
+<tr><td><code>BuckerAssignment</code></td><td><code>ReplicaAssignment.replicas</code></td></tr>
+<tr><td><code>ProducersZNode</code> → <code>ProducerOffsets</code></td><td><code>__transaction_state</code> Topic</td></tr>
+</table></div>
+<br>
+<h4>RPC 服务接口对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss RPC 接口 (CoordinatorService)</th><th>Kafka 对应 (KafkaApis)</th></tr>
+<tr><td><code>createDatabase()</code></td><td><code>handleCreateTopics()</code> (无 Database 层)</td></tr>
+<tr><td><code>dropDatabase()</code></td><td><code>handleDeleteTopics()</code></td></tr>
+<tr><td><code>createTable()</code></td><td><code>handleCreateTopics()</code></td></tr>
+<tr><td><code>dropTable()</code></td><td><code>handleDeleteTopics()</code></td></tr>
+<tr><td><code>createPartition()</code></td><td><code>handleCreatePartitions()</code></td></tr>
+<tr><td><code>dropPartition()</code></td><td>(无直接等价)</td></tr>
+<tr><td><code>alterTable()</code></td><td><code>handleAlterConfigs()</code></td></tr>
+<tr><td><code>registerTabletServer()</code></td><td>(通过 ZK <code>/brokers/ids/</code> 自动注册)</td></tr>
+<tr><td><code>heartbeat()</code></td><td>(ZK 临时节点心跳，无显式 RPC)</td></tr>
+<tr><td><code>acquireKvSnapshotLease()</code></td><td>(无等价)</td></tr>
+<tr><td><code>releaseKvSnapshotLease()</code></td><td>(无等价)</td></tr>
+<tr><td><code>commitKvSnapshot()</code></td><td>(无等价)</td></tr>
+<tr><td><code>commitLakeTableSnapshot()</code></td><td>(无等价 — Fluss Lake Table 特有)</td></tr>
+<tr><td><code>adjustIsr()</code></td><td><code>handleAlterIsr()</code></td></tr>
+<tr><td><code>getTableInfo()</code></td><td><code>handleMetadataRequest()</code></td></tr>
+<tr><td><code>getSchemaInfo()</code></td><td>(Schema Registry 独立服务)</td></tr>
+<tr><td><code>rebalance()</code></td><td>(外挂 Cruise Control API)</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>3.9 Coordinator 启动与 Leader 选举序列</h3>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant CS as CoordinatorServer
+    participant CLE as CoordinatorLeaderElection
+    participant ZK as ZooKeeper
+    participant CEP as CoordinatorEventProcessor
+    participant Ctx as CoordinatorContext
+    participant RS as ReplicaStateMachine
+    participant TS as TabletServers
+
+    CS->>CS: startup()
+    CS->>ZK: ZooKeeperClient 连接
+    CS->>CLE: CoordinatorLeaderElection.startup()
+    CLE->>ZK: 注册 LeaderLatch (/coordinators/election)
+    CS->>CEP: 启动事件处理线程
+    
+    ZK-->>CLE: isLeader() = true
+    CLE->>CLE: CompletableFuture.complete(null)
+    
+    CEP->>Ctx: 设置 liveCoordinators
+    CEP->>ZK: 加载所有 Database / Table / Schema
+    CEP->>ZK: 加载所有 Server 注册信息
+    CEP->>ZK: 加载 TableAssignment / PartitionAssignment
+    CEP->>Ctx: 初始化 Bucket States（从 LeaderAndIsr 推导）
+    CEP->>Ctx: 初始化 Replica States（从 Assignment 推导）
+    CEP->>RS: startup() — 批量触发 OnlineReplica
+    RS->>ZK: 首次写入 LeaderAndIsr 节点
+    RS->>TS: 发送 NotifyLeaderAndIsrRequest
+    TS-->>RS: 响应
+    CEP->>TS: 发送 UpdateMetadataRequest (全量元数据)
+    
+    Note over CEP: 事件循环就绪，开始处理各种事件
+</div>
+<br>
+<h3>3.10 关键设计总结</h3>
+<br>
+<h4>Fluss Coordinator 相比 Kafka Controller 的主要改进</h4>
+<br>
+<p>1. <strong>Java 实现 vs Scala</strong>：更广泛的社区基础，更易维护</p>
+<p>2. <strong>Curator LeaderLatch</strong>：比 Kafka 手写的 ZK 竞争逻辑更健壮</p>
+<p>3. <strong>事件类型扁平化</strong>：30+ 事件类型 vs Kafka 的 20+，覆盖更多场景</p>
+<p>4. <strong>内置重平衡</strong>：Goal 驱动模型直接内置，不需要 Kafka 的 Cruise Control 外挂</p>
+<p>5. <strong>KV Snapshot Lease</strong>：针对 Flink 集成的独特设计</p>
+<p>6. <strong>AutoPartitionManager</strong>：自动分区创建，Kafka 依赖手动调用 API</p>
+<p>7. <strong>Database 命名空间</strong>：TablePath(db.table) 提供逻辑隔离层</p>
+<p>8. <strong>分类 RPC 通道</strong>：<code>NotifyLeaderAndIsr</code> / <code>StopReplica</code> / <code>UpdateMetadata</code> / <code>NotifyKvSnapshotOffset</code> / <code>NotifyLakeTableOffset</code> / <code>NotifyRemoteLogOffsets</code> — 六条独立通道</p>
+<p>9. <strong>Server Tag 机制</strong>：支持资源标签，用于重平衡的机架感知和隔离</p>
+<p>10. <strong>Remote Log Manifest</strong>：原生支持远程日志（OSS/S3），Kafka 通过 Tiered Storage KIP 后期增强</p>
+<br>
+<h4>架构层级总览</h4>
+<br>
+<pre><code class="">
+┌─────────────────────────────────────────────────┐
+│               CoordinatorServer                  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   CoordinatorService (RPC 处理)           │  │
+│  │   ┌──────┬──────┬──────┬──────┬──────┐   │  │
+│  │   │Table │DB    │Server│Lease │Rebal │   │  │
+│  │   │  CRUD│CRUD  │Reg   │Mgr   │Mgr   │   │  │
+│  │   └──────┴──────┴──────┴──────┴──────┘   │  │
+│  └───────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   CoordinatorEventProcessor (事件循环)     │  │
+│  │   ┌──────────────────────────────────┐    │  │
+│  │   │ CoordinatorEventManager (队列)    │    │  │
+│  │   └──────────────────────────────────┘    │  │
+│  └───────────────────────────────────────────┘  │
+│  ┌──────────────┐  ┌────────────────────────┐  │
+│  │ReplicaState   │  │TableBucketStateMachine │  │
+│  │   Machine     │  │                        │  │
+│  └──────────────┘  └────────────────────────┘  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   CoordinatorChannelManager (RPC 通道)     │  │
+│  └───────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   ZooKeeperClient / MetadataCache          │  │
+│  └───────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<br>
+
+<div class="page-nav">
+  <a href="02-存储引擎模块.html" class="prev">存储引擎模块分析</a>
+  <a href="index.html">📋 返回索引</a>
+  <a href="04-数据面-网络与RPC.html" class="next">数据面：网络与 RPC</a>
+</div>
+
+<div class="end-marker">
+  <p><a href="index.html">Fluss 源码分析 · 全文索引</a> | <a href="../../index.html">Deep Dives 目录</a></p>
+</div>
+
+</div>
+</body>
+</html>

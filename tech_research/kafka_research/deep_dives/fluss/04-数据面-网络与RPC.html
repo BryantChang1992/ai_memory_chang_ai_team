@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 - 数据面：网络与 RPC · Fluss 源码分析 · CHANG_AI_TEAM</title>
+<style>
+
+  :root {
+    --bg: #f8f9fb;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent-kafka: #231f20;
+    --accent-automq: #6c48f5;
+    --accent-fluss: #0ea5e9;
+    --border: #e5e7eb;
+    --tag-bg: #f0f4ff;
+    --tag-text: #4361ee;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    --code-bg: #1e293b;
+    --danger-bg: #fff5f5;
+    --danger-border: #fc8181;
+    --success-bg: #f0fff4;
+    --success-border: #68d391;
+    --warn-bg: #fffff0;
+    --warn-border: #f6e05e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1000px; margin: 0 auto; padding: 32px 24px 64px; }
+  
+  .global-nav {
+    display: flex; align-items: center; gap: 0; padding: 0 24px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 52px;
+  }
+  .global-nav .brand { font-weight: 700; font-size: 0.95rem; color: var(--accent-kafka); text-decoration: none; margin-right: 24px; white-space: nowrap; }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; padding: 6px 14px; border-radius: 8px; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .global-nav .nav-link:hover { background: #f3f4f6; color: var(--text); }
+  .global-nav .nav-link.active { background: #eef2ff; color: var(--tag-text); font-weight: 500; }
+
+  .header { text-align: center; padding: 40px 0 28px; border-bottom: 2px solid var(--border); margin-bottom: 32px; }
+  .header .badge { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #111; letter-spacing: -0.3px; line-height: 1.35; margin-bottom: 8px; }
+  .header .meta { font-size: 14px; color: var(--text-secondary); }
+
+  h2 { font-size: 22px; font-weight: 700; color: #111; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 18px; font-weight: 600; color: #111; margin: 28px 0 12px; }
+  h4 { font-size: 15px; font-weight: 600; color: #333; margin: 20px 0 8px; }
+  p { margin-bottom: 14px; font-size: 15px; }
+  a { color: var(--tag-text); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  pre { background: var(--code-bg); color: #e2e8f0; padding: 16px 20px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 14px 0; font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", monospace; }
+  code { font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", monospace; font-size: 0.9em; }
+  p code, li code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; color: #e11d48; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f8fafc; font-weight: 600; color: #333; }
+  tr:hover td { background: #f8fafc; }
+
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.red { background: #fee2e2; color: #991b1b; }
+
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+  .callout.info { background: #f8faff; border: 1px solid #a3bffa; }
+  .callout.success { background: var(--success-bg); border: 1px solid var(--success-border); }
+  .callout.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .mermaid { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono", monospace; font-size: 11.5px; line-height: 1.4; color: #333; }
+  
+  /* Page navigation */
+  .page-nav { display: flex; justify-content: space-between; align-items: center; margin: 40px 0 24px; padding: 16px 0; border-top: 2px solid var(--border); }
+  .page-nav a { color: var(--tag-text); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .page-nav a:hover { text-decoration: underline; }
+  .page-nav .prev::before { content: "← "; }
+  .page-nav .next::after { content: " →"; }
+  .page-nav .disabled { color: #ccc; cursor: default; text-decoration: none; }
+
+  .module-toc { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px; }
+  .module-toc h3 { margin-top: 0; font-size: 15px; }
+  .module-toc ol { padding-left: 20px; }
+  .module-toc ol li { font-size: 14px; margin-bottom: 4px; }
+  .module-toc ol li a { color: var(--text-secondary); }
+  .module-toc ol li a:hover, .module-toc ol li a.active { color: var(--tag-text); }
+
+  blockquote { border-left: 3px solid #0ea5e9; background: #f0f9ff; padding: 10px 16px; margin: 14px 0; font-size: 14px; color: #555; border-radius: 0 8px 8px 0; }
+  
+  .end-marker { text-align: center; padding: 24px 0; color: #999; font-size: 13px; border-top: 1px solid var(--border); margin-top: 32px; }
+  
+  hr { border: none; border-top: 2px dashed #e5e7eb; margin: 36px 0; }
+  
+  @media (max-width: 640px) {
+    .container { padding: 16px 12px 48px; }
+    .header h1 { font-size: 20px; }
+    pre { font-size: 11px; padding: 12px 14px; }
+  }
+
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#eef2ff', primaryBorderColor: '#6366f1', lineColor: '#6366f1', secondaryColor: '#f0f9ff', tertiaryColor: '#f8fafc' } });
+</script>
+</head>
+<body>
+<div class="global-nav">
+  <a href="../../../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../../../index.html" class="nav-link">🏠 Home</a>
+    <a href="../../../index.html" class="nav-link">🐘 Kafka / AutoMQ / Fluss</a>
+    <a href="../../index.html" class="nav-link active">🔬 Deep Dives</a>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · 4/7</div>
+  <h1>04 - 数据面：网络与 RPC</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2</p>
+</div>
+
+<div class="module-toc"><h3>📑 本页目录</h3><ol><li><a href="#4.1-整体架构概览">4.1 整体架构概览</a></li><li><a href="#4.2-rpc-协议设计">4.2 RPC 协议设计</a></li><li><a href="#4.3-网络传输层">4.3 网络传输层</a></li><li><a href="#4.4-请求/响应模型">4.4 请求/响应模型</a></li><li><a href="#4.5-kafka-协议兼容层深度">4.5 Kafka 协议兼容层深度</a></li><li><a href="#4.6-核心类级对照表">4.6 核心类级对照表</a></li></ol></div>
+
+<br>
+<h2 id="04---数据面：网络与-rpc">04 - 数据面：网络与 RPC</h2>
+<br>
+<h3>4.1 整体架构概览</h3>
+<br>
+<div class="mermaid">
+graph TB
+    subgraph FlussRPC["Fluss RPC 框架"]
+        subgraph Client["客户端"]
+            GC[GatewayClientProxy<br/>动态代理]
+            NC[NettyClient]
+            SC[ServerConnection]
+            CC[ClientChannelInitializer]
+        end
+        
+        subgraph Server["服务端"]
+            NS[NettyServer]
+            SC2[ServerChannelInitializer]
+            RP[RequestProcessorPool]
+            RQ[RequestChannel]
+            FH[FlussRequestHandler]
+            KH[KafkaRequestHandler]
+        end
+        
+        subgraph Protocol["协议层"]
+            AM[ApiManager<br/>管理 ApiKeys + method dispatch]
+            MC[MessageCodec<br/>Protobuf 编解码]
+            NP[NetworkProtocolPlugin<br/>多协议支持]
+        end
+        
+        GC --> NC
+        NC --> SC
+        NS --> SC2
+        SC2 --> RP
+        RP --> RQ
+        RQ --> FH
+        RQ --> KH
+        AM --> MC
+        NP --> SC2
+    end
+</div>
+<br>
+<hr>
+<br>
+<h3>4.2 RPC 协议设计</h3>
+<br>
+<h4>4.2.1 协议栈对比</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td><strong>传输</strong></td><td>Netty 4（shaded）</td><td>原生 Java NIO (<code>SocketServer</code>)</td></tr>
+<tr><td><strong>序列化</strong></td><td>Protobuf（生成代码）</td><td>自定义二进制格式（<code>RequestHeader</code> / <code>ResponseHeader</code>）</td></tr>
+<tr><td><strong>API 标识</strong></td><td><code>ApiKeys</code> enum (ID 1000+)，字符串 method name + 反射</td><td><code>ApiKeys</code> enum (ID 0-99)，请求头 int16 apiKey</td></tr>
+<tr><td><strong>方法分发</strong></td><td><code>GatewayClientProxy</code> Dynamic Proxy + 反射 methodName</td><td><code>KafkaApis.handle()</code> switch-case apiKey</td></tr>
+<tr><td><strong>多协议</strong></td><td>✅ <code>RequestType.FLUSS</code> / <code>RequestType.KAFKA</code> 双协议</td><td>单一 Kafka 协议</td></tr>
+<tr><td><strong>版本协商</strong></td><td><code>ApiVersions</code>（Protobuf 级）</td><td><code>ApiVersions</code>（Kafka protocol 级）</td></tr>
+</table></div>
+<br>
+<h4>4.2.2 ApiKeys 分类（Fluss 完整 API 清单）</h4>
+<br>
+<p>Fluss 的 API Key 从 1000 开始（0-999 预留给 Kafka 协议兼容）：</p>
+<br>
+<h5>DDL / 管理（PUBLIC）</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>API Key</th><th>Method</th><th>说明</th></tr>
+<tr><td>1000</td><td><code>ApiVersions</code></td><td>协议版本协商</td></tr>
+<tr><td>1001</td><td><code>CreateDatabase</code></td><td>创建数据库</td></tr>
+<tr><td>1002</td><td><code>DropDatabase</code></td><td>删除数据库</td></tr>
+<tr><td>1003</td><td><code>ListDatabases</code></td><td>列出数据库</td></tr>
+<tr><td>1004</td><td><code>DatabaseExists</code></td><td>检查数据库是否存在</td></tr>
+<tr><td>1005</td><td><code>CreateTable</code></td><td>创建表</td></tr>
+<tr><td>1006</td><td><code>DropTable</code></td><td>删除表</td></tr>
+<tr><td>1007</td><td><code>GetTableInfo</code></td><td>获取表信息</td></tr>
+<tr><td>1008</td><td><code>ListTables</code></td><td>列出表</td></tr>
+<tr><td>1009</td><td><code>ListPartitionInfos</code></td><td>列出分区信息</td></tr>
+<tr><td>1010</td><td><code>TableExists</code></td><td>检查表是否存在</td></tr>
+<tr><td>1011</td><td><code>GetTableSchema</code></td><td>获取表 Schema</td></tr>
+<tr><td>1035</td><td><code>GetDatabaseInfo</code></td><td>获取数据库信息</td></tr>
+<tr><td>1036</td><td><code>CreatePartition</code></td><td>创建分区</td></tr>
+<tr><td>1037</td><td><code>DropPartition</code></td><td>删除分区</td></tr>
+<tr><td>1044</td><td><code>AlterTable</code></td><td>修改表配置/Schema</td></tr>
+<tr><td>1060</td><td><code>AlterDatabase</code></td><td>修改数据库配置</td></tr>
+</table></div>
+<br>
+<h5>数据流（PUBLIC）</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>API Key</th><th>Method</th><th>说明</th></tr>
+<tr><td>1012</td><td><code>GetMetadata</code></td><td>获取集群元数据（类似 Kafka Metadata request）</td></tr>
+<tr><td>1014</td><td><code>ProduceLog</code></td><td>写入日志记录</td></tr>
+<tr><td>1015</td><td><code>FetchLog</code></td><td>拉取日志记录</td></tr>
+<tr><td>1016</td><td><code>PutKv</code></td><td>写入 KV 记录</td></tr>
+<tr><td>1017</td><td><code>Lookup</code></td><td>点查 KV 记录</td></tr>
+<tr><td>1021</td><td><code>ListOffsets</code></td><td>列举 offset 信息</td></tr>
+<tr><td>1023</td><td><code>GetLatestKvSnapshots</code></td><td>获取最新 KV 快照信息</td></tr>
+<tr><td>1024</td><td><code>GetKvSnapshotMetadata</code></td><td>获取 KV 快照元数据</td></tr>
+<tr><td>1025</td><td><code>GetFilesystemSecurityToken</code></td><td>获取文件系统安全令牌</td></tr>
+<tr><td>1026</td><td><code>InitWriter</code></td><td>初始化 Writer（分配 writer id）</td></tr>
+<tr><td>1033</td><td><code>LimitScan</code></td><td>范围扫描</td></tr>
+<tr><td>1034</td><td><code>PrefixLookup</code></td><td>前缀查找</td></tr>
+<tr><td>1032</td><td><code>GetLakeSnapshot</code></td><td>获取 Lake 快照</td></tr>
+<tr><td>1059</td><td><code>GetTableStats</code></td><td>获取表统计信息</td></tr>
+<tr><td>1061</td><td><code>ScanKv</code></td><td>KV 扫描</td></tr>
+</table></div>
+<br>
+<h5>内部（PRIVATE）</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>API Key</th><th>Method</th><th>说明</th></tr>
+<tr><td>1013</td><td><code>UpdateMetadata</code></td><td>Coordinator → TabletServer 元数据更新</td></tr>
+<tr><td>1018</td><td><code>NotifyLeaderAndIsr</code></td><td>Coordinator → TabletServer Leader/ISR 通知</td></tr>
+<tr><td>1019</td><td><code>StopReplica</code></td><td>Coordinator → TabletServer 停止副本</td></tr>
+<tr><td>1020</td><td><code>AdjustIsr</code></td><td>TabletServer → Coordinator ISR 变更通知</td></tr>
+<tr><td>1022</td><td><code>CommitKvSnapshot</code></td><td>TabletServer → Coordinator 提交 KV 快照</td></tr>
+<tr><td>1027</td><td><code>CommitRemoteLogManifest</code></td><td>TabletServer → Coordinator 提交远程日志 manifest</td></tr>
+<tr><td>1028</td><td><code>NotifyRemoteLogOffsets</code></td><td>Coordinator → TabletServer 通知远程日志 offset</td></tr>
+<tr><td>1029</td><td><code>NotifyKvSnapshotOffset</code></td><td>Coordinator → TabletServer 通知 KV 快照 offset</td></tr>
+<tr><td>1030</td><td><code>CommitLakeTableSnapshot</code></td><td>TabletServer → Coordinator 提交 Lake 表快照</td></tr>
+<tr><td>1031</td><td><code>NotifyLakeTableOffset</code></td><td>Coordinator → TabletServer 通知 Lake 表 offset</td></tr>
+<tr><td>1042</td><td><code>LakeTieringHeartbeat</code></td><td>TabletServer → Coordinator Lake 分层心跳</td></tr>
+<tr><td>1043</td><td><code>ControlledShutdown</code></td><td>TabletServer → Coordinator 优雅关闭</td></tr>
+<tr><td>1052</td><td><code>PrepareLakeTableSnapshot</code></td><td>TabletServer → Coordinator 准备 Lake 快照</td></tr>
+</table></div>
+<br>
+<h5>ACL / 集群管理（PUBLIC）</h5>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>API Key</th><th>Method</th><th>说明</th></tr>
+<tr><td>1038</td><td><code>Authenticate</code></td><td>认证</td></tr>
+<tr><td>1039</td><td><code>CreateAcls</code></td><td>创建 ACL</td></tr>
+<tr><td>1040</td><td><code>ListAcls</code></td><td>列出 ACL</td></tr>
+<tr><td>1041</td><td><code>DropAcls</code></td><td>删除 ACL</td></tr>
+<tr><td>1045</td><td><code>DescribeClusterConfigs</code></td><td>查看集群配置</td></tr>
+<tr><td>1046</td><td><code>AlterClusterConfigs</code></td><td>修改集群配置</td></tr>
+<tr><td>1047</td><td><code>AddServerTag</code></td><td>添加服务器标签</td></tr>
+<tr><td>1048</td><td><code>RemoveServerTag</code></td><td>删除服务器标签</td></tr>
+<tr><td>1049</td><td><code>Rebalance</code></td><td>触发重平衡</td></tr>
+<tr><td>1050</td><td><code>ListRebalanceProgress</code></td><td>查看重平衡进度</td></tr>
+<tr><td>1051</td><td><code>CancelRebalance</code></td><td>取消重平衡</td></tr>
+<tr><td>1053</td><td><code>RegisterProducerOffsets</code></td><td>注册 Producer offset</td></tr>
+<tr><td>1054</td><td><code>GetProducerOffsets</code></td><td>获取 Producer offset</td></tr>
+<tr><td>1055</td><td><code>DeleteProducerOffsets</code></td><td>删除 Producer offset</td></tr>
+<tr><td>1056</td><td><code>AcquireKvSnapshotLease</code></td><td>获取 KV 快照租约</td></tr>
+<tr><td>1057</td><td><code>ReleaseKvSnapshotLease</code></td><td>释放 KV 快照租约</td></tr>
+<tr><td>1058</td><td><code>DropKvSnapshotLease</code></td><td>删除 KV 快照租约</td></tr>
+</table></div>
+<br>
+<h4>4.2.3 双协议引擎（Fluss + Kafka）</h4>
+<br>
+<div class="mermaid">
+graph LR
+    subgraph "Netty Pipeline"
+        DP[Decoder] --> HC[RequestHandlerSelector]
+        HC --> FH[FlussRequestHandler]
+        HC --> KH[KafkaRequestHandler]
+    end
+    
+    subgraph "协议检测"
+        Magic[Fluss Magic Bytes 检测]
+        KafkaDecoder[Kafka Protocol Decoder]
+    end
+</div>
+<br>
+<p>Fluss 通过 <code>NetworkProtocolPlugin</code> 接口实现协议热插拔：</p>
+<p>- <code>FlussProtocolPlugin</code>：原生 Fluss 协议（Protobuf）</p>
+<p>- <code>KafkaProtocolPlugin</code>：Kafka 协议兼容（<code>KafkaChannelInitializer</code> → 标准 Kafka 二进制协议）</p>
+<br>
+<p><code>RequestType</code> 枚举：</p>
+<pre><code class=" language-java">
+enum RequestType { FLUSS, KAFKA }
+</code></pre>
+<br>
+<h4>4.2.4 Gateway 抽象</h4>
+<br>
+<div class="mermaid">
+classDiagram
+    class RpcGatewayService {
+        <<interface>>
+        +isGatewayReady(): boolean
+    }
+    class RpcGateway {
+        <<interface>>
+        +hostname(): String
+        +port(): int
+    }
+    class TabletServerGateway {
+        <<interface>>
+        +produceLog()
+        +fetchLog()
+        +putKv()
+        +lookup()
+        +limitScan()
+        +prefixLookup()
+        +initWriter()
+        +commitRemoteLogManifest()
+        +stopReplica()
+        +adjustIsr()
+        +notifyLeaderAndIsr()
+        +getLakeSnapshot()
+        +prepareLakeTableSnapshot()
+        +lakeTieringHeartbeat()
+    }
+    class CoordinatorGateway {
+        <<interface>>
+        +createDatabase()
+        +createTable()
+        +dropTable()
+        +alterTable()
+        +getTableInfo()
+        +metadata()
+        +adjustIsr()
+        +commitKvSnapshot()
+        +commitRemoteLogManifest()
+        +commitLakeTableSnapshot()
+        +controlledShutdown()
+        +acquireKvSnapshotLease()
+        +rebalance()
+        +registerProducerOffsets()
+        ...
+    }
+    class AdminGateway {
+        <<interface>>
+        +createDatabase()
+        +listDatabases()
+        +createTable()
+        +listTables()
+        +getTableSchema()
+        +listPartitionInfos()
+        +getClusterConfigs()
+        ...
+    }
+    
+    RpcGatewayService <|-- RpcGateway
+    RpcGateway <|-- TabletServerGateway
+    RpcGateway <|-- CoordinatorGateway
+    RpcGateway <|-- AdminGateway
+</div>
+<br>
+<h4>4.2.5 GatewayClientProxy —— 核心 RPC 代理机制</h4>
+<br>
+<p><code>GatewayClientProxy</code> 使用 JDK 动态代理 + 反射实现 RPC 调用：</p>
+<br>
+<pre><code class=" language-java">
+// 核心流程：
+invoke(proxy, method, args):
+  1. apiMethod = ApiManager.forMethodName(method.getName())
+     // 查找 ApiKeys 中 matching 的方法名
+  2. request = apiMethod.serializeRequest(method, args)
+  3. response = nettyClient.send(serverAddress, request)
+  4. return apiMethod.deserializeResponse(response, method)
+</code></pre>
+<br>
+<p><strong>与 Kafka 的对比</strong>：</p>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss GatewayClientProxy</th><th>Kafka NetworkClient</th></tr>
+<tr><td><strong>调用方式</strong></td><td>JDK Dynamic Proxy (反射 methodName)</td><td>显式调用 <code>send()</code> + <code>poll()</code></td></tr>
+<tr><td><strong>API 映射</strong></td><td><code>ApiManager.forMethodName(methodName)</code> 自动匹配</td><td><code>ApiKeys.{key}</code> 硬编码</td></tr>
+<tr><td><strong>序列化</strong></td><td>Protobuf（自动生成）</td><td>手动编写的 <code>Struct</code> / <code>Schema</code></td></tr>
+<tr><td><strong>异步模型</strong></td><td><code>CompletableFuture</code></td><td><code>ClientResponse</code> callback</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>4.3 网络传输层</h3>
+<br>
+<h4>4.3.1 Netty 集成</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss (Netty)</th><th>Kafka (Java NIO)</th></tr>
+<tr><td><code>NettyServer</code></td><td><code>SocketServer</code> + <code>Acceptor</code> + <code>Processor</code></td></tr>
+<tr><td><code>NettyClient</code></td><td><code>NetworkClient</code> + <code>Selector</code></td></tr>
+<tr><td><code>ServerChannelInitializer</code></td><td><code>ChannelBuilder</code> (new connection)</td></tr>
+<tr><td><code>ClientChannelInitializer</code></td><td><code>ChannelBuilder</code></td></tr>
+<tr><td><code>NettyServerHandler</code></td><td><code>Processor</code> (read/write loops)</td></tr>
+<tr><td><code>NettyClientHandler</code></td><td><code>Send</code> / <code>NetworkReceive</code></td></tr>
+<tr><td><code>RequestProcessorPool</code></td><td><code>RequestHandlerPool</code> (KafkaApis threads)</td></tr>
+<tr><td><code>RequestChannel</code></td><td><code>RequestChannel</code> (NIO queues)</td></tr>
+</table></div>
+<br>
+<h4>4.3.2 服务端请求处理路径</h4>
+<br>
+<pre><code class="">
+NettyServer (boss + worker event loops)
+  → ServerChannelInitializer (decode protocol magic)
+    → FlussRequestHandler 或 KafkaRequestHandler (decode)
+      → RequestChannel (queue)
+        → RequestProcessorPool (线程池)
+          → RequestProcessor.run()
+            → RpcGatewayService.processRequest()
+              (CoordinatorService / FlussServer)
+</code></pre>
+<br>
+<h4>4.3.3 连接管理</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>特性</th><th>Fluss</th><th>Kafka</th></tr>
+<tr><td>连接复用</td><td>✅（Netty Channel 复用）</td><td>✅（ConnectionPool）</td></tr>
+<tr><td>空闲超时</td><td><code>KAFKA_CONNECTION_MAX_IDLE_TIME</code> 配置 (default 10min)</td><td><code>connections.max.idle.ms</code> (default 10min)</td></tr>
+<tr><td>最大请求大小</td><td><code>NETTY_SERVER_MAX_REQUEST_SIZE</code></td><td><code>socket.request.max.bytes</code></td></tr>
+<tr><td>并发连接限制</td><td>Netty boss thread 自动处理</td><td><code>max.connections.per.ip</code></td></tr>
+<tr><td>TLS</td><td>通过 Netty SslHandler</td><td>通过 Java SSLContext</td></tr>
+</table></div>
+<br>
+<h4>4.3.4 Netty Shade 策略</h4>
+<br>
+<p>Fluss 将 Netty 4 打包为 shaded 依赖 <code>org.apache.fluss.shaded.netty4</code>，避免与用户依赖冲突。但类路径中的 <code>netty4</code> 暗示依赖可能未被完全 shade。</p>
+<br>
+<hr>
+<br>
+<h3>4.4 请求/响应模型</h3>
+<br>
+<h4>4.4.1 Fluss 请求结构</h4>
+<br>
+<pre><code class="">
+RpcRequest {
+    - String serverName
+    - String methodName
+    - int callerId
+    - byte[] serializedRequest
+    - RequestType requestType (FLUSS | KAFKA)
+}
+</code></pre>
+<br>
+<h4>4.4.2 Protobuf 消息生成</h4>
+<br>
+<p><code>fluss-protogen</code> 模块负责 Protobuf → Java 代码生成：</p>
+<br>
+<pre><code class="">
+fluss-protogen/src/main/proto/
+├── common.proto             (RpcResult, TableBucket, Schema)
+├── api_versions.proto       (ApiVersions request/response)
+├── database.proto           (Database CRUD request/response)
+├── table.proto              (Table CRUD request/response)
+├── produce_log.proto        (ProduceLog request/response)
+├── fetch_log.proto          (FetchLog request/response)
+├── put_kv.proto             (PutKv request/response)
+├── lookup.proto             (Lookup request/response)
+├── limit_scan.proto         (LimitScan request/response)
+├── list_offsets.proto       (ListOffsets request/response)
+├── coordinator.proto        (Coordinator 类请求)
+├── metadata.proto           (Metadata request/response)
+├── server.proto             (Server 类请求)
+└── ...
+</code></pre>
+<br>
+<h4>4.4.3 与 Kafka 请求模型对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>特性</th><th>Fluss</th><th>Kafka</th></tr>
+<tr><td><strong>请求类型</strong></td><td><code>String methodName</code></td><td><code>ApiKeys</code> enum (int16)</td></tr>
+<tr><td><strong>头结构</strong></td><td>自定义 Protobuf 头</td><td><code>RequestHeader</code> (apiKey, apiVersion, correlationId, clientId)</td></tr>
+<tr><td><strong>载荷</strong></td><td>Protobuf Message bytes</td><td>自定义 Struct bytes</td></tr>
+<tr><td><strong>版本管理</strong></td><td>Protobuf 字段 added/deprecated</td><td><code>apiVersion</code> 手动兼容逻辑</td></tr>
+<tr><td><strong>错误码</strong></td><td><code>ApiError</code> / <code>Errors</code> (类似 Kafka)</td><td><code>Errors</code> enum</td></tr>
+<tr><td><strong>CorrelationId</strong></td><td>由 NettyClient 自动管理</td><td>显式传递</td></tr>
+<tr><td><strong>超时处理</strong></td><td>CompletableFuture timeout</td><td><code>ClientRequest</code> deadline</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>4.5 Kafka 协议兼容层深度</h3>
+<br>
+<h4>4.5.1 文件清单（5 个 Java 文件）</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>文件</th><th>功能</th><th>状态</th></tr>
+<tr><td><code>KafkaProtocolPlugin</code></td><td>协议插件入口，注册 Netty ChannelHandler</td><td>✅ 完整</td></tr>
+<tr><td><code>KafkaChannelInitializer</code></td><td>Netty Pipeline 初始化（decoder/encoder）</td><td>✅ 完整</td></tr>
+<tr><td><code>KafkaCommandDecoder</code></td><td>标准 Kafka 二进制协议解码</td><td>✅ 完整</td></tr>
+<tr><td><code>KafkaRequest</code></td><td>Kafka 请求封装</td><td>✅ 完整</td></tr>
+<tr><td><code>KafkaRequestHandler</code></td><td><strong>请求处理核心 → 绝大部分方法为空</strong></td><td>⚠️ 骨架</td></tr>
+</table></div>
+<br>
+<h4>4.5.2 KafkaRequestHandler 实现状态</h4>
+<br>
+<pre><code class="">
+✅ API_VERSIONS     — 完整实现（返回支持的 API 列表并限版本）
+❌ PRODUCE          — 空方法 {}
+❌ FETCH            — 空方法 {}
+❌ METADATA         — 空方法 {}
+❌ LIST_OFFSETS     — 空方法 {}
+❌ FIND_COORDINATOR — 空方法 {}
+❌ JOIN_GROUP       — 空方法 {}
+❌ SYNC_GROUP       — 空方法 {}
+❌ HEARTBEAT        — 空方法 {}
+❌ LEAVE_GROUP      — 空方法 {}
+❌ OFFSET_FETCH     — 空方法 {}
+❌ OFFSET_COMMIT    — 空方法 {}
+❌ CREATE_TOPICS    — 空方法 {}
+❌ DELETE_TOPICS    — 空方法 {}
+❌ DESCRIBE_CONFIGS — 空方法 {}
+❌ ALTER_CONFIGS    — 空方法 {}
+❌ INIT_PRODUCER_ID — 空方法 {}
+❌ ... 所有事务相关 — 空方法 {}
+</code></pre>
+<br>
+<p><strong>结论</strong>：Fluss Kafka 兼容层当前处于 <strong>协议栈就绪、业务逻辑空壳</strong> 阶段。标准 Kafka Client 可以连接并完成 API_VERSIONS 协商，之后的所有操作均会因空方法而超时或返回错误。</p>
+<br>
+<h4>4.5.3 兼容层限制说明</h4>
+<br>
+<p>从代码注释提取的限制：</p>
+<br>
+<pre><code class=" language-java">
+// METADATA: Not support TopicId
+apiVersionData.setMaxVersion(11); // latest > 11 ? 11
+
+// FETCH: Not support TopicId  
+short v = apiKey.latestVersion() > 12 ? 12; // latest > 12 ? 12
+</code></pre>
+<br>
+<p><strong>兼容层实际支持范围</strong>：</p>
+<p>- ✅ API_VERSIONS 请求/响应</p>
+<p>- ❌ 其他所有生产/消费/管理/事务请求</p>
+<p>- ⚠️ TopicId 特性不支持</p>
+<p>- ⚠️ 仅在 TabletServer 上启用（不能在 CoordinatorServer 上使用）</p>
+<br>
+<hr>
+<br>
+<h3>4.6 核心类级对照表</h3>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th></tr>
+<tr><td><code>RpcServer</code> (interface)</td><td><code>SocketServer</code></td><td>服务端网络抽象</td></tr>
+<tr><td><code>NettyServer</code></td><td><code>SocketServer</code> (实现)</td><td>服务端网络实现</td></tr>
+<tr><td><code>NettyServerHandler</code></td><td><code>Processor</code></td><td>请求读取/响应写入</td></tr>
+<tr><td><code>RpcClient</code> (interface)</td><td><code>NetworkClient</code></td><td>客户端网络抽象</td></tr>
+<tr><td><code>NettyClient</code></td><td><code>NetworkClient</code> (实现)</td><td>客户端网络实现</td></tr>
+<tr><td><code>ServerConnection</code></td><td><code>KafkaChannel</code></td><td>单连接抽象</td></tr>
+<tr><td><code>RequestChannel</code></td><td><code>RequestChannel</code></td><td>请求队列</td></tr>
+<tr><td><code>RequestProcessorPool</code></td><td><code>KafkaRequestHandlerPool</code></td><td>请求处理线程池</td></tr>
+<tr><td><code>RequestProcessor</code></td><td><code>KafkaRequestHandler</code></td><td>单个请求处理器</td></tr>
+<tr><td><code>RequestHandler<T></code></td><td><code>KafkaApis</code> (handle 方法)</td><td>请求分派处理</td></tr>
+<tr><td><code>FlussRequestHandler</code></td><td><code>KafkaApis</code> (Fluss 协议)</td><td>Fluss 原生协议处理器</td></tr>
+<tr><td><code>KafkaRequestHandler</code></td><td><code>KafkaApis</code> (Kafka 协议)</td><td>Kafka 兼容协议处理器（骨架）</td></tr>
+<tr><td><code>GatewayClientProxy</code></td><td>无（Kafka 显式调用）</td><td>动态代理 RPC 客户端</td></tr>
+<tr><td><code>ApiKeys</code></td><td><code>ApiKeys</code></td><td>API 枚举标识</td></tr>
+<tr><td><code>ApiManager</code></td><td><code>ApiKeys</code> (直接映射)</td><td>API 方法名 ↔ ID 映射</td></tr>
+<tr><td><code>ApiMethod</code></td><td>（隐式）</td><td>单个 API 的序列化/反序列化</td></tr>
+<tr><td><code>MessageCodec</code></td><td>（不在客户端，服务端硬编码）</td><td>Protobuf 编解码</td></tr>
+<tr><td><code>NetworkProtocolPlugin</code></td><td>Listener security protocol</td><td>协议插件接口</td></tr>
+<tr><td><code>FlussProtocolPlugin</code></td><td>PLAINTEXT/SASL_PLAINTEXT</td><td>Fluss 原生协议</td></tr>
+<tr><td><code>KafkaProtocolPlugin</code></td><td>（无，Kafka 只有一种协议）</td><td>Kafka 协议兼容层</td></tr>
+<tr><td><code>RequestType</code></td><td>（无，只有一种）</td><td>FLUSS / KAFKA</td></tr>
+<tr><td><code>RequestFrame</code></td><td><code>NetworkReceive</code></td><td>请求帧</td></tr>
+<tr><td><code>ServerChannelInitializer</code></td><td><code>ChannelBuilder</code></td><td>服务端 Channel 初始化器</td></tr>
+<tr><td><code>NettyUtils</code></td><td>分散在 Selector 中</td><td>Netty 工具方法</td></tr>
+<tr><td><code>ServerApiVersions</code></td><td>无（通过 RequestHeader.apiVersion）</td><td>服务端 API 版本能力声明</td></tr>
+<tr><td><code>RetryableGatewayClientProxy</code></td><td><code>Retryable-Cluster-Node</code> 逻辑</td><td>带重试的网关代理</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<blockquote>**下一篇**：[[05-客户端与计算集成|05 - 客户端与计算集成]]</blockquote>
+<br>
+
+<div class="page-nav">
+  <a href="03-分布式协调.html" class="prev">分布式协调层分析</a>
+  <a href="index.html">📋 返回索引</a>
+  <a href="05-客户端与计算集成.html" class="next">客户端与计算集成</a>
+</div>
+
+<div class="end-marker">
+  <p><a href="index.html">Fluss 源码分析 · 全文索引</a> | <a href="../../index.html">Deep Dives 目录</a></p>
+</div>
+
+</div>
+</body>
+</html>

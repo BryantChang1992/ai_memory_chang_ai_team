@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluss 源码分析 · Apache Fluss vs Apache Kafka 2.7.2 · CHANG_AI_TEAM</title>
+<style>
+
+  :root {
+    --bg: #f8f9fb;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent-kafka: #231f20;
+    --accent-automq: #6c48f5;
+    --accent-fluss: #0ea5e9;
+    --border: #e5e7eb;
+    --tag-bg: #f0f4ff;
+    --tag-text: #4361ee;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    --code-bg: #1e293b;
+    --danger-bg: #fff5f5;
+    --danger-border: #fc8181;
+    --success-bg: #f0fff4;
+    --success-border: #68d391;
+    --warn-bg: #fffff0;
+    --warn-border: #f6e05e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1000px; margin: 0 auto; padding: 32px 24px 64px; }
+  
+  .global-nav {
+    display: flex; align-items: center; gap: 0; padding: 0 24px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 52px;
+  }
+  .global-nav .brand { font-weight: 700; font-size: 0.95rem; color: var(--accent-kafka); text-decoration: none; margin-right: 24px; white-space: nowrap; }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; padding: 6px 14px; border-radius: 8px; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .global-nav .nav-link:hover { background: #f3f4f6; color: var(--text); }
+  .global-nav .nav-link.active { background: #eef2ff; color: var(--tag-text); font-weight: 500; }
+
+  .header { text-align: center; padding: 40px 0 28px; border-bottom: 2px solid var(--border); margin-bottom: 32px; }
+  .header .badge { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #111; letter-spacing: -0.3px; line-height: 1.35; margin-bottom: 8px; }
+  .header .meta { font-size: 14px; color: var(--text-secondary); }
+
+  h2 { font-size: 22px; font-weight: 700; color: #111; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 18px; font-weight: 600; color: #111; margin: 28px 0 12px; }
+  h4 { font-size: 15px; font-weight: 600; color: #333; margin: 20px 0 8px; }
+  p { margin-bottom: 14px; font-size: 15px; }
+  a { color: var(--tag-text); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  pre { background: var(--code-bg); color: #e2e8f0; padding: 16px 20px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 14px 0; font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", monospace; }
+  code { font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", monospace; font-size: 0.9em; }
+  p code, li code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; color: #e11d48; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f8fafc; font-weight: 600; color: #333; }
+  tr:hover td { background: #f8fafc; }
+
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .tag.blue { background: #dbeafe; color: #1e40af; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.red { background: #fee2e2; color: #991b1b; }
+
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+  .callout.info { background: #f8faff; border: 1px solid #a3bffa; }
+  .callout.success { background: var(--success-bg); border: 1px solid var(--success-border); }
+  .callout.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .mermaid { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono", monospace; font-size: 11.5px; line-height: 1.4; color: #333; }
+  
+  /* Page navigation */
+  .page-nav { display: flex; justify-content: space-between; align-items: center; margin: 40px 0 24px; padding: 16px 0; border-top: 2px solid var(--border); }
+  .page-nav a { color: var(--tag-text); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .page-nav a:hover { text-decoration: underline; }
+  .page-nav .prev::before { content: "← "; }
+  .page-nav .next::after { content: " →"; }
+  .page-nav .disabled { color: #ccc; cursor: default; text-decoration: none; }
+
+  .module-toc { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px; }
+  .module-toc h3 { margin-top: 0; font-size: 15px; }
+  .module-toc ol { padding-left: 20px; }
+  .module-toc ol li { font-size: 14px; margin-bottom: 4px; }
+  .module-toc ol li a { color: var(--text-secondary); }
+  .module-toc ol li a:hover, .module-toc ol li a.active { color: var(--tag-text); }
+
+  blockquote { border-left: 3px solid #0ea5e9; background: #f0f9ff; padding: 10px 16px; margin: 14px 0; font-size: 14px; color: #555; border-radius: 0 8px 8px 0; }
+  
+  .end-marker { text-align: center; padding: 24px 0; color: #999; font-size: 13px; border-top: 1px solid var(--border); margin-top: 32px; }
+  
+  hr { border: none; border-top: 2px dashed #e5e7eb; margin: 36px 0; }
+  
+  @media (max-width: 640px) {
+    .container { padding: 16px 12px 48px; }
+    .header h1 { font-size: 20px; }
+    pre { font-size: 11px; padding: 12px 14px; }
+  }
+
+
+  .key-findings {
+    background: linear-gradient(135deg, #eef2ff, #f0f9ff);
+    border: 1px solid #a3bffa;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .key-findings h3 { margin-top: 0; color: #1e40af; }
+  .key-findings li { margin-bottom: 8px; font-size: 14px; }
+  
+  .module-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .module-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    text-decoration: none !important;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .module-card:hover { border-color: var(--accent-fluss); transform: translateX(4px); }
+  .module-card .num {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+  .module-card .info h4 { margin: 0; font-size: 15px; color: #111; }
+  .module-card .info p { margin: 4px 0 0; font-size: 13px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="global-nav">
+  <a href="../../../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../../../index.html" class="nav-link">🏠 Home</a>
+    <a href="../../../index.html" class="nav-link">🐘 Kafka / AutoMQ / Fluss</a>
+    <a href="../../index.html" class="nav-link active">🔬 Deep Dives</a>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · SOURCE CODE ANALYSIS</div>
+  <h1>Apache Fluss (Incubating) 源码分析<br>与 Apache Kafka 2.7.2 架构对照</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2 (37a1cc3) · 7 个模块</p>
+</div>
+
+<div class="key-findings">
+  <h3>🔑 核心发现</h3>
+  
+  <ol>
+    <li><strong>Fluss 约 30% 代码复用 Kafka</strong>（Log Segment 管理 + Replica 复制框架），<strong>70% 自研</strong>（KV 存储、Arrow 列式、Lake 集成、RPC 框架）</li>
+    <li><strong>最大差异化</strong>：KV 存储（RocksDB）、Arrow 列式记录格式、原生 Lakehouse 集成（Iceberg/Paimon/Hudi/Lance）</li>
+    <li><strong>Kafka 兼容层处于骨架阶段</strong>：KafkaRequestHandler 中绝大部分 API 处理器为空方法 <code>{}</code>，仅 <code>API_VERSIONS</code> 完整</li>
+    <li><strong>存算分离架构</strong>：CoordinatorServer 独立进程 vs Kafka Controller 内嵌 Broker，可独立高可用</li>
+    <li><strong>Lake Tiering</strong>：原生 Flink 作业将实时数据持续写入 Lakehouse，实现 Streaming ↔ Lakehouse 一体化</li>
+  </ol>
+
+</div>
+
+<h2>📑 模块索引</h2>
+
+<div class="module-grid">
+  <a href="01-整体架构对比.html" class="module-card">
+    <span class="num">01</span>
+    <div class="info">
+      <h4>01 - 整体架构对比：Fluss vs Kafka 2.7.2</h4>
+      <p>本文分析 Fluss trunk 与 Apache Kafka 2.7.2 的整体架构差异和模块映射关系。</p>
+    </div>
+  </a>
+  <a href="02-存储引擎模块.html" class="module-card">
+    <span class="num">02</span>
+    <div class="info">
+      <h4>02 - 存储引擎模块分析</h4>
+      <p>LM</p>
+    </div>
+  </a>
+  <a href="03-分布式协调.html" class="module-card">
+    <span class="num">03</span>
+    <div class="info">
+      <h4>03 - 分布式协调层分析</h4>
+      <p>事件处理器线程]</p>
+    </div>
+  </a>
+  <a href="04-数据面-网络与RPC.html" class="module-card">
+    <span class="num">04</span>
+    <div class="info">
+      <h4>04 - 数据面：网络与 RPC</h4>
+      <p>动态代理]</p>
+    </div>
+  </a>
+  <a href="05-客户端与计算集成.html" class="module-card">
+    <span class="num">05</span>
+    <div class="info">
+      <h4>05 - 客户端与计算集成</h4>
+      <p>表/DB/分区管理]</p>
+    </div>
+  </a>
+  <a href="06-Lake层与湖仓融合.html" class="module-card">
+    <span class="num">06</span>
+    <div class="info">
+      <h4>06 - Lake 层与湖仓融合</h4>
+      <p>TS</p>
+    </div>
+  </a>
+  <a href="07-模块对应关系总表.html" class="module-card">
+    <span class="num">07</span>
+    <div class="info">
+      <h4>07 - 模块对应关系总表</h4>
+      <p>` | `KafkaProducer<byte[], T>` | 类型化写入器 |</p>
+    </div>
+  </a>
+</div>
+
+<div class="end-marker">
+  <p>CHANG_AI_TEAM · CTO Analysis · 2026-06-10</p>
+  <p>Based on Apache Fluss trunk source &amp; Apache Kafka 2.7.2 source (tag 37a1cc3)</p>
+  <p style="margin-top:8px;"><a href="../../index.html">← Back to Deep Dives</a></p>
+</div>
+
+</div>
+</body>
+</html>
