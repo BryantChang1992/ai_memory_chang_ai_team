@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluss 源码分析 · Fluss vs Kafka 2.7.2 · CHANG_AI_TEAM</title>
+<style>
+
+  :root {
+    --bg: #f8f9fb; --card-bg: #ffffff; --text: #1a1a2e; --text-secondary: #555;
+    --accent-kafka: #231f20; --accent-fluss: #0ea5e9; --border: #e5e7eb;
+    --tag-text: #4361ee; --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    --code-bg: #1e293b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1000px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  .global-nav {
+    display: flex; align-items: center; padding: 0 24px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100; height: 52px;
+  }
+  .global-nav .brand { font-weight: 700; font-size: 0.95rem; color: var(--accent-kafka); text-decoration: none; margin-right: 24px; }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; padding: 6px 14px; border-radius: 8px; transition: background 0.15s; white-space: nowrap; }
+  .global-nav .nav-link:hover { background: #f3f4f6; color: var(--text); }
+
+  .header { text-align: center; padding: 48px 0 36px; border-bottom: 2px solid var(--border); margin-bottom: 40px; }
+  .header .badge { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #0891b2); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; padding: 4px 14px; border-radius: 20px; margin-bottom: 16px; }
+  .header h1 { font-size: 28px; font-weight: 700; color: #111; letter-spacing: -0.3px; line-height: 1.35; margin-bottom: 12px; }
+  .header .meta { font-size: 14px; color: var(--text-secondary); }
+
+  .toc { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 36px; }
+  .toc h3 { font-size: 16px; margin-bottom: 14px; color: #111; }
+  .toc ol { padding-left: 20px; }
+  .toc ol li { margin-bottom: 8px; font-size: 14px; line-height: 1.7; }
+  .toc ol li a { color: var(--tag-text); text-decoration: none; }
+  .toc ol li a:hover { text-decoration: underline; }
+  .toc ol li ol { padding-left: 16px; margin-top: 4px; }
+  .toc ol li ol li { font-size: 13px; color: var(--text-secondary); margin-bottom: 2px; }
+  .toc ol li ol li a { color: var(--text-secondary); }
+
+  h2 { font-size: 22px; font-weight: 700; color: #111; margin: 48px 0 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 18px; font-weight: 600; color: #111; margin: 32px 0 14px; }
+  h4 { font-size: 15px; font-weight: 600; color: #333; margin: 24px 0 10px; }
+
+  p { margin-bottom: 16px; font-size: 15px; }
+  a { color: var(--tag-text); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .callout { border-radius: var(--radius); padding: 16px 20px; margin: 20px 0; font-size: 14px; line-height: 1.7; }
+  .callout.info { background: #f8faff; border: 1px solid #a3bffa; }
+  .callout.warn { background: #fffff0; border: 1px solid #f6e05e; }
+  .callout.success { background: #f0fff4; border: 1px solid #68d391; }
+  .callout strong { display: block; margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; background: var(--card-bg); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+  th { background: #f1f5f9; font-weight: 600; text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); }
+  td { padding: 9px 12px; border-bottom: 1px solid #f3f4f6; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbff; }
+  td:first-child, th:first-child { font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; }
+
+  pre { background: var(--code-bg); color: #e2e8f0; padding: 16px 20px; border-radius: var(--radius); overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+  code { font-family: "SF Mono", "Fira Code", monospace; font-size: 13px; }
+  p code, li code, td code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #e11d48; font-size: 13px; }
+  h4 code, th code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #1e293b; }
+
+  blockquote { border-left: 4px solid var(--accent-fluss); padding: 12px 20px; margin: 20px 0; background: #f0f9ff; border-radius: 0 8px 8px 0; color: #334155; font-size: 14px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  ul, ol { padding-left: 20px; margin-bottom: 16px; }
+  li { margin-bottom: 6px; font-size: 15px; }
+
+  .mermaid { background: #fff; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin: 20px 0; overflow-x: auto; text-align: center; }
+
+  .footer { text-align: center; padding: 40px 0 20px; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    table { font-size: 11px; }
+    th, td { padding: 6px 8px; }
+  }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded",function(){mermaid.initialize({startOnLoad:true,theme:"neutral",securityLevel:"loose"});});</script>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="/tech_research/kafka_research/" class="brand">← Kafka Research</a>
+  <div class="nav-links">
+    <a href="#section-01" class="nav-link">架构对比</a>
+    <a href="#section-02" class="nav-link">存储引擎</a>
+    <a href="#section-03" class="nav-link">分布式协调</a>
+    <a href="#section-04" class="nav-link">网络与RPC</a>
+    <a href="#section-05" class="nav-link">客户端</a>
+    <a href="#section-06" class="nav-link">Lake层</a>
+    <a href="#section-07" class="nav-link">对照总表</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<header class="header">
+  <div class="badge">Deep Dive · Source Code Analysis</div>
+  <h1>Apache Fluss 源码分析<br><small style="font-size:16px;color:var(--text-secondary);font-weight:400;">与 Apache Kafka 2.7.2 架构对照</small></h1>
+  <div class="meta">
+    2026-06-10 · CHANG_AI_TEAM · Fluss trunk &amp; Kafka 2.7.2 源码逐文件对比
+  </div>
+</header>
+
+<div class="toc">
+  <h3>📑 目录</h3>
+  <ol>
+<li><a href="#section-01">01 - 整体架构对比</a><ol><li><a href="#section-01">关键差异总结</a></li><li><a href="#section-01">Kafka Broker 启动</a></li><li><a href="#section-01">Fluss TabletServer 启动</a></li><li><a href="#section-01">Fluss CoordinatorServer 启动</a></li><li><a href="#section-01">Kafka 2.7.2 独有（Fluss 无对应）</a></li></ol></li>
+<li><a href="#section-02">02 - 存储引擎</a><ol><li><a href="#section-02">Fluss 三层存储模型 vs Kafka 单层</a></li><li><a href="#section-02">2.2.1 核心类关系</a></li><li><a href="#section-02">2.2.2 Fluss Log vs Kafka Log 关键差异</a></li><li><a href="#section-02">2.2.3 LogAppendInfo</a></li><li><a href="#section-02">2.2.4 Checkpoint 机制</a></li><li><a href="#section-02">2.3.1 概述</a></li><li><a href="#section-02">2.3.2 KvManager</a></li><li><a href="#section-02">2.3.3 RocksDB 集成</a></li><li><a href="#section-02">2.3.4 WAL 设计（WalBuilder）</a></li><li><a href="#section-02">2.3.5 Snapshot 机制</a></li></ol></li>
+<li><a href="#section-03">03 - 分布式协调</a><ol><li><a href="#section-03">3.2.1 CoordinatorServer 架构</a></li><li><a href="#section-03">3.2.2 事件处理机制</a></li><li><a href="#section-03">3.2.3 状态机模型</a></li><li><a href="#section-03">3.2.4 与 Kafka GroupCoordinator 对照</a></li><li><a href="#section-03">3.3.1 重平衡算法</a></li><li><a href="#section-03">3.3.2 与 Kafka Consumer Rebalance 对照</a></li><li><a href="#section-03">3.4.1 Lease 机制</a></li><li><a href="#section-03">3.4.2 类似 Kafka 的心跳/会话机制</a></li><li><a href="#section-03">3.5.1 与 Kafka TransactionCoordinator 对照</a></li><li><a href="#section-03">3.6.1 Fluss ZK 数据结构</a></li></ol></li>
+<li><a href="#section-04">04 - 网络与 RPC</a><ol><li><a href="#section-04">4.2.1 协议栈对比</a></li><li><a href="#section-04">4.2.2 ApiKeys 分类（Fluss 完整 API 清单）</a></li><li><a href="#section-04">4.2.3 双协议引擎（Fluss + Kafka）</a></li><li><a href="#section-04">4.2.4 Gateway 抽象</a></li><li><a href="#section-04">4.2.5 GatewayClientProxy —— 核心 RPC 代理机制</a></li><li><a href="#section-04">4.3.1 Netty 集成</a></li><li><a href="#section-04">4.3.2 服务端请求处理路径</a></li><li><a href="#section-04">4.3.3 连接管理</a></li><li><a href="#section-04">4.3.4 Netty Shade 策略</a></li><li><a href="#section-04">4.4.1 Fluss 请求结构</a></li></ol></li>
+<li><a href="#section-05">05 - 客户端与计算集成</a><ol><li><a href="#section-05">5.1.1 与 Kafka Client 对照</a></li><li><a href="#section-05">5.2.1 Writer API</a></li><li><a href="#section-05">5.2.2 写入批次类型</a></li><li><a href="#section-05">5.2.3 写入流程</a></li><li><a href="#section-05">5.2.4 BucketAssigner 路由策略</a></li><li><a href="#section-05">5.2.5 IdempotenceManager</a></li><li><a href="#section-05">5.2.6 与 KafkaProducer 对照</a></li><li><a href="#section-05">5.3.1 Scanner API</a></li><li><a href="#section-05">5.3.2 BatchScanner 读取模式</a></li><li><a href="#section-05">5.3.3 LogScanner 流程</a></li></ol></li>
+<li><a href="#section-06">06 - Lake 层与湖仓融合</a><ol><li><a href="#section-06">6.2.1 插件接口</a></li><li><a href="#section-06">6.2.2 四种后端实现</a></li><li><a href="#section-06">6.3.1 IcebergLakeStorage 结构</a></li><li><a href="#section-06">6.3.2 写入模式</a></li><li><a href="#section-06">6.3.3 读取模式</a></li><li><a href="#section-06">6.4.1 PaimonLakeStorage 结构</a></li><li><a href="#section-06">6.4.2 Paimon 特有功能</a></li><li><a href="#section-06">6.5.1 Tiering 工作流</a></li><li><a href="#section-06">6.5.2 Tiering 组件</a></li><li><a href="#section-06">6.5.3 CoordinatorServer 端 Lake 管理</a></li></ol></li>
+<li><a href="#section-07">07 - 模块对应关系总表</a><ol><li><a href="#section-07">7.2.1 Server - Log 子系统</a></li><li><a href="#section-07">7.2.2 Server - Replica 子系统</a></li><li><a href="#section-07">7.2.3 Server - KV 子系统（Fluss 独有）</a></li><li><a href="#section-07">7.2.4 Server - Coordinator</a></li><li><a href="#section-07">7.2.5 RPC / Network</a></li><li><a href="#section-07">7.2.6 Client</a></li><li><a href="#section-07">7.2.7 Flink / Lake</a></li><li><a href="#section-07">7.2.8 Kafka 兼容</a></li></ol></li>
+</ol>
+</div>
+
+<div class="callout info">
+  <strong>📌 阅读提示</strong>
+  本文档基于 Apache Fluss (Incubating) trunk 源码 (12 Maven modules, 1747 source files)
+  与 Apache Kafka 2.7.2 源码进行逐文件对比分析。Fluss 约 30% 代码复用 Kafka
+  （Log Segment 管理 + Replica 复制框架），70% 自研。
+  <strong>Kafka 兼容层处于骨架阶段</strong>：协议栈就绪，绝大部分 API handler 为空方法。
+</div>
+
+<section id="section-01">
+<h2>01 - 整体架构对比</h2>
+<h1>01 - 整体架构对比：Fluss vs Kafka 2.7.2</h1>
+
+<blockquote>本文分析 Fluss trunk 与 Apache Kafka 2.7.2 的整体架构差异和模块映射关系。</blockquote>
+
+<h2>1.1 核心概念映射</h2>
+
+<table><tr><th>Fluss 概念</th><th>Kafka 2.7.2 概念</th><th>说明</th></tr><tr><td>------------</td><td>-----------------</td><td>------</td></tr><tr><td><strong>Database</strong></td><td>（无直接对应）</td><td>Fluss 引入 Database 作为 Table 的命名空间容器</td></tr><tr><td><strong>Table</strong></td><td><strong>Topic</strong></td><td>基本的数据组织单元</td></tr><tr><td><strong>Partition</strong></td><td><strong>Partition</strong></td><td>Table/Topic 的子分区（语义一致）</td></tr><tr><td><strong>TableBucket</strong></td><td><strong>Partition（Replica）</strong></td><td>物理存储单元，Fluss 的 bucket 即 Kafka 的 partition replica</td></tr><tr><td><strong>Tablet</strong></td><td><strong>Partition（逻辑）</strong></td><td>Fluss 中 Tablet 是表级别管理单元</td></tr><tr><td><strong>TabletServer</strong></td><td><strong>Broker</strong></td><td>数据服务节点</td></tr><tr><td><strong>CoordinatorServer</strong></td><td><strong>Controller</strong></td><td>集群管理节点</td></tr><tr><td><strong>LogTablet</strong></td><td><strong>Log（Partition Log）</strong></td><td>物理日志实体</td></tr><tr><td><strong>KV Store</strong></td><td><strong>（无对应，是 Fluss 独有）</strong></td><td>主键表/PK 表的 RocksDB 存储</td></tr><tr><td><strong>Lake Table</strong></td><td><strong>（无对应）</strong></td><td>湖表，数据以 Parquet/Arrow 格式写入 Lakehouse</td></tr><tr><td><strong>Changelog</strong></td><td><strong>（无对应）</strong></td><td>Fluss 为 PK 表自动生成 changelog</td></tr><tr><td><strong>Merge Engine</strong></td><td><strong>（无对应）</strong></td><td>行级合并策略（aggregate/partial update/dedupe）</td></tr><tr><td><strong>RemoteLogManager</strong></td><td><strong>（KIP-405 后才有，2.7.2 不存在）</strong></td><td>远程分层存储</td></tr><tr><td><strong>Row / InternalRow</strong></td><td><strong>Record（Key+Value bytes）</strong></td><td>Fluss 用 Arrow 列式（schema-aware），Kafka 用字节流</td></tr></table>
+
+<h2>1.2 核心差异总览</h2>
+
+<div class="mermaid">
+graph TB
+    subgraph Kafka["Kafka 2.7.2 架构"]
+        direction TB
+        KC[Controller] -->|ZK| KB1[Broker]
+        KC -->|ZK| KB2[Broker]
+        KB1 -->|Replication| KB2
+        KB1 --> KLog[Local Log<br/>Segment Files]
+        KP[Producer] --> KB1
+        KC1[Consumer] --> KB1
+    end
+    
+    subgraph Fluss["Fluss 架构"]
+        direction TB
+        FC[CoordinatorServer] -->|ZK| FT1[TabletServer]
+        FC -->|ZK| FT2[TabletServer]
+        FT1 -->|Replication| FT2
+        FT1 --> FLog[Local Log<br/>+ KV Store]
+        FT1 --> FRemote[Remote Log<br/>S3/HDFS]
+        FT1 --> FLake[Lake Table<br/>Parquet/Arrow]
+        FP[Writer] --> FT1
+        FS[Scanner] --> FT1
+    end
+</div>
+
+<h3>关键差异总结</h3>
+
+<table><tr><th>维度</th><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>------</td><td>-------</td><td>-------------</td></tr><tr><td><strong>架构</strong></td><td>存算分离（TabletServer 专注存储）</td><td>存算耦合（Broker 同时服务读写+复制）</td></tr><tr><td><strong>数据模型</strong></td><td>Table（有 schema，支持 PK）+ Database 命名空间</td><td>Topic（无 schema，key/value bytes）</td></tr><tr><td><strong>存储层</strong></td><td>三层：本地 Log + KV Store + Remote/Lake Storage</td><td>单层：本地 Log Segment 文件</td></tr><tr><td><strong>记录格式</strong></td><td>Arrow 列式（支持列裁剪 + 谓词下推）</td><td>行式字节流</td></tr><tr><td><strong>一致性</strong></td><td>ISR 协议（同 Kafka）</td><td>ISR 协议</td></tr><tr><td><strong>协调</strong></td><td>CoordinatorServer（类似 Controller，但职责更多）</td><td>Controller（仅管理分区/副本状态）</td></tr><tr><td><strong>计算引擎</strong></td><td>原生集成 Flink/Spark（作为 Sink/Source）</td><td>通过 Connect Framework + 外部连接器</td></tr><tr><td><strong>表类型</strong></td><td>3 种：普通表、PK 表（KV）、Lake 表</td><td>无表类型概念</td></tr><tr><td><strong>分层存储</strong></td><td>原生支持 Remote Log + Lake Table</td><td>KIP-405 后才有（2.7.2 尚未引入）</td></tr></table>
+
+<h2>1.3 模块级映射（Maven 模块 ↔ Gradle 模块）</h2>
+
+<table><tr><th>Fluss Maven 模块</th><th>Kafka 2.7.2 Gradle 模块</th><th>功能</th></tr><tr><td>-------------------</td><td>-------------------------</td><td>------</td></tr><tr><td><code>fluss-common</code></td><td><code>clients</code> (common部分) + 无对应 Arrow 部分</td><td>公共数据结构、配置、Arrow 列式记录格式、文件系统抽象</td></tr><tr><td><code>fluss-server</code></td><td><code>core</code></td><td>服务器核心：Log/Replica/KV/Coordinator/Tablet 管理</td></tr><tr><td><code>fluss-client</code></td><td><code>clients</code> (Producer/Consumer/Admin)</td><td>客户端：Writer/Scanner/Admin/元数据缓存</td></tr><tr><td><code>fluss-rpc</code></td><td><code>clients</code> (network部分) + 无对应</td><td>RPC 框架：Gateway Proxy、Netty 传输、API 管理</td></tr><tr><td><code>fluss-flink</code></td><td>（外部 connector）</td><td>Flink Source/Sink/Table Connector</td></tr><tr><td><code>fluss-spark</code></td><td>（外部 connector）</td><td>Spark Source/Sink</td></tr><tr><td><code>fluss-kafka</code></td><td>（无对应）</td><td><strong>Kafka 协议兼容层</strong>（关键差异化模块）</td></tr><tr><td><code>fluss-lake</code></td><td>（无对应）</td><td>湖存储层：Lake Catalog、Writer、Committer</td></tr><tr><td><code>fluss-metrics</code></td><td><code>clients</code> (metrics部分)</td><td>指标收集与上报</td></tr><tr><td><code>fluss-filesystems</code></td><td>（外部插件）</td><td>文件系统插件（S3、HDFS、OSS 等）</td></tr><tr><td><code>fluss-protogen</code></td><td>（无对应，用 protobuf 生成）</td><td>RPC 消息的 Protobuf 代码生成</td></tr><tr><td><code>fluss-jmh</code></td><td><code>jmh-benchmarks</code></td><td>JMH 性能基准测试</td></tr><tr><td><code>fluss-dist</code></td><td><code>tools</code>（分布部分）</td><td>发行版打包</td></tr></table>
+
+<h2>1.4 命名空间对比</h2>
+
+<pre><code class="language-">Kafka 层级:
+  /brokers/topics/[topic]/partitions/[partitionId]/state    ← ZK 路径
+  /brokers/ids/[brokerId]
+
+Fluss 层级:
+  /fluss/databases/[database]                               ← ZK 路径
+  /fluss/database/[database]/tables/[table]/partitions/[part]/
+  /fluss/tablet_servers/[serverId]
+  /fluss/coordinator/leader</code></pre>
+
+<h2>1.5 Server 启动流程对比</h2>
+
+<h3>Kafka Broker 启动</h3>
+<pre><code class="language-">KafkaServer.startup()
+  → LogManager (创建/恢复本地日志)
+  → SocketServer (启动网络层)
+  → KafkaApis (注册请求处理器)
+  → ReplicaManager (启动副本管理)
+  → KafkaController (如果是 controller)
+  → GroupCoordinator (消费者组协调)</code></pre>
+
+<h3>Fluss TabletServer 启动</h3>
+<pre><code class="language-">FlussServer.startup()  [extends RpcServiceBase]
+  → LogManager (创建/恢复本地日志)
+  → KvManager (创建/恢复 KV 存储)
+  → ReplicaManager (启动副本管理)
+  → RemoteLogManager (远程日志分层管理)
+  → RpcServiceBase (启动 RPC 网络层)
+  → 向 Coordinator 注册</code></pre>
+
+<h3>Fluss CoordinatorServer 启动</h3>
+<pre><code class="language-">CoordinatorServer.startup()  [extends RpcServiceBase]
+  → ZooKeeperClient (连接 ZK)
+  → CoordinatorEventProcessor (事件处理线程)
+  → CoordinatorService (集群管理逻辑)
+  → MetadataManager (元数据管理)
+  → AutoPartitionManager (自动分区)
+  → RebalanceManager (TableBucket 重平衡)
+  → LeaseManager (租约管理)
+  → ProducerOffsetsManager (Producer ID 管理)
+  → LakeTableTieringManager (Lake 表分层)</code></pre>
+
+<h2>1.6 Fluss 独有的核心能力（Kafka 2.7.2 无对应）</h2>
+
+<li><strong>KV Store (RocksDB)</strong>：为 PK 表提供点查/更新/删除，Kafka 本质是 append-only log</li>
+<li><strong>Arrow 列式记录</strong>：支持列裁剪、谓词下推、向量化计算，Kafka 是行式字节流</li>
+<li><strong>Lake Table</strong>：数据可直接以 Parquet/Arrow 格式写入数据湖（Iceberg/Paimon）</li>
+<li><strong>Remote Log</strong>：本地仅保留 N 个 segment，老数据自动 tier 到远程存储</li>
+<li><strong>Merge Engine</strong>：行级聚合、部分更新、去重——Kafka 无此能力</li>
+<li><strong>Primary Key 表</strong>：支持 Upsert/Delete，自动生成 Changelog</li>
+<li><strong>Schema 管理</strong>：内建 schema evolution（通过 schema id）</li>
+<li><strong>存算分离</strong>：TabletServer 可独立扩缩，CoordinatorServer 可独立高可用</li>
+
+<h3>Kafka 2.7.2 独有（Fluss 无对应）</h3>
+
+<li><strong>Connect Framework</strong>：标准化的数据源/目标连接器生态系统</li>
+<li><strong>Streams DSL</strong>：内建流处理库（但可被 Flink/Spark 替代）</li>
+<li><strong>KRaft</strong>：KIP-500 去 ZK 化（2.7.2 中已引入 Raft 模块）</li>
+<li><strong>事务生产者</strong>：完整的事务语义（Fluss 当前无分布式事务）</li>
+<li><strong>幂等生产者</strong>：Producer ID + Sequence Number 机制</li>
+<li><strong>分区的 compaction 策略</strong>：基于 key 的日志压缩</li>
+
+<h2>1.7 已确认的代码复用</h2>
+
+<p>Fluss 多个核心模块标注 <code>/<em> This file is based on source code of Apache Kafka Project </em>/</code>：</p>
+
+<table><tr><th>Fluss 文件</th><th>Kafka 来源</th><th>复用程度</th></tr><tr><td>------------</td><td>-----------</td><td>----------</td></tr><tr><td><code>LocalLog.java</code></td><td><code>kafka.log.Log.scala</code></td><td>高度复用 Log Segment 管理逻辑</td></tr><tr><td><code>LogTablet.java</code></td><td><code>kafka.log.Log.scala</code></td><td>复用了追加、读取、分段逻辑</td></tr><tr><td><code>LogManager.java</code></td><td><code>kafka.log.LogManager.scala</code></td><td>复用了日志目录管理</td></tr><tr><td><code>LogSegment.java</code></td><td><code>kafka.log.LogSegment.scala</code></td><td>高度复用</td></tr><tr><td><code>ReplicaManager.java</code></td><td><code>kafka.server.ReplicaManager.scala</code></td><td>复用副本管理框架</td></tr><tr><td><code>ReplicaFetcherThread.java</code></td><td><code>kafka.server.AbstractFetcherThread.scala</code></td><td>复用 Follower 拉取逻辑</td></tr><tr><td><code>DelayedOperation.java</code></td><td><code>kafka.server.DelayedOperation.scala</code></td><td>复用延时操作框架</td></tr><tr><td><code>LeaderAndIsr</code> (ZK data)</td><td><code>kafka.common.TopicAndPartition</code></td><td>复用 ISR 数据结构</td></tr></table>
+
+<hr>
+
+<table><tr><th>> <strong>下一步</strong>：逐模块深读 → [[02-存储引擎模块</th><th>02 - 存储引擎]]</th><th>[[03-分布式协调</th><th>03 - 分布式协调]]</th><th>[[04-数据面-网络与RPC</th><th>04 - 数据面]]</th><th>[[05-客户端与计算集成</th><th>05 - 客户端]]</th></tr></table>
+</section>
+
+<section id="section-02">
+<h2>02 - 存储引擎</h2>
+<h1>02 - 存储引擎模块分析</h1>
+
+<h2>2.1 整体架构概览</h2>
+
+<div class="mermaid">
+graph TB
+    subgraph TabletServer["Fluss TabletServer"]
+        RM[ReplicaManager]
+        LM[LogManager]
+        KM[KvManager]
+        RLM[RemoteLogManager]
+        
+        RM --> LM
+        RM --> KM
+        RM --> RLM
+        
+        subgraph LogSubsystem["Log 子系统"]
+            LT[LogTablet]
+            LL[LocalLog]
+            LS[LogSegments]
+            LCP[OffsetCheckpoint]
+            LT --> LL
+            LL --> LS
+            LL --> LCP
+        end
+        
+        subgraph KVSubsystem["KV 子系统"]
+            KT[KvTablet]
+            RK[RocksDBKv]
+            WAL[WalBuilder]
+            SNAP[SnapshotManager]
+            MERGE[RowMerger]
+            KT --> RK
+            KT --> WAL
+            KT --> SNAP
+            KT --> MERGE
+        end
+        
+        LM --> LT
+        KM --> KT
+    end
+    
+    subgraph Remote["远程存储"]
+        S3[(S3/HDFS/OSS)]
+        Lake[(Lakehouse<br/>Iceberg/Paimon)]
+    end
+    
+    RLM --> S3
+    LT -.-> S3
+    KT -.-> S3
+</div>
+
+<h3>Fluss 三层存储模型 vs Kafka 单层</h3>
+
+<table><tr><th>层</th><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>----</td><td>-------</td><td>-------------</td></tr><tr><td>L1: 本地 Log</td><td><code>LocalLog</code> (LogSegments) — 基于 Kafka Log 改造</td><td><code>Log</code> (LogSegments) — 文件系统 Segment</td></tr><tr><td>L2: KV Store</td><td><code>KvTablet</code> (RocksDB) — <strong>Fluss 独有</strong></td><td>无——Kafka 本质无 KV 概念</td></tr><tr><td>L3: 远程分层</td><td><code>RemoteLogManager</code> (S3/HDFS) — <strong>原生支持</strong></td><td>KIP-405 后引入（2.7.2 无）</td></tr></table>
+
+<hr>
+
+<h2>2.2 Log 子系统</h2>
+
+<h3>2.2.1 核心类关系</h3>
+
+<div class="mermaid">
+classDiagram
+    class LogManager {
+        -Map~TableBucket, LogTablet~ currentLogs
+        -LocalDiskManager localDiskManager
+        +getOrCreateLog(tableBucket)
+        +asyncRemoveLog(tableBucket)
+        +handleLogDirFailure(dir)
+    }
+    class LogTablet {
+        -LocalLog localLog
+        -WriterStateManager writerStateManager
+        -LogOffsetMetadata highWatermarkMetadata
+        -long remoteLogStartOffset
+        -long lakeLogStartOffset
+        +appendAsLeader(records)
+        +read(startOffset, maxLength)
+        +fetch(fetchParams)
+        +listOffsets(param)
+    }
+    class LocalLog {
+        -LogSegments segments
+        -long recoveryPoint
+        -LogOffsetMetadata nextOffsetMetadata
+        +append(records)
+        +read(startOffset, maxLength)
+        +flush()
+        +deleteOldSegments()
+    }
+    class LogSegments {
+        -ConcurrentNavigableMap~Long,LogSegment~ segments
+        +add(segment)
+        +activeSegment()
+        +floorSegment(offset)
+        +deleteUpTo(offset)
+    }
+    class LogSegment {
+        -FileLogRecords log
+        -long baseOffset
+        +read(startOffset, maxSize)
+        +append(records)
+    }
+
+    LogManager "1" --> "*" LogTablet
+    LogTablet "1" --> "1" LocalLog
+    LocalLog "1" --> "1" LogSegments
+    LogSegments "1" --> "*" LogSegment
+</div>
+
+<h3>2.2.2 Fluss Log vs Kafka Log 关键差异</h3>
+
+<table><tr><th>特性</th><th>Fluss LogTablet/LocalLog</th><th>Kafka Log</th></tr><tr><td>------</td><td>--------------------------</td><td>-----------</td></tr><tr><td>文件结构</td><td><code>.log</code> Segment 文件（同 Kafka）</td><td><code>.log</code> + <code>.index</code> + <code>.timeindex</code></td></tr><tr><td>索引</td><td>Fluss 无独立 <code>.index</code> 文件（内存索引位于 LogSegments NavigableMap）</td><td>稀疏索引文件 <code>.index</code></td></tr><tr><td>时间索引</td><td>无 <code>.timeindex</code> 文件</td><td>时间索引 <code>.timeindex</code> 用于时间戳定位</td></tr><tr><td>Recovery Point</td><td><code>OffsetCheckpointFile</code>（同 Kafka）</td><td><code>recovery-point-offset-checkpoint</code></td></tr><tr><td>记录格式</td><td>Arrow 列式（带 schema id）+ 支持索引格式</td><td>Key/Value 行式字节流</td></tr><tr><td>LogFormat 枚举</td><td><code>ARROW</code> / <code>COMPACTED</code> / <code>INDEXED</code></td><td>无（固定二进制格式）</td></tr><tr><td>写入管理</td><td><code>WriterStateManager</code>（类似 Kafka ProducerStateManager）</td><td><code>ProducerStateManager</code></td></tr><tr><td>远程日志</td><td>内建 <code>remoteLogStartOffset/remoteLogEndOffset</code></td><td>无（KIP-405 后独立模块）</td></tr><tr><td>Lake 日志</td><td>内建 <code>lakeLogStartOffset/lakeLogEndOffset</code></td><td>无</td></tr><tr><td>ChangeLog</td><td><code>isChangelog</code> 标志，<code>minRetainOffset</code> 保护 KV 快照依赖的分段</td><td>无对应概念</td></tr><tr><td>Segment 文件名</td><td><code>00000000000000000000.log</code> （20 位，offset 为 segment 名）</td><td>同</td></tr></table>
+
+<h3>2.2.3 LogAppendInfo</h3>
+
+<p>Fluss 的 <code>LogAppendInfo</code> 结构：</p>
+
+<pre><code class="language-">LogAppendInfo {
+    long firstOffset       // 第一条消息的 offset
+    long lastOffset        // 最后一条消息的 offset
+    long maxTimestamp      // 最大时间戳
+    long logAppendTime     // append 操作时间
+    LogOffsetMetadata logAppendTimeMetadata // offset 元数据
+}</code></pre>
+
+<p>与 Kafka <code>LogAppendInfo</code> 基本一致。</p>
+
+<h3>2.2.4 Checkpoint 机制</h3>
+
+<li><code>OffsetCheckpointFile</code>：存储每个 replica 的 recovery point</li>
+<li>文件格式：<code><version></code>\n<code><entries_count></code>\n<code><tableBucket> <offset></code></li>
+<li>与 Kafka 的 <code>OffsetCheckpoint</code> 文件完全兼容</li>
+
+<hr>
+
+<h2>2.3 KV 存储子系统（Fluss 独有）</h2>
+
+<h3>2.3.1 概述</h3>
+
+<p>KV 存储是 Fluss 最大的差异化模块，为 <strong>Primary Key 表</strong> 提供类数据库的 Upsert/Delete 语义。Kafka 2.7.2 完全没有对应模块。</p>
+
+<div class="mermaid">
+graph TB
+    subgraph KV子系统
+        KM[KvManager<br/>管理所有 KvTablet]
+        KT[KvTablet<br/>单个 bucket 的 KV 存储]
+        RDB[(RocksDB<br/>本地 LSM 引擎)]
+        WAL[WalBuilder<br/>预写日志]
+        SNAP[SnapshotManager<br/>快照管理]
+        MERGE[RowMerger<br/>行合并策略]
+        AUTO[AutoIncrementManager<br/>自增 ID 管理]
+        PARTUP[PartialUpdater<br/>部分更新]
+        PREW[KvPreWriteBuffer<br/>预写缓冲区]
+        
+        KM --> KT
+        KT --> RDB
+        KT --> WAL
+        KT --> SNAP
+        KT --> MERGE
+        KT --> AUTO
+        KT --> PARTUP
+        KT --> PREW
+    end
+</div>
+
+<h3>2.3.2 KvManager</h3>
+
+<pre><code class="language-">class KvManager extends TabletManagerBase implements ServerReconfigurable {
+    - Map&lt;TableBucket, KvTablet&gt; currentKvs
+    - LogManager logManager        // 关联到 Log 层（写入 changelog）
+    - BufferAllocator arrowBufferAllocator  // Arrow 内存分配器
+    - MemorySegmentPool memorySegmentPool   // 内存段池
+    - FsPath remoteKvDir           // 远程 KV 快照目录
+    - RateLimiter sharedRocksDBRateLimiter  // RocksDB 限速器（防 IO 风暴）
+}</code></pre>
+
+<p>KvManager 依赖 LogManager，因为 KV 表的每次变更会同时写入：</p>
+<li>RocksDB（本地 KV 存储）</li>
+<li>Changelog（追加到 LogTablet，用于恢复和复制）</li>
+
+<h3>2.3.3 RocksDB 集成</h3>
+
+<pre><code class="language-">RocksDBKv extends AbstractRocksDBKv {
+    - RocksDB db
+    - ColumnFamilyHandle defaultCF
+    WriteBatch (批量写入, 原子性)
+    Iterator (范围扫描)
+}</code></pre>
+
+<li><code>RocksDBResourceContainer</code>：管理 shared write buffer、block cache、rate limiter</li>
+<li><code>RocksDBKvBuilder</code>：Builder 模式创建 RocksDB 实例</li>
+<li><code>RocksDBWriteBatchWrapper</code>：封装 RocksDB WriteBatch 操作</li>
+
+<h3>2.3.4 WAL 设计（WalBuilder）</h3>
+
+<p>Fluss KV 的 WAL 不是额外的文件——它<strong>直接在 changelog LogTablet 中写入</strong>！</p>
+
+<pre><code class="language-">interface WalBuilder {
+    +buildWal(walBatchData): MemoryLogRecords
+    +recover(walBatchIterator): void
+}</code></pre>
+
+<p>三种实现：</p>
+<table><tr><th>实现</th><th>适用场景</th><th>格式</th></tr><tr><td>------</td><td>----------</td><td>------</td></tr><tr><td><code>ArrowWalBuilder</code></td><td><code>LogFormat.ARROW</code></td><td>Arrow 列式 WAL</td></tr><tr><td><code>CompactedWalBuilder</code></td><td><code>LogFormat.COMPACTED</code></td><td>压缩格式 WAL</td></tr><tr><td><code>IndexWalBuilder</code></td><td><code>LogFormat.INDEXED</code></td><td>索引格式 WAL</td></tr></table>
+
+<p><strong>关键洞察</strong>：Fluss 的 KV 恢复不是读 WAL 文件，而是<strong>重放 changelog LogTablet</strong>。这是与 RocksDB 标准 WAL 的核心差异——它把 WAL 复用为 LogTablet 的 segment，实现 Write-Once，Read-Multiple。</p>
+
+<h3>2.3.5 Snapshot 机制</h3>
+
+<p>完整的 Snapshot 子系统包含近 30 个文件，核心流程：</p>
+
+<pre><code class="language-">PeriodicSnapshotManager (定时触发)
+  → KvTabletSnapshotTarget (执行快照)
+  → RocksIncrementalSnapshot (RocksDB 增量快照)
+  → KvSnapshotDataUploader (上传至远程存储)
+  → CompletedKvSnapshotCommitter (提交快照元数据)
+  → ZooKeeperCompletedSnapshotHandleStore (ZK 中记录)</code></pre>
+
+<li><strong>增量快照</strong>：基于 RocksDB 的 Checkpoint 机制，仅传输变更的 SST 文件</li>
+<li><strong>共享文件注册</strong>：<code>SharedKvFileRegistry</code> 去重已存在于远程存储的文件</li>
+<li><strong>快照下载</strong>：<code>KvSnapshotDataDownloader</code> 用于 Tablet 迁移/恢复</li>
+<li><strong>快照清理</strong>：<code>SnapshotsCleaner</code> 删除过期快照</li>
+
+<h3>2.3.6 RowMerger（行合并引擎）</h3>
+
+<div class="mermaid">
+classDiagram
+    class RowMerger {
+        <<interface>>
+        +merge(targetRow, inputRow): InternalRow
+        +shouldRetract(): boolean
+    }
+    class DefaultRowMerger {
+        覆盖写入（UPSERT语义）
+    }
+    class FirstRowRowMerger {
+        保留首行（FIRST_ROW语义）
+    }
+    class VersionedRowMerger {
+        基于版本号比较
+    }
+    class AggregateRowMerger {
+        聚合（SUM / MAX / MIN / COUNT...）
+    }
+    
+    RowMerger <|.. DefaultRowMerger
+    RowMerger <|.. FirstRowRowMerger
+    RowMerger <|.. VersionedRowMerger
+    RowMerger <|.. AggregateRowMerger
+</div>
+
+<p>支持的聚合函数（<code>FieldAggregator</code> 接口）：</p>
+<li><code>SUM</code> / <code>MAX</code> / <code>MIN</code> / <code>PRODUCT</code></li>
+<li><code>FIRST_VALUE</code> / <code>LAST_VALUE</code> / <code>FIRST_NON_NULL_VALUE</code> / <code>LAST_NON_NULL_VALUE</code></li>
+<li><code>BOOL_AND</code> / <code>BOOL_OR</code></li>
+<li><code>STRING_AGG</code> / <code>LISTAGG</code></li>
+<li><code>ROARING_BITMAP_32</code> / <code>ROARING_BITMAP_64</code></li>
+
+<h3>2.3.7 Partial Updater</h3>
+
+<p><code>PartialUpdater</code> / <code>PartialUpdaterCache</code>：支持对 PK 表的部分列更新（Partial Update），只更新指定的列，不影响其余列。</p>
+
+<h3>2.3.8 AutoIncrementManager</h3>
+
+<li><code>AutoIncrementManager</code>：PK 表的自增 ID 管理</li>
+<li><code>ZkSequenceGeneratorFactory</code>：基于 ZK 的 ID 范围分段分配</li>
+
+<hr>
+
+<h2>2.4 Tablet 抽象</h2>
+
+<h3>2.4.1 Tablet 定义</h3>
+
+<p>Fluss 中的 "Tablet" 是一个<strong>物理存储代理单元</strong>：</p>
+
+<pre><code class="language-">Tablet = LogTablet（普通表） 或  KvTablet（PK 表）</code></pre>
+
+<li><code>LogTablet</code>：管理本地 Log + 远程 Log + Lake Log 的统一视图</li>
+<li><code>KvTablet</code>：管理 RocksDB KV 存储 + Changelog LogTablet</li>
+
+<p>两者都实现 <code>TabletManagerBase</code> 的生命周期：</p>
+<li><code>create()</code> / <code>recover()</code> / <code>markOnline()</code> / <code>markOffline()</code></li>
+
+<h3>2.4.2 Tablet vs Kafka Partition</h3>
+
+<table><tr><th>维度</th><th>Fluss Tablet</th><th>Kafka Partition</th></tr><tr><td>------</td><td>-------------</td><td>----------------</td></tr><tr><td>物理实体</td><td>LogTablet（仅日志）或 KvTablet（日志+KV）</td><td>Partition（仅日志）</td></tr><tr><td>存储层</td><td>本地 Log + 可选 KV + 可选远程</td><td>仅本地 Log</td></tr><tr><td>恢复方式</td><td>Log replay 或 Snapshot restore</td><td>仅 Log replay</td></tr><tr><td>合并策略</td><td>RowMerger（UPSERT/AGGREGATE/PARTIAL_UPDATE）</td><td>无</td></tr><tr><td>删除语义</td><td>真正的 DELETE（从 KV 中删除）</td><td>Tombstone（追加标记）</td></tr><tr><td>索引</td><td>RocksDB（PK 索引）+ LSM</td><td>OffsetIndex + TimeIndex</td></tr><tr><td>文件结构</td><td><code>.log</code> Segment + <code>KvTablet/rocksdb/</code></td><td><code>.log</code> + <code>.index</code> + <code>.timeindex</code></td></tr></table>
+
+<hr>
+
+<h2>2.5 Replica 机制</h2>
+
+<h3>2.5.1 Fluss ReplicaManager</h3>
+
+<div class="mermaid">
+classDiagram
+    class ReplicaManager {
+        -LogManager logManager
+        -KvManager kvManager
+        -RemoteLogManager remoteLogManager
+        -ReplicaFetcherManager replicaFetcherManager
+        -DelayedOperationManager delayedProducePurgatory
+        -DelayedOperationManager delayedFetchPurgatory
+        +appendRecords()  → ProduceLogResultForBucket
+        +putKv()          → PutKvResultForBucket
+        +fetchLogRecords()→ FetchLogResultForBucket
+        +fetchKvRecords() → LookupResultForBucket
+    }
+    class Replica {
+        -LogTablet logTablet
+        -TableBucket tableBucket
+        -ReplicaState state (NewReplica/OnlineReplica/OfflineReplica)
+    }
+    class FollowerReplica {
+        -Replica leaderReplica
+    }
+    class ReplicaFetcherManager {
+        -Map~TableBucket, ReplicaFetcherThread~
+        +addFetcherForBuckets()
+    }
+    class ReplicaFetcherThread {
+        -doWork(): 类似 Kafka AbstractFetcherThread
+    }
+    class AdjustIsrManager {
+        管理 ISR 变更、LeaderAndIsr 通知
+    }
+
+    ReplicaManager "1" --> "*" Replica
+    Replica <|-- FollowerReplica
+    ReplicaManager "1" --> "1" ReplicaFetcherManager
+    ReplicaFetcherManager "1" --> "*" ReplicaFetcherThread
+    ReplicaManager "1" --> "1" AdjustIsrManager
+</div>
+
+<h3>2.5.2 与 Kafka ReplicaManager 对照</h3>
+
+<table><tr><th>特性</th><th>Fluss ReplicaManager</th><th>Kafka 2.7.2 ReplicaManager</th></tr><tr><td>------</td><td>---------------------</td><td>---------------------------</td></tr><tr><td>管理对象</td><td><code>Map<TableBucket, Replica></code></td><td><code>Pool[TopicPartition, Partition]</code></td></tr><tr><td>写入路径</td><td><code>appendRecords()</code>（写入 Log）+ <code>putKv()</code>（写入 KV）</td><td><code>appendRecords()</code>（仅写入 Log）</td></tr><tr><td>读取路径</td><td><code>fetchLogRecords()</code> + <code>fetchKvRecords()</code> + <code>lookup()</code></td><td><code>fetchMessages()</code></td></tr><tr><td>延时操作</td><td><code>DelayedWrite</code> / <code>DelayedFetchLog</code></td><td><code>DelayedProduce</code> / <code>DelayedFetch</code></td></tr><tr><td>水印管理</td><td><code>LogOffsetMetadata highWatermarkMetadata</code></td><td><code>LogOffsetMetadata highWatermarkMetadata</code>（一致）</td></tr><tr><td>ISR 管理</td><td><code>AdjustIsrManager</code></td><td><code>ReplicaManager.maybePropagateIsrChanges()</code></td></tr><tr><td>Fetcher</td><td><code>ReplicaFetcherManager</code> / <code>ReplicaFetcherThread</code></td><td><code>ReplicaFetcherManager</code> / <code>AbstractFetcherThread</code></td></tr><tr><td>KV 支持</td><td>✅ <code>KvManager</code> + <code>putKv()</code> / <code>lookup()</code> / <code>limitScan()</code></td><td>❌ 无</td></tr><tr><td>异构存储</td><td>✅ <code>RemoteLogManager</code> + Lake 集成</td><td>❌ 无</td></tr></table>
+
+<h3>2.5.3 延时操作框架</h3>
+
+<p>Fluss 完全复用了 Kafka 的 <code>DelayedOperation</code> 框架：</p>
+
+<table><tr><th></th><th>Fluss</th><th>Kafka</th><th></th></tr><tr><td>-------</td><td>-------</td></tr><tr><td><code>DelayedOperation</code></td><td><code>DelayedOperation</code></td></tr><tr><td><code>DelayedOperationKey</code></td><td><code>DelayedOperationKey</code></td></tr><tr><td><code>DelayedOperationManager</code></td><td><code>DelayedOperationPurgatory</code></td></tr><tr><td><code>DelayedTableBucketKey</code></td><td><code>TopicPartitionOperationKey</code></td></tr><tr><td><code>DelayedWrite</code></td><td><code>DelayedProduce</code></td></tr><tr><td><code>DelayedFetchLog</code></td><td><code>DelayedFetch</code></td></tr></table>
+
+<hr>
+
+<h2>2.6 记录格式</h2>
+
+<h3>2.6.1 Fluss Row 格式（Arrow 列式）</h3>
+
+<pre><code class="language-">LogRecordBatch (interface)
+├── logFormat: ARROW | COMPACTED | INDEXED
+├── schemaId: short
+├── baseLogOffset: long
+├── lastLogOffset: long
+├── writerId: long
+├── batchSequence: int
+├── leaderEpoch: int
+├── commitTimestamp: long
+└── records(ReadContext) → CloseableIterator&lt;LogRecord&gt;
+     其中 ReferenceRecord 包含
+     ├── offset: long
+     ├── timestamp: long
+     ├── ChangeType (APPEND | UPDATE | DELETE)
+     └── RowKind (INSERT | UPDATE_BEFORE | UPDATE_AFTER | DELETE)</code></pre>
+
+<p>Fluss 定义了 3 种 Log Format：</p>
+
+<table><tr><th>Format</th><th>用途</th><th>说明</th></tr><tr><td>--------</td><td>------</td><td>------</td></tr><tr><td><code>ARROW</code></td><td>通用日志</td><td>Apache Arrow 列式格式，支持列裁剪和谓词下推</td></tr><tr><td><code>COMPACTED</code></td><td>压缩日志（PK 表）</td><td>每个 Key 只保留最新值，适用于 Changelog</td></tr><tr><td><code>INDEXED</code></td><td>索引日志</td><td>支持点查/前缀查找，用于 Lookup 场景</td></tr></table>
+
+<h3>2.6.2 Row/Aarrow 体系</h3>
+
+<pre><code class="language-">InternalRow (行式抽象，类似 Flink RowData)
+├── 支持 projection（列投影）
+├── 支持 RowKind（INSERT/UPDATE/DELETE）
+└── ColumnRow (Arrow 列式实现)
+    ├── VectorSchemaRoot (Arrow 列式批量)
+    ├── 列裁剪：ProjectionPushdownCache
+    └── FlussVectorLoader → Arrow VectorLoader</code></pre>
+
+<h3>2.6.3 与 Kafka Record 格式对比</h3>
+
+<table><tr><th>维度</th><th>Fluss Record</th><th>Kafka 2.7.2 Record</th></tr><tr><td>------</td><td>-------------</td><td>-------------------</td></tr><tr><td><strong>数据格式</strong></td><td>Arrow 列式（schema-aware）</td><td>行式字节流（opaque bytes）</td></tr><tr><td><strong>Schema</strong></td><td>有（schema id），服务端可理解数据</td><td>无（key/value 为 bytes，服务端不解析）</td></tr><tr><td><strong>列裁剪</strong></td><td>✅ 支持（ProjectionPushdownCache）</td><td>❌ 不支持</td></tr><tr><td><strong>谓词下推</strong></td><td>✅ 基于 Arrow 的统计信息过滤</td><td>❌ 不支持（2.7.2）</td></tr><tr><td><strong>统计信息</strong></td><td><code>LogRecordBatchStatistics</code>（Min/Max/NullCount/Count）</td><td>无 batch 级统计信息</td></tr><tr><td><strong>增量</strong></td><td><code>MemoryLogRecordsArrowBuilder</code> 持 Arrow Buffer</td><td><code>MemoryRecordsBuilder</code> 持 ByteBuffer</td></tr><tr><td><strong>文件格式</strong></td><td><code>FileLogRecords</code>（基于 FileChannel mmap 或 direct I/O）</td><td><code>FileRecords</code>（基于 FileChannel）</td></tr><tr><td><strong>RecordBatch Magic</strong></td><td><code>LOG_MAGIC_VALUE_V0</code> (0)</td><td>Magic V2 (2)</td></tr><tr><td><strong>Checksum</strong></td><td>CRC32（batch 级）</td><td>CRC32C（batch 级，V2）</td></tr></table>
+
+<hr>
+
+<h2>2.7 核心类级对照表</h2>
+
+<table><tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th><th>差异</th></tr><tr><td>----------</td><td>---------------</td><td>------</td><td>------</td></tr><tr><td><code>LogManager</code></td><td><code>kafka.log.LogManager</code></td><td>日志管理入口</td><td>基本一致，增加远程日志支持</td></tr><tr><td><code>LogTablet</code></td><td><code>kafka.log.Log</code> + <code>kafka.cluster.Partition</code></td><td>统一的 Log + Partition 视图</td><td>合并了 Partition 元数据、远程日志引用</td></tr><tr><td><code>LocalLog</code></td><td><code>kafka.log.Log</code></td><td>本地日志操作</td><td>索引由内存 NavigableMap 替代文件索引</td></tr><tr><td><code>LogSegments</code></td><td><code>kafka.log.LogSegments</code></td><td>Segment 集合管理</td><td>基本一致</td></tr><tr><td><code>LogSegment</code></td><td><code>kafka.log.LogSegment</code></td><td>单个 Segment</td><td>增加了 Fluss 文件格式支持</td></tr><tr><td><code>ReplicaManager</code></td><td><code>kafka.server.ReplicaManager</code></td><td>副本管理</td><td>增加 KV 操作路径 + 远程日志集成</td></tr><tr><td><code>Replica</code></td><td><code>kafka.cluster.Partition</code> (部分)</td><td>单个副本</td><td>更轻量，不包含延迟操作</td></tr><tr><td><code>FollowerReplica</code></td><td><code>kafka.cluster.Replica</code></td><td>Follower 副本</td><td>基本一致</td></tr><tr><td><code>ReplicaFetcherManager</code></td><td><code>kafka.server.ReplicaFetcherManager</code></td><td>Fetcher 管理</td><td>基本一致</td></tr><tr><td><code>ReplicaFetcherThread</code></td><td><code>kafka.server.AbstractFetcherThread</code></td><td>Follower 拉取</td><td>基本一致</td></tr><tr><td><code>AdjustIsrManager</code></td><td><code>ReplicaManager.maybePropagateIsrChanges()</code></td><td>ISR 变更管理</td><td>独立类</td></tr><tr><td><code>OffsetCheckpointFile</code></td><td><code>kafka.server.checkpoints.OffsetCheckpointFile</code></td><td>Recovery Point</td><td>基本一致</td></tr><tr><td><code>LogAppendInfo</code></td><td><code>kafka.log.LogAppendInfo</code></td><td>追加操作结果</td><td>基本一致</td></tr><tr><td><code>KvManager</code></td><td><strong>无对应</strong></td><td>KV 存储管理</td><td>Fluss 独有</td></tr><tr><td><code>KvTablet</code></td><td><strong>无对应</strong></td><td>KV 存储单元</td><td>Fluss 独有</td></tr><tr><td><code>RocksDBKv</code></td><td><strong>无对应</strong></td><td>RocksDB 封装</td><td>Fluss 独有</td></tr><tr><td><code>WalBuilder</code></td><td><strong>无对应</strong></td><td>WAL 构建器</td><td>Fluss 独有（复用 LogTablet 作为 WAL）</td></tr><tr><td><code>RowMerger</code></td><td><strong>无对应</strong></td><td>行合并策略</td><td>Fluss 独有</td></tr><tr><td><code>PartialUpdater</code></td><td><strong>无对应</strong></td><td>部分列更新</td><td>Fluss 独有</td></tr><tr><td><code>AutoIncrementManager</code></td><td><strong>无对应</strong></td><td>自增 ID 管理</td><td>Fluss 独有</td></tr><tr><td><code>SnapshotManager</code></td><td><strong>无对应</strong></td><td>RocksDB 快照管理</td><td>Fluss 独有（参考 Flink StateBackend）</td></tr><tr><td><code>RemoteLogManager</code></td><td><strong>无对应（2.7.2）</strong></td><td>远程日志分层</td><td>KIP-405 后引入</td></tr><tr><td><code>LogRecordBatch</code></td><td><code>org.apache.kafka.common.record.RecordBatch</code></td><td>记录批量抽象</td><td>Fluss 基于 Arrow，支持 schema</td></tr><tr><td><code>MemoryLogRecords</code></td><td><code>org.apache.kafka.common.record.MemoryRecords</code></td><td>内存记录</td><td>Fluss 支持多种 Builder</td></tr><tr><td><code>FileLogRecords</code></td><td><code>kafka.log.FileRecords</code></td><td>文件映射记录</td><td>基本一致</td></tr></table>
+
+<hr>
+
+<blockquote><strong>下一篇</strong>：[[03-分布式协调|03 - 分布式协调层分析]]</blockquote>
+</section>
+
+<section id="section-03">
+<h2>03 - 分布式协调</h2>
+<h1>03 - 分布式协调层分析</h1>
+
+<h2>3.1 整体架构概览</h2>
+
+<p>Fluss 的分布式协调层采用 <strong>Coordinator Server（协调器）</strong> 架构，对标 Kafka 的 <strong>Controller</strong> 角色，但进行了现代化重构（Java 实现、事件驱动、统一 RPC 通道）。核心组件关系如下：</p>
+
+<div class="mermaid">
+graph TB
+    subgraph "Coordinator Server"
+        CS[CoordinatorServer]
+        CEP[CoordinatorEventProcessor<br/>事件处理器线程]
+        CEM[CoordinatorEventManager<br/>事件队列]
+        RS[ReplicaStateMachine<br/>副本状态机]
+        TS[TableBucketStateMachine<br/>Bucket 状态机]
+        CRB[CoordinatorRequestBatch<br/>批量请求发送器]
+        CCM[CoordinatorChannelManager<br/>RPC 通道管理]
+        RM[RebalanceManager<br/>重平衡管理器]
+        APM[AutoPartitionManager<br/>自动分区管理器]
+        LSM[KvSnapshotLeaseManager<br/>KV 快照租约管理]
+        CLE[CoordinatorLeaderElection<br/>Leader 选举]
+        CC[CoordinatorContext<br/>内存上下文]
+        CSvc[CoordinatorService<br/>业务 RPC 处理]
+        CMC[CoordinatorMetadataCache<br/>元数据缓存]
+    end
+
+    subgraph "ZooKeeper"
+        ZK[(ZooKeeper)]
+    end
+
+    subgraph "Tablet Server Cluster"
+        TS1[TabletServer-1]
+        TS2[TabletServer-2]
+        TS3[TabletServer-3]
+    end
+
+    subgraph "Remote Storage"
+        RS1[Remote Log / OSS]
+    end
+
+    CS --> CEP
+    CS --> CCM
+    CS --> CLE
+    CS --> CSvc
+    CS --> LSM
+    CS --> RM
+    CS --> APM
+    CS --> CMC
+    CEP --> CEM
+    CEP --> RS
+    CEP --> TS
+    CEP --> CC
+    CEP --> CRB
+    CLE --> ZK
+    CC --> ZK
+    CRB --> CCM
+    CCM -->|NotifyLeaderAndIsr<br/>StopReplica<br/>UpdateMetadata| TS1
+    CCM -->|NotifyLeaderAndIsr<br/>StopReplica<br/>UpdateMetadata| TS2
+    CCM -->|NotifyLeaderAndIsr<br/>StopReplica<br/>UpdateMetadata| TS3
+    LSM --> ZK
+    APM --> ZK
+    RM --> ZK
+    CMC --> ZK
+    TS1 -->|Heartbeat / Register| CSvc
+    TS2 -->|Heartbeat / Register| CSvc
+    TS3 -->|Heartbeat / Register| CSvc
+    TS1 --> RS1
+    TS2 --> RS1
+    TS3 --> RS1
+
+    style CS fill:#e1f5fe
+    style ZK fill:#fff3e0
+    style TS1 fill:#e8f5e9
+    style TS2 fill:#e8f5e9
+    style TS3 fill:#e8f5e9
+</div>
+
+<p><strong>架构要点：</strong></p>
+
+<table><tr><th>维度</th><th>Fluss Coordinator</th><th>Kafka Controller (2.7.2)</th></tr><tr><td>------</td><td>-------------------</td><td>--------------------------</td></tr><tr><td>语言</td><td>Java</td><td>Scala</td></tr><tr><td>角色命名</td><td>Coordinator</td><td>Controller</td></tr><tr><td>事件模型</td><td><code>CoordinatorEvent</code> → <code>CoordinatorEventManager</code> → <code>CoordinatorEventProcessor</code></td><td><code>ControllerEvent</code> → <code>ControllerEventManager</code> → <code>KafkaController</code></td></tr><tr><td>状态机</td><td><code>ReplicaStateMachine</code> + <code>TableBucketStateMachine</code></td><td><code>ReplicaStateMachine</code> + <code>PartitionStateMachine</code></td></tr><tr><td>Leader 选举</td><td>Curator <code>LeaderLatch</code></td><td>ZK 临时节点 <code>/controller</code> 竞争</td></tr><tr><td>通道管理</td><td><code>CoordinatorChannelManager</code> (Protobuf RPC)</td><td><code>ControllerChannelManager</code> (Kafka 二进制协议)</td></tr><tr><td>元数据缓存</td><td><code>CoordinatorMetadataCache</code> → <code>ServerMetadataCache</code></td><td><code>MetadataCache</code> (Broker 内)</td></tr><tr><td>唯一 ID 分配</td><td>ZK 序列节点 (<code>table_seqid</code>)</td><td>ZK 序列节点 (topic id 等)</td></tr></table>
+
+<hr>
+
+<h2>3.2 Coordinator 系统</h2>
+
+<h3>3.2.1 CoordinatorServer 架构</h3>
+
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/CoordinatorServer.java</code></p>
+
+<p><code>CoordinatorServer</code> 是协调器的启动入口，负责组装所有子组件：</p>
+
+<pre><code class="language-java">// 组件装配清单（startup 方法中逐项初始化）
+coordinatorMetadataCache = new CoordinatorMetadataCache();       // 元数据缓存
+serverMetadataCache = new ServerMetadataCache(configuration);    // Server 信息缓存
+serverSchemaCache = new ServerSchemaCache();                     // Schema 缓存
+remoteLogMetadataManager = ...;                                  // 远程日志元数据管理器
+authorizer = FlussAuthorizer.create(configuration, ...);         // 权限验证
+zooKeeperClient = new ZooKeeperClient(...);                      // ZK 客户端
+coordinatorLeaderElection = new CoordinatorLeaderElection(...);  // Leader 选举器
+metricGroup = new CoordinatorMetricGroup(...);                   // 指标组
+kvSnapshotLeaseManager = new KvSnapshotLeaseManager(...);        // KV 快照租约
+rebalanceManager = ...;                                          // 重平衡管理器
+autoPartitionManager = ...;                                      // 自动分区管理器
+remoteDirDynamicLoader = new RemoteDirDynamicLoader(...);        // 远程目录加载器
+coordinatorService = new CoordinatorService(...);                // 业务 RPC 处理
+dynamicConfigManager = ...;                                      // 动态配置管理
+rpcServer = ...;                                                 // RPC 服务器
+rpcClient = ...;                                                 // RPC 客户端
+coordinatorChannelManager = ...;                                 // RPC 通道
+coordinatorEventProcessor = new CoordinatorEventProcessor(...);  // 事件处理器</code></pre>
+
+<p><strong>启动流程：</strong></p>
+
+<div class="mermaid">
+sequenceDiagram
+    participant CS as CoordinatorServer
+    participant ZK as ZooKeeper
+    participant CEP as CoordinatorEventProcessor
+    participant TS as TabletServers
+
+    CS->>CS: 初始化 MetadataCache / SchemaCache / Authorizer
+    CS->>ZK: 连接 ZooKeeper
+    CS->>CS: 初始化 CoordinatorLeaderElection
+    CS->>CS: 初始化 MetricGroup
+    CS->>CS: 启动 KvSnapshotLeaseManager
+    CS->>CS: 启动 RebalanceManager
+    CS->>CS: 启动 CoordinatorService (RPC)
+    CS->>CS: 启动 CoordinatorChannelManager
+    CS->>CS: 启动 CoordinatorEventProcessor
+    CEP->>CLE: 等待 Leader 选举结果
+    CLE->>ZK: LeaderLatch.start()
+    ZK-->>CLE: 当选 Leader
+    CEP->>CEP: 初始化 CoordinatorContext
+    CEP->>ZK: 加载 ZK 元数据 (database/table/schema)
+    CEP->>CEP: 启动状态机 (Replica/Bucket)
+    CEP->>CEP: 启动事件处理循环
+    CEP->>TS: 发送 UpdateMetadata / NotifyLeaderAndIsr
+</div>
+
+<h3>3.2.2 事件处理机制</h3>
+
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/event/CoordinatorEvent.java</code></p>
+
+<pre><code class="language-java">// 标记接口 - 所有协调器事件的基础类型
+public interface CoordinatorEvent {}</code></pre>
+
+<p><strong>事件管理器：</strong> <code>EventManager.java</code> — 单方法接口 <code>void put(CoordinatorEvent event)</code>，具体实现为 <code>CoordinatorEventManager</code>（带队列的事件处理器）。</p>
+
+<p><strong>事件处理器：</strong> <code>CoordinatorEventProcessor.java</code> — 核心事件分发循环：</p>
+
+<pre><code class="language-java">public class CoordinatorEventProcessor implements Runnable {
+    // 关键字段（参照 Kafka ControllerEventManager 的设计）
+    private final CoordinatorContext coordinatorContext;
+    private final EventManager eventManager;
+    private final RebalanceManager rebalanceManager;
+    private final ReplicaStateMachine replicaStateMachine;
+    private final TableBucketStateMachine tableBucketStateMachine;
+    private final CoordinatorRequestBatch coordinatorRequestBatch;
+    private final ZooKeeperClient zooKeeperClient;
+    
+    // 事件处理方法（switch-case 分发）
+    public void process(CoordinatorEvent event) {
+        if (event instanceof NewCoordinatorEvent) { handleNewCoordinator(); }
+        else if (event instanceof FencedCoordinatorEvent) { handleFencedCoordinator(); }
+        else if (event instanceof DeadCoordinatorEvent) { handleDeadCoordinator(); }
+        else if (event instanceof NewTabletServerEvent) { handleNewTabletServer(); }
+        else if (event instanceof DeadTabletServerEvent) { handleDeadTabletServer(); }
+        else if (event instanceof CreateTableEvent) { handleCreateTable(); }
+        else if (event instanceof DropTableEvent) { handleDropTable(); }
+        else if (event instanceof CreatePartitionEvent) { handleCreatePartition(); }
+        else if (event instanceof DropPartitionEvent) { handleDropPartition(); }
+        else if (event instanceof AdjustIsrReceivedEvent) { handleAdjustIsr(); }
+        else if (event instanceof NotifyLeaderAndIsrResponseReceivedEvent) { handleLeaderAndIsrResp(); }
+        else if (event instanceof DeleteReplicaResponseReceivedEvent) { handleDeleteReplicaResp(); }
+        else if (event instanceof RebalanceEvent) { handleRebalance(); }
+        else if (event instanceof SchemaChangeEvent) { handleSchemaChange(); }
+        else if (event instanceof CommitKvSnapshotEvent) { handleCommitKvSnapshot(); }
+        else if (event instanceof ControlledShutdownEvent) { handleControlledShutdown(); }
+        // ... 更多事件类型
+    }
+}</code></pre>
+
+<p><strong>事件类型清单：</strong></p>
+
+<table><tr><th>事件类</th><th>触发场景</th><th>对应 Kafka 事件</th></tr><tr><td>--------</td><td>---------</td><td>----------------</td></tr><tr><td><code>NewCoordinatorEvent</code></td><td>当前节点当选 Coordinator</td><td><code>BecomeLeader</code> → <code>RegisterBrokerAndReelect</code></td></tr><tr><td><code>FencedCoordinatorEvent</code></td><td>Coordinator Epoch 过期</td><td><code>ControllerMovedException</code></td></tr><tr><td><code>DeadCoordinatorEvent</code></td><td>其他 Coordinator 宕机</td><td><code>BrokerChange</code> 感知 Controller 变化</td></tr><tr><td><code>NewTabletServerEvent</code></td><td>TabletServer 注册</td><td><code>BrokerChange</code></td></tr><tr><td><code>DeadTabletServerEvent</code></td><td>TabletServer 失联</td><td><code>BrokerChange</code></td></tr><tr><td><code>CreateTableEvent</code></td><td>创建表</td><td><code>CreateTopics</code></td></tr><tr><td><code>DropTableEvent</code></td><td>删除表</td><td><code>DeleteTopics</code></td></tr><tr><td><code>CreatePartitionEvent</code></td><td>创建分区</td><td><code>CreatePartitions</code></td></tr><tr><td><code>DropPartitionEvent</code></td><td>删除分区</td><td>(Kafka 无直接等价)</td></tr><tr><td><code>AdjustIsrReceivedEvent</code></td><td>TabletServer 上报 ISR 变更</td><td><code>AlterIsr</code></td></tr><tr><td><code>NotifyLeaderAndIsrResponseReceivedEvent</code></td><td>Leader/ISR 通知响应</td><td><code>LeaderAndIsrResponseReceived</code></td></tr><tr><td><code>DeleteReplicaResponseReceivedEvent</code></td><td>副本删除响应</td><td><code>TopicDeletionStopReplicaResponseReceived</code></td></tr><tr><td><code>RebalanceEvent</code></td><td>触发集群重平衡</td><td>(Kafka 使用 Cruise Control 外挂)</td></tr><tr><td><code>SchemaChangeEvent</code></td><td>Schema 变更</td><td>(Kafka 无 Schema 管理)</td></tr><tr><td><code>CommitKvSnapshotEvent</code></td><td>KV 快照提交</td><td>(Kafka 无 KV 快照)</td></tr><tr><td><code>RebalanceTaskTimeoutEvent</code></td><td>重平衡任务超时</td><td>(无直接等价)</td></tr><tr><td><code>AccessContextEvent</code></td><td>权限上下文变更</td><td>(无直接等价)</td></tr><tr><td><code>AddServerTagEvent</code> / <code>RemoveServerTagEvent</code></td><td>Server 标签管理</td><td>(无直接等价)</td></tr></table>
+
+<p><strong>事件驱动流转：</strong></p>
+
+<div class="mermaid">
+sequenceDiagram
+    participant ZK as ZooKeeper
+    participant Watcher as ZK Watcher
+    participant CEM as CoordinatorEventManager
+    participant CEQ as Event Queue
+    participant CEP as CoordinatorEventProcessor
+    participant RS as ReplicaStateMachine
+    participant TS as TabletServer
+
+    ZK-->>Watcher: NodeDataChanged / NodeChildrenChanged
+    Watcher->>CEM: put(NewTabletServerEvent)
+    CEM->>CEQ: 入队
+    CEP->>CEQ: poll() 出队
+    CEP->>CEP: process(event)
+    Note over CEP: handleNewTabletServer()
+    CEP->>RS: handleStateChanges(replicas, OnlineReplica)
+    RS->>TS: 发送 LeaderAndIsr / StopReplica / UpdateMetadata
+    TS-->>CEP: 响应事件
+    CEP->>CEP: 处理响应，更新 CoordinatorContext
+</div>
+
+<h3>3.2.3 状态机模型</h3>
+
+<p>Fluss 采用 <strong>双状态机模型</strong>，一个管理 TableBucket 生命周期，一个管理 Replica 生命周期。</p>
+
+<h4>ReplicaStateMachine</h4>
+
+<p><strong>Enums: <code>ReplicaState.java</code></strong></p>
+
+<pre><code class="language-">                 ┌──────────────────────┐
+                 │  NonExistentReplica  │ ← ReplicaDeletionSuccessful
+                 └─────────┬────────────┘
+                           │ (创建副本)
+                           ▼
+                 ┌──────────────────────┐
+                 │     NewReplica       │
+                 └─────────┬────────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            │
+    ┌──────────────┐ ┌──────────┐      │
+    │OnlineReplica │ │OfflineReplica│◄──┘
+    └──────┬───────┘ └─────┬─────┘
+           │               │
+           └───────┬───────┘
+                   ▼
+         ┌──────────────────────┐
+         │ReplicaMigrationStarted│ (跨节点迁移)
+         └──────────────────────┘
+                   │
+                   ▼
+         ┌──────────────────────┐
+         │ReplicaDeletionStarted│ (副本删除)
+         └──────────┬───────────┘
+                    ▼
+         ┌──────────────────────┐
+         │ReplicaDeletionSuccessful│
+         └──────────────────────┘</code></pre>
+
+<p><strong>关键方法：</strong></p>
+
+<table><tr><th>方法</th><th>职责</th></tr><tr><td>------</td><td>------</td></tr><tr><td><code>startup()</code></td><td>从 ZK 加载初始状态，触发 Online/Offline 状态转换</td></tr><tr><td><code>handleStateChanges(Set<TableBucketReplica>, ReplicaState)</code></td><td>批量状态转换，发送对应 RPC 命令</td></tr><tr><td><code>initializeReplicaState()</code></td><td>从 ZK <code>TableAssignment</code> 推导所有 Replica 初始状态</td></tr></table>
+
+<h4>TableBucketStateMachine</h4>
+
+<p><strong>Enums: <code>BucketState.java</code></strong></p>
+
+<pre><code class="language-">    ┌──────────────────┐
+    │ NonExistentBucket│
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │    NewBucket     │
+    └────────┬─────────┘
+             │
+    ┌────────┼────────┐
+    ▼        ▼        │
+┌──────────┐ ┌──────────┐
+│OnlineBucket│ │OfflineBucket│◄──┘
+└──────────┘ └──────────┘</code></pre>
+
+<p><strong>关键方法：</strong></p>
+
+<table><tr><th>方法</th><th>职责</th></tr><tr><td>------</td><td>------</td></tr><tr><td><code>startup()</code></td><td>初始化所有 TableBucket 状态（有 Leader → Online，无 Leader → New/Offline）</td></tr><tr><td><code>handleStateChanges(Set<TableBucket>, BucketState)</code></td><td>从 LeaderAndIsr ZK 数据触发状态流转</td></tr><tr><td><code>electLeaderForBuckets(Set<TableBucket>)</code></td><td>为指定 Bucket 执行 Leader 选举</td></tr></table>
+
+<p><strong>Leader 选举策略 (<code>ReplicaLeaderElection.java</code>)：</strong></p>
+<li><code>DefaultLeaderElection</code>：在 AR（Assigned Replicas）中选取第一个 ISR 内的副本</li>
+<li><code>ControlledShutdownLeaderElection</code>：优雅关闭时的 Leader 迁移</li>
+<li><code>ReassignmentLeaderElection</code>：副本迁移期间的特殊选举</li>
+
+<h4>与 Kafka 状态机对照</h4>
+
+<table><tr><th>维度</th><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>------</td><td>-------</td><td>-------------</td></tr><tr><td>分区状态机</td><td><code>TableBucketStateMachine</code> (管理 <code>TableBucket</code>)</td><td><code>PartitionStateMachine</code> (管理 <code>TopicPartition</code>)</td></tr><tr><td>副本状态机</td><td><code>ReplicaStateMachine</code> (管理 <code>TableBucketReplica</code>)</td><td><code>ReplicaStateMachine</code> (管理 <code>PartitionAndReplica</code>)</td></tr><tr><td>Online 状态</td><td><code>OnlineBucket</code> / <code>OnlineReplica</code></td><td><code>OnlinePartition</code> / <code>OnlineReplica</code></td></tr><tr><td>Offline 状态</td><td><code>OfflineBucket</code> / <code>OfflineReplica</code></td><td><code>OfflinePartition</code> / <code>OfflineReplica</code></td></tr><tr><td>New 状态</td><td><code>NewBucket</code> / <code>NewReplica</code></td><td><code>NewPartition</code> / <code>NewReplica</code></td></tr><tr><td>删除状态</td><td><code>ReplicaDeletionStarted</code> → <code>ReplicaDeletionSuccessful</code></td><td><code>ReplicaDeletionStarted</code> → <code>ReplicaDeletionSuccessful</code></td></tr><tr><td>迁移状态</td><td><code>ReplicaMigrationStarted</code></td><td>(Kafka 通过 reassign partition 实现)</td></tr><tr><td>Leader 选举</td><td><code>ReplicaLeaderElection</code> 接口（3 种实现）</td><td><code>Election.scala</code>（Preferred / Unclean / Reassign）</td></tr></table>
+
+<h3>3.2.4 与 Kafka GroupCoordinator 对照</h3>
+
+<p>⚠️ <strong>重要区别：Fluss Coordinator ≠ Kafka GroupCoordinator</strong></p>
+
+<table><tr><th>维度</th><th>Fluss Coordinator</th><th>Kafka GroupCoordinator</th></tr><tr><td>------</td><td>-------------------</td><td>------------------------</td></tr><tr><td>职责</td><td>集群全局协调：元数据管理、副本分配、Leader 选举、重平衡</td><td>Consumer Group 管理：组成员、offset 提交、分区分配</td></tr><tr><td>对标角色</td><td><strong>Kafka Controller</strong></td><td>Kafka GroupCoordinator</td></tr><tr><td>运行位置</td><td>独立 Coordinator 节点</td><td>嵌入在某个 Broker 中</td></tr><tr><td>Leader 选举</td><td>ZK LeaderLatch</td><td>Group 内选举（First-Join-Wins）</td></tr><tr><td>分区单位</td><td>TableBucket</td><td>TopicPartition</td></tr><tr><td>状态管理</td><td>Bucket/Replica 双状态机</td><td>Group 状态机（Empty/PreparingRebalance/...）</td></tr></table>
+
+<p><strong>Fluss 社区目前没有独立的 GroupCoordinator</strong>，因为 Fluss 是存储系统而非消息队列，消费端 offset 管理通过 Producer（Flink Job）的 <code>ProducerOffsets</code> 快照实现。</p>
+
+<hr>
+
+<h2>3.3 TableBucket 重平衡</h2>
+
+<h3>3.3.1 重平衡算法</h3>
+
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/rebalance/RebalanceManager.java</code></p>
+
+<p>Fluss 的重平衡基于 <strong>Goal 驱动优化模型</strong>，类似 Kafka Cruise Control 的核心思想：</p>
+
+<pre><code class="language-java">public class RebalanceManager {
+    // 核心组件
+    private final ZooKeeperClient zkClient;
+    private final CoordinatorEventProcessor eventProcessor;
+    private final EventManager eventManager;
+    
+    // 进行中的重平衡任务队列
+    private final Queue&lt;TableBucket&gt; inProgressRebalanceTasksQueue;
+    private final Map&lt;TableBucket, RebalanceResultForBucket&gt; inProgressRebalanceTasks;
+    
+    // 超时检查（硬编码 2 分钟超时 / 30 秒检查间隔）
+    private static final long REBALANCE_TASK_TIMEOUT_MS = 2 * 60 * 1000L;
+    private static final long TIMEOUT_CHECK_INTERVAL_MS = 30 * 1000L;
+}</code></pre>
+
+<p><strong>重平衡 Goal 体系：</strong></p>
+
+<div class="mermaid">
+graph TB
+    Goal[Goal 接口<br/>+ optimize]
+    AG[AbstractGoal<br/>+ clusterModel<br/>+ excludedBuckets]
+    RAG[RackAwareAbstractGoal<br/>+ rack 感知]
+    RDAG[ReplicaDistributionAbstractGoal<br/>+ 副本分布优化]
+    LRG[LeaderReplicaDistributionGoal<br/>+ Leader 分布优化]
+    RDG[ReplicaDistributionGoal<br/>副本均衡]
+    RAG2[RackAwareGoal<br/>机架感知均衡]
+    GO[GoalOptimizer<br/>+ optimize 入口]
+
+    Goal -.-> AG
+    AG --> RAG
+    AG --> RDAG
+    RAG --> RAG2
+    RDAG --> RDG
+    RDAG --> LRG
+    GO --> Goal
+    
+    style GO fill:#ffcc80
+    style Goal fill:#e1f5fe
+</div>
+
+<p><strong>模型层：</strong></p>
+
+<table><tr><th>类</th><th>职责</th></tr><tr><td>----</td><td>------</td></tr><tr><td><code>ClusterModel</code></td><td>集群拓扑模型：包含所有 Server 和 Bucket</td></tr><tr><td><code>ServerModel</code></td><td>单节点模型：承载的 Replica、负载指标</td></tr><tr><td><code>BucketModel</code></td><td>Bucket 模型：Replica 分布、Leader 位置</td></tr><tr><td><code>RackModel</code></td><td>机架模型：机架内 Server 集合</td></tr><tr><td><code>ReplicaModel</code></td><td>副本模型：绑定到特定 Server</td></tr><tr><td><code>ClusterModelStats</code></td><td>集群统计：标准差、均值等均衡度指标</td></tr></table>
+
+<p><strong>重平衡流程：</strong></p>
+
+<div class="mermaid">
+sequenceDiagram
+    participant User as Admin / API
+    participant CEP as CoordinatorEventProcessor
+    participant RM as RebalanceManager
+    participant GO as GoalOptimizer
+    participant ZK as ZooKeeper
+    participant TS as TabletServers
+
+    User->>CEP: 触发 RebalanceEvent
+    CEP->>RM: generateRebalancePlan()
+    RM->>GO: optimize(clusterModel, goals)
+    GO->>GO: 遍历 Goal，逐个优化
+    Note over GO: 1. RackAwareGoal: 机架感知<br/>2. ReplicaDistributionGoal: 副本均衡<br/>3. LeaderReplicaDistributionGoal: Leader 均衡
+    GO-->>RM: RebalancePlanForBucket
+    RM->>ZK: 写入 RebalanceTask (JSON)
+    RM->>RM: 启动超时检查定时器
+    loop 逐个 Bucket 重平衡
+        RM->>TS: StopReplica (老副本) / LeaderAndIsr (新 Leader)
+        TS-->>RM: 响应
+        RM->>CEP: put(adjustIsr / leaderAndIsrResp)
+    end
+    RM->>ZK: 更新 RebalanceTask 状态 (COMPLETED)
+</div>
+
+<p><strong>重平衡状态机：</strong></p>
+
+<pre><code class="language-">NOT_STARTED → REBALANCING → COMPLETED
+                             CANCELED</code></pre>
+
+<p><strong>关键方法：</strong></p>
+
+<table><tr><th>方法</th><th>职责</th></tr><tr><td>------</td><td>------</td></tr><tr><td><code>generateRebalancePlan()</code></td><td>基于 Goal 优化器生成 Bucket 迁移计划</td></tr><tr><td><code>executeRebalanceSteps()</code></td><td>逐步执行迁移方案（StopReplica + LeaderAndIsr）</td></tr><tr><td><code>completeRebalance()</code></td><td>标记重平衡完成，更新 ZK</td></tr><tr><td><code>cancelRebalance()</code></td><td>取消进行中的重平衡</td></tr><tr><td><code>checkTimeout()</code></td><td>定时检查超时的 RebalanceTask</td></tr></table>
+
+<h3>3.3.2 与 Kafka Consumer Rebalance 对照</h3>
+
+<table><tr><th>维度</th><th>Fluss TableBucket Rebalance</th><th>Kafka Consumer Group Rebalance</th></tr><tr><td>------</td><td>----------------------------</td><td>-------------------------------</td></tr><tr><td>触发方</td><td>Coordinator（集群内）</td><td>GroupCoordinator（消费组内）</td></tr><tr><td>目的</td><td>副本迁移、负载均衡</td><td>分区在 Consumer 之间重新分配</td></tr><tr><td>算法</td><td>Goal 优化（RackAware / Distribution）</td><td>PartitionAssignor（Range/RoundRobin/Sticky）</td></tr><tr><td>粒度</td><td>Bucket 级别（TableBucket）</td><td>Partition 级别（TopicPartition）</td></tr><tr><td>参与者</td><td>TabletServer（存储节点）</td><td>Consumer（消费客户端）</td></tr><tr><td>状态持久化</td><td>ZK RebalanceZNode</td><td><code>__consumer_offsets</code> 内部 Topic</td></tr></table>
+
+<p><strong>Fluss 的 Rebalance 本质上对标 Kafka 的数据迁移（Partition Reassignment），而非 Consumer Group Rebalance。</strong></p>
+
+<hr>
+
+<h2>3.4 租约管理（Lease）</h2>
+
+<h3>3.4.1 Lease 机制</h3>
+
+<p><strong>文件：</strong> <code>fluss-server/.../coordinator/lease/KvSnapshotLeaseManager.java</code></p>
+
+<pre><code class="language-java">@ThreadSafe
+public class KvSnapshotLeaseManager {
+    // Lease ID → Lease Handler 映射
+    private final ConcurrentHashMap&lt;String, KvSnapshotLeaseHandler&gt; kvSnapshotLeaseMap;
+    
+    // (TableBucket + SnapshotId) → 引用计数（多个 Lease 可共享同一快照）
+    private final Map&lt;TableBucketSnapshot, AtomicInteger&gt; refCount;
+    
+    // 定时过期检查
+    private final ScheduledExecutorService scheduledExecutor;
+    
+    // 核心方法
+    public String acquireKvSnapshotLease(TableBucket tableBucket, long snapshotId, 
+                                          long leaseTimeoutMs);
+    public boolean renewKvSnapshotLease(String leaseId, long renewTimeoutMs);
+    public void releaseKvSnapshotLease(String leaseId);
+    public void dropKvSnapshotLease(String leaseId);
+}</code></pre>
+
+<p><strong>Lease 生命周期：</strong></p>
+
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> Active: acquireLease()
+    Active --> Active: renewLease() (续租)
+    Active --> Expired: 超时未续租
+    Active --> Released: releaseLease()
+    Expired --> [*]: 清理 Snapshot 引用
+    Released --> [*]: 清理 Snapshot 引用
+</div>
+
+<p><strong>用途场景：</strong> Flink Job 在消费数据时需要保护 KV Snapshot 不被 GC 清理。通过 Lease 机制保证 Snapshot 在消费完成前可用。</p>
+
+<p><strong>ZK 存储位置：</strong> <code>/leases/kv_snapshot/{leaseId}</code> — 存储 <code>KvSnapshotLeaseMetadata</code>（包含 tableId, bucketId, snapshotId, expiration time）。</p>
+
+<h3>3.4.2 类似 Kafka 的心跳/会话机制</h3>
+
+<table><tr><th>维度</th><th>Fluss KvSnapshotLease</th><th>Kafka Group 心跳（Session）</th></tr><tr><td>------</td><td>----------------------</td><td>---------------------------</td></tr><tr><td>保护对象</td><td>KV Snapshot（数据快照）</td><td>Consumer Group Membership</td></tr><tr><td>超时处理</td><td>过期后允许 GC 删除 Snapshot</td><td>触发 Rebalance，移除 Consumer</td></tr><tr><td>存储位置</td><td>ZK <code>/leases/</code></td><td><code>__consumer_offsets</code> 内部 Topic</td></tr><tr><td>续租方式</td><td><code>renewKvSnapshotLease()</code></td><td><code>HeartbeatRequest</code></td></tr><tr><td>引用计数</td><td>支持多个 Lease 共享同一 Snapshot</td><td>不支持</td></tr></table>
+
+<p><strong>Fluss Lease 不是心跳机制</strong>，而是资源保护锁。Kafka 的 Group 心跳保障 Consumer 存活，Fluss 的 Lease 保障 Snapshot 不被提前回收。</p>
+
+<hr>
+
+<h2>3.5 Producer ID 管理</h2>
+
+<h3>3.5.1 与 Kafka TransactionCoordinator 对照</h3>
+
+<p>Fluss 没有独立的 <code>TransactionCoordinator</code>。Producer ID 的管理通过 ZK 的 <code>/producers/{producerId}</code> 节点实现：</p>
+
+<pre><code class="language-java">// ZK 数据结构
+public static final class ProducersZNode {
+    public static String path() { return &quot;/producers&quot;; }
+}
+
+public static final class ProducerIdZNode {
+    // 存储 ProducerOffsets（JSON 序列化）
+    // 包含：expiration_time, tables(List of TableOffsetMetadata)
+    public static String path(String producerId) {
+        return ProducersZNode.path() + &quot;/&quot; + producerId;
+    }
+}</code></pre>
+
+<p><strong><code>ProducerOffsets</code> 数据结构：</strong></p>
+<pre><code class="language-java">// ProducerOffsets JsonSerde
+{
+    &quot;expiration_time&quot;: 1718000000000,    // TTL for auto cleanup
+    &quot;tables&quot;: [{
+        &quot;table_id&quot;: 1,
+        &quot;partition_id&quot;: null,
+        &quot;buckets&quot;: [{
+            &quot;bucket_id&quot;: 0,
+            &quot;remote_log_offset_file&quot;: &quot;s3://.../offsets/bucket-0.json&quot;
+        }]
+    }]
+}</code></pre>
+
+<table><tr><th>维度</th><th>Fluss Producer 管理</th><th>Kafka TransactionCoordinator</th></tr><tr><td>------</td><td>---------------------</td><td>------------------------------</td></tr><tr><td>存储</td><td>ZK <code>/producers/</code> (JSON)</td><td><code>__transaction_state</code> 内部 Topic</td></tr><tr><td>Producer ID</td><td>Flink Job ID (String)</td><td><code>transactional.id</code> → <code>producerId</code> (Long)</td></tr><tr><td>事务支持</td><td>❌ 不支持</td><td>✅ 完整事务语义</td></tr><tr><td>ID 分配</td><td>外部指定（Flink Job ID）</td><td><code>InitProducerIdRequest</code> 分配</td></tr><tr><td>Offset 管理</td><td>快照式（批量 Commit）</td><td>流式（每个消息的 offset）</td></tr><tr><td>过期机制</td><td><code>expiration_time</code> 硬编码 TTL</td><td><code>transaction.timeout.ms</code> 可配置</td></tr></table>
+
+<hr>
+
+<h2>3.6 ZooKeeper 集成</h2>
+
+<h3>3.6.1 Fluss ZK 数据结构</h3>
+
+<p><strong>文件：</strong> <code>fluss-server/.../zk/data/ZkData.java</code></p>
+
+<div class="mermaid">
+graph TB
+    ROOT[/]
+    
+    ROOT --> METADATA[/metadata/]
+    ROOT --> COORDS[/coordinators/]
+    ROOT --> CLUSTER[/cluster/]
+    ROOT --> PRODUCERS[/producers/]
+    ROOT --> LEASES[/leases/]
+    
+    METADATA --> DBS[/metadata/databases/]
+    METADATA --> TSEQ[/metadata/table_seqid]
+    METADATA --> PSEQ[/metadata/partition_seqid]
+    METADATA --> WID[/metadata/writer_id]
+    
+    DBS --> DB[/databases/{dbName}/]
+    DB --> TABLES[/tables/]
+    DB --> TABLES2[tables/{tableName}]
+    
+    TABLES2 --> SCHEMAS[/schemas/]
+    TABLES2 --> PARTS[/partitions/]
+    TABLES2 --> AUTO[/auto_inc/]
+    
+    SCHEMAS --> SCHEMA[/schemas/{schemaId}]
+    PARTS --> PART[/partitions/{partName}]
+    
+    COORDS --> CIDS[/coordinators/ids/]
+    COORDS --> CELEC[/coordinators/election]
+    CIDS --> CID[/ids/{serverId}]
+    
+    CLUSTER --> TIDS[/cluster/table_ids/]
+    CLUSTER --> PIDS[/cluster/partition_ids/]
+    CLUSTER --> SERVERIDS[/cluster/server_ids/]
+    CLUSTER --> TAGS[/cluster/server_tags/]
+    CLUSTER --> REBAL[/cluster/rebalance]
+    CLUSTER --> REMOTEL[/cluster/remote_logs/]
+    
+    TIDS --> TID[/table_ids/{tableId}: TableAssignment]
+    PIDS --> PID[/partition_ids/{partitionId}: PartitionAssignment]
+    SERVERIDS --> SID[/server_ids/{serverId}: TabletServerRegistration]
+    
+    PRODUCERS --> PROD[/producers/{producerId}: ProducerOffsets]
+    LEASES --> KVLEASE[/leases/kv_snapshot/{leaseId}: KvSnapshotLeaseMetadata]
+
+    style METADATA fill:#e1f5fe
+    style COORDS fill:#fff3e0
+    style CLUSTER fill:#e8f5e9
+    style PRODUCERS fill:#fce4ec
+    style LEASES fill:#f3e5f5
+</div>
+
+<p><strong>ZK 数据节点详细说明：</strong></p>
+
+<table><tr><th>ZK 路径</th><th>节点类型</th><th>存储内容</th><th>用途</th></tr><tr><td>---------</td><td>---------</td><td>---------</td><td>------</td></tr><tr><td><code>/metadata/databases/{db}</code></td><td>持久 (PERSISTENT)</td><td><code>DatabaseRegistration</code> (JSON)</td><td>数据库注册信息</td></tr><tr><td><code>/metadata/databases/{db}/tables/{table}</code></td><td>持久</td><td><code>TableRegistration</code> (JSON)</td><td>表元数据：bucket_count, partition_keys, schema 引用</td></tr><tr><td><code>/metadata/databases/{db}/tables/{table}/schemas/{id}</code></td><td>持久</td><td><code>Schema</code> (JSON)</td><td>Schema 定义</td></tr><tr><td><code>/metadata/databases/{db}/tables/{table}/partitions/{name}</code></td><td>持久</td><td><code>PartitionRegistration</code> (JSON)</td><td>分区注册信息</td></tr><tr><td><code>/metadata/databases/{db}/tables/{table}/auto_inc/col_{id}</code></td><td>持久</td><td>自增列当前值</td><td>Auto Increment Column</td></tr><tr><td><code>/metadata/table_seqid</code></td><td>持久序列</td><td>表唯一 ID 生成器</td><td><code>createSequential()</code></td></tr><tr><td><code>/metadata/partition_seqid</code></td><td>持久序列</td><td>分区唯一 ID 生成器</td><td><code>createSequential()</code></td></tr><tr><td><code>/metadata/writer_id</code></td><td>持久序列</td><td>Writer 唯一 ID 生成器</td><td><code>createSequential()</code></td></tr><tr><td><code>/coordinators/ids/{serverId}</code></td><td>临时 (EPHEMERAL)</td><td><code>CoordinatorAddress</code> (JSON)</td><td>Coordinator 节点注册/存活检测</td></tr><tr><td><code>/coordinators/election</code></td><td>临时序列</td><td>LeaderLatch 选举</td><td>Coordinator Leader 选举</td></tr><tr><td><code>/cluster/table_ids/{tableId}</code></td><td>持久</td><td><code>TableAssignment</code> (JSON)</td><td>Bucket → [Replica IDs] 映射</td></tr><tr><td><code>/cluster/partition_ids/{partitionId}</code></td><td>持久</td><td><code>PartitionAssignment</code> (JSON)</td><td>分区 Bucket 副本分布</td></tr><tr><td><code>/cluster/server_ids/{serverId}</code></td><td>临时</td><td><code>TabletServerRegistration</code> (JSON)</td><td>TabletServer 注册</td></tr><tr><td><code>/cluster/server_tags/{serverId}</code></td><td>持久</td><td><code>ServerTags</code> (JSON)</td><td>Server 资源标签（用于重平衡）</td></tr><tr><td><code>/cluster/rebalance</code></td><td>持久</td><td><code>RebalanceTask</code> (JSON)</td><td>重平衡任务状态</td></tr><tr><td><code>/cluster/remote_logs/</code></td><td>持久</td><td>远程日志清单</td><td><code>RemoteLogManifestHandle</code></td></tr><tr><td><code>/producers/{producerId}</code></td><td>持久</td><td><code>ProducerOffsets</code> (JSON)</td><td>Producer Offset 快照</td></tr><tr><td><code>/leases/kv_snapshot/{leaseId}</code></td><td>持久</td><td><code>KvSnapshotLeaseMetadata</code> (JSON)</td><td>KV Snapshot Lease</td></tr></table>
+
+<p><strong>核心数据类：</strong></p>
+
+<p><code>TableAssignment</code> — Bucket 级副本分布：</p>
+<pre><code class="language-java">public class TableAssignment {
+    // Key: bucketId, Value: [replicaId1, replicaId2, replicaId3]
+    // 第一个 replica 默认为 Preferred Leader
+    private final Map&lt;Integer, BucketAssignment&gt; assignments;
+}</code></pre>
+
+<p><code>LeaderAndIsr</code> — 每个 Bucket 的 Leader/ISR 状态：</p>
+<pre><code class="language-java">public class LeaderAndIsr {
+    private final int leader;           // Leader replica id, -1 = NO_LEADER
+    private final int leaderEpoch;      // Leader 任期
+    private final List&lt;Integer&gt; isr;    // In-Sync Replica 列表
+    private final List&lt;Integer&gt; standbyReplicas; // 备用副本
+    private final int coordinatorEpoch; // Coordinator 任期
+    private final int bucketEpoch;      // Bucket 状态版本号
+}</code></pre>
+
+<h3>3.6.2 Kafka ZK 数据结构对照</h3>
+
+<table><tr><th>Fluss ZK Path</th><th>Kafka ZK Path (2.7.2)</th><th>差异说明</th></tr><tr><td>---------------</td><td>----------------------</td><td>---------</td></tr><tr><td><code>/metadata/databases/...</code></td><td><code>/brokers/topics/{topic}</code></td><td>Fluss 多一层 Database 命名空间</td></tr><tr><td><code>/metadata/.../tables/{table}</code></td><td><code>/brokers/topics/{topic}</code></td><td>Fluss 存 Schema 和分区信息；Kafka 仅存分区数</td></tr><tr><td><code>/metadata/table_seqid</code></td><td>(Kafka 无统一 ID，用 topic 名做 key)</td><td>Fluss 统一数字 ID</td></tr><tr><td><code>/coordinators/ids/</code></td><td><code>/controller</code> (单节点临时)</td><td>Fluss 支持多 Coordinator 注册</td></tr><tr><td><code>/coordinators/election</code></td><td><code>/controller</code> (竞争临时节点)</td><td>Fluss 用 Curator LeaderLatch；Kafka 自己竞争</td></tr><tr><td><code>/cluster/table_ids/{id}</code></td><td><code>/brokers/topics/{topic}/partitions/{p}/state</code></td><td>Fluss 存完整 BucketAssignment；Kafka 存 leader/isr</td></tr><tr><td><code>/cluster/server_ids/{id}</code></td><td><code>/brokers/ids/{id}</code></td><td>等价，节点注册信息</td></tr><tr><td><code>/cluster/rebalance</code></td><td><code>/admin/reassign_partitions</code></td><td>Fluss 内置重平衡；Kafka 依赖 admin 操作</td></tr><tr><td><code>/producers/</code></td><td><code>__transaction_state</code> Topic (非 ZK)</td><td>Fluss 用 ZK 存 Producer offset 快照</td></tr><tr><td><code>/leases/</code></td><td>(无直接等价)</td><td>Fluss 特有 KV Snapshot Lease</td></tr></table>
+
+<hr>
+
+<h2>3.7 元数据管理</h2>
+
+<h3>3.7.1 Table/Partition/TableBucket 元数据</h3>
+
+<h4>元数据缓存架构</h4>
+
+<div class="mermaid">
+graph TB
+    subgraph "Coordinator 侧"
+        CMC[CoordinatorMetadataCache<br/>implements ServerMetadataCache]
+        CMS[ServerMetadataCache<br/>interface]
+        CSC[ServerSchemaCache]
+    end
+    
+    subgraph "TabletServer 侧"
+        TMC[TabletServerMetadataCache<br/>implements TabletServerMetadataProvider]
+        TMP[TabletServerMetadataProvider<br/>interface]
+    end
+    
+    subgraph "元数据对象"
+        TM[TableMetadata]
+        PM[PartitionMetadata]
+        BM[BucketMetadata]
+        SI[ServerInfo]
+        CM[ClusterMetadata]
+    end
+    
+    subgraph "数据源"
+        ZK[ZooKeeper]
+    end
+    
+    CMC --> CMS
+    CMC --> CSC
+    TMC --> TMP
+    
+    CMS --> TM
+    CMS --> PM
+    CMS --> BM
+    CMS --> SI
+    
+    TMP --> TM
+    TMP --> PM
+    TMP --> BM
+    
+    ZK --> CMC
+    ZK --> TMC
+
+    style CMC fill:#e1f5fe
+    style TMC fill:#e8f5e9
+    style ZK fill:#fff3e0
+</div>
+
+<p><strong><code>TableMetadata</code>：</strong></p>
+<pre><code class="language-java">public class TableMetadata {
+    private final TableInfo tableInfo;              // 通用表信息（Schema、配置等）
+    private final List&lt;BucketMetadata&gt; bucketMetadataList; // 所有 Bucket 的元数据
+    // 对于分区表，bucketMetadataList 为空；详细信息在 PartitionMetadata 中
+}</code></pre>
+
+<p><strong><code>BucketMetadata</code>：</strong></p>
+<pre><code class="language-java">public class BucketMetadata {
+    private final int bucketId;
+    private final @Nullable Integer leaderId;      // 当前 Leader Server ID
+    private final @Nullable Integer leaderEpoch;    // Leader 任期
+    private final List&lt;Integer&gt; replicas;           // 副本分布 [s1, s2, s3]
+}</code></pre>
+
+<p><strong><code>PartitionMetadata</code>：</strong></p>
+<pre><code class="language-java">public class PartitionMetadata {
+    private final long partitionId;
+    private final String partitionName;
+    private final List&lt;BucketMetadata&gt; bucketMetadataList;
+}</code></pre>
+
+<p><strong><code>TableBucket</code>（公共 API）：</strong></p>
+<pre><code class="language-java">public class TableBucket implements Serializable {
+    private final long tableId;       // 表 ID
+    private final int bucket;         // Bucket 编号
+    private final @Nullable Long partitionId; // 分区 ID（分区表非空）
+    // 缓存 hashCode 用于 RecordAccumulator 等性能敏感路径
+}</code></pre>
+
+<p><strong><code>CoordinatorMetadataCache</code> 核心方法：</strong></p>
+<pre><code class="language-java">public class CoordinatorMetadataCache implements ServerMetadataCache {
+    // ReentrantLock 保护的可变快照
+    private volatile NodeMetadataSnapshot metadataSnapshot;
+    
+    // 查询 TabletServer 是否存活
+    public boolean isAliveTabletServer(int serverId);
+    // 获取特定 TabletServer 的 RPC 地址
+    public Optional&lt;ServerNode&gt; getTabletServer(int serverId, String listenerName);
+    // 获取所有存活的 TabletServer
+    public Map&lt;Integer, ServerNode&gt; getAllAliveTabletServers(String listenerName);
+    // 获取 Coordinator Server 地址
+    public @Nullable ServerNode getCoordinatorServer(String listenerName);
+    // 获取 Server Tag 标签
+    public Map&lt;Integer, ServerTag&gt; getServerTags();
+}</code></pre>
+
+<h3>3.7.2 与 Kafka Topic/Partition 对照</h3>
+
+<h4>元数据模型对照</h4>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>-------------</td><td>------</td></tr><tr><td><code>DatabaseDescriptor</code></td><td>(无，Kafka 无 Database 概念)</td><td>Fluss 引入 Database 做逻辑隔离</td></tr><tr><td><code>TableInfo</code></td><td>Topic 元数据（无独立类，散落在 ZK）</td><td>Fluss 结构化为独立 POJO</td></tr><tr><td><code>TablePath</code> (db.table)</td><td>Topic Name (String)</td><td>Fluss 增加命名空间</td></tr><tr><td><code>TableBucket(tableId, bucket)</code></td><td><code>TopicPartition(topic, partition)</code></td><td>Fluss 的 Bucket 比 Kafka Partition 语义更轻</td></tr><tr><td><code>TableBucket(tableId, partitionId, bucket)</code></td><td><code>TopicPartition(topic, partition)</code></td><td>Fluss 分区表有二级结构：Partition → Bucket</td></tr><tr><td><code>BucketMetadata</code></td><td>无，信息散落在 <code>PartitionStateInfo</code></td><td>Fluss 独立抽象</td></tr><tr><td><code>TableMetadata</code></td><td><code>MetadataCache</code> 的内存结构</td><td>Fluss 独立 POJO 传输</td></tr><tr><td><code>PartitionAssignment(bucket → replicas)</code></td><td><code>ReplicaAssignment</code> (replicas + adding + removing)</td><td>Fluss 更简单，无动态迁移字段</td></tr><tr><td><code>LeaderAndIsr</code></td><td><code>LeaderAndIsr</code> (Kafka API)</td><td>结构一致（leader/epoch/isr）</td></tr></table>
+
+<h4>RPC 通道消息对照</h4>
+
+<table><tr><th>Fluss RPC 消息</th><th>Kafka RPC 消息</th><th>说明</th></tr><tr><td>----------------</td><td>---------------</td><td>------</td></tr><tr><td><code>NotifyLeaderAndIsrRequest</code></td><td><code>LeaderAndIsrRequest</code></td><td>Leader/ISR 变更通知</td></tr><tr><td><code>StopReplicaRequest</code></td><td><code>StopReplicaRequest</code></td><td>副本删除/下线通知</td></tr><tr><td><code>UpdateMetadataRequest</code></td><td><code>UpdateMetadataRequest</code></td><td>元数据广播</td></tr><tr><td><code>NotifyKvSnapshotOffsetRequest</code></td><td>(无等价)</td><td>Fluss KV Snapshot Offset 通知</td></tr><tr><td><code>NotifyLakeTableOffsetRequest</code></td><td>(无等价)</td><td>Fluss Lake Table (Paimon/Iceberg) Offset</td></tr><tr><td><code>NotifyRemoteLogOffsetsRequest</code></td><td>(无等价)</td><td>远程日志 Offset 通知</td></tr></table>
+
+<hr>
+
+<h2>3.8 核心类级对照表</h2>
+
+<h3>Coordinator → Controller 对照</h3>
+
+<table><tr><th>Fluss 类</th><th>Kafka 2.7.2 类 (Scala)</th><th>职责对比</th></tr><tr><td>----------</td><td>------------------------</td><td>---------</td></tr><tr><td><code>CoordinatorServer</code></td><td><code>KafkaServer</code> (部分) + <code>KafkaController</code></td><td>Fluss 将 Controller 服务独立为单独进程</td></tr><tr><td><code>CoordinatorEventProcessor</code></td><td><code>KafkaController</code> (impl <code>ControllerEventProcessor</code>)</td><td>事件处理循环 + 状态机编排</td></tr><tr><td><code>CoordinatorContext</code></td><td><code>ControllerContext</code></td><td>内存状态：live servers, bucket states, replica states</td></tr><tr><td><code>CoordinatorEventManager</code></td><td><code>ControllerEventManager</code></td><td>事件队列管理</td></tr><tr><td><code>CoordinatorChannelManager</code></td><td><code>ControllerChannelManager</code></td><td>RPC 通道到 Worker 节点（TabletServer / Broker）</td></tr><tr><td><code>CoordinatorRequestBatch</code></td><td>(分散在 Controller 方法中)</td><td>Fluss 隔离批处理逻辑为独立类</td></tr><tr><td><code>CoordinatorLeaderElection</code></td><td>ZK <code>/controller</code> 竞争逻辑 (KafkaController 内部)</td><td>Fluss 用 Curator LeaderLatch 解耦</td></tr><tr><td><code>CoordinatorService</code></td><td><code>KafkaApis</code> (处理 Controller 相关请求部分)</td><td>RPC 请求处理（table/database/rebalance）</td></tr><tr><td><code>CoordinatorMetadataCache</code></td><td>Broker 内 <code>MetadataCache</code></td><td>Fluss Coordinator 专用缓存</td></tr><tr><td><code>AutoPartitionManager</code></td><td>(Kafka 无等价，分区手动创建)</td><td>自动分区创建</td></tr><tr><td><code>KvSnapshotLeaseManager</code></td><td>(无等价)</td><td>KV Snapshot 生命周期管理</td></tr><tr><td><code>RebalanceManager</code></td><td>(Kafka 依赖外挂 Cruise Control)</td><td>内置 Goal 驱动重平衡</td></tr><tr><td><code>RemoteDirDynamicLoader</code></td><td>(无等价)</td><td>远程存储目录动态发现/加载</td></tr></table>
+
+<h3>状态机对照</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>-------</td><td>-------------</td></tr><tr><td><code>ReplicaStateMachine</code></td><td><code>ReplicaStateMachine</code></td></tr><tr><td><code>TableBucketStateMachine</code></td><td><code>PartitionStateMachine</code></td></tr><tr><td><code>ReplicaState</code> enum (7 states)</td><td><code>ReplicaState</code> enum (6 states, 无 MigrationStarted)</td></tr><tr><td><code>BucketState</code> enum (4 states)</td><td><code>PartitionState</code> enum (4 states)</td></tr><tr><td><code>ReplicaLeaderElection</code> interface</td><td><code>Election</code> object + <code>ElectionStrategy</code></td></tr><tr><td><code>DefaultLeaderElection</code></td><td><code>OfflinePartitionLeaderElectionStrategy</code></td></tr><tr><td><code>ControlledShutdownLeaderElection</code></td><td><code>ControlledShutdownLeaderElectionStrategy</code></td></tr><tr><td><code>ReassignmentLeaderElection</code></td><td><code>ReassignPartitionLeaderElectionStrategy</code></td></tr></table>
+
+<h3>ZK 数据对照</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>-------</td><td>-------------</td></tr><tr><td><code>ZooKeeperClient</code></td><td><code>KafkaZkClient</code></td></tr><tr><td><code>ZkData</code> (静态内部类)</td><td><code>ZkData</code> (object)</td></tr><tr><td><code>ZkData.DatabaseZNode</code></td><td>(无)</td></tr><tr><td><code>ZkData.TableZNode</code></td><td><code>TopicZNode</code></td></tr><tr><td><code>ZkData.PartitionZNode</code></td><td>(无独立节点)</td></tr><tr><td><code>ZkData.TableIdZNode</code></td><td><code>TopicPartitionStateZNode</code></td></tr><tr><td><code>ZkData.ServerIdZNode</code></td><td><code>BrokerIdZNode</code></td></tr><tr><td><code>ZkData.CoordinatorIdsZNode</code></td><td><code>ControllerIdZNode</code></td></tr><tr><td><code>ZkData.CoordinatorElectionZNode</code></td><td><code>ControllerEpochZNode</code></td></tr><tr><td><code>TableRegistration</code></td><td>(无独立注册类)</td></tr><tr><td><code>TableAssignment</code></td><td><code>ReplicaAssignment</code></td></tr><tr><td><code>LeaderAndIsr</code></td><td><code>LeaderAndIsr</code> (Kafka API 类)</td></tr><tr><td><code>BuckerAssignment</code></td><td><code>ReplicaAssignment.replicas</code></td></tr><tr><td><code>ProducersZNode</code> → <code>ProducerOffsets</code></td><td><code>__transaction_state</code> Topic</td></tr></table>
+
+<h3>RPC 服务接口对照</h3>
+
+<table><tr><th>Fluss RPC 接口 (CoordinatorService)</th><th>Kafka 对应 (KafkaApis)</th></tr><tr><td>-------------------------------------</td><td>------------------------</td></tr><tr><td><code>createDatabase()</code></td><td><code>handleCreateTopics()</code> (无 Database 层)</td></tr><tr><td><code>dropDatabase()</code></td><td><code>handleDeleteTopics()</code></td></tr><tr><td><code>createTable()</code></td><td><code>handleCreateTopics()</code></td></tr><tr><td><code>dropTable()</code></td><td><code>handleDeleteTopics()</code></td></tr><tr><td><code>createPartition()</code></td><td><code>handleCreatePartitions()</code></td></tr><tr><td><code>dropPartition()</code></td><td>(无直接等价)</td></tr><tr><td><code>alterTable()</code></td><td><code>handleAlterConfigs()</code></td></tr><tr><td><code>registerTabletServer()</code></td><td>(通过 ZK <code>/brokers/ids/</code> 自动注册)</td></tr><tr><td><code>heartbeat()</code></td><td>(ZK 临时节点心跳，无显式 RPC)</td></tr><tr><td><code>acquireKvSnapshotLease()</code></td><td>(无等价)</td></tr><tr><td><code>releaseKvSnapshotLease()</code></td><td>(无等价)</td></tr><tr><td><code>commitKvSnapshot()</code></td><td>(无等价)</td></tr><tr><td><code>commitLakeTableSnapshot()</code></td><td>(无等价 — Fluss Lake Table 特有)</td></tr><tr><td><code>adjustIsr()</code></td><td><code>handleAlterIsr()</code></td></tr><tr><td><code>getTableInfo()</code></td><td><code>handleMetadataRequest()</code></td></tr><tr><td><code>getSchemaInfo()</code></td><td>(Schema Registry 独立服务)</td></tr><tr><td><code>rebalance()</code></td><td>(外挂 Cruise Control API)</td></tr></table>
+
+<hr>
+
+<h2>3.9 Coordinator 启动与 Leader 选举序列</h2>
+
+<div class="mermaid">
+sequenceDiagram
+    participant CS as CoordinatorServer
+    participant CLE as CoordinatorLeaderElection
+    participant ZK as ZooKeeper
+    participant CEP as CoordinatorEventProcessor
+    participant Ctx as CoordinatorContext
+    participant RS as ReplicaStateMachine
+    participant TS as TabletServers
+
+    CS->>CS: startup()
+    CS->>ZK: ZooKeeperClient 连接
+    CS->>CLE: CoordinatorLeaderElection.startup()
+    CLE->>ZK: 注册 LeaderLatch (/coordinators/election)
+    CS->>CEP: 启动事件处理线程
+    
+    ZK-->>CLE: isLeader() = true
+    CLE->>CLE: CompletableFuture.complete(null)
+    
+    CEP->>Ctx: 设置 liveCoordinators
+    CEP->>ZK: 加载所有 Database / Table / Schema
+    CEP->>ZK: 加载所有 Server 注册信息
+    CEP->>ZK: 加载 TableAssignment / PartitionAssignment
+    CEP->>Ctx: 初始化 Bucket States（从 LeaderAndIsr 推导）
+    CEP->>Ctx: 初始化 Replica States（从 Assignment 推导）
+    CEP->>RS: startup() — 批量触发 OnlineReplica
+    RS->>ZK: 首次写入 LeaderAndIsr 节点
+    RS->>TS: 发送 NotifyLeaderAndIsrRequest
+    TS-->>RS: 响应
+    CEP->>TS: 发送 UpdateMetadataRequest (全量元数据)
+    
+    Note over CEP: 事件循环就绪，开始处理各种事件
+</div>
+
+<h2>3.10 关键设计总结</h2>
+
+<h3>Fluss Coordinator 相比 Kafka Controller 的主要改进</h3>
+
+<li><strong>Java 实现 vs Scala</strong>：更广泛的社区基础，更易维护</li>
+<li><strong>Curator LeaderLatch</strong>：比 Kafka 手写的 ZK 竞争逻辑更健壮</li>
+<li><strong>事件类型扁平化</strong>：30+ 事件类型 vs Kafka 的 20+，覆盖更多场景</li>
+<li><strong>内置重平衡</strong>：Goal 驱动模型直接内置，不需要 Kafka 的 Cruise Control 外挂</li>
+<li><strong>KV Snapshot Lease</strong>：针对 Flink 集成的独特设计</li>
+<li><strong>AutoPartitionManager</strong>：自动分区创建，Kafka 依赖手动调用 API</li>
+<li><strong>Database 命名空间</strong>：TablePath(db.table) 提供逻辑隔离层</li>
+<li><strong>分类 RPC 通道</strong>：<code>NotifyLeaderAndIsr</code> / <code>StopReplica</code> / <code>UpdateMetadata</code> / <code>NotifyKvSnapshotOffset</code> / <code>NotifyLakeTableOffset</code> / <code>NotifyRemoteLogOffsets</code> — 六条独立通道</li>
+<li><strong>Server Tag 机制</strong>：支持资源标签，用于重平衡的机架感知和隔离</li>
+<li><strong>Remote Log Manifest</strong>：原生支持远程日志（OSS/S3），Kafka 通过 Tiered Storage KIP 后期增强</li>
+
+<h3>架构层级总览</h3>
+
+<pre><code class="language-">┌─────────────────────────────────────────────────┐
+│               CoordinatorServer                  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   CoordinatorService (RPC 处理)           │  │
+│  │   ┌──────┬──────┬──────┬──────┬──────┐   │  │
+│  │   │Table │DB    │Server│Lease │Rebal │   │  │
+│  │   │  CRUD│CRUD  │Reg   │Mgr   │Mgr   │   │  │
+│  │   └──────┴──────┴──────┴──────┴──────┘   │  │
+│  └───────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   CoordinatorEventProcessor (事件循环)     │  │
+│  │   ┌──────────────────────────────────┐    │  │
+│  │   │ CoordinatorEventManager (队列)    │    │  │
+│  │   └──────────────────────────────────┘    │  │
+│  └───────────────────────────────────────────┘  │
+│  ┌──────────────┐  ┌────────────────────────┐  │
+│  │ReplicaState   │  │TableBucketStateMachine │  │
+│  │   Machine     │  │                        │  │
+│  └──────────────┘  └────────────────────────┘  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   CoordinatorChannelManager (RPC 通道)     │  │
+│  └───────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────┐  │
+│  │   ZooKeeperClient / MetadataCache          │  │
+│  └───────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────┘</code></pre>
+</section>
+
+<section id="section-04">
+<h2>04 - 网络与 RPC</h2>
+<h1>04 - 数据面：网络与 RPC</h1>
+
+<h2>4.1 整体架构概览</h2>
+
+<div class="mermaid">
+graph TB
+    subgraph FlussRPC["Fluss RPC 框架"]
+        subgraph Client["客户端"]
+            GC[GatewayClientProxy<br/>动态代理]
+            NC[NettyClient]
+            SC[ServerConnection]
+            CC[ClientChannelInitializer]
+        end
+        
+        subgraph Server["服务端"]
+            NS[NettyServer]
+            SC2[ServerChannelInitializer]
+            RP[RequestProcessorPool]
+            RQ[RequestChannel]
+            FH[FlussRequestHandler]
+            KH[KafkaRequestHandler]
+        end
+        
+        subgraph Protocol["协议层"]
+            AM[ApiManager<br/>管理 ApiKeys + method dispatch]
+            MC[MessageCodec<br/>Protobuf 编解码]
+            NP[NetworkProtocolPlugin<br/>多协议支持]
+        end
+        
+        GC --> NC
+        NC --> SC
+        NS --> SC2
+        SC2 --> RP
+        RP --> RQ
+        RQ --> FH
+        RQ --> KH
+        AM --> MC
+        NP --> SC2
+    end
+</div>
+
+<hr>
+
+<h2>4.2 RPC 协议设计</h2>
+
+<h3>4.2.1 协议栈对比</h3>
+
+<table><tr><th>维度</th><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>------</td><td>-------</td><td>-------------</td></tr><tr><td><strong>传输</strong></td><td>Netty 4（shaded）</td><td>原生 Java NIO (<code>SocketServer</code>)</td></tr><tr><td><strong>序列化</strong></td><td>Protobuf（生成代码）</td><td>自定义二进制格式（<code>RequestHeader</code> / <code>ResponseHeader</code>）</td></tr><tr><td><strong>API 标识</strong></td><td><code>ApiKeys</code> enum (ID 1000+)，字符串 method name + 反射</td><td><code>ApiKeys</code> enum (ID 0-99)，请求头 int16 apiKey</td></tr><tr><td><strong>方法分发</strong></td><td><code>GatewayClientProxy</code> Dynamic Proxy + 反射 methodName</td><td><code>KafkaApis.handle()</code> switch-case apiKey</td></tr><tr><td><strong>多协议</strong></td><td>✅ <code>RequestType.FLUSS</code> / <code>RequestType.KAFKA</code> 双协议</td><td>单一 Kafka 协议</td></tr><tr><td><strong>版本协商</strong></td><td><code>ApiVersions</code>（Protobuf 级）</td><td><code>ApiVersions</code>（Kafka protocol 级）</td></tr></table>
+
+<h3>4.2.2 ApiKeys 分类（Fluss 完整 API 清单）</h3>
+
+<p>Fluss 的 API Key 从 1000 开始（0-999 预留给 Kafka 协议兼容）：</p>
+
+<h4>DDL / 管理（PUBLIC）</h4>
+
+<table><tr><th>API Key</th><th>Method</th><th>说明</th></tr><tr><td>---------</td><td>--------</td><td>------</td></tr><tr><td>1000</td><td><code>ApiVersions</code></td><td>协议版本协商</td></tr><tr><td>1001</td><td><code>CreateDatabase</code></td><td>创建数据库</td></tr><tr><td>1002</td><td><code>DropDatabase</code></td><td>删除数据库</td></tr><tr><td>1003</td><td><code>ListDatabases</code></td><td>列出数据库</td></tr><tr><td>1004</td><td><code>DatabaseExists</code></td><td>检查数据库是否存在</td></tr><tr><td>1005</td><td><code>CreateTable</code></td><td>创建表</td></tr><tr><td>1006</td><td><code>DropTable</code></td><td>删除表</td></tr><tr><td>1007</td><td><code>GetTableInfo</code></td><td>获取表信息</td></tr><tr><td>1008</td><td><code>ListTables</code></td><td>列出表</td></tr><tr><td>1009</td><td><code>ListPartitionInfos</code></td><td>列出分区信息</td></tr><tr><td>1010</td><td><code>TableExists</code></td><td>检查表是否存在</td></tr><tr><td>1011</td><td><code>GetTableSchema</code></td><td>获取表 Schema</td></tr><tr><td>1035</td><td><code>GetDatabaseInfo</code></td><td>获取数据库信息</td></tr><tr><td>1036</td><td><code>CreatePartition</code></td><td>创建分区</td></tr><tr><td>1037</td><td><code>DropPartition</code></td><td>删除分区</td></tr><tr><td>1044</td><td><code>AlterTable</code></td><td>修改表配置/Schema</td></tr><tr><td>1060</td><td><code>AlterDatabase</code></td><td>修改数据库配置</td></tr></table>
+
+<h4>数据流（PUBLIC）</h4>
+
+<table><tr><th>API Key</th><th>Method</th><th>说明</th></tr><tr><td>---------</td><td>--------</td><td>------</td></tr><tr><td>1012</td><td><code>GetMetadata</code></td><td>获取集群元数据（类似 Kafka Metadata request）</td></tr><tr><td>1014</td><td><code>ProduceLog</code></td><td>写入日志记录</td></tr><tr><td>1015</td><td><code>FetchLog</code></td><td>拉取日志记录</td></tr><tr><td>1016</td><td><code>PutKv</code></td><td>写入 KV 记录</td></tr><tr><td>1017</td><td><code>Lookup</code></td><td>点查 KV 记录</td></tr><tr><td>1021</td><td><code>ListOffsets</code></td><td>列举 offset 信息</td></tr><tr><td>1023</td><td><code>GetLatestKvSnapshots</code></td><td>获取最新 KV 快照信息</td></tr><tr><td>1024</td><td><code>GetKvSnapshotMetadata</code></td><td>获取 KV 快照元数据</td></tr><tr><td>1025</td><td><code>GetFilesystemSecurityToken</code></td><td>获取文件系统安全令牌</td></tr><tr><td>1026</td><td><code>InitWriter</code></td><td>初始化 Writer（分配 writer id）</td></tr><tr><td>1033</td><td><code>LimitScan</code></td><td>范围扫描</td></tr><tr><td>1034</td><td><code>PrefixLookup</code></td><td>前缀查找</td></tr><tr><td>1032</td><td><code>GetLakeSnapshot</code></td><td>获取 Lake 快照</td></tr><tr><td>1059</td><td><code>GetTableStats</code></td><td>获取表统计信息</td></tr><tr><td>1061</td><td><code>ScanKv</code></td><td>KV 扫描</td></tr></table>
+
+<h4>内部（PRIVATE）</h4>
+
+<table><tr><th>API Key</th><th>Method</th><th>说明</th></tr><tr><td>---------</td><td>--------</td><td>------</td></tr><tr><td>1013</td><td><code>UpdateMetadata</code></td><td>Coordinator → TabletServer 元数据更新</td></tr><tr><td>1018</td><td><code>NotifyLeaderAndIsr</code></td><td>Coordinator → TabletServer Leader/ISR 通知</td></tr><tr><td>1019</td><td><code>StopReplica</code></td><td>Coordinator → TabletServer 停止副本</td></tr><tr><td>1020</td><td><code>AdjustIsr</code></td><td>TabletServer → Coordinator ISR 变更通知</td></tr><tr><td>1022</td><td><code>CommitKvSnapshot</code></td><td>TabletServer → Coordinator 提交 KV 快照</td></tr><tr><td>1027</td><td><code>CommitRemoteLogManifest</code></td><td>TabletServer → Coordinator 提交远程日志 manifest</td></tr><tr><td>1028</td><td><code>NotifyRemoteLogOffsets</code></td><td>Coordinator → TabletServer 通知远程日志 offset</td></tr><tr><td>1029</td><td><code>NotifyKvSnapshotOffset</code></td><td>Coordinator → TabletServer 通知 KV 快照 offset</td></tr><tr><td>1030</td><td><code>CommitLakeTableSnapshot</code></td><td>TabletServer → Coordinator 提交 Lake 表快照</td></tr><tr><td>1031</td><td><code>NotifyLakeTableOffset</code></td><td>Coordinator → TabletServer 通知 Lake 表 offset</td></tr><tr><td>1042</td><td><code>LakeTieringHeartbeat</code></td><td>TabletServer → Coordinator Lake 分层心跳</td></tr><tr><td>1043</td><td><code>ControlledShutdown</code></td><td>TabletServer → Coordinator 优雅关闭</td></tr><tr><td>1052</td><td><code>PrepareLakeTableSnapshot</code></td><td>TabletServer → Coordinator 准备 Lake 快照</td></tr></table>
+
+<h4>ACL / 集群管理（PUBLIC）</h4>
+
+<table><tr><th>API Key</th><th>Method</th><th>说明</th></tr><tr><td>---------</td><td>--------</td><td>------</td></tr><tr><td>1038</td><td><code>Authenticate</code></td><td>认证</td></tr><tr><td>1039</td><td><code>CreateAcls</code></td><td>创建 ACL</td></tr><tr><td>1040</td><td><code>ListAcls</code></td><td>列出 ACL</td></tr><tr><td>1041</td><td><code>DropAcls</code></td><td>删除 ACL</td></tr><tr><td>1045</td><td><code>DescribeClusterConfigs</code></td><td>查看集群配置</td></tr><tr><td>1046</td><td><code>AlterClusterConfigs</code></td><td>修改集群配置</td></tr><tr><td>1047</td><td><code>AddServerTag</code></td><td>添加服务器标签</td></tr><tr><td>1048</td><td><code>RemoveServerTag</code></td><td>删除服务器标签</td></tr><tr><td>1049</td><td><code>Rebalance</code></td><td>触发重平衡</td></tr><tr><td>1050</td><td><code>ListRebalanceProgress</code></td><td>查看重平衡进度</td></tr><tr><td>1051</td><td><code>CancelRebalance</code></td><td>取消重平衡</td></tr><tr><td>1053</td><td><code>RegisterProducerOffsets</code></td><td>注册 Producer offset</td></tr><tr><td>1054</td><td><code>GetProducerOffsets</code></td><td>获取 Producer offset</td></tr><tr><td>1055</td><td><code>DeleteProducerOffsets</code></td><td>删除 Producer offset</td></tr><tr><td>1056</td><td><code>AcquireKvSnapshotLease</code></td><td>获取 KV 快照租约</td></tr><tr><td>1057</td><td><code>ReleaseKvSnapshotLease</code></td><td>释放 KV 快照租约</td></tr><tr><td>1058</td><td><code>DropKvSnapshotLease</code></td><td>删除 KV 快照租约</td></tr></table>
+
+<h3>4.2.3 双协议引擎（Fluss + Kafka）</h3>
+
+<div class="mermaid">
+graph LR
+    subgraph "Netty Pipeline"
+        DP[Decoder] --> HC[RequestHandlerSelector]
+        HC --> FH[FlussRequestHandler]
+        HC --> KH[KafkaRequestHandler]
+    end
+    
+    subgraph "协议检测"
+        Magic[Fluss Magic Bytes 检测]
+        KafkaDecoder[Kafka Protocol Decoder]
+    end
+</div>
+
+<p>Fluss 通过 <code>NetworkProtocolPlugin</code> 接口实现协议热插拔：</p>
+<li><code>FlussProtocolPlugin</code>：原生 Fluss 协议（Protobuf）</li>
+<li><code>KafkaProtocolPlugin</code>：Kafka 协议兼容（<code>KafkaChannelInitializer</code> → 标准 Kafka 二进制协议）</li>
+
+<p><code>RequestType</code> 枚举：</p>
+<pre><code class="language-java">enum RequestType { FLUSS, KAFKA }</code></pre>
+
+<h3>4.2.4 Gateway 抽象</h3>
+
+<div class="mermaid">
+classDiagram
+    class RpcGatewayService {
+        <<interface>>
+        +isGatewayReady(): boolean
+    }
+    class RpcGateway {
+        <<interface>>
+        +hostname(): String
+        +port(): int
+    }
+    class TabletServerGateway {
+        <<interface>>
+        +produceLog()
+        +fetchLog()
+        +putKv()
+        +lookup()
+        +limitScan()
+        +prefixLookup()
+        +initWriter()
+        +commitRemoteLogManifest()
+        +stopReplica()
+        +adjustIsr()
+        +notifyLeaderAndIsr()
+        +getLakeSnapshot()
+        +prepareLakeTableSnapshot()
+        +lakeTieringHeartbeat()
+    }
+    class CoordinatorGateway {
+        <<interface>>
+        +createDatabase()
+        +createTable()
+        +dropTable()
+        +alterTable()
+        +getTableInfo()
+        +metadata()
+        +adjustIsr()
+        +commitKvSnapshot()
+        +commitRemoteLogManifest()
+        +commitLakeTableSnapshot()
+        +controlledShutdown()
+        +acquireKvSnapshotLease()
+        +rebalance()
+        +registerProducerOffsets()
+        ...
+    }
+    class AdminGateway {
+        <<interface>>
+        +createDatabase()
+        +listDatabases()
+        +createTable()
+        +listTables()
+        +getTableSchema()
+        +listPartitionInfos()
+        +getClusterConfigs()
+        ...
+    }
+    
+    RpcGatewayService <|-- RpcGateway
+    RpcGateway <|-- TabletServerGateway
+    RpcGateway <|-- CoordinatorGateway
+    RpcGateway <|-- AdminGateway
+</div>
+
+<h3>4.2.5 GatewayClientProxy —— 核心 RPC 代理机制</h3>
+
+<p><code>GatewayClientProxy</code> 使用 JDK 动态代理 + 反射实现 RPC 调用：</p>
+
+<pre><code class="language-java">// 核心流程：
+invoke(proxy, method, args):
+  1. apiMethod = ApiManager.forMethodName(method.getName())
+     // 查找 ApiKeys 中 matching 的方法名
+  2. request = apiMethod.serializeRequest(method, args)
+  3. response = nettyClient.send(serverAddress, request)
+  4. return apiMethod.deserializeResponse(response, method)</code></pre>
+
+<p><strong>与 Kafka 的对比</strong>：</p>
+<table><tr><th>维度</th><th>Fluss GatewayClientProxy</th><th>Kafka NetworkClient</th></tr><tr><td>------</td><td>-------------------------</td><td>-------------------</td></tr><tr><td><strong>调用方式</strong></td><td>JDK Dynamic Proxy (反射 methodName)</td><td>显式调用 <code>send()</code> + <code>poll()</code></td></tr><tr><td><strong>API 映射</strong></td><td><code>ApiManager.forMethodName(methodName)</code> 自动匹配</td><td><code>ApiKeys.{key}</code> 硬编码</td></tr><tr><td><strong>序列化</strong></td><td>Protobuf（自动生成）</td><td>手动编写的 <code>Struct</code> / <code>Schema</code></td></tr><tr><td><strong>异步模型</strong></td><td><code>CompletableFuture</code></td><td><code>ClientResponse</code> callback</td></tr></table>
+
+<hr>
+
+<h2>4.3 网络传输层</h2>
+
+<h3>4.3.1 Netty 集成</h3>
+
+<table><tr><th>Fluss (Netty)</th><th>Kafka (Java NIO)</th></tr><tr><td>---------------</td><td>-----------------</td></tr><tr><td><code>NettyServer</code></td><td><code>SocketServer</code> + <code>Acceptor</code> + <code>Processor</code></td></tr><tr><td><code>NettyClient</code></td><td><code>NetworkClient</code> + <code>Selector</code></td></tr><tr><td><code>ServerChannelInitializer</code></td><td><code>ChannelBuilder</code> (new connection)</td></tr><tr><td><code>ClientChannelInitializer</code></td><td><code>ChannelBuilder</code></td></tr><tr><td><code>NettyServerHandler</code></td><td><code>Processor</code> (read/write loops)</td></tr><tr><td><code>NettyClientHandler</code></td><td><code>Send</code> / <code>NetworkReceive</code></td></tr><tr><td><code>RequestProcessorPool</code></td><td><code>RequestHandlerPool</code> (KafkaApis threads)</td></tr><tr><td><code>RequestChannel</code></td><td><code>RequestChannel</code> (NIO queues)</td></tr></table>
+
+<h3>4.3.2 服务端请求处理路径</h3>
+
+<pre><code class="language-">NettyServer (boss + worker event loops)
+  → ServerChannelInitializer (decode protocol magic)
+    → FlussRequestHandler 或 KafkaRequestHandler (decode)
+      → RequestChannel (queue)
+        → RequestProcessorPool (线程池)
+          → RequestProcessor.run()
+            → RpcGatewayService.processRequest()
+              (CoordinatorService / FlussServer)</code></pre>
+
+<h3>4.3.3 连接管理</h3>
+
+<table><tr><th>特性</th><th>Fluss</th><th>Kafka</th></tr><tr><td>------</td><td>-------</td><td>-------</td></tr><tr><td>连接复用</td><td>✅（Netty Channel 复用）</td><td>✅（ConnectionPool）</td></tr><tr><td>空闲超时</td><td><code>KAFKA_CONNECTION_MAX_IDLE_TIME</code> 配置 (default 10min)</td><td><code>connections.max.idle.ms</code> (default 10min)</td></tr><tr><td>最大请求大小</td><td><code>NETTY_SERVER_MAX_REQUEST_SIZE</code></td><td><code>socket.request.max.bytes</code></td></tr><tr><td>并发连接限制</td><td>Netty boss thread 自动处理</td><td><code>max.connections.per.ip</code></td></tr><tr><td>TLS</td><td>通过 Netty SslHandler</td><td>通过 Java SSLContext</td></tr></table>
+
+<h3>4.3.4 Netty Shade 策略</h3>
+
+<p>Fluss 将 Netty 4 打包为 shaded 依赖 <code>org.apache.fluss.shaded.netty4</code>，避免与用户依赖冲突。但类路径中的 <code>netty4</code> 暗示依赖可能未被完全 shade。</p>
+
+<hr>
+
+<h2>4.4 请求/响应模型</h2>
+
+<h3>4.4.1 Fluss 请求结构</h3>
+
+<pre><code class="language-">RpcRequest {
+    - String serverName
+    - String methodName
+    - int callerId
+    - byte[] serializedRequest
+    - RequestType requestType (FLUSS | KAFKA)
+}</code></pre>
+
+<h3>4.4.2 Protobuf 消息生成</h3>
+
+<p><code>fluss-protogen</code> 模块负责 Protobuf → Java 代码生成：</p>
+
+<pre><code class="language-">fluss-protogen/src/main/proto/
+├── common.proto             (RpcResult, TableBucket, Schema)
+├── api_versions.proto       (ApiVersions request/response)
+├── database.proto           (Database CRUD request/response)
+├── table.proto              (Table CRUD request/response)
+├── produce_log.proto        (ProduceLog request/response)
+├── fetch_log.proto          (FetchLog request/response)
+├── put_kv.proto             (PutKv request/response)
+├── lookup.proto             (Lookup request/response)
+├── limit_scan.proto         (LimitScan request/response)
+├── list_offsets.proto       (ListOffsets request/response)
+├── coordinator.proto        (Coordinator 类请求)
+├── metadata.proto           (Metadata request/response)
+├── server.proto             (Server 类请求)
+└── ...</code></pre>
+
+<h3>4.4.3 与 Kafka 请求模型对照</h3>
+
+<table><tr><th>特性</th><th>Fluss</th><th>Kafka</th></tr><tr><td>------</td><td>-------</td><td>-------</td></tr><tr><td><strong>请求类型</strong></td><td><code>String methodName</code></td><td><code>ApiKeys</code> enum (int16)</td></tr><tr><td><strong>头结构</strong></td><td>自定义 Protobuf 头</td><td><code>RequestHeader</code> (apiKey, apiVersion, correlationId, clientId)</td></tr><tr><td><strong>载荷</strong></td><td>Protobuf Message bytes</td><td>自定义 Struct bytes</td></tr><tr><td><strong>版本管理</strong></td><td>Protobuf 字段 added/deprecated</td><td><code>apiVersion</code> 手动兼容逻辑</td></tr><tr><td><strong>错误码</strong></td><td><code>ApiError</code> / <code>Errors</code> (类似 Kafka)</td><td><code>Errors</code> enum</td></tr><tr><td><strong>CorrelationId</strong></td><td>由 NettyClient 自动管理</td><td>显式传递</td></tr><tr><td><strong>超时处理</strong></td><td>CompletableFuture timeout</td><td><code>ClientRequest</code> deadline</td></tr></table>
+
+<hr>
+
+<h2>4.5 Kafka 协议兼容层深度</h2>
+
+<h3>4.5.1 文件清单（5 个 Java 文件）</h3>
+
+<table><tr><th>文件</th><th>功能</th><th>状态</th></tr><tr><td>------</td><td>------</td><td>------</td></tr><tr><td><code>KafkaProtocolPlugin</code></td><td>协议插件入口，注册 Netty ChannelHandler</td><td>✅ 完整</td></tr><tr><td><code>KafkaChannelInitializer</code></td><td>Netty Pipeline 初始化（decoder/encoder）</td><td>✅ 完整</td></tr><tr><td><code>KafkaCommandDecoder</code></td><td>标准 Kafka 二进制协议解码</td><td>✅ 完整</td></tr><tr><td><code>KafkaRequest</code></td><td>Kafka 请求封装</td><td>✅ 完整</td></tr><tr><td><code>KafkaRequestHandler</code></td><td><strong>请求处理核心 → 绝大部分方法为空</strong></td><td>⚠️ 骨架</td></tr></table>
+
+<h3>4.5.2 KafkaRequestHandler 实现状态</h3>
+
+<pre><code class="language-">✅ API_VERSIONS     — 完整实现（返回支持的 API 列表并限版本）
+❌ PRODUCE          — 空方法 {}
+❌ FETCH            — 空方法 {}
+❌ METADATA         — 空方法 {}
+❌ LIST_OFFSETS     — 空方法 {}
+❌ FIND_COORDINATOR — 空方法 {}
+❌ JOIN_GROUP       — 空方法 {}
+❌ SYNC_GROUP       — 空方法 {}
+❌ HEARTBEAT        — 空方法 {}
+❌ LEAVE_GROUP      — 空方法 {}
+❌ OFFSET_FETCH     — 空方法 {}
+❌ OFFSET_COMMIT    — 空方法 {}
+❌ CREATE_TOPICS    — 空方法 {}
+❌ DELETE_TOPICS    — 空方法 {}
+❌ DESCRIBE_CONFIGS — 空方法 {}
+❌ ALTER_CONFIGS    — 空方法 {}
+❌ INIT_PRODUCER_ID — 空方法 {}
+❌ ... 所有事务相关 — 空方法 {}</code></pre>
+
+<p><strong>结论</strong>：Fluss Kafka 兼容层当前处于 <strong>协议栈就绪、业务逻辑空壳</strong> 阶段。标准 Kafka Client 可以连接并完成 API_VERSIONS 协商，之后的所有操作均会因空方法而超时或返回错误。</p>
+
+<h3>4.5.3 兼容层限制说明</h3>
+
+<p>从代码注释提取的限制：</p>
+
+<pre><code class="language-java">// METADATA: Not support TopicId
+apiVersionData.setMaxVersion(11); // latest &gt; 11 ? 11
+
+// FETCH: Not support TopicId  
+short v = apiKey.latestVersion() &gt; 12 ? 12; // latest &gt; 12 ? 12</code></pre>
+
+<p><strong>兼容层实际支持范围</strong>：</p>
+<li>✅ API_VERSIONS 请求/响应</li>
+<li>❌ 其他所有生产/消费/管理/事务请求</li>
+<li>⚠️ TopicId 特性不支持</li>
+<li>⚠️ 仅在 TabletServer 上启用（不能在 CoordinatorServer 上使用）</li>
+
+<hr>
+
+<h2>4.6 核心类级对照表</h2>
+
+<table><tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th></tr><tr><td>----------</td><td>---------------</td><td>------</td></tr><tr><td><code>RpcServer</code> (interface)</td><td><code>SocketServer</code></td><td>服务端网络抽象</td></tr><tr><td><code>NettyServer</code></td><td><code>SocketServer</code> (实现)</td><td>服务端网络实现</td></tr><tr><td><code>NettyServerHandler</code></td><td><code>Processor</code></td><td>请求读取/响应写入</td></tr><tr><td><code>RpcClient</code> (interface)</td><td><code>NetworkClient</code></td><td>客户端网络抽象</td></tr><tr><td><code>NettyClient</code></td><td><code>NetworkClient</code> (实现)</td><td>客户端网络实现</td></tr><tr><td><code>ServerConnection</code></td><td><code>KafkaChannel</code></td><td>单连接抽象</td></tr><tr><td><code>RequestChannel</code></td><td><code>RequestChannel</code></td><td>请求队列</td></tr><tr><td><code>RequestProcessorPool</code></td><td><code>KafkaRequestHandlerPool</code></td><td>请求处理线程池</td></tr><tr><td><code>RequestProcessor</code></td><td><code>KafkaRequestHandler</code></td><td>单个请求处理器</td></tr><tr><td><code>RequestHandler<T></code></td><td><code>KafkaApis</code> (handle 方法)</td><td>请求分派处理</td></tr><tr><td><code>FlussRequestHandler</code></td><td><code>KafkaApis</code> (Fluss 协议)</td><td>Fluss 原生协议处理器</td></tr><tr><td><code>KafkaRequestHandler</code></td><td><code>KafkaApis</code> (Kafka 协议)</td><td>Kafka 兼容协议处理器（骨架）</td></tr><tr><td><code>GatewayClientProxy</code></td><td>无（Kafka 显式调用）</td><td>动态代理 RPC 客户端</td></tr><tr><td><code>ApiKeys</code></td><td><code>ApiKeys</code></td><td>API 枚举标识</td></tr><tr><td><code>ApiManager</code></td><td><code>ApiKeys</code> (直接映射)</td><td>API 方法名 ↔ ID 映射</td></tr><tr><td><code>ApiMethod</code></td><td>（隐式）</td><td>单个 API 的序列化/反序列化</td></tr><tr><td><code>MessageCodec</code></td><td>（不在客户端，服务端硬编码）</td><td>Protobuf 编解码</td></tr><tr><td><code>NetworkProtocolPlugin</code></td><td>Listener security protocol</td><td>协议插件接口</td></tr><tr><td><code>FlussProtocolPlugin</code></td><td>PLAINTEXT/SASL_PLAINTEXT</td><td>Fluss 原生协议</td></tr><tr><td><code>KafkaProtocolPlugin</code></td><td>（无，Kafka 只有一种协议）</td><td>Kafka 协议兼容层</td></tr><tr><td><code>RequestType</code></td><td>（无，只有一种）</td><td>FLUSS / KAFKA</td></tr><tr><td><code>RequestFrame</code></td><td><code>NetworkReceive</code></td><td>请求帧</td></tr><tr><td><code>ServerChannelInitializer</code></td><td><code>ChannelBuilder</code></td><td>服务端 Channel 初始化器</td></tr><tr><td><code>NettyUtils</code></td><td>分散在 Selector 中</td><td>Netty 工具方法</td></tr><tr><td><code>ServerApiVersions</code></td><td>无（通过 RequestHeader.apiVersion）</td><td>服务端 API 版本能力声明</td></tr><tr><td><code>RetryableGatewayClientProxy</code></td><td><code>Retryable-Cluster-Node</code> 逻辑</td><td>带重试的网关代理</td></tr></table>
+
+<hr>
+
+<blockquote><strong>下一篇</strong>：[[05-客户端与计算集成|05 - 客户端与计算集成]]</blockquote>
+</section>
+
+<section id="section-05">
+<h2>05 - 客户端与计算集成</h2>
+<h1>05 - 客户端与计算集成</h1>
+
+<h2>5.1 客户端架构概览</h2>
+
+<div class="mermaid">
+graph TB
+    subgraph FlussClient["Fluss Java Client"]
+        subgraph Admin["Admin 管理客户端"]
+            FA[FlussAdmin<br/>表/DB/分区管理]
+        end
+        
+        subgraph TableAPI["Table API 层"]
+            FT[FlussTable<br/>统一表访问]
+            W[Writer - Append / Upsert]
+            S[Scanner - Log / KV / Batch]
+            LK[Lookuper - PK / Prefix]
+        end
+        
+        subgraph WriteEngine["写入引擎"]
+            WC[WriterClient]
+            RA[RecordAccumulator<br/>批量缓冲]
+            BA[BucketAssigner<br/>分区路由]
+            SE[Sender<br/>网络发送线程]
+            IM[IdempotenceManager<br/>幂等写入]
+        end
+        
+        subgraph ScanEngine["读取引擎"]
+            LS[LogScanner]
+            LF[LogFetcher<br/>拉取线程]
+            KS[KvBatchScanner]
+            LB[LimitBatchScanner]
+            RL[RemoteLogDownloader]
+        end
+        
+        subgraph RPC["RPC 通信"]
+            FC[FlussConnection]
+            NW[NettyClient]
+            MU[MetadataUpdater]
+        end
+    end
+    
+    FT --> W
+    FT --> S
+    FT --> LK
+    W --> WC
+    WC --> RA
+    RA --> SE
+    SE --> FC
+    S --> LS
+    LS --> LF
+    LF --> FC
+    FC --> NW
+    FC --> MU
+</div>
+
+<h3>5.1.1 与 Kafka Client 对照</h3>
+
+<table><tr><th>组件</th><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>------</td><td>-------</td><td>-------------</td></tr><tr><td><strong>管理客户端</strong></td><td><code>FlussAdmin</code> (implements <code>Admin</code>)</td><td><code>KafkaAdminClient</code> (implements <code>Admin</code>)</td></tr><tr><td><strong>写入器</strong></td><td><code>AppendWriter</code> / <code>UpsertWriter</code> / <code>TableWriter</code></td><td><code>KafkaProducer</code></td></tr><tr><td><strong>读取器</strong></td><td><code>LogScanner</code> / <code>BatchScanner</code> / <code>Lookuper</code></td><td><code>KafkaConsumer</code></td></tr><tr><td><strong>连接管理</strong></td><td><code>FlussConnection</code> (单连接复用)</td><td><code>NetworkClient</code> (连接池)</td></tr><tr><td><strong>批量缓冲</strong></td><td><code>RecordAccumulator</code></td><td><code>RecordAccumulator</code></td></tr><tr><td><strong>发送线程</strong></td><td><code>Sender</code></td><td><code>Sender</code></td></tr><tr><td><strong>元数据更新</strong></td><td><code>MetadataUpdater</code></td><td><code>Metadata</code> (ConsumerMetadata/ProducerMetadata)</td></tr><tr><td><strong>幂等保证</strong></td><td><code>IdempotenceManager</code> / <code>IncompleteBatches</code></td><td><code>TransactionManager</code> / <code>InFlightBatches</code></td></tr><tr><td><strong>分区分配</strong></td><td><code>BucketAssigner</code> (Hash/RoundRobin/Static/Sticky/Dynamic)</td><td><code>Partitioner</code> + 固定 partition 分配</td></tr></table>
+
+<hr>
+
+<h2>5.2 写入路径</h2>
+
+<h3>5.2.1 Writer API</h3>
+
+<pre><code class="language-">Table.newWriter()              // 简单写入器
+  ├── AppendWriter             // 追加写入（仅 APPEND 语义）
+  │   └── ~ KafkaProducer.send()
+  ├── UpsertWriter             // 写入/更新（UPSERT 语义，PK 表）
+  │   └── ~ KafkaProducer + 服务端 Merge
+  └── TableWriter&lt;T&gt;           // 类型化写入器
+
+TypedAppendWriterImpl / TypedUpsertWriterImpl  // 类型安全包装</code></pre>
+
+<h3>5.2.2 写入批次类型</h3>
+
+<table><tr><th>批次类</th><th>LogFormat</th><th>适用表类型</th><th>说明</th></tr><tr><td>--------</td><td>-----------</td><td>----------</td><td>------</td></tr><tr><td><code>ArrowLogWriteBatch</code></td><td>ARROW</td><td>所有类型</td><td>Arrow 列式批量写入</td></tr><tr><td><code>CompactedLogWriteBatch</code></td><td>COMPACTED</td><td>PK 表</td><td>压缩格式写入</td></tr><tr><td><code>IndexedLogWriteBatch</code></td><td>INDEXED</td><td>PK 表（点查优化）</td><td>索引格式写入</td></tr><tr><td><code>KvWriteBatch</code></td><td>—</td><td>PK 表</td><td>KV 写入批次（RocksDB 写入）</td></tr></table>
+
+<h3>5.2.3 写入流程</h3>
+
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant AW as AppendWriter
+    participant RA as RecordAccumulator
+    participant BA as BucketAssigner
+    participant SE as Sender
+    participant TS as TabletServer
+    
+    User->>AW: append(row)
+    AW->>BA: assignBucket(row)
+    BA->>BA: hash(key) % bucketCount
+    BA-->>AW: TableBucket
+    AW->>RA: append(bucket, batch)
+    Note over RA: 按 bucket 聚合批次<br/>达到 batch.size 或 linger.ms
+    
+    SE->>RA: drain() 获取就绪批次
+    loop 每个就绪批次
+        SE->>TS: ProduceLogRequest(bucket, records)
+        TS-->>SE: ProduceLogResponse(offset)
+        SE-->>User: callback(offset, exception)
+    end
+</div>
+
+<h3>5.2.4 BucketAssigner 路由策略</h3>
+
+<table><tr><th>策略</th><th>类</th><th>说明</th></tr><tr><td>------</td><td>-----</td><td>------</td></tr><tr><td><strong>Hash</strong></td><td><code>HashBucketAssigner</code></td><td>基于 key hash 路由（默认）</td></tr><tr><td><strong>RoundRobin</strong></td><td><code>RoundRobinBucketAssigner</code></td><td>轮询分配</td></tr><tr><td><strong>Static</strong></td><td><code>StaticBucketAssigner</code></td><td>固定 bucket 映射</td></tr><tr><td><strong>Sticky</strong></td><td><code>StickyBucketAssigner</code></td><td>粘性分配（同一 writer 尽量写入同一 bucket）</td></tr><tr><td><strong>Dynamic</strong></td><td><code>DynamicBucketAssigner</code></td><td>动态路由 + 自动分区创建</td></tr></table>
+
+<h3>5.2.5 IdempotenceManager</h3>
+
+<pre><code class="language-">IdempotenceManager {
+    - IdempotenceBucketMap bucketMap
+    - long writerId
+    - int nextSequence → 类似 Kafka ProducerIdManager
+    
+    保证：同一 Writer 的同一 offset 只会写入一次
+    实现机制：writerId + sequenceNumber + bucket-based tracking
+}</code></pre>
+
+<h3>5.2.6 与 KafkaProducer 对照</h3>
+
+<table><tr><th>特性</th><th>Fluss Writer</th><th>Kafka 2.7.2 Producer</th></tr><tr><td>------</td><td>-------------</td><td>---------------------</td></tr><tr><td><strong>API 风格</strong></td><td><code>AppendWriter.append(row)</code> / <code>UpsertWriter.upsert(row)</code></td><td><code>Producer.send(ProducerRecord)</code></td></tr><tr><td><strong>写入语义</strong></td><td>Append / Upsert / Delete</td><td>Append（无语义区分）</td></tr><tr><td><strong>批次缓冲</strong></td><td><code>RecordAccumulator</code>（同 Kafka）</td><td><code>RecordAccumulator</code></td></tr><tr><td><strong>Sender 线程</strong></td><td>✅ 单线程</td><td>✅ 单线程</td></tr><tr><td><strong>批次过期</strong></td><td><code>request.timeout.ms</code></td><td><code>request.timeout.ms</code></td></tr><tr><td><strong>linger</strong></td><td>✅ <code>linger.ms</code></td><td>✅ <code>linger.ms</code></td></tr><tr><td><strong>compression</strong></td><td>Arrow 列式压缩（整列压缩）</td><td><code>gzip</code> / <code>snappy</code> / <code>lz4</code> / <code>zstd</code></td></tr><tr><td><strong>幂等</strong></td><td><code>IdempotenceManager</code>（无事务）</td><td><code>TransactionManager</code>（有事务）</td></tr><tr><td><strong>acks</strong></td><td>隐式（写入成功返回）</td><td><code>acks=0/1/all</code></td></tr><tr><td><strong>重试</strong></td><td><code>RetryableGatewayClientProxy</code></td><td><code>retries</code> + <code>retry.backoff.ms</code></td></tr><tr><td><strong>分区分配</strong></td><td><code>BucketAssigner</code> 5 种策略</td><td><code>Partitioner</code> + 用户自定义</td></tr><tr><td><strong>事务</strong></td><td>❌</td><td>✅ <code>initTransactions()</code> / <code>commitTransaction()</code></td></tr></table>
+
+<hr>
+
+<h2>5.3 读取路径</h2>
+
+<h3>5.3.1 Scanner API</h3>
+
+<pre><code class="language-">Table.newScan()                   // 扫描器
+  ├── LogScanner                  // 日志扫描（顺序读）
+  │   ├── 从指定的 offset 开始
+  │   ├── 支持 bucketed / unbounded 模式
+  │   └── 远程日志透明下载
+  ├── BatchScanner                // 批量扫描（快照 + 日志合并）
+  │   ├── KvBatchScanner          // 基于 KV 快照的过滤扫描
+  │   ├── KvSnapshotBatchScanner  // 纯快照扫描（无日志）
+  │   ├── SnapshotReaders         // 从远程下载快照并读取
+  │   ├── LimitBatchScanner       // limit 扫描
+  │   └── CompositeBatchScanner   // 多源组合扫描
+  └── Lookuper                    // 点查
+      ├── PrimaryKeyLookuper      // 按 PK 精确查找
+      └── PrefixKeyLookuper       // 按前缀查找</code></pre>
+
+<h3>5.3.2 BatchScanner 读取模式</h3>
+
+<pre><code class="language-">CompositeBatchScanner:
+  = KvBatchScanner + KvSnapshotBatchScanner（组合）
+  
+KvBatchScanner:
+  1. 获取 KV 快照列表 (GetLatestKvSnapshots)
+  2. 下载快照文件 (从远程存储)
+  3. 读取快照 + 合并后续 Log（changelog）
+
+KvSnapshotBatchScanner:
+  1. 获取 Lake 快照 (GetLakeSnapshot)
+  2. 读取 Lake 快照文件（Parquet/Arrow）
+  3. 直接返回（无需合并 log，因为是物化视图）
+
+LakeSnapshotAndLogSplitScanner:
+  1. 读取 Lake 快照 split
+  2. 合并 Log 中的增量数据</code></pre>
+
+<h3>5.3.3 LogScanner 流程</h3>
+
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant LS as LogScanner
+    participant LF as LogFetcher
+    participant TS as TabletServer
+    participant RL as RemoteLogDownloader
+    participant Remote as S3/HDFS
+    
+    User->>LS: poll(records)
+    LS->>LF: fetch(bucket)
+    
+    alt 本地有数据
+        LF->>TS: FetchLogRequest(bucket, startOffset)
+        TS-->>LF: FetchLogResponse(records)
+    else 数据在远程
+        LF->>TS: ListOffsets(bucket)
+        TS-->>LF: earliestLocalOffset
+        LF->>RL: download(remotePath, offsetRange)
+        RL->>Remote: GET
+        Remote-->>RL: log segments
+    end
+    
+    LF-->>LS: CompletedFetch
+    LS-->>User: Iterator<ScanRecord>
+</div>
+
+<h3>5.3.4 LogFetchCollector 体系</h3>
+
+<table><tr><th>类</th><th>LogFormat</th><th>说明</th></tr><tr><td>----</td><td>-----------</td><td>------</td></tr><tr><td><code>AbstractLogFetchCollector</code></td><td>通用基类</td><td>拉取结果收集与解析</td></tr><tr><td><code>ArrowLogFetchCollector</code></td><td>ARROW</td><td>Arrow 列式拉取的收集器</td></tr><tr><td><code>ArrowScanRecords</code> / <code>ScanRecords</code></td><td>—</td><td>扫描结果封装</td></tr></table>
+
+<h3>5.3.5 与 KafkaConsumer 对照</h3>
+
+<table><tr><th>特性</th><th>Fluss Scanner</th><th>Kafka 2.7.2 Consumer</th></tr><tr><td>------</td><td>--------------</td><td>---------------------</td></tr><tr><td><strong>API 风格</strong></td><td><code>scanner.poll()</code> 返回 <code>Iterator<ScanRecord></code></td><td><code>consumer.poll(Duration)</code> 返回 <code>ConsumerRecords</code></td></tr><tr><td><strong>读取语义</strong></td><td>Log scan / Batch scan (snapshot+log) / Lookup</td><td>Log scan only</td></tr><tr><td><strong>Offset 管理</strong></td><td>用户自行管理 offset</td><td>Consumer Group 协议自动管理</td></tr><tr><td><strong>Rebalance</strong></td><td>无 Consumer Group 概念</td><td>Group Coordinator 协调</td></tr><tr><td><strong>点查</strong></td><td>✅ <code>Lookuper.lookup(key)</code> / <code>prefixLookup(prefix)</code></td><td>❌ 不支持</td></tr><tr><td><strong>范围扫描</strong></td><td>✅ <code>LimitBatchScanner.limitScan()</code></td><td>❌ 需要 seek + poll 模拟</td></tr><tr><td><strong>谓词下推</strong></td><td>✅ Arrow 列裁剪 + 统计信息</td><td>❌ 不支持（2.7.2）</td></tr><tr><td><strong>远程数据</strong></td><td>✅ <code>RemoteLogDownloader</code> 透明下载</td><td>❌（2.7.2 无分层存储）</td></tr><tr><td><strong>快照读取</strong></td><td>✅ 从 Lake snapshot 直接读 Parquet/Arrow</td><td>❌ 不支持</td></tr></table>
+
+<hr>
+
+<h2>5.4 Flink Connector 集成</h2>
+
+<h3>5.4.1 模块结构</h3>
+
+<pre><code class="language-">fluss-flink (215 Java files)
+├── fluss-flink-1.18/     — Flink 1.18 适配
+├── fluss-flink-1.19/     — Flink 1.19 适配
+├── fluss-flink-1.20/     — Flink 1.20 适配（仅 DummyClass）
+├── fluss-flink-2.2/      — Flink 2.2 适配
+├── fluss-flink-common/   — 共享逻辑
+└── fluss-flink-tiering/  — Lake Tiering 独立入口</code></pre>
+
+<h3>5.4.2 核心能力矩阵</h3>
+
+<table><tr><th>功能</th><th>实现</th><th>Kafka 对应</th></tr><tr><td>------</td><td>------</td><td>-----------</td></tr><tr><td><strong>Flink Catalog</strong></td><td><code>FlinkCatalog</code> / <code>FlinkCatalogFactory</code></td><td>无标准 Catalog（通过 Connect 注册）</td></tr><tr><td><strong>Source</strong></td><td><code>FlussSource</code> → <code>FlussSourceReader</code> → <code>FlussSplitReader</code></td><td><code>FlinkKafkaConsumer</code></td></tr><tr><td><strong>Sink</strong></td><td><code>FlussSink</code> → <code>SinkWriter</code> → <code>PreWriteBuffer</code></td><td><code>FlinkKafkaProducer</code></td></tr><tr><td><strong>Lookup Join</strong></td><td><code>FlussLookupFunction</code>（点查维表关联）</td><td>无直接对应（需借助 HBase/JDBC lookup）</td></tr><tr><td><strong>Changelog Stream</strong></td><td><code>FlussChangelogSource</code>（CDC 流）</td><td><code>FlinkKafkaConsumer</code>（无法区分 CHANGE 类型）</td></tr><tr><td><strong>Tiering Committer</strong></td><td><code>TieringCommitOperator</code> / <code>TieringCommitter</code></td><td>无</td></tr><tr><td><strong>Lake Tiering Source</strong></td><td><code>TieringSource</code> / <code>TieringSourceReader</code></td><td>无</td></tr><tr><td><strong>RoaringBitmap 聚合</strong></td><td><code>RbBuildAggFunction</code> / <code>RbAndAggFunction</code> / <code>RbOrAggFunction</code></td><td>无</td></tr><tr><td><strong>谓词下推</strong></td><td><code>PushdownUtils</code> → <code>PredicateConverter</code></td><td><code>FlinkKafkaConsumer</code> 不支持下推</td></tr><tr><td><strong>Arrow 转换</strong></td><td><code>FlussRowToFlinkRowConverter</code> ↔ Arrow ↔ RowData</td><td>无 Arrow 支持</td></tr></table>
+
+<h3>5.4.3 Sink 写入模型</h3>
+
+<pre><code class="language-">Table API Insert:
+  INSERT INTO fluss_table SELECT ...
+    → FlussSink
+      → SinkWriter (pre-commit → commit cycle)
+        → RecordAccumulator (batch buffer)
+        → AppendWriter / UpsertWriter
+          → TabletServer (ProduceLog / PutKv)</code></pre>
+
+<h3>5.4.4 Source 读取模型</h3>
+
+<pre><code class="language-">SELECT * FROM fluss_table
+  → FlussSource
+    → FlussSourceEnumerator (split discovery)
+      → LogSplit / KvSnapshotSplit / LakeSplit
+    → FlussSourceReader
+      → FlussSplitReader
+        → LogScanner (log split)
+        → KvBatchScanner (snapshot split)
+        → IcebergLakeSource / PaimonLakeSource (lake split)</code></pre>
+
+<h3>5.4.5 Tiering（分层）架构</h3>
+
+<p>Fluss 的 Flink Tiering 是一个<strong>独立的 Flink 作业</strong>，负责将 Tablet 的本地数据持续写入 Lakehouse：</p>
+
+<div class="mermaid">
+graph LR
+    subgraph TabletServer
+        LT[LogTablet]
+        KT[KvTablet]
+    end
+    
+    subgraph TieringJob["Flink Tiering Job"]
+        TS[TieringSource<br/>读取 Tablet 数据]
+        LW[LakeWriter<br/>写入 Lake Storage]
+        TC[TieringCommitter<br/>提交 Snapshot]
+    end
+    
+    subgraph Lakehouse
+        Ice[(Iceberg)]
+        Pai[(Paimon)]
+        Lan[(Lance)]
+    end
+    
+    LT --> TS
+    KT --> TS
+    TS --> LW
+    LW --> Ice
+    LW --> Pai
+    TS --> TC
+    TC --> Ice
+    TC --> Pai
+</div>
+
+<hr>
+
+<h2>5.5 数据转换层</h2>
+
+<h3>5.5.1 类型系统映射</h3>
+
+<table><tr><th>Fluss Type</th><th>Flink Type</th><th>Java POJO Type</th><th>Kafka Type（无）</th></tr><tr><td>-----------</td><td>-----------</td><td>---------------</td><td>-----------------</td></tr><tr><td><code>IntType</code></td><td><code>DataTypes.INT()</code></td><td><code>int</code> / <code>Integer</code></td><td>bytes（服务端不解析）</td></tr><tr><td><code>BigIntType</code></td><td><code>DataTypes.BIGINT()</code></td><td><code>long</code> / <code>Long</code></td><td>bytes</td></tr><tr><td><code>StringType</code></td><td><code>DataTypes.STRING()</code></td><td><code>String</code></td><td>bytes</td></tr><tr><td><code>BytesType</code></td><td><code>DataTypes.BYTES()</code></td><td><code>byte[]</code></td><td>bytes (same)</td></tr><tr><td><code>ArrayType</code></td><td><code>DataTypes.ARRAY(...)</code></td><td><code>List<T></code></td><td>需自行序列化</td></tr><tr><td><code>MapType</code></td><td><code>DataTypes.MAP(...)</code></td><td><code>Map<K,V></code></td><td>需自行序列化</td></tr><tr><td><code>RowType</code></td><td><code>DataTypes.ROW(...)</code></td><td>POJO object</td><td>需自行序列化</td></tr></table>
+
+<h3>5.5.2 核心转换器</h3>
+
+<table><tr><th>转换器</th><th>方向</th><th>用途</th></tr><tr><td>--------</td><td>------</td><td>------</td></tr><tr><td><code>FlussRowToFlinkRowConverter</code></td><td>Fluss → Flink</td><td>Source 读取</td></tr><tr><td><code>FlinkRowToFlussRowConverter</code></td><td>Flink → Fluss</td><td>Sink 写入</td></tr><tr><td><code>RowToPojoConverter</code></td><td>Fluss Row → Java POJO</td><td>Java Client</td></tr><tr><td><code>PojoToRowConverter</code></td><td>Java POJO → Fluss Row</td><td>Java Client</td></tr><tr><td><code>FlinkTypeToFlussType</code></td><td>Flink DataType → Fluss DataType</td><td>Catalog</td></tr><tr><td><code>FlussTypeToFlinkType</code></td><td>Fluss DataType → Flink DataType</td><td>Catalog</td></tr><tr><td><code>FlussDataTypeToIcebergDataType</code></td><td>Fluss → Iceberg</td><td>Lake Storage</td></tr><tr><td><code>FlussDataTypeToPaimonDataType</code></td><td>Fluss → Paimon</td><td>Lake Storage</td></tr><tr><td><code>FlussDataTypeToHudiDataType</code></td><td>Fluss → Hudi</td><td>Lake Storage</td></tr></table>
+
+<hr>
+
+<h2>5.6 Lake Storage（湖存储层）</h2>
+
+<h3>5.6.1 支持的后端</h3>
+
+<table><tr><th>Lake Storage</th><th>模块</th><th>说明</th></tr><tr><td>-------------</td><td>------</td><td>------</td></tr><tr><td><strong>Iceberg</strong></td><td><code>fluss-lake-iceberg</code> (35+ files)</td><td>完整实现：Catalog、Writer、Committer、Reader、Tiering</td></tr><tr><td><strong>Paimon</strong></td><td><code>fluss-lake-paimon</code> (30+ files)</td><td>完整实现：Catalog、Writer、Committer、Reader、Tiering</td></tr><tr><td><strong>Hudi</strong></td><td><code>fluss-lake-hudi</code> (7 files)</td><td>轻量实现：仅 Catalog + Storage</td></tr><tr><td><strong>Lance</strong></td><td><code>fluss-lake-lance</code> (12 files)</td><td>Lance columnar format（Arrow native）</td></tr></table>
+
+<h3>5.6.2 Lake 插件架构</h3>
+
+<pre><code class="language-java">interface LakeStoragePlugin {
+    String name();                          // &quot;iceberg&quot; / &quot;paimon&quot; / &quot;hudi&quot; / &quot;lance&quot;
+    LakeStorage createLakeStorage(config);  // 创建存储实例
+}
+
+interface LakeCatalog {
+    createTable(TableDescriptor);
+    List&lt;String&gt; listTables();
+    Table getTable(String tableName);
+    ...
+}</code></pre>
+
+<h3>5.6.3 Iceberg Lake 集成</h3>
+
+<pre><code class="language-">IcebergLakeStorage
+├── IcebergLakeCatalog (表管理)
+├── IcebergLakeWriter (Tiering 写入)
+│   ├── AppendOnlyTaskWriter (普通表)
+│   └── DeltaTaskWriter (PK 表，支持 delete/update)
+├── IcebergLakeCommitter (快照提交)
+├── IcebergLakeSource (读取)
+│   ├── IcebergSplitPlanner (分区规划)
+│   └── IcebergRecordReader (记录读取)
+└── IcebergRewriteDataFiles (数据文件压缩)</code></pre>
+
+<hr>
+
+<h2>5.7 核心类级对照表</h2>
+
+<table><tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th></tr><tr><td>----------</td><td>---------------</td><td>------</td></tr><tr><td><code>FlussAdmin</code></td><td><code>KafkaAdminClient</code></td><td>管理客户端</td></tr><tr><td><code>FlussTable</code></td><td>无（Kafka 无 Table 概念）</td><td>统一表访问 API</td></tr><tr><td><code>AppendWriter</code></td><td><code>KafkaProducer</code></td><td>追加写入器</td></tr><tr><td><code>UpsertWriter</code></td><td>无（Kafka 无 upsert）</td><td>Upsert 写入器</td></tr><tr><td><code>RecordAccumulator</code></td><td><code>RecordAccumulator</code></td><td>批次缓冲</td></tr><tr><td><code>Sender</code></td><td><code>Sender</code></td><td>后台发送线程</td></tr><tr><td><code>BucketAssigner</code></td><td><code>Partitioner</code></td><td>分区路由</td></tr><tr><td><code>IdempotenceManager</code></td><td><code>TransactionManager</code> (idempotent part)</td><td>幂等管理</td></tr><tr><td><code>WriterClient</code></td><td><code>KafkaProducer</code> (internal send)</td><td>写入客户端</td></tr><tr><td><code>LogScanner</code></td><td><code>Fetcher</code> (KafkaConsumer 内部)</td><td>日志扫描器</td></tr><tr><td><code>LogFetcher</code></td><td><code>Fetcher</code> (KafkaConsumer 内部)</td><td>拉取线程</td></tr><tr><td><code>KvBatchScanner</code></td><td>无</td><td>KV 批量扫描</td></tr><tr><td><code>Lookuper</code> / <code>LookupClient</code></td><td>无</td><td>点查客户端</td></tr><tr><td><code>PrimaryKeyLookuper</code></td><td>无</td><td>主键精确查找</td></tr><tr><td><code>PrefixKeyLookuper</code></td><td>无</td><td>前缀查找</td></tr><tr><td><code>RemoteLogDownloader</code></td><td>无（2.7.2 无远程存储）</td><td>远程日志下载</td></tr><tr><td><code>FlussConnection</code></td><td><code>NetworkClient</code></td><td>连接管理</td></tr><tr><td><code>MetadataUpdater</code></td><td><code>ConsumerMetadata</code> / <code>ProducerMetadata</code></td><td>元数据更新</td></tr><tr><td><code>FlinkCatalog</code></td><td>无（无标准 Flink Catalog）</td><td>Flink 目录</td></tr><tr><td><code>FlussSource</code></td><td><code>FlinkKafkaConsumer</code></td><td>Flink Source</td></tr><tr><td><code>FlussSink</code></td><td><code>FlinkKafkaProducer</code></td><td>Flink Sink</td></tr><tr><td><code>TieringCommitOperator</code></td><td>无</td><td>Lake 快照提交</td></tr><tr><td><code>TieringSource</code></td><td>无</td><td>Lake Tiering 来源</td></tr></table>
+
+<hr>
+
+<table><tr><th>> <strong>下一篇</strong>：[[06-Lake层与湖仓融合</th><th>06 - Lake 层与湖仓融合]]</th><th>[[07-模块对应关系总表</th><th>07 - 模块对应总表]]</th></tr></table>
+</section>
+
+<section id="section-06">
+<h2>06 - Lake 层与湖仓融合</h2>
+<h1>06 - Lake 层与湖仓融合</h1>
+
+<h2>6.1 概述</h2>
+
+<p>Lake 层是 Fluss 最大的架构差异化能力——它原生支持将数据写入 Lakehouse（数据湖），实现 <strong>"Streaming Table → Lakehouse Table"</strong> 的一体化转换。Kafka 2.7.2 完全没有此能力。</p>
+
+<div class="mermaid">
+graph TB
+    subgraph Streaming["实时数据流"]
+        WT[Writer]
+        SC[Scanner]
+        LK[Lookuper]
+    end
+    
+    subgraph Server["Fluss Server"]
+        TS[TabletServer]
+        CO[CoordinatorServer]
+        
+        subgraph Local["本地存储"]
+            LOG[LogTablet]
+            KV[KvTablet]
+        end
+        
+        RL[RemoteLogManager]
+    end
+    
+    subgraph Lakehouse["Lakehouse 数据湖"]
+        ICE[(Apache Iceberg)]
+        PAI[(Apache Paimon)]
+        HUD[(Apache Hudi)]
+        LAN[(Lance)]
+    end
+    
+    subgraph Tiering["分层写入 (Tiering)"]
+        TJ[Flink Tiering Job]
+        TW[LakeWriter]
+        TC[LakeCommitter]
+    end
+    
+    WT --> TS
+    SC --> TS
+    TS --> LOG
+    TS --> KV
+    TS --> RL
+    LOG --> TJ
+    KV --> TJ
+    TJ --> TW
+    TW --> ICE
+    TW --> PAI
+    TJ --> TC
+    TC --> ICE
+    TC --> PAI
+</div>
+
+<hr>
+
+<h2>6.2 Lake 存储插件架构</h2>
+
+<h3>6.2.1 插件接口</h3>
+
+<pre><code class="language-java">// 存储插件 — 工厂模式
+interface LakeStoragePlugin {
+    String name();                              // &quot;iceberg&quot; | &quot;paimon&quot; | &quot;hudi&quot; | &quot;lance&quot;
+    LakeStorage createLakeStorage(Configuration conf);
+}
+
+// 存储抽象
+interface LakeStorage {
+    LakeCatalog getLakeCatalog();
+    LakeTable getLakeTable(TablePath tablePath);
+    LakeTableMetaInfo getLakeTableMetaInfo(TablePath tablePath);
+}
+
+// Catalog 抽象
+interface LakeCatalog {
+    void createTable(TableDescriptor desc);
+    void dropTable(TablePath tablePath);
+    List&lt;String&gt; listTables();
+    Map&lt;String, String&gt; loadTableProperties(TablePath tablePath);
+    void alterTable(TablePath, TableChange...);
+}
+
+// 表抽象
+interface LakeTable {
+    TablePath tablePath();
+    LakeTableStats tableStats();    // 表统计信息
+    LakeTableRead read();           // 读操作
+    LakeTableAppend append();       // 追加写
+    LakeTableDelta delta();         // Delta 写（Upsert/Delete）
+}</code></pre>
+
+<h3>6.2.2 四种后端实现</h3>
+
+<table><tr><th>后端</th><th>模块</th><th>类</th><th>行数估计</th><th>完整度</th></tr><tr><td>------</td><td>------</td><td>-----</td><td>----------</td><td>--------</td></tr><tr><td><strong>Iceberg</strong></td><td><code>fluss-lake-iceberg</code></td><td><code>IcebergLakeStorage</code> / <code>IcebergLakeCatalog</code></td><td>~35 files</td><td>★★★★★ 完整</td></tr><tr><td><strong>Paimon</strong></td><td><code>fluss-lake-paimon</code></td><td><code>PaimonLakeStorage</code> / <code>PaimonLakeCatalog</code></td><td>~30 files</td><td>★★★★★ 完整</td></tr><tr><td><strong>Hudi</strong></td><td><code>fluss-lake-hudi</code></td><td><code>HudiLakeStorage</code> / <code>HudiLakeCatalog</code></td><td>~7 files</td><td>★★☆☆☆ 基础</td></tr><tr><td><strong>Lance</strong></td><td><code>fluss-lake-lance</code></td><td><code>LanceLakeStorage</code> / <code>LanceLakeCatalog</code></td><td>~12 files</td><td>★★★☆☆ 部分</td></tr></table>
+
+<hr>
+
+<h2>6.3 Iceberg 集成（最完整）</h2>
+
+<h3>6.3.1 IcebergLakeStorage 结构</h3>
+
+<pre><code class="language-">IcebergLakeStorage (impl LakeStorage)
+├── IcebergLakeCatalog
+│   ├── 创建 Iceberg Table（复用 TableDescriptor → Iceberg Schema）
+│   ├── 管理 Iceberg Namespace/TableProperties
+│   └── 支持 HadoopCatalog / HiveCatalog
+├── IcebergLakeSource (impl LakeTableRead)
+│   ├── IcebergSplitPlanner（分区规划）
+│   ├── IcebergSplit（单个 split）
+│   ├── IcebergRecordReader → 读取 DataFile
+│   ├── 谓词下推（File format filter + Row group filter）
+│   └── FlussToIcebergPredicateConverter（谓词转换）
+├── IcebergLakeWriter (impl LakeTableAppend / LakeTableDelta)
+│   ├── AppendOnlyTaskWriter（普通表：无 PK）
+│   │   └── 每 batch → DataFile (.parquet)
+│   └── DeltaTaskWriter（PK 表：支持 delete/update）
+│       └── 支持 Position Delete / Equality Delete
+├── IcebergLakeCommitter (impl LakeTableCommit)
+│   ├── 收集每个 task 的 WriteResult
+│   ├── 提交 Iceberg Snapshot
+│   └── 过期 Snapshot 清理
+└── IcebergRewriteDataFiles（compaction）
+    ├── 合并小 DataFile
+    ├── 清理 Delete Files
+    └── 支持 Z-ordering / Sorting</code></pre>
+
+<h3>6.3.2 写入模式</h3>
+
+<table><tr><th>表类型</th><th>Writer</th><th>Iceberg 操作</th><th>说明</th></tr><tr><td>--------</td><td>--------</td><td>-------------</td><td>------</td></tr><tr><td>普通表 (Log Table)</td><td><code>AppendOnlyTaskWriter</code></td><td><code>AppendFiles</code></td><td>纯追加，Parquet 写入</td></tr><tr><td>PK 表 (KV Table)</td><td><code>DeltaTaskWriter</code> + <code>GenericRecordDeltaWriter</code></td><td><code>RowDelta</code></td><td>Upsert/Delete，支持 Position Delete</td></tr><tr><td>Merge-Engine 表</td><td><code>DeltaTaskWriter</code> (aggregate mode)</td><td><code>RowDelta</code> + rewrite</td><td>需要 compaction 来合并聚合结果</td></tr></table>
+
+<h3>6.3.3 读取模式</h3>
+
+<pre><code class="language-">IcebergLakeSource → Fluss Source:
+  1. IcebergSplitPlanner: 根据 filter + snapshot 规划 split
+  2. 每个 split → IcebergSplit (filePath, offset, length)
+  3. IcebergRecordReader: 读取 Parquet → InternalRow
+  4. 可选谓词下推：
+     - Partition filter (目录级)
+     - Row group filter (Parquet 统计信息级)
+     - Arrow 统计信息 filter (列 min/max/null-count)
+  5. InternalRow → Fluss Row (Arrow 格式)</code></pre>
+
+<hr>
+
+<h2>6.4 Paimon 集成</h2>
+
+<h3>6.4.1 PaimonLakeStorage 结构</h3>
+
+<pre><code class="language-">PaimonLakeStorage (impl LakeStorage)
+├── PaimonLakeCatalog
+│   ├── 创建 Paimon Table
+│   └── 管理 Paimon Schema / Options
+├── PaimonLakeSource
+│   ├── PaimonSplitPlanner
+│   ├── PaimonRecordReader
+│   └── PaimonSortedRecordReader（有序读取）
+├── PaimonLakeWriter
+│   ├── AppendOnlyWriter（普通表）
+│   │   └── Arrow → Paimon Arrow Vector Column
+│   ├── MergeTreeWriter（PK 表 + Merge Engine）
+│   └── AppendOnlyArrowBatchHelper
+├── PaimonLakeCommitter
+├── DV Table 支持
+│   ├── DvTableReadableSnapshotRetriever
+│   └── PaimonDvTableUtils</code></pre>
+
+<h3>6.4.2 Paimon 特有功能</h3>
+
+<li><strong>MergeTreeWriter</strong>：直接写入 Paimon 的 MergeTree 格式（LSM），支持 PK 表</li>
+<li><strong>AppendOnlyWriter</strong>：纯追加写入，支持 Arrow 原生列式</li>
+<li><strong>DV (Deletion Vector) 表</strong>：Paimon 0.9+ 引入的 DV 机制，支持增量删除</li>
+<li><strong>SortedRecordReader</strong>：按 PK 排序读取，支持 Merge-on-Read</li>
+<li><strong>PartitionBucket</strong>：Paimon 的分区桶映射</li>
+
+<hr>
+
+<h2>6.5 Tiering 架构（Flink 独立作业）</h2>
+
+<h3>6.5.1 Tiering 工作流</h3>
+
+<div class="mermaid">
+sequenceDiagram
+    participant TS as TabletServer
+    participant CO as CoordinatorServer
+    participant TJ as Flink Tiering Job
+    participant LW as LakeWriter
+    participant LC as LakeCommitter
+    participant LH as Lakehouse
+    
+    TS->>CO: lakeTieringHeartbeat(bucket)
+    CO->>CO: 判断是否需要 Tiering
+    
+    TJ->>CO: 轮询 tiering tasks
+    CO-->>TJ: TableBucket + offsetRange
+    
+    TJ->>TS: FetchLog / GetBucketLog → 读取本地日志
+    TS-->>TJ: records
+    
+    TJ->>LW: write(records)
+    LW->>LH: write Parquet/Arrow files
+    
+    TJ->>LC: commit(snapshot)
+    LC->>LH: commit snapshot
+    
+    TJ->>CO: commitLakeTableSnapshot(bucket, offset)
+    CO->>TS: notifyLakeTableOffset(bucket, offset)
+    TS->>TS: 更新 local lake log start offset
+    TS->>TS: 可删除本地已 tiered 的 segments
+</div>
+
+<h3>6.5.2 Tiering 组件</h3>
+
+<table><tr><th>组件</th><th>类</th><th>功能</th></tr><tr><td>------</td><td>-----</td><td>------</td></tr><tr><td><strong>入口</strong></td><td><code>FlussLakeTiering</code> / <code>FlussLakeTieringEntrypoint</code></td><td>Tiering 作业启动</td></tr><tr><td><strong>Source</strong></td><td><code>TieringSource</code> → <code>TieringSplitReader</code></td><td>从 TabletServer 读取数据</td></tr><tr><td><strong>Writer</strong></td><td><code>LakeWriter</code> 接口</td><td>写入 Lake Storage</td></tr><tr><td><strong>Committer</strong></td><td><code>TieringCommitOperator</code> / <code>TieringCommitter</code></td><td>提交 Lake Snapshot</td></tr><tr><td><strong>Event</strong></td><td><code>TieringReachMaxDurationEvent</code> / <code>FinishedTieringEvent</code> / <code>FailedTieringEvent</code></td><td>事件驱动</td></tr><tr><td><strong>Metrics</strong></td><td><code>TieringMetrics</code></td><td>指标收集</td></tr><tr><td><strong>Split</strong></td><td><code>TieringLogSplit</code> / <code>TieringSnapshotSplit</code></td><td>分层 Split 定义</td></tr><tr><td><strong>Result</strong></td><td><code>TableBucketWriteResult</code> / <code>TableBucketWriteResultEmitter</code></td><td>写入结果回传</td></tr></table>
+
+<h3>6.5.3 CoordinatorServer 端 Lake 管理</h3>
+
+<table><tr><th>类</th><th>功能</th></tr><tr><td>----</td><td>------</td></tr><tr><td><code>LakeTableTieringManager</code></td><td>管理 Lake 表的 Tiering 进度与调度</td></tr><tr><td><code>LakeCatalogDynamicLoader</code></td><td>动态加载 Lake Catalog（支持运行时切换）</td></tr><tr><td><code>CommitLakeTableSnapshot</code> event</td><td>处理 Tiering 提交的快照信息</td></tr><tr><td><code>NotifyLakeTableOffset</code></td><td>通知 TabletServer 更新本地 Lake offset</td></tr></table>
+
+<hr>
+
+<h2>6.6 Lance（Arrow Native Lake）</h2>
+
+<p>Lance 是新兴的 Arrow-native 列式存储格式，Fluss 支持作为 Lake 后端：</p>
+
+<pre><code class="language-">LanceLakeStorage
+├── LanceLakeCatalog
+├── LanceLakeWriter
+│   └── ShadedArrowBatchWriter（直接写 Arrow IPC，零拷贝）
+├── LanceLakeCommitter
+└── LanceWriteResult
+
+特点：
+- Arrow-native：无需序列化/反序列化转换，直接操作 Arrow Vector
+- 零拷贝路径：Fluss Arrow batch → Lance write（同一格式）
+- 列裁剪 + 谓词下推完全复用 Arrow 能力</code></pre>
+
+<hr>
+
+<h2>6.7 Fluss Lake 能力与 Kafka 对照</h2>
+
+<table><tr><th>能力</th><th>Fluss</th><th>Kafka 2.7.2</th></tr><tr><td>------</td><td>-------</td><td>-------------</td></tr><tr><td><strong>数据湖集成</strong></td><td>✅ 原生支持 Iceberg/Paimon/Hudi/Lance</td><td>❌ 无（需外部 ETL 管道）</td></tr><tr><td><strong>Tiering</strong></td><td>✅ 内建 Flink Tiering Job，自动将本地数据分层到 Lake</td><td>❌ 无（KIP-405 仅分层到远程存储，非 Lakehouse）</td></tr><tr><td><strong>Lake 格式</strong></td><td>Parquet / Arrow / 原生格式</td><td>❌ Segment 文件</td></tr><tr><td><strong>Lake 查询</strong></td><td>✅ 可从 Lake 直接读取（BatchScanner）</td><td>❌ 无</td></tr><tr><td><strong>快照隔离</strong></td><td>✅ Lake Snapshot 提供 MVCC 隔离</td><td>❌ 无 snapshot 概念</td></tr><tr><td><strong>Schema Evolution</strong></td><td>✅ 服务端内建 + Lake Catalog 管理</td><td>❌ 服务端不解析 schema</td></tr><tr><td><strong>Partition Evolution</strong></td><td>✅ 通过 Iceberg/Paimon 的分区演进</td><td>❌ 无</td></tr><tr><td><strong>文件管理</strong></td><td>✅ Lake Catalog 管理 DataFile / DeleteFile</td><td>❌ Segment 文件由 Broker 自主管理</td></tr><tr><td><strong>Compaction</strong></td><td>✅ RewriteDataFile（合并小文件 + 清理 Delete）</td><td>❌ Log compaction（仅 key-based tombstone）</td></tr></table>
+
+<hr>
+
+<h2>6.8 关键差异总结</h2>
+
+<h3>Fluss Lake 层的设计哲学</h3>
+
+<pre><code class="language-">Fluss = Streaming Storage + Lakehouse Integration
+
+        实时写入 (ms 级)
+              ↓
+    ┌─────────────────────┐
+    │   Fluss Tablet      │  ← 本地 Log + KV，毫秒级读写
+    │  (oltp level)       │
+    └────────┬────────────┘
+             │ async tiering (minute-level)
+             ↓
+    ┌─────────────────────┐
+    │   Lakehouse         │  ← Parquet/Arrow，分钟级物化
+    │  (olap level)       │     支持批量查询 + 数据分析
+    └─────────────────────┘</code></pre>
+
+<p>这不是简单的"存储分层"，而是 <strong>"实时存储 + 数据湖"的融合架构</strong>——与 Kafka 的"消息队列 + 外部 ETL" 是完全不同的范式。</p>
+
+<h3>与 Kafka KIP-405 的区别</h3>
+
+<table><tr><th>维度</th><th>Fluss Lake</th><th>Kafka KIP-405 (2.8+)</th></tr><tr><td>------</td><td>-----------</td><td>---------------------</td></tr><tr><td><strong>目标</strong></td><td>写入数据湖（Iceberg/Paimon），支持分析查询</td><td>将日志卸载到 S3/HDFS，释放本地磁盘</td></tr><tr><td><strong>存储格式</strong></td><td>Parquet / Arrow / Paimon format</td><td>原始 <code>.log</code> segment（二进制相同）</td></tr><tr><td><strong>可查询性</strong></td><td>✅ 可通过 Trino/Spark/Flink 查询</td><td>❌ 仅内部读取，不可外部访问</td></tr><tr><td><strong>格式转换</strong></td><td>✅ 实时 Arrow → Parquet 转换</td><td>❌ 不转换（保持 Kafka Message 格式）</td></tr><tr><td><strong>Schema 管理</strong></td><td>✅ Lake Catalog 管理 schema evolution</td><td>❌ 无 schema</td></tr><tr><td><strong>Delete/Update</strong></td><td>✅ Delta/RowDelta（Iceberg）/ MergeTree（Paimon）</td><td>❌ 不支持</td></tr><tr><td><strong>Compaction</strong></td><td>✅ RewriteDataFile（合并小文件 + 清理 delete）</td><td>❌ 仅 log compaction（key-based）</td></tr></table>
+
+<hr>
+
+<blockquote><strong>下一篇（最终）</strong>：[[07-模块对应关系总表|07 - 模块对应关系总表]]</blockquote>
+</section>
+
+<section id="section-07">
+<h2>07 - 模块对应关系总表</h2>
+<h1>07 - 模块对应关系总表</h1>
+
+<h2>7.1 Maven 模块 → Kafka Sub-Project 映射</h2>
+
+<table><tr><th>Fluss Maven Module</th><th>Kafka 2.7.2 Sub-Project / Package</th><th>核心功能</th><th>实现方式</th></tr><tr><td>-------------------</td><td>----------------------------------</td><td>----------</td><td>----------</td></tr><tr><td><code>fluss-common</code></td><td><code>clients</code> (部分) + <code>connect:api</code> (部分)</td><td>公共数据结构、配置、Row 抽象、Arrow 工具、文件系统</td><td>自研 + Kafka 复用</td></tr><tr><td><code>fluss-server</code></td><td><code>core</code></td><td>服务器核心：Log/Replica/KV/Coordinator/Tablet 管理</td><td>高度复用 Kafka <code>core</code></td></tr><tr><td><code>fluss-client</code></td><td><code>clients</code> (Producer/Consumer/Admin)</td><td>Java 客户端：Writer/Scanner/Lookuper/Admin</td><td>参考 Kafka Client 架构自研</td></tr><tr><td><code>fluss-rpc</code></td><td><code>clients</code> (network 部分)</td><td>RPC 框架：Netty 传输、Protobuf 序列化、Gateway 代理</td><td>自研（Netty + Protobuf）</td></tr><tr><td><code>fluss-kafka</code></td><td>（无对应，新架构）</td><td>Kafka 协议兼容层</td><td>自研（当前骨架阶段）</td></tr><tr><td><code>fluss-flink*</code></td><td>（外部，在 Flink 项目中）</td><td>Flink Source/Sink/Catalog/Tiering</td><td>自研（符合 Flink Connector API）</td></tr><tr><td><code>fluss-lake-*</code></td><td>（无对应）</td><td>Lake Storage 插件：Iceberg/Paimon/Hudi/Lance</td><td>自研</td></tr><tr><td><code>fluss-protogen</code></td><td>（无对应）</td><td>Protobuf 代码生成</td><td>自研</td></tr><tr><td><code>fluss-filesystems</code></td><td>（外部插件）</td><td>文件系统插件（S3/HDFS/OSS）</td><td>自研</td></tr><tr><td><code>fluss-metrics</code></td><td><code>clients</code> (metrics)</td><td>指标收集与上报</td><td>参考 Kafka 自研</td></tr><tr><td><code>fluss-jmh</code></td><td><code>jmh-benchmarks</code></td><td>JMH 性能基准测试</td><td>同架构</td></tr><tr><td><code>fluss-dist</code></td><td><code>tools</code> (分布部分)</td><td>发行版打包</td><td>同架构</td></tr></table>
+
+<hr>
+
+<h2>7.2 核心类级完整对照表（100+ 类）</h2>
+
+<h3>7.2.1 Server - Log 子系统</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>LogManager</code></td><td><code>kafka.log.LogManager</code></td><td>日志管理入口</td></tr><tr><td><code>LogTablet</code></td><td><code>kafka.log.Log</code> + <code>kafka.cluster.Partition</code></td><td>统一 Log+Partition 视图</td></tr><tr><td><code>LocalLog</code></td><td><code>kafka.log.Log</code></td><td>本地日志操作</td></tr><tr><td><code>LogSegments</code></td><td><code>kafka.log.LogSegments</code></td><td>Segment 集合管理</td></tr><tr><td><code>LogSegment</code></td><td><code>kafka.log.LogSegment</code></td><td>单个 Segment</td></tr><tr><td><code>LogAppendInfo</code></td><td><code>kafka.log.LogAppendInfo</code></td><td>追加结果</td></tr><tr><td><code>OffsetCheckpointFile</code></td><td><code>kafka.server.checkpoints.OffsetCheckpointFile</code></td><td>Recovery Point</td></tr><tr><td><code>CleanerConfig</code></td><td><code>kafka.log.LogCleaner</code> (配置部分)</td><td>清理配置</td></tr><tr><td><code>WriterStateManager</code></td><td><code>kafka.log.ProducerStateManager</code></td><td>写入状态管理</td></tr><tr><td><code>TieredLog</code> (抽象)</td><td>（无，KIP-405后续引入）</td><td>分层日志抽象</td></tr><tr><td><code>RemoteLogManager</code></td><td>（无，KIP-405后续引入）</td><td>远程日志管理</td></tr><tr><td><code>RemoteLogSegment</code></td><td>（无）</td><td>远程日志 Segment</td></tr></table>
+
+<h3>7.2.2 Server - Replica 子系统</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>ReplicaManager</code></td><td><code>kafka.server.ReplicaManager</code></td><td>副本管理</td></tr><tr><td><code>Replica</code></td><td><code>kafka.cluster.Partition</code> (部分)</td><td>单个副本</td></tr><tr><td><code>FollowerReplica</code></td><td><code>kafka.cluster.Replica</code></td><td>Follower 副本</td></tr><tr><td><code>ReplicaFetcherManager</code></td><td><code>kafka.server.ReplicaFetcherManager</code></td><td>Fetcher 管理</td></tr><tr><td><code>ReplicaFetcherThread</code></td><td><code>kafka.server.AbstractFetcherThread</code></td><td>Follower 拉取</td></tr><tr><td><code>AdjustIsrManager</code></td><td><code>ReplicaManager.maybePropagateIsrChanges()</code></td><td>ISR 变更管理</td></tr></table>
+
+<h3>7.2.3 Server - KV 子系统（Fluss 独有）</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>KvManager</code></td><td>无</td><td>KV 存储管理入口</td></tr><tr><td><code>KvTablet</code></td><td>无</td><td>KV 存储单元</td></tr><tr><td><code>RocksDBKv</code></td><td>无</td><td>RocksDB 封装</td></tr><tr><td><code>RocksDBKvBuilder</code></td><td>无</td><td>RocksDB Builder</td></tr><tr><td><code>RocksDBResourceContainer</code></td><td>无</td><td>RocksDB 资源容器</td></tr><tr><td><code>RocksDBWriteBatchWrapper</code></td><td>无</td><td>RocksDB WriteBatch 封装</td></tr><tr><td><code>WalBuilder</code> (接口)</td><td>无</td><td>WAL 构建抽象</td></tr><tr><td><code>ArrowWalBuilder</code></td><td>无</td><td>Arrow 格式 WAL</td></tr><tr><td><code>CompactedWalBuilder</code></td><td>无</td><td>压缩格式 WAL</td></tr><tr><td><code>IndexWalBuilder</code></td><td>无</td><td>索引格式 WAL</td></tr><tr><td><code>RowMerger</code> (接口)</td><td>无</td><td>行合并策略</td></tr><tr><td><code>DefaultRowMerger</code></td><td>无</td><td>覆盖写入</td></tr><tr><td><code>FirstRowRowMerger</code></td><td>无</td><td>保留首行</td></tr><tr><td><code>VersionedRowMerger</code></td><td>无</td><td>版本号比较</td></tr><tr><td><code>AggregateRowMerger</code></td><td>无</td><td>聚合合并</td></tr><tr><td><code>PartialUpdater</code></td><td>无</td><td>部分列更新</td></tr><tr><td><code>AutoIncrementManager</code></td><td>无</td><td>自增 ID 管理</td></tr><tr><td><code>PeriodicSnapshotManager</code></td><td>无</td><td>定时快照</td></tr><tr><td><code>RocksIncrementalSnapshot</code></td><td>无</td><td>RocksDB 增量快照</td></tr><tr><td><code>KvSnapshotDataUploader</code></td><td>无</td><td>快照数据上传</td></tr><tr><td><code>KvSnapshotDataDownloader</code></td><td>无</td><td>快照数据下载</td></tr><tr><td><code>CompletedSnapshotStore</code></td><td>无</td><td>已提交快照存储</td></tr><tr><td><code>SharedKvFileRegistry</code></td><td>无</td><td>共享 KV 文件注册</td></tr><tr><td><code>KvPreWriteBuffer</code></td><td>无</td><td>KV 预写缓冲</td></tr></table>
+
+<h3>7.2.4 Server - Coordinator</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>CoordinatorServer</code></td><td><code>KafkaServer</code> (Controller 角色)</td><td>独立协调服务</td></tr><tr><td><code>CoordinatorService</code></td><td><code>KafkaController</code> + KafkaApis (coord 部分)</td><td>协调 RPC + 管理</td></tr><tr><td><code>CoordinatorEventProcessor</code></td><td><code>ControllerEventManager</code></td><td>事件处理引擎</td></tr><tr><td><code>EventManager</code></td><td>(ControllerEventManager 内部)</td><td>事件队列管理</td></tr><tr><td><code>MetadataManager</code></td><td>(KafkaController ZK 写)</td><td>元数据持久化</td></tr><tr><td><code>AutoPartitionManager</code></td><td>无</td><td>自动分区管理</td></tr><tr><td><code>LakeTableTieringManager</code></td><td>无</td><td>Lake 表分层管理</td></tr><tr><td><code>LakeCatalogDynamicLoader</code></td><td>无</td><td>Lake Catalog 动态加载</td></tr><tr><td><code>KvSnapshotLeaseManager</code></td><td>无</td><td>KV 快照租约管理</td></tr><tr><td><code>ProducerOffsetsManager</code></td><td><code>ProducerIdManager</code> (部分)</td><td>Producer 管理</td></tr><tr><td><code>RebalanceManager</code> / <code>GoalOptimizer</code></td><td><code>ReassignPartitionsCommand</code></td><td>重平衡（更工程化）</td></tr><tr><td><code>CoordinatorChannelManager</code></td><td><code>ControllerChannelManager</code></td><td>RPC 通道管理</td></tr><tr><td><code>CoordinatorContext</code></td><td><code>ControllerContext</code></td><td>协调上下文</td></tr><tr><td><code>CoordinatorRequestBatch</code></td><td><code>ControllerBrokerRequestBatch</code></td><td>批量请求</td></tr><tr><td><code>TabletServerChangeWatcher</code></td><td><code>BrokerChangeHandler</code></td><td>服务器变更监听</td></tr><tr><td><code>TableChangeWatcher</code></td><td>无（Kafka 无 Table 概念）</td><td>表变更监听</td></tr><tr><td><code>Authorizer</code></td><td><code>Authorizer</code> (KIP-11)</td><td>ACL 授权</td></tr><tr><td><code>DynamicConfigManager</code></td><td><code>DynamicConfigManager</code></td><td>动态配置</td></tr></table>
+
+<h3>7.2.5 RPC / Network</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>RpcServer</code> (interface)</td><td><code>SocketServer</code></td><td>服务端网络抽象</td></tr><tr><td><code>NettyServer</code></td><td><code>SocketServer</code> (impl)</td><td>服务端网络实现</td></tr><tr><td><code>NettyServerHandler</code></td><td><code>Processor</code></td><td>请求读取/响应写入</td></tr><tr><td><code>RpcClient</code> (interface)</td><td><code>NetworkClient</code></td><td>客户端网络抽象</td></tr><tr><td><code>NettyClient</code></td><td><code>NetworkClient</code> (impl)</td><td>客户端网络实现</td></tr><tr><td><code>ServerConnection</code></td><td><code>KafkaChannel</code></td><td>单连接抽象</td></tr><tr><td><code>RequestChannel</code></td><td><code>RequestChannel</code></td><td>请求队列</td></tr><tr><td><code>RequestProcessorPool</code></td><td><code>KafkaRequestHandlerPool</code></td><td>请求处理线程池</td></tr><tr><td><code>FlussRequestHandler</code></td><td><code>KafkaApis</code> (Fluss 协议)</td><td>原生协议处理器</td></tr><tr><td><code>KafkaRequestHandler</code></td><td><code>KafkaApis</code> (Kafka 协议)</td><td>Kafka 兼容协议处理器</td></tr><tr><td><code>GatewayClientProxy</code></td><td>无（Kafka 显式调用）</td><td>动态代理 RPC 客户端</td></tr><tr><td><code>ApiKeys</code></td><td><code>ApiKeys</code></td><td>API 枚举标识</td></tr><tr><td><code>ApiManager</code></td><td>无（直接 switch-case）</td><td>API 方法名→ID 映射</td></tr><tr><td><code>RetryableGatewayClientProxy</code></td><td>重试逻辑</td><td>带重试的网关代理</td></tr><tr><td><code>NetworkProtocolPlugin</code></td><td>Listener security protocol</td><td>多协议插件</td></tr><tr><td><code>FlussProtocolPlugin</code></td><td>PLAINTEXT/SASL</td><td>原生协议</td></tr><tr><td><code>KafkaProtocolPlugin</code></td><td>无</td><td>Kafka 兼容协议</td></tr></table>
+
+<h3>7.2.6 Client</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>FlussAdmin</code></td><td><code>KafkaAdminClient</code></td><td>管理客户端</td></tr><tr><td><code>FlussTable</code></td><td>无</td><td>统一表访问 API</td></tr><tr><td><code>AppendWriter</code></td><td><code>KafkaProducer</code></td><td>追加写入器</td></tr><tr><td><code>UpsertWriter</code></td><td>无</td><td>Upsert 写入器</td></tr><tr><td><code>TableWriter<T></code></td><td><code>KafkaProducer<byte[], T></code></td><td>类型化写入器</td></tr><tr><td><code>RecordAccumulator</code></td><td><code>RecordAccumulator</code></td><td>批次缓冲</td></tr><tr><td><code>Sender</code></td><td><code>Sender</code></td><td>后台发送线程</td></tr><tr><td><code>BucketAssigner</code></td><td><code>Partitioner</code></td><td>分区路由</td></tr><tr><td><code>IdempotenceManager</code></td><td><code>TransactionManager</code> (idempotent part)</td><td>幂等管理</td></tr><tr><td><code>WriterClient</code></td><td><code>KafkaProducer</code> (internal send)</td><td>写入客户端</td></tr><tr><td><code>LogScanner</code></td><td><code>Fetcher</code> (Consumer 内部)</td><td>日志扫描器</td></tr><tr><td><code>LogFetcher</code></td><td><code>Fetcher</code> (Consumer 内部)</td><td>拉取线程</td></tr><tr><td><code>KvBatchScanner</code></td><td>无</td><td>KV 批量扫描</td></tr><tr><td><code>Lookuper</code> / <code>LookupClient</code></td><td>无</td><td>点查客户端</td></tr><tr><td><code>PrimaryKeyLookuper</code></td><td>无</td><td>主键精确查找</td></tr><tr><td><code>PrefixKeyLookuper</code></td><td>无</td><td>前缀查找</td></tr><tr><td><code>RemoteLogDownloader</code></td><td>无 (2.7.2)</td><td>远程日志下载</td></tr><tr><td><code>FlussConnection</code></td><td><code>NetworkClient</code></td><td>连接管理</td></tr><tr><td><code>MetadataUpdater</code></td><td><code>ConsumerMetadata</code> / <code>ProducerMetadata</code></td><td>元数据更新</td></tr></table>
+
+<h3>7.2.7 Flink / Lake</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>FlinkCatalog</code></td><td>无 (无标准 Catalog)</td><td>Flink 目录</td></tr><tr><td><code>FlussSource</code></td><td><code>FlinkKafkaConsumer</code></td><td>Flink Source</td></tr><tr><td><code>FlussSink</code></td><td><code>FlinkKafkaProducer</code></td><td>Flink Sink</td></tr><tr><td><code>FlussLookupFunction</code></td><td>无 (需外部 JDBC/HBase)</td><td>Flink Lookup Join</td></tr><tr><td><code>TieringCommitOperator</code></td><td>无</td><td>Lake 快照提交</td></tr><tr><td><code>TieringSource</code></td><td>无</td><td>Lake Tiering Source</td></tr><tr><td><code>IcebergLakeStorage</code></td><td>无</td><td>Iceberg 存储</td></tr><tr><td><code>IcebergLakeCatalog</code></td><td>无</td><td>Iceberg Catalog</td></tr><tr><td><code>IcebergLakeWriter</code></td><td>无</td><td>Iceberg Writer</td></tr><tr><td><code>IcebergLakeCommitter</code></td><td>无</td><td>Iceberg Committer</td></tr><tr><td><code>PaimonLakeStorage</code></td><td>无</td><td>Paimon 存储</td></tr><tr><td><code>PaimonLakeCatalog</code></td><td>无</td><td>Paimon Catalog</td></tr><tr><td><code>HudiLakeStorage</code></td><td>无</td><td>Hudi 存储</td></tr><tr><td><code>LanceLakeStorage</code></td><td>无</td><td>Lance 存储</td></tr><tr><td><code>FlussLakeTiering</code></td><td>无</td><td>Lake Tiering 作业</td></tr></table>
+
+<h3>7.2.8 Kafka 兼容</h3>
+
+<table><tr><th>Fluss</th><th>Kafka 2.7.2</th><th>说明</th></tr><tr><td>-------</td><td>------------</td><td>------</td></tr><tr><td><code>KafkaProtocolPlugin</code></td><td>(无，只有一种协议)</td><td>协议插件</td></tr><tr><td><code>KafkaChannelInitializer</code></td><td><code>ChannelBuilder</code> (Kafka 协议)</td><td>连接初始化</td></tr><tr><td><code>KafkaCommandDecoder</code></td><td>(Selector 内嵌)</td><td>请求解码</td></tr><tr><td><code>KafkaRequest</code></td><td><code>RequestChannel.Request</code></td><td>请求封装</td></tr><tr><td><code>KafkaRequestHandler</code></td><td><code>KafkaApis</code> (Kafka 协议)</td><td>请求处理（骨架）</td></tr></table>
+
+<hr>
+
+<h2>7.3 Fluss 独有 vs Kafka 共有能力矩阵</h2>
+
+<table><tr><th>能力</th><th>Fluss</th><th>Kafka 2.7.2</th><th>Fluss 优势</th></tr><tr><td>------</td><td>-------</td><td>-------------</td><td>-----------</td></tr><tr><td><strong>Append Log</strong></td><td>✅</td><td>✅</td><td>持平</td></tr><tr><td><strong>ISR 复制</strong></td><td>✅</td><td>✅</td><td>持平</td></tr><tr><td><strong>分区</strong></td><td>✅</td><td>✅</td><td>持平</td></tr><tr><td><strong>Consumer 组</strong></td><td>❌ (用 Scanner 自管理)</td><td>✅</td><td>Kafka 更标准</td></tr><tr><td><strong>事务</strong></td><td>❌</td><td>✅</td><td>Kafka 更完善</td></tr><tr><td><strong>幂等写入</strong></td><td>✅ (简易)</td><td>✅ (Producer ID + Txn)</td><td>Kafka 更完善</td></tr><tr><td><strong>Connect 框架</strong></td><td>❌</td><td>✅</td><td>Kafka 生态更强</td></tr><tr><td><strong>Streams DSL</strong></td><td>❌ (用 Flink)</td><td>✅</td><td>各有生态</td></tr><tr><td><strong>Primary Key 表</strong></td><td>✅ (RocksDB)</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Upsert / Delete</strong></td><td>✅</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>KV 点查</strong></td><td>✅</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Merge Engine</strong></td><td>✅ (Aggregate/PartialUpdate/Versioned)</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Arrow 列式</strong></td><td>✅</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>列裁剪</strong></td><td>✅</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>谓词下推</strong></td><td>✅</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Schema 管理</strong></td><td>✅ (内建)</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Table 概念</strong></td><td>✅ (Database → Table)</td><td>❌ (仅 Topic)</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>自动分区</strong></td><td>✅</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>远程分层存储</strong></td><td>✅ (原生)</td><td>❌ (KIP-405 后)</td><td><strong>Fluss 原生</strong></td></tr><tr><td><strong>Lakehouse 集成</strong></td><td>✅ (Iceberg/Paimon/Hudi/Lance)</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Lake Tiering</strong></td><td>✅ (内建 Flink 作业)</td><td>❌</td><td><strong>Fluss 独有</strong></td></tr><tr><td><strong>Kafka 协议兼容</strong></td><td>⚠️ (骨架阶段)</td><td>✅ (原生)</td><td>未来可期</td></tr><tr><td><strong>存算分离</strong></td><td>✅ (TabletServer 独立)</td><td>❌ (Broker 存算耦合)</td><td><strong>Fluss 更灵活</strong></td></tr><tr><td><strong>ZK 依赖</strong></td><td>✅</td><td>✅</td><td>持平</td></tr><tr><td><strong>KRaft 去 ZK</strong></td><td>❌</td><td>✅ (KIP-500 实验)</td><td>Kafka 领先</td></tr></table>
+
+<hr>
+
+<h2>7.4 代码复用程度统计</h2>
+
+<table><tr><th>复用类型</th><th>文件数（估计）</th><th>示例</th></tr><tr><td>----------</td><td>--------------</td><td>------</td></tr><tr><td><strong>直接复用</strong>（标注 "based on Kafka"）</td><td>~15-20</td><td><code>LocalLog</code>, <code>LogTablet</code>, <code>LogManager</code>, <code>ReplicaFetcherThread</code>, <code>DelayedOperation</code>, <code>OffsetCheckpointFile</code></td></tr><tr><td><strong>参考实现</strong>（架构相似但重写）</td><td>~30-40</td><td><code>ReplicaManager</code>, <code>Sender</code>, <code>RecordAccumulator</code>, <code>BucketAssigner</code></td></tr><tr><td><strong>完全自研</strong></td><td>~200+</td><td>整个 KV 子系统、RPC 框架、客户端 API、Lake Storage、Flink 集成</td></tr></table>
+
+<p><strong>Fluss 总体：~70% 自研 + ~30% Kafka 复用/参考</strong></p>
+
+<p>核心复用集中在 <strong>Log Segment 管理</strong> 和 <strong>Replica 复制基础框架</strong>，差异化最大的 <strong>KV 存储、Lake 集成、Arrow 列式、客户端 API</strong> 全部为自研。</p>
+
+<hr>
+
+<h2>7.5 架构对比总结</h2>
+
+<pre><code class="language-">               Kafka 2.7.2                Fluss
+               ──────────                ─────
+数据模型:      Topic (key+value bytes)    Table (typed schema)
+存储引擎:      本地 Log Segment           本地 Log + KV (RocksDB) + Remote Lake
+记录格式:      Kafka Record (行式)        Arrow (列式, 3种 LogFormat)
+API:          Producer/Consumer          Writer/Scanner/Lookuper
+协调:         Controller (内嵌)           CoordinatorServer (独立)
+计算:         Connect + Streams          Flink/Spark Source+Sink + Catalog
+协议:         单一 Kafka 协议             Fluss 协议 + Kafka 协议(骨架)
+湖仓:         无                         Iceberg/Paimon/Hudi/Lance
+分层存储:     无 (KIP-405后引入)          原生 RemoteLog + Lake Tiering</code></pre>
+
+<hr>
+
+<blockquote><strong>分析完成</strong>。本文档基于 Fluss trunk 源码 (depth 1 clone) 与 Kafka 2.7.2 源码 (detached HEAD at 37a1cc3) 的逐文件对比分析。所有结论均有对应源码文件作证。</blockquote>
+<blockquote></blockquote>
+<blockquote>返回首页：[[README|Fluss 源码分析总览]]</blockquote>
+</section>
+
+<div class="footer">
+  <p>CHANG_AI_TEAM · 2026-06-10 · 基于源码分析</p>
+  <p>Fluss trunk · Kafka 2.7.2 (detached HEAD @ 37a1cc3)</p>
+  <p><a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team">GitHub Pages</a></p>
+</div>
+
+</div>
+</body>
+</html>
