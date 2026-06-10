@@ -46,6 +46,32 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
 </style>
 </head>
 <body>
+<!-- 顶部导航 -->
+<nav class="page-nav">
+  <a href="../index.html" class="nav-home">🏠 技术调研首页</a>
+</nav>
+<style>
+.page-nav {
+  background: var(--card, #1e293b);
+  border-bottom: 1px solid var(--border, #334155);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.page-nav .nav-home {
+  color: var(--accent1, #38bdf8);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.page-nav .nav-home:hover { background: rgba(56,189,248,0.1); }
+</style>
+
 
 <div class="header">
   <h1>存储/数据库顶会趋势洞察</h1>
