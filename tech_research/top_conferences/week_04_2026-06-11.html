@@ -89,7 +89,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">ART That Lasts: Persistent Multiversion Adaptive Radix Trees with Fast Atomic Range Queries</div>
     <div class="authors">Mohammad Khalaji, Trevor Brown, Khuzaima Daudjee — University of Waterloo</div>
-    <div class="abstract">持久化多版本自适应基数树，支持快速原子范围查询。为 PMem/NVM 原生数据结构提供新范式。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>持久内存（PMem）的商用化使得在持久介质上直接构建索引成为可能，但现有持久化索引要么不支持多版本（MVCC），要么无法高效支持原子范围查询——两者是事务型数据库的刚需。<strong>创新：</strong>提出持久化多版本 ART（Adaptive Radix Tree），将 MVCC 可见性信息嵌入索引节点，通过 epoch-based 内存管理实现无锁并发访问，同时支持快速原子范围扫描。为 PMem/NVM 原生数据结构提供了可直接用于生产级 OLTP 引擎的新范式。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-s">持久化索引</span><span class="tag tag-s">ART</span></div>
   </div>
@@ -97,7 +97,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Concurrent Path-Copying Update to Tree Structures</div>
     <div class="authors">Guanhao Hou, Dechuang Chen 等 — CUHK; HKUST</div>
-    <div class="abstract">树结构并发路径拷贝更新算法，在多核场景下实现无锁持久化。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>Path-Copying 是实现持久化树结构的经典技术（写时复制路径上的所有节点），但其在高并发多核场景下因写放大和锁争用严重退化。现有并发控制方案要么牺牲持久性语义，要么引入过高的同步开销。<strong>创新：</strong>提出基于细粒度引用计数和 epoch 回收的并发路径拷贝算法，允许并发写操作共享路径拷贝的中间结果，通过 RCU-like 机制延迟回收旧版本节点，在多核场景下实现接近无锁的吞吐量，同时保证严格持久化语义。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-s">并发索引</span><span class="tag tag-s">Path-Copying</span></div>
   </div>
@@ -105,7 +105,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Bw-Graph: An Efficient Graph Storage System Harmonizing Topology-Aware Tree with Paged CSR</div>
     <div class="authors">Songyao Wang, Chaokun Wang 等 — Tsinghua University</div>
-    <div class="abstract">融合拓扑感知树与分页 CSR 的图存储系统，在遍历性能和随机访问间取得平衡。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>图存储系统长期面临"遍历 vs. 随机访问"的两难：CSR（压缩稀疏行）格式在顺序遍历（如 BFS）时性能极佳但随机访问（如点查询邻居）极差，而邻接表格式的权衡恰好相反。实际图工作负载往往两者兼有，单一格式无法兼顾。<strong>创新：</strong>提出 Bw-Graph——融合拓扑感知树（Topology-Aware Tree）与分页 CSR 的混合图存储引擎。利用图的社区结构将热点子图映射到树索引，冷数据使用压缩 CSR 分页存储，通过自适应路由在两种格式间透明切换，在遍历和随机访问两类工作负载上均取得接近最优的性能。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-s">图存储</span><span class="tag tag-s">数据布局</span></div>
   </div>
@@ -113,7 +113,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Dynamic Flat Filter: A Unified Framework for Scalable Fingerprint-Based Filters</div>
     <div class="authors">Haoyu Du, Yuchen Ji 等 — 苏州大学</div>
-    <div class="abstract">可扩展指纹过滤器统一框架，Bloom Filter 替代方案，动态调整假阳性率。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>LSM-Tree 和 KV 存储广泛依赖 Bloom Filter 减少不必要的磁盘 I/O，但传统 Bloom Filter 面临三个痛点：固定假阳性率无法适应动态工作负载、内存占用随数据量线性增长、删除操作需借助 Counting Bloom Filter 导致空间翻倍。<strong>创新：</strong>提出 Dynamic Flat Filter——统一指纹过滤器框架，支持动态调整假阳性率而无需重建；采用 flat 位图布局消除指针开销，空间效率超越 XOR Filter；内置可扩展的删除语义（无需 counting），特别适合 LSM-Tree 的 compaction 场景：每层可使用不同精度的过滤器，动态平衡内存与 I/O。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-s">过滤器</span><span class="tag tag-s">LSM-Tree</span></div>
   </div>
@@ -121,7 +121,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">PartitionKV: Redesigning LSM-tree KV stores on NVMs with Adaptive Partitioning</div>
     <div class="authors">Xingye Huang 等 — Xidian University; NWPU</div>
-    <div class="abstract">面向 NVM 的 LSM-Tree 重新设计，自适应分区减少写停顿和写放大。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>新型非易失性内存（NVM，如 Intel Optane）拥有接近 DRAM 的延迟和持久性，理论上可消除 LSM-Tree 的写放大问题——但直接将传统 LSM 架构移植到 NVM 上会导致写停顿不减反增，因为 NVM 的读写不对称性和有限耐久度使 compaction 代价转移而非消除。<strong>创新：</strong>提出 PartitionKV——面向 NVM 的自适应分区 LSM-Tree 架构：根据数据冷热和工作负载动态将 KV 空间划分为多个独立分区，每个分区采用不同的 compaction 策略（激进/惰性/禁止）；热分区保留在 NVM 上以内存级延迟写入，冷分区下沉到 SSD；通过分区级别的写放大与读延迟联合优化模型，自适应调节分区边界。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/1" target="_blank">📄 PACMMOD Vol.4 No.1 (R3)</a></div>
     <div class="tags"><span class="tag tag-s">LSM-Tree</span><span class="tag tag-s">NVM</span></div>
   </div>
@@ -129,7 +129,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Efficient Index Layout and Search Strategy for Large-scale High-dimensional Vector Similarity Search</div>
     <div class="authors">Jingyu Chen 等 — 南科大; Huawei</div>
-    <div class="abstract">百亿级向量相似搜索的索引布局与搜索策略优化，面向工业级向量数据库。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>百亿级高维向量相似搜索（如 1024 维 Embedding）面临两大瓶颈：第一，图索引（HNSW/NSG）的内存占用随数据量超线性增长，单机无法容纳；第二，分布式分片破坏图拓扑导致召回率下降。<strong>创新：</strong>提出两级索引布局：全局层用轻量聚类（如 IVF）做粗粒度分区，局部层在每个分区内构建高质量图索引；引入基于查询感知的路由策略，利用查询向量的分布特性只激活 2-3 个分区而非全量扫描；在十亿级 1024 维 SIFT1B/Deep1B 基准上，以 40% 的内存开销达到 99%+ 召回率（Recall@10）。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-s">向量索引</span><span class="tag tag-s">ANN</span></div>
   </div>
@@ -139,7 +139,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">DMTree: Towards Efficient Tree Indexing on Disaggregated Memory via Compute-side Collaborative Design</div>
     <div class="authors">Guoli Wei, Yongkun Li 等 — USTC</div>
-    <div class="abstract">分离式内存架构下的树索引优化，通过计算端协同设计重新平衡 I/O 路径。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>分离式内存（Disaggregated Memory）架构将计算与内存物理解耦，通过 RDMA 网络访问远端内存。传统树索引（B+Tree/ART）在这种架构下遭遇灾难性性能下降——每次指针追踪都可能跨越网络，延迟从纳秒级变为微秒级。<strong>创新：</strong>提出 DMTree——计算端与内存端协同设计的树索引：在计算端缓存内部节点并预取子树，在内存端以"胖节点"形式存储连续键范围以减少网络往返；利用 RDMA one-sided read 批量拉取节点，配合计算端流水线预取隐藏网络延迟，将分离式内存下的树操作延迟降低 3-5 倍。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/wei" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-s">分离式内存</span><span class="tag tag-s">树索引</span></div>
   </div>
@@ -147,7 +147,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">"Range as a Key" is the Key! Fast and Compact Cloud Block Store Index with RASK</div>
     <div class="authors">Haoru Zhao, Mingkai Dong 等 — SJTU</div>
-    <div class="abstract">云块存储索引新思路：用逻辑块地址范围作为索引 key，大幅减少元数据。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>云块存储（Cloud Block Store）需要维护从逻辑块地址（LBA）到物理位置的映射索引。传统方案为每个块（如 4KB）单独建立索引项，当存储规模达到 PB 级时，索引元数据本身可能占用数百 GB 内存，成为系统瓶颈。<strong>创新：</strong>提出 RASK（Range as Key）索引：利用块存储 I/O 的空间局部性，将连续 LBA 范围映射为单个索引条目，通过自适应范围合并算法在索引粒度和查找精度间动态平衡。核心洞察是"Range as a Key is the Key"——用范围而非单个地址作为索引的基本单位，在真实云工作负载下将元数据量减少一个数量级，同时保持亚毫秒级查找延迟。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zhao" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-s">块存储索引</span><span class="tag tag-s">RASK</span></div>
   </div>
@@ -155,7 +155,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Holistic and Automated Task Scheduling for Distributed LSM-tree-based Storage</div>
     <div class="authors">Yuanming Ren, Siyuan Sheng 等 — USTC; CUHK</div>
-    <div class="abstract">分布式 LSM-Tree 的全局自动化任务调度，解决 compaction/flush 多副本互扰。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>分布式 LSM-Tree 系统（如 HBase/Cassandra）中，每个副本独立执行 compaction 和 flush 操作。多副本间的 compaction 风暴会导致 I/O 争抢和缓存失效——一个副本的 compaction 可能使其他副本的热数据被驱逐出页缓存——但现有方案缺乏副本间的全局协调机制。<strong>创新：</strong>提出全局自动化任务调度框架：建立跨副本的 compaction 开销模型（考虑 LSM 层级、I/O 带宽、CPU 配额），通过约束求解器生成全局最优的 compaction 调度计划（错开各副本的 compaction 窗口、在副本间迁移 compaction 负载），将多副本互扰降低 60% 以上，尾延迟改善 2-3 倍。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/ren" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-s">LSM-Tree</span><span class="tag tag-s">调度</span></div>
   </div>
@@ -163,7 +163,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">DOGI: Data Placement with Oracle-Guided Insights for Log-Structured Systems</div>
     <div class="authors">(FAST 2026)</div>
-    <div class="abstract">日志结构系统数据放置策略，Oracle 引导优化冷热分离和空间放大。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>日志结构存储（LSM-Tree/Log-Structured FS）中，数据放置策略直接影响垃圾回收（GC）效率和空间放大。现有策略通常基于简单的启发式规则（如按写入时间排序），缺乏对数据生命周期和访问模式的全局视角，导致冷热数据混杂、GC 效率低下。<strong>创新：</strong>提出 DOGI（Data Placement with Oracle-Guided Insights）——用"Oracle"（离线分析的历史访问 trace）训练数据热度预测模型，在线指导数据放置。核心思想是在写入路径上就将数据按预测的生命周期分组放置到不同的 segment，使 GC 时仅需清理"已冷却"的 segment，大幅降低写放大和 GC 停顿。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-s">日志结构</span><span class="tag tag-s">数据放置</span></div>
   </div>
@@ -173,7 +173,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Raster is Faster: Rethinking Ray Tracing in Database Indexing</div>
     <div class="authors">Harish Doraiswamy, Jayant R. Haritsa — IISc Bangalore</div>
-    <div class="abstract">光栅化替代光线追踪加速 GPU 数据库索引，图形学方法迁移到 DB 索引。</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>动机：</strong>GPU 数据库索引（如范围查询、空间连接）需要判断大量数据点是否落在查询范围内，传统方法使用光线追踪（Ray Tracing）逐点测试，在 GPU 上虽然并行但每点都需要独立的几何计算，效率受限。<strong>创新：</strong>提出用光栅化（Rasterization）替代光线追踪来做数据库索引操作——将查询范围渲染为 GPU 光栅化管线中的多边形，利用硬件光栅化器批量判定数据点的 inclusion（点在多边形内），一次性处理大量点。这是一种"用 GPU 图形管线做数据库运算"的创新思路，将数据库索引问题转化为 GPU 原生优化的图形问题。</div>
     <div class="links"><a href="https://www.cidrdb.org/papers/2026/p18-doraiswamy.pdf" target="_blank">📄 PDF</a></div>
     <div class="tags"><span class="tag tag-s">GPU 索引</span></div>
   </div>
@@ -181,7 +181,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Flexible I/O for Database Management Systems with xNVMe</div>
     <div class="authors">Emil Houlborg, Pınar Tözün — ITU Copenhagen</div>
-    <div class="abstract">xNVMe 统一 NVMe 硬件抽象层，透明选择 kernel-bypass 或标准内核路径。</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>动机：</strong>现代 NVMe SSD 提供两种 I/O 路径：标准内核路径（libaio/io_uring，兼容性好但延迟较高）和 kernel-bypass 路径（SPDK，延迟极低但牺牲可移植性和内核集成）。数据库系统需要在两种路径间选择，但现有方案要求编译时或部署时绑定，无法在运行时根据工作负载动态切换。<strong>创新：</strong>提出基于 xNVMe 的灵活 I/O 框架——xNVMe 提供统一的 NVMe 硬件抽象层，封装 SPDK、libaio、io_uring 等后端，允许数据库系统在运行时透明切换 I/O 路径（联机事务用 SPDK 追求低延迟，后台 compaction 走 io_uring 利用内核缓存），无需修改应用逻辑。首次在数据库系统中实现了 I/O 路径与查询执行引擎的解耦。</div>
     <div class="links"><a href="https://www.cidrdb.org/papers/2026/p6-houlborg.pdf" target="_blank">📄 PDF</a></div>
     <div class="tags"><span class="tag tag-s">NVMe</span><span class="tag tag-s">存储 I/O</span></div>
   </div>
@@ -196,7 +196,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Scalable Leader Leases For Multi Consensus Groups in CockroachDB</div>
     <div class="authors">Ibrahim Kettaneh, Tsvetomira Radeva, Rebecca Taft 等 — Cockroach Labs</div>
-    <div class="abstract">CockroachDB 多 Raft 组 (数十万级) 的 Leader Lease 规模化方案，降低控制面开销。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>CockroachDB 的每个 Range（数据分片）对应一个 Raft 组，生产集群可达数十万个 Raft 组。每个组的 Leader 需要定期续约 Lease 以保证线性一致性读——数十万条 Lease 心跳消息导致控制面资源消耗（CPU/网络）占比超过 30%，且 Lease 到期后的重选举造成读延迟毛刺。<strong>创新：</strong>提出可扩展的多组 Leader Lease 机制：将数十万个 Raft 组的 Lease 管理拆分为分层心跳架构——同一节点上的 Range 共享一个 node-level lease，同一 store 上批量续约；引入预测性 Lease 延期（基于历史心跳间隔的统计模型提前延期，避免到期风暴），将 Lease 管理开销降低 80%，读延迟 P99 改善 5 倍。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-c">Raft</span><span class="tag tag-c">Lease</span><span class="tag tag-i">工业论文</span></div>
   </div>
@@ -212,7 +212,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Epoch-based Optimistic Concurrency Control in Geo-replicated Databases</div>
     <div class="authors">Yunhao Mao 等 — U Toronto; Keio University</div>
-    <div class="abstract">基于 epoch 的乐观并发控制，在 100ms+ 跨洲延迟下保证快照隔离并提升吞吐。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>地理复制（Geo-replicated）数据库的跨洲延迟通常在 100ms+，传统乐观并发控制（OCC）在这种场景下事务中止率极高——因为验证阶段需要跨洲确认，期间冲突窗口被极大拉长。悲观方案则需要跨洲加锁，吞吐量降到不可接受的水平。<strong>创新：</strong>提出基于 epoch 的 OCC 协议：将时间划分为固定长度的 epoch（如 100ms），同一 epoch 内的读写操作在本地执行无需跨洲协调，epoch 边界进行轻量级全局验证；利用 epoch 的确定性和可预测性，将冲突窗口从"跨洲 RTT"压缩到"epoch 边界验证延迟"，在跨洲部署中保证快照隔离的同时吞吐量提升 3-5 倍。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-c">Geo-Replication</span><span class="tag tag-c">OCC</span></div>
   </div>
@@ -220,7 +220,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Reducing Tail Latency in Storage-Disaggregated Database Systems</div>
     <div class="authors">Zhengrui Pang, Jiannan Wang — Purdue University</div>
-    <div class="abstract">存储分离架构下的尾延迟优化。从请求调度、预取和副本选择三个维度切入。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>存储分离（Storage-Disaggregated）架构将计算与存储解耦，计算节点通过网络访问共享存储池。虽然弹性扩展能力显著提升，但网络延迟的抖动（特别是尾延迟 P99/P999）被放大——一次查询可能涉及数十次远端 I/O，任何一次网络抖动都会拖慢整体响应。<strong>创新：</strong>提出三维度尾延迟优化框架：(1) 请求调度——基于网络延迟预测的 hedge-request 机制，在检测到慢 I/O 时自动向其他副本发送冗余请求；(2) 智能预取——利用查询执行计划的 DAG 结构预先下发 I/O；(3) 副本选择——基于实时拥塞感知的副本负载均衡，将尾延迟 P99 降低 2-5 倍。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-c">尾延迟</span><span class="tag tag-c">分离式架构</span></div>
   </div>
@@ -230,7 +230,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Rosé: Flexible Replication With Strong Semantics For Partitioned Databases</div>
     <div class="authors">Ioannis Zarkadas, Philip A. Bernstein, Asaf Cidon — Columbia; Microsoft Research</div>
-    <div class="abstract">每个分区独立选择复制策略的"one-size-fits-one"复制协议。</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>动机：</strong>分区数据库通常对所有分区采用统一的复制策略（如全部 Raft 或全部 Paxos），但不同分区的访问模式（读写比、热点程度、跨区分布需求）差异巨大——为高冲突分区设计的强一致性策略对只读分区造成不必要的延迟开销，为低延迟分区设计的弱一致性策略无法满足金融分区的正确性要求。<strong>创新：</strong>提出 Rosé——允许每个分区独立选择复制协议（Raft/Chain-Replication/Primary-Backup/Quorum）的"one-size-fits-one"框架：通过形式化证明保证跨分区事务的正确性（可串行化）不受各分区协议异构性的影响；提供协议自动推荐器，根据分区访问特征和延迟 SLO 自动选择最优复制策略，为强语义与灵活性的统一提供了理论保证和工程实现。</div>
     <div class="links"><a href="https://www.cidrdb.org/papers/2026/p8-zarkadas.pdf" target="_blank">📄 PDF</a></div>
     <div class="tags"><span class="tag tag-c">复制协议</span><span class="tag tag-c">分区 DB</span></div>
   </div>
@@ -238,7 +238,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Event Horizon: Asymmetric Dependencies for Fast Geo-Distributed Operations</div>
     <div class="authors">Jonathan Arns 等 — TU Delft</div>
-    <div class="abstract">非对称依赖模型，利用单向依赖降低跨地域协调延迟。</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>动机：</strong>跨地域分布式操作（如 Geo-Distributed Transactions）的传统模型基于对称依赖——所有参与者必须双向确认才能推进，导致协调延迟等于最慢参与者的 RTT 之和。实际上，许多操作只需要单向依赖（如日志追加只需下游确认收到，不需要下游等待上游），但现有协议无法表达和利用这种非对称性。<strong>创新：</strong>提出 Event Horizon——基于非对称依赖的分布式协调模型：形式化定义了操作的依赖图（Dependency Graph），区分"must-happen-before"（强制双向同步）和"should-happen-before"（仅需单向通知）两种依赖边；利用非对称依赖减少跨地域同步往返次数，在保证因果一致性的前提下将 Geo-Distributed 操作延迟降低 40-60%。</div>
     <div class="links"><a href="https://www.cidrdb.org/papers/2026/p20-arns.pdf" target="_blank">📄 PDF</a></div>
     <div class="tags"><span class="tag tag-c">非对称依赖</span><span class="tag tag-c">低延迟</span></div>
   </div>
@@ -253,7 +253,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Aurora PostgreSQL Limitless Database</div>
     <div class="authors">Dima Arkhangelskiy 等 20 人 — AWS</div>
-    <div class="abstract">Aurora 从单写多读到多写架构的飞跃，保持 PG 兼容性的分布式 OLTP。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>Aurora PostgreSQL 的单写多读架构在高并发写入场景下（如多租户 SaaS）存在单点瓶颈——单个写节点承担所有写入和锁管理，限制了横向扩展能力。要将 Aurora 扩展为真正的多写分布式数据库，必须在保持 PostgreSQL 完全兼容性（SQL 语义、扩展生态、存储格式）的前提下解决分布式事务、全局锁管理、缓存一致性三大难题。<strong>创新：</strong>Aurora Limitless Database 引入三项核心技术：(1) 基于全局逻辑时钟（Global Logical Clock）的分布式 MVCC，消除中心化事务管理器；(2) 分布式共享存储层的"迷你页"协议，将页级冲突转化为行级冲突；(3) 基于 Causal Broadcast 的写集同步，实现多写节点的缓存一致性。首次在完全兼容 PostgreSQL 的前提下实现多主写入。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">AWS Aurora</span><span class="tag tag-i">分布式 OLTP</span></div>
   </div>
@@ -261,7 +261,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">ByteHouse: ByteDance's Cloud-Native Data Warehouse</div>
     <div class="authors">Yuxing Han 等 — ByteDance; SJTU; Tsinghua</div>
-    <div class="abstract">字节跳动云原生实时数仓，支持多模态数据实时分析。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>字节跳动生产环境中的数据分析面临三大挑战：(1) 多模态数据（结构化表、半结构化 JSON、非结构化文本/向量）需要统一分析引擎，但现有方案 I/O 效率低；(2) 查询优化器无法针对多模态访问模式做联合优化；(3) 存算分离架构下丧失数据局部性导致性能退化。<strong>创新：</strong>ByteHouse 提出三层创新：(1) 统一表引擎提供两级逻辑抽象和物理一致布局，SSD 集群级缓存（CrossCache）支持跨计算节点共享缓存，虚拟文件系统（NexusFS）实现计算节点本地高效访问；(2) 计算层支持批/流/增量三种执行模式，针对混合查询的运行时过滤（如分层向量索引过滤）；(3) 控制层利用历史执行 Trace 和 AI 辅助计划选择的查询优化器。内部和标准基准测试均显著优于现有系统。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">ByteDance</span><span class="tag tag-i">实时数仓</span></div>
   </div>
@@ -269,7 +269,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">TDSQL-Boundless: Distributed Database for Heterogeneous Multi-Table Workloads</div>
     <div class="authors">Yuxing Chen 等 — Tencent; Renmin Univ</div>
-    <div class="abstract">腾讯 TDSQL Boundless：多表 JOIN 场景下的数据路由和分布式查询优化。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>分布式数据库在处理多表 JOIN 查询时面临核心困境：如果参与 JOIN 的表分布在不同节点上，跨节点数据 Shuffle 成为性能瓶颈（网络传输可能占总延迟 70%+）；传统方案要么要求所有表使用相同的分区键（co-location），限制了数据建模灵活性；要么接受高昂的网络开销。<strong>创新：</strong>TDSQL-Boundless 提出异构多表工作负载的自适应路由和查询优化：(1) 多表亲和度分析——基于历史查询日志建模表间 JOIN 频率和数据量，生成渐进式 co-location 迁移计划；(2) 混合 JOIN 执行策略——根据数据分布动态选择 Broadcast JOIN（小表广播）、Shuffle JOIN（同键重分布）或 Partial Co-location JOIN（仅迁移热点分片）；(3) 在线数据迁移与查询执行流水线化，不阻塞业务。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">TDSQL</span><span class="tag tag-i">分布式 DB</span></div>
   </div>
@@ -277,7 +277,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">CoddSpeed: Hardware Accelerated Query Processing in Microsoft Fabric</div>
     <div class="authors">Matteo Interlandi 等 50+ 人 — Microsoft</div>
-    <div class="abstract">以 Codd 命名的 FPGA 加速查询引擎，代表"异构硬件透明加速"的工业实践。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>Microsoft Fabric 需要处理 PB 级数据上的交互式分析查询，纯 CPU 方案在扫描、过滤、聚合等操作上遇到吞吐瓶颈，GPU 方案则面临 PCIe 带宽限制和编程模型差异。FPGA 因其流水线并行性和低功耗/带宽比，理论上适合数据库原语加速，但此前缺乏在完整查询引擎中的生产级工程实践。<strong>创新：</strong>CoddSpeed（以关系模型之父 Ted Codd 命名）是 Microsoft Fabric 的 FPGA 加速查询引擎：(1) 将扫描、过滤、哈希、聚合等原语卸载到 FPGA 的流水线数据通路，数据"流经"FPGA 而非"进出"FPGA；(2) 通过编译时查询计划分析自动决定哪些算子卸载到 FPGA、哪些保留在 CPU；(3) 50+ 人规模的跨团队工程实践，涵盖 FPGA 固件、驱动、查询编译器、与 Fabric 分布式执行引擎的集成。代表异构硬件透明加速从学术原型走向工业部署的里程碑。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">硬件加速</span><span class="tag tag-i">MS Fabric</span></div>
   </div>
@@ -285,7 +285,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">TokaDB: A Unified Storage Engine for Training-Serving Data Management</div>
     <div class="authors">Peng Fang 等 — HUST; ByteDance</div>
-    <div class="abstract">推荐系统训练-服务统一存储引擎，解决训练/推理两侧特征不一致问题。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>推荐系统（如字节跳动的信息流/广告推荐）存在训练和服务两侧的存储鸿沟：训练侧需要高吞吐批量读取历史特征进行离线训练（TB 级/day），服务侧需要低延迟实时特征查询（< 1ms）。当前方案用两套独立存储（离线用 HDFS/数据湖，在线用 KV Store），导致训练-推理特征不一致（Training-Serving Skew）——同一特征在两套系统中的值可能因时序、精度、采样差异而不同，直接损害模型效果。<strong>创新：</strong>TokaDB 是统一的训练-服务存储引擎：(1) 双模存储引擎——底层的 LSM-Tree 同时支持批量扫描（训练）和点查询（推理），通过差异化的 compaction 策略和缓存分配实现两种负载的 SLO 隔离；(2) 特征版本管理——所有特征写入被赋予全局时间戳和版本链，训练者可指定时间点回溯读取，消除特征不一致；(3) 增量快照——支持训练侧读取一致性的增量特征快照，无需全量拷贝。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">推荐系统</span><span class="tag tag-i">统一存储</span></div>
   </div>
@@ -293,7 +293,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">ByteGraph-Dione: Adaptive Dual-Format Graph Engine</div>
     <div class="authors">Chao Chen 等 14 人 — ByteDance</div>
-    <div class="abstract">自适应双格式图引擎，根据访问热度在 CSR/邻接表间动态切换+事务支持。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>字节跳动的社交图和推荐图需要同时支持两类访问模式：高吞吐图遍历（如粉丝关系 BFS，适合 CSR 压缩格式的连续内存访问）和低延迟随机更新（如新增关注/点赞，适合邻接表的动态插入）。传统图系统要么写时优化（牺牲读性能）要么读时优化（牺牲写性能），无法在动态图上同时满足两者。<strong>创新：</strong>ByteGraph-Dione 提出自适应双格式图引擎：(1) 每个图分区同时维护 CSR 和邻接表两种物理表示，通过热度追踪器（基于访问频率和 recency 的衰减模型）动态决定活跃分区使用哪种格式；(2) 格式切换采用增量转换（delta conversion）——仅转换变化的部分边而非整个分区；(3) 在双格式上实现事务性图更新（ACID），通过乐观并发控制协调格式切换期间的读写冲突。生产环境验证可同时达到 CSR 级读性能和邻接表级写性能。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">图引擎</span><span class="tag tag-i">自适应格式</span></div>
   </div>
@@ -301,7 +301,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">LindormVector: Distributed Vector Engine on Multi-Model NoSQL Database</div>
     <div class="authors">Yan Wang 等 — Alibaba Cloud; USTC; Rutgers</div>
-    <div class="abstract">阿里云 Lindorm 分布式向量引擎，在多模 NoSQL 上增加向量搜索能力。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>企业应用中向量搜索（如 RAG、图片检索）需要与结构化数据和全文检索混合查询（如"查找与这张图片相似且价格 < 100 的商品"），但独立向量数据库无法高效处理这种混合查询——要么将数据分别存储在向量 DB 和关系 DB 中做应用层 Join，要么接受向量 DB 中羸弱的结构化查询能力。<strong>创新：</strong>LindormVector 在 Lindorm 多模 NoSQL 引擎中原生集成向量搜索：(1) 在现有 LSM-Tree 存储引擎上新增向量索引（IVF+PQ+HNSW 可插拔），向量数据与结构化/时序/全文数据共享同一存储和事务；(2) 提出混合查询优化器——同时利用标量过滤的选择性和向量距离的剪枝能力，通过代价模型决定先过滤还是先搜索；(3) 分布式向量索引分区策略与结构化数据的分区策略协同，避免跨分区数据移动。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">向量引擎</span><span class="tag tag-i">多模 DB</span></div>
   </div>
@@ -309,7 +309,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Scalable and Resilient Storage Tier for Azure SQL Hyperscale</div>
     <div class="authors">Alejandro Hernandez Saenz 等 — Microsoft</div>
-    <div class="abstract">Azure SQL Hyperscale 的可扩展弹性存储层设计。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>Azure SQL Hyperscale 的存储层需要支持数百 TB 的数据库和数千个并发连接，同时保证高可用（跨可用区容灾）和弹性伸缩（秒级扩缩容）。传统分库分表方案在运维复杂度、跨分片查询和全局一致性上面临巨大挑战，而共享存储（类似 Aurora）在超大规模下页服务器成为瓶颈。<strong>创新：</strong>提出可扩展弹性存储层架构：(1) 分层页服务器（Page Server）——将页服务器的存储和日志服务拆分为日志服务层（低延迟写路径）和页服务层（高吞吐读路径），独立扩展；(2) 基于快照隔离的读扩展——多个计算节点通过共享存储快照实现一致性读，无需页面级同步；(3) 弹性存储池——所有数据库共享底层存储池，按需分配而非预置，实现真正的存储计算分离和服务无状态化。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">Azure SQL</span><span class="tag tag-i">Hyperscale</span></div>
   </div>
@@ -317,7 +317,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">CLAPS: Load-Aware Proxy Resource Pooling for Large-Scale Cloud Storage</div>
     <div class="authors">Xiuqi Huang 等 — Zhejiang Univ; ByteDance</div>
-    <div class="abstract">负载感知代理池化系统，减少大规模云存储的资源冗余。</div>
+    <div class="abstract"><strong>SIGMOD '26 Industry</strong> · <strong>动机：</strong>大规模云存储系统（如对象存储/块存储）通常为每个用户或每个 bucket 部署独立的代理（Proxy）集群以保证性能隔离，但多数用户的请求是突发的（低负载时段资源闲置率高达 80-90%），导致大量计算资源冗余和成本浪费。<strong>创新：</strong>CLAPS（Load-Aware Proxy Resource Pooling）提出负载感知代理资源池化：(1) 将多个用户的代理资源合并为共享池，通过请求级别的 QoS 标签（延迟 SLO/吞吐要求/优先级）实现细粒度隔离而非物理隔离；(2) 基于在线负载预测的弹性伸缩算法，提前 30 秒预测负载变化并调整池容量；(3) 提出"借-还"协议，高负载用户可"借用"低负载用户的代理配额，附带可抢占机制保证不会饿死低负载用户。在大规模字节跳动生产集群中减少 40-50% 的代理节点数。</div>
     <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
     <div class="tags"><span class="tag tag-i">云存储</span><span class="tag tag-i">资源池化</span></div>
   </div>
@@ -327,7 +327,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">ACOS: Apple's Geo-Distributed Object Store at Exabyte Scale</div>
     <div class="authors">Benjamin Baron 等 — Apple</div>
-    <div class="abstract">Apple EB 级地理分布式对象存储完整架构公开，跨大洲数据放置与故障恢复。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>Apple 的 iCloud、Photos、Messages 等服务每天处理数十亿用户的数据，底层对象存储需要横跨多个大洲、管理 EB 级数据、满足数据主权法规（GDPR/各国数据本地化要求）。此前 Apple 的存储基础设施细节极少公开，业界缺乏 EB 级 Geo-Distributed 存储的参考架构。<strong>创新：</strong>ACOS（Apple's Geo-Distributed Object Store）首次公开完整架构：(1) 基于 CRUSH-like 的声明式数据放置策略引擎——将法规约束（如"该用户数据不得离开 EU"）编码为放置规则，通过约束求解器自动推导副本位置；(2) 多层级故障域感知（region→AZ→rack→node）的弹性副本策略，在满足法规的前提下最大化可用性；(3) 跨大洋异步复制与本地同步复制的混合拓扑——关键元数据全球强一致，用户数据允许延迟最终一致，在 CAP 三角中各取所需。是近年罕见的 EB 级工业存储系统完整技术披露。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/baron" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-i">Apple</span><span class="tag tag-i">EB 级存储</span></div>
   </div>
@@ -335,7 +335,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Discard-Based Garbage Collection for Distributed Log-Structured Storage in ByteDance</div>
     <div class="authors">Runhua Bian 等 — ByteDance</div>
-    <div class="abstract">字节跳动日志结构化存储的 discard/trim 零拷贝 GC，PB 级生产部署。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>字节跳动内部广泛使用日志结构化存储（Log-Structured Store），垃圾回收（GC）是其核心运维挑战——传统 GC 需要将有效数据从旧 segment 拷贝到新 segment（copy-forward GC），造成大量写放大和 I/O 风暴。在 PB 级部署中，GC 造成的额外写入量可达业务写入的 2-3 倍。<strong>创新：</strong>提出基于 discard/trim 的零拷贝 GC：(1) 利用现代 SSD 的 discard（NVMe Dataset Management）和文件系统的 hole punching（fallocate FALLOC_FL_PUNCH_HOLE）原语，直接释放无效数据的物理空间，无需数据拷贝；(2) 设计 segment 粒度的"惰性 discard"——仅在空间压力下批量 discard 多个 segment，合并 I/O 开销；(3) 提出"GC 冷"策略——标记不再写入的冷 segment 优先 discard，避免热 segment 的频繁 discard/重分配循环。在字节跳动 PB 级生产环境中将 GC 写放大降至接近零。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/bian" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-i">ByteDance</span><span class="tag tag-i">日志 GC</span></div>
   </div>
@@ -345,7 +345,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">A Multi-tenant Relational OLTP Database at Salesforce</div>
     <div class="authors">Vaibhav Arora, Pat Helland 等 — Salesforce</div>
-    <div class="abstract">Salesforce 多租户 OLTP 数据库的架构演进。</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>动机：</strong>Salesforce 是全球最大的多租户 SaaS 平台之一，其底层数据库需要支撑数百万租户的 OLTP 工作负载。多租户数据库的核心挑战是"Noisy Neighbor"问题——一个租户的突发写入或慢查询可能影响同一物理资源上其他租户的延迟 SLO——但传统的 Schema-per-tenant 或 Database-per-tenant 隔离方案在租户数量达到百万级时运维成本爆炸。<strong>创新：</strong>Salesforce 多租户 OLTP 数据库提出：(1) 基于自适应租户分组的物理隔离——将访问模式相似的租户 co-locate 在同一物理分片上，通过在线重分布动态调整分组；(2) 请求级资源调度——每个查询被标记租户 ID 和优先级，在 CPU/内存/I/O 各层实现细粒度资源隔离（而非传统 VM/container 粒度的粗隔离）；(3) 数据库内核感知的租户 Qos（Quality of Service）——当检测到某租户超过资源配额时，在查询执行引擎内部进行限流而非简单拒绝连接。该架构已支撑 Salesforce 核心业务多年。</div>
     <div class="links"><a href="https://www.cidrdb.org/papers/2026/p28-arora.pdf" target="_blank">📄 PDF</a></div>
     <div class="tags"><span class="tag tag-i">Salesforce</span><span class="tag tag-i">多租户 DB</span></div>
   </div>
@@ -380,12 +380,6 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zheng" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">SSD 推理</span><span class="tag tag-a">注意力</span></div>
   </div>
-
-  <div class="conf-section-title">📌 向量搜索 (ANNS) · SIGMOD 2026</div>
-
-  <div class="paper-card">
-    <div class="title">CMANNS: GPU-Accelerated Graph Index Construction for ANNS via Compute-Memory Disaggregation</div>
-    <div class="authors">Chengying Huan, Rong Gu 等 — Nanjing University; Tsing
 
   <div class="conf-section-title">📌 向量搜索 (ANNS) · SIGMOD 2026</div>
 
