@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面向 AI 的数据平台建设 · 周报 #4（2026-06-11）</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --accent-dark: #1d4ed8;
+    --green: #059669;
+    --green-bg: #d1fae5;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --purple: #7c3aed;
+    --purple-bg: #ede9fe;
+    --border: #e2e8f0;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    max-width: 960px; margin: 0 auto; padding: 32px 24px 64px;
+  }
+  header { text-align: center; padding: 48px 0 36px; border-bottom: 2px solid var(--border); margin-bottom: 40px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.3px; }
+  header .subtitle { font-size: 1rem; color: var(--text-secondary); margin-top: 8px; }
+  header .meta { display: flex; justify-content: center; gap: 16px; margin-top: 16px; font-size: .85rem; color: var(--text-muted); flex-wrap: wrap; }
+  header .meta span { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 14px; box-shadow: var(--shadow); }
+  .toc { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 28px; margin-bottom: 32px; box-shadow: var(--shadow); }
+  .toc h2 { font-size: .9rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .toc a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 36px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .section-header { padding: 20px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .section-header .icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; flex-shrink: 0; }
+  .section-header h2 { font-size: 1.2rem; font-weight: 700; }
+  .section-body { padding: 20px 24px 24px; }
+  .section-body h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section-body h3:first-child { margin-top: 0; }
+  .section-body p { margin-bottom: 12px; color: var(--text-secondary); font-size: .93rem; }
+  .section-body ul { margin-bottom: 14px; padding-left: 20px; }
+  .section-body ul li { margin-bottom: 6px; color: var(--text-secondary); font-size: .93rem; }
+  .highlight-box { background: var(--accent-light); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 14px 18px; margin: 14px 0; font-size: .9rem; color: var(--text); }
+  .highlight-box strong { color: var(--accent-dark); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: .72rem; font-weight: 600; margin-right: 4px; margin-bottom: 4px; }
+  .tag.hot { background: var(--red-bg); color: var(--red); }
+  .tag.new { background: var(--green-bg); color: var(--green); }
+  .tag.info { background: var(--accent-light); color: var(--accent-dark); }
+  .tag.purple { background: var(--purple-bg); color: var(--purple); }
+  .tag.amber { background: var(--amber-bg); color: var(--amber); }
+  .feature-list { list-style: none; margin: 8px 0 14px; }
+  .feature-list li { padding: 8px 0 8px 20px; position: relative; font-size: .9rem; color: var(--text-secondary); border-bottom: 1px solid #f1f5f9; }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li::before { content: ''; position: absolute; left: 0; top: 14px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0.5; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .88rem; }
+  table th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  table tr:last-child td { border-bottom: none; }
+  .source-links { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .source-links h4 { font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: 6px; }
+  .source-links ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .source-links li { font-size: .8rem; }
+  a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  a:hover { text-decoration: underline; }
+  footer { text-align: center; padding: 32px 0 16px; color: var(--text-muted); font-size: .82rem; border-top: 1px solid var(--border); margin-top: 12px; }
+  .global-nav { display: flex; align-items: center; padding: 0 24px; background: rgba(248,250,252,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 52px; margin: -32px -24px 32px; }
+  .global-nav .brand { font-weight: 700; color: var(--text); text-decoration: none; margin-right: 28px; }
+  .global-nav .nav-links { display: flex; gap: 4px; }
+  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: .88rem; padding: 6px 14px; border-radius: 8px; }
+  .global-nav .nav-link:hover { background: var(--accent-light); }
+  .global-nav .nav-link.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .verdict { background: linear-gradient(135deg, #dbeafe, #e0e7ff); border: 1px solid #c7d2fe; border-radius: var(--radius-sm); padding: 16px 20px; margin: 16px 0; }
+  .verdict p { margin-bottom: 0; font-size: .92rem; color: var(--text); }
+  .verdict strong { color: var(--accent-dark); }
+  @media (max-width: 640px) { body { padding: 16px; } header h1 { font-size: 1.3rem; } }
+</style>
+</head>
+<body>
+  <nav class="global-nav">
+    <a href="../../index.html" class="brand">BryantChang</a>
+    <div class="nav-links">
+      <a href="../../index.html" class="nav-link">🏠 首页</a>
+      <a href="../index.html" class="nav-link">🔬 技术调研</a>
+      <a href="week_04_2026-06-11.html" class="nav-link active">🏗️ AI 数据平台</a>
+    </div>
+  </nav>
+  <header>
+    <h1>🏗️ 面向 AI 的数据平台建设</h1>
+    <p class="subtitle">周报 #4 — 2026年6月11日</p>
+    <div class="meta">
+      <span>📅 2026-06-11</span>
+      <span>📊 第24周（W24）</span>
+      <span>🏷️ 第4期</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#sec-summary">📌 本周综述</a></li>
+      <li><a href="#sec-hudi-12">🪶 Apache Hudi 1.2 发布：Lakehouse 正式拥抱 AI 多模态数据</a></li>
+      <li><a href="#sec-iceberg">🧊 Apache Iceberg 1.11.0 + v3 Spec 生产就绪</a></li>
+      <li><a href="#sec-databricks">🏔️ Databricks Unity Catalog：Iceberg v3 GA + 跨引擎治理</a></li>
+      <li><a href="#sec-gravitino">🌐 Apache Gravitino 1.2.1：多 Catalog 联邦治理</a></li>
+      <li><a href="#sec-trends">📊 趋势分析：AI 数据平台的关键转型点</a></li>
+      <li><a href="#sec-sources">🔗 信息来源</a></li>
+    </ol>
+  </nav>
+
+  <!-- 📌 本周综述 -->
+  <section id="sec-summary">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #dc2626, #ef4444);">📌</div>
+      <h2>本周综述</h2>
+    </div>
+    <div class="section-body">
+      <div class="highlight-box">
+        <strong>📌 本期要点：</strong>Apache Hudi 1.2 正式发布——原生 VECTOR / BLOB / VARIANT 类型 + Lance 格式集成，将 Lakehouse 推入多模态 AI 时代；Databricks Unity Catalog 全面 GA Iceberg v3 + 跨引擎 ABAC 治理；Apache Iceberg 1.11.0 引入服务端扫描规划与表级加密；Gravitino 1.2.1 持续强化多 Catalog 联邦。
+      </div>
+      <p>本周是 2026 年第 24 周（6 月第二周），数据平台建设方向迎来了密集的重大发布。Apache Hudi 1.2 在 6 月 7 日正式发布，这是 <strong>Lakehouse 领域首个将多模态数据存储（VECTOR、BLOB、VARIANT）作为一等公民的正式版本</strong>。同时，Databricks 宣布 Unity Catalog 上 Managed Iceberg、Iceberg v3、Foreign Iceberg 全部 GA，并推出跨引擎 ABAC（Beta）——标志着企业级的开放 Lakehouse 治理体系已经成型。</p>
+      <p>上周我们观察到 Lakehouse 正在向多模态方向转型，本周 Hudi 1.2 的发布直接将这一趋势从"提案"变为"产品"。结合 Iceberg 1.11.0 的 v3 生产就绪和 Databricks 的生态推进，Lakehouse 正在完成从 <strong>"分析平台"到"AI 原生数据平台"</strong> 的关键升级。</p>
+    </div>
+  </section>
+
+  <!-- 🪶 Apache Hudi 1.2 -->
+  <section id="sec-hudi-12">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">🪶</div>
+      <h2>Apache Hudi 1.2 发布：Lakehouse 正式拥抱 AI 多模态数据</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag hot">🚀 重大版本</span><span class="tag new">6月7日发布</span><span class="tag purple">多模态</span></p>
+      <p><a href="https://hudi.apache.org/blog/2026/06/07/apache-hudi-release-1-2-announcement/" target="_blank" rel="noopener">Apache Hudi 1.2</a> 于 6 月 7 日正式发布，这是本周最重量级的消息。继上周我们追踪到 RFC-100 提案后，该提案仅用不到两周就完成了从设计到发布的全过程——而且交付的远不止非结构化数据存储。Hudi 1.2 直接将 Lakehouse 扩展为一个<strong>统一的多模态数据平台</strong>。</p>
+
+      <h3>核心新特性</h3>
+      <table>
+        <thead>
+          <tr><th>特性</th><th>类型</th><th>说明</th><th>AI 场景意义</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>VECTOR 类型</strong></td>
+            <td><span class="tag hot">全新</span></td>
+            <td>原生嵌入向量类型，内置相似性搜索</td>
+            <td>直接在 Hudi 表上做向量检索，无需外部向量数据库</td>
+          </tr>
+          <tr>
+            <td><strong>BLOB 类型</strong></td>
+            <td><span class="tag hot">全新</span></td>
+            <td>存储二进制对象：图片、文档、视频帧</td>
+            <td>训练数据与元数据同表存储，消除跨系统同步</td>
+          </tr>
+          <tr>
+            <td><strong>VARIANT 类型</strong></td>
+            <td><span class="tag hot">全新</span></td>
+            <td>原生半结构化数据存储，无需 Schema 展平</td>
+            <td>API 响应日志、事件流、ML Feature Store</td>
+          </tr>
+          <tr>
+            <td><strong>Lance 文件格式集成</strong></td>
+            <td><span class="tag new">集成</span></td>
+            <td>AI 原生列式格式，对图像嵌入和向量有原生优化</td>
+            <td>AI 训练/推理的存储层统一</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>为什么 Hudi 1.2 是里程碑？</h3>
+      <p>Hudi 1.2 解决了 AI 时代数据平台最核心的痛点——<strong>"同步困境"（Sync Dilemma）</strong>：当前 AI 应用中，同一个业务实体可能同时存在于：</p>
+      <ul>
+        <li>结构化元数据在 Lakehouse 表中</li>
+        <li>Embedding 向量在 Milvus/Pinecone 等向量数据库中</li>
+        <li>原始文档/图片在 S3 对象存储中</li>
+        <li>半结构化数据在 MongoDB/Elasticsearch 中</li>
+      </ul>
+      <p>这种碎片化导致数据一致性维护成本极高。Hudi 1.2 的答案是：<strong>将 VECTOR、BLOB、VARIANT 全部作为原生列类型存储在同一张 Lakehouse 表中</strong>，共享同一套事务、索引、增量处理、自动表服务（compaction/clustering/cleaning）和并发控制机制。</p>
+
+      <h3>Lance 集成：AI 列式存储的事实标准正在形成</h3>
+      <p>Hudi 1.2 的 Lance 格式集成与上周我们注意到的 Fluss Lakehouse Tiering 集成 Lance 方向一致。Lance 是专为 AI/ML 设计的列式格式，对大二进制对象、向量、图像等有原生优化。Hudi 的事务层 + Lance 的存储层，构成了一种新的架构范式。</p>
+
+      <div class="highlight-box">
+        <strong>🎯 关键判断：</strong>Hudi 1.2 的意义不只是一个版本发布——它重新定义了 Lakehouse 的边界。此前业界需要"Lakehouse + 向量数据库 + 对象存储"的多系统组合，Hudi 1.2 证明了一个表就能承载这一切。这对 AI 数据平台的架构选择会产生深远影响。
+      </div>
+
+      <h3>Hudi 1.2 的 Flink 增强</h3>
+      <p>除 AI 多模态外，Hudi 1.2 还显著增强了 Flink 集成，包括改进的 Flink MOR（Merge-on-Read）写入性能和更好的端到端一致性保证。配合 Delta 4.2.0 的 Flink connector，两大 Lakehouse 格式都在强化流处理能力。</p>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://hudi.apache.org/blog/2026/06/07/apache-hudi-release-1-2-announcement/" target="_blank" rel="noopener">Hudi 1.2 官方发布公告</a></li>
+          <li><a href="https://hudi.apache.org/releases/release-1.2" target="_blank" rel="noopener">Hudi 1.2 Release Notes</a></li>
+          <li><a href="https://github.com/apache/hudi" target="_blank" rel="noopener">Apache Hudi GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🧊 Apache Iceberg 1.11.0 + v3 -->
+  <section id="sec-iceberg">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">🧊</div>
+      <h2>Apache Iceberg 1.11.0：v3 Spec 生产就绪 + 表级加密</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag new">5月19日发布</span><span class="tag hot">v3 Spec</span><span class="tag info">生产就绪</span></p>
+      <p><a href="https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.11.0" target="_blank" rel="noopener">Apache Iceberg 1.11.0</a> 于 5 月 19 日发布，正式将 <a href="https://tuts.alexmercedcoder.dev/2026/2026-05-28-apache-iceberg-v3-upgrade/" target="_blank" rel="noopener">Iceberg v3 规范</a>推向生产就绪。虽然发布日期略早于本周窗口，但其生态影响在本周达到高峰——Databricks 和 Snowflake 都在 6 月初完成了 v3 GA。</p>
+
+      <h3>v3 Spec 六大核心特性</h3>
+      <table>
+        <thead>
+          <tr><th>特性</th><th>v2 的问题</th><th>v3 的解决方案</th><th>性能/治理收益</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>二进制删除向量</strong></td>
+            <td>Positional delete 文件随更新堆积，读时合并开销大</td>
+            <td>每个数据文件维护紧凑 bit map</td>
+            <td>带 CDC 管线的表读取速度提升一个数量级</td>
+          </tr>
+          <tr>
+            <td><strong>VARIANT 类型</strong></td>
+            <td>JSON 存为 String 列，查询时解析或展平成几百列</td>
+            <td>原生半结构化类型，引擎可推谓词到嵌套数据</td>
+            <td>事件流、API 日志、Feature Store 场景大幅简化</td>
+          </tr>
+          <tr>
+            <td><strong>GEOMETRY / GEOGRAPHY</strong></td>
+            <td>空间数据存为 WKT 字符串，依赖引擎特定扩展</td>
+            <td>一等空间类型 + 原生空间 Join</td>
+            <td>地理位置分析场景原生支持</td>
+          </tr>
+          <tr>
+            <td><strong>纳秒时间戳</strong></td>
+            <td>微秒精度不满足高频金融/IoT</td>
+            <td>timestamp_ns / timestamptz_ns</td>
+            <td>交易系统、传感器网络精准时序</td>
+          </tr>
+          <tr>
+            <td><strong>默认列值</strong></td>
+            <td>加列需全量数据重写或接受 NULL</td>
+            <td>ALTER TABLE ADD COLUMN 秒级完成，旧文件读时应用默认值</td>
+            <td>TB 级表的 Schema 演化零停机</td>
+          </tr>
+          <tr>
+            <td><strong>行级血缘追踪</strong></td>
+            <td>无原生支持，依赖外部审计日志</td>
+            <td>每行记录创建/修改的 Snapshot + 操作类型</td>
+            <td>合规审计、数据治理原生能力</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>1.11.0 引擎层重大更新</h3>
+      <ul class="feature-list">
+        <li><strong>Spark 4.1 支持 + DSv2 迁移：</strong>MERGE INTO 支持 WITH SCHEMA EVOLUTION，无需额外 ALTER TABLE，异步 micro-batch planner 加速 Structured Streaming</li>
+        <li><strong>Flink 2.1 支持 + DynamicIcebergSink（实验性）：</strong>单个 Sink 运行时路由到多个表，按需建表和 Schema 演化，甚至支持 dropUnusedColumns</li>
+        <li><strong>Flink 支持 v3 新类型：</strong>nanosecond、variant、unknown 类型全支持</li>
+      </ul>
+
+      <h3>服务端扫描规划（Server-side Scan Planning）</h3>
+      <p>这是 1.11.0 在架构层面最重要的变化。此前引擎需要自行遍历 manifest 树、拉取文件列表、过滤分区——元数据操作在引擎端完成。1.11.0 将这些工作转移到 REST Catalog 端：</p>
+      <ul>
+        <li>引擎提交 POST …/plan 请求</li>
+        <li>Catalog 返回优化后的 FileScanTasks</li>
+        <li>小扫描即时返回，大操作返回 plan-id 轮询，超大集通过 POST …/tasks 并行获取</li>
+      </ul>
+      <p><strong>意义：</strong>引擎不再直接访问对象存储的元数据层，实现了引擎与存储的更彻底解耦，同时减少了小文件元数据 IO。</p>
+
+      <h3>表级加密</h3>
+      <p>Iceberg 1.11.0 引入了内置表级加密，采用封套加密（Envelope Encryption）三级密钥体系：</p>
+      <ul>
+        <li><strong>Table Master Key</strong> 在 KMS 中，不接触 Iceberg 存储</li>
+        <li><strong>Key Encryption Keys (KEK)</strong> 加密后存储在表元数据中</li>
+        <li><strong>Data Encryption Keys (DEK)</strong> 每文件唯一，AES-GCM 加密数据和 manifest list</li>
+      </ul>
+      <p>支持 Google KMS 作为首批 KMS 集成，密钥自动轮转。配合安全加固趋势，表级加密将成为面向合规场景 Lakehouse 的标配能力。</p>
+
+      <h3>File Format API 正式化</h3>
+      <p>1.11.0 完成了 File Format API 的设计。此前添加新格式（如 Lance）需要多处重复引擎特定的 switch/case 代码。统一的 File Format API 使添加新存储格式变得标准化，对 Lance 等新兴格式的生态扩展意义重大。</p>
+
+      <div class="highlight-box">
+        <strong>💡 洞察：</strong>Iceberg v3 的发布意味着三大 Lakehouse 格式在数据类型丰富度上已基本对齐——Iceberg 有 VARIANT/GEOMETRY、Hudi 有 VECTOR/BLOB/VARIANT、Delta 有 Variant/Geospatial。但对 AI 场景而言，Hudi 1.2 以 VECTOR + BLOB + Lance 组合暂时领先。
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.11.0" target="_blank" rel="noopener">Iceberg 1.11.0 GitHub Release</a></li>
+          <li><a href="https://opensource.googleblog.com/2026/05/announcing-apache-iceberg-1110.html" target="_blank" rel="noopener">Google Open Source Blog：Iceberg 1.11.0 发布</a></li>
+          <li><a href="https://tuts.alexmercedcoder.dev/2026/2026-05-28-apache-iceberg-v3-upgrade/" target="_blank" rel="noopener">Iceberg v3 升级指南</a></li>
+          <li><a href="https://iceberg.apache.org/releases/" target="_blank" rel="noopener">Iceberg 官方 Releases 页面</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🏔️ Databricks Unity Catalog -->
+  <section id="sec-databricks">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🏔️</div>
+      <h2>Databricks Unity Catalog：Iceberg 全面 GA + 跨引擎治理</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag hot">MAJOR</span><span class="tag new">GA</span><span class="tag info">企业级</span></p>
+      <p><a href="https://www.databricks.com/blog/unity-catalog-and-next-era-apache-icebergtm" target="_blank" rel="noopener">Databricks 宣布</a> Unity Catalog 上的一系列 Iceberg 能力全面进入 GA 或 Public Preview，包括 Managed Iceberg GA、Iceberg v3 GA、Foreign Iceberg GA、跨引擎 ABAC（Beta）等。与此同时，Databricks 还提出了 Iceberg v4 与 Delta 5.0 将走向<strong>统一格式</strong>的路线图展望。</p>
+
+      <h3>GA/P预览能力一览</h3>
+      <table>
+        <thead>
+          <tr><th>能力</th><th>状态</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Managed Iceberg</td>
+            <td><span class="tag new">GA</span></td>
+            <td>在 Unity Catalog 中直接创建、读写、优化、治理、共享 Iceberg 表，含 Predictive Optimization 和 Liquid Clustering</td>
+          </tr>
+          <tr>
+            <td>Iceberg v3</td>
+            <td><span class="tag new">GA</span></td>
+            <td>Deletion Vectors、Row Tracking、VARIANT 类型在 Managed/Foreign/UniForm 表上全支持</td>
+          </tr>
+          <tr>
+            <td>Foreign Iceberg</td>
+            <td><span class="tag new">GA</span></td>
+            <td>注册、治理、安全查询外部 Catalog（AWS Glue、Snowflake Horizon 等）中的 Iceberg 表</td>
+          </tr>
+          <tr>
+            <td>Credential Vending</td>
+            <td><span class="tag new">GA</span></td>
+            <td>外部引擎通过 UC 获取凭证，无需直接授予存储权限</td>
+          </tr>
+          <tr>
+            <td>跨引擎 ABAC</td>
+            <td><span class="tag purple">Beta</span></td>
+            <td>列掩码、行过滤、Tag-based policy 对外部 Iceberg REST 客户端生效</td>
+          </tr>
+          <tr>
+            <td>External Sharing → Iceberg</td>
+            <td><span class="tag new">GA</span></td>
+            <td>通过 Delta Sharing 协议，任何 Iceberg REST 兼容客户端可读取共享数据</td>
+          </tr>
+          <tr>
+            <td>Iceberg 物化视图</td>
+            <td><span class="tag amber">Gated Preview</span></td>
+            <td>CREATE MATERIALIZED VIEW … USING ICEBERG，下游消费为原生 Iceberg 表</td>
+          </tr>
+          <tr>
+            <td>UNIQUE 约束</td>
+            <td><span class="tag amber">Public Preview</span></td>
+            <td>6 月 5 日上线，Foreign Key 可引用 UNIQUE 列，RELY 启用 Join 消除和 DISTINCT 简化</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>五大维度定义"最可互操作的 Iceberg Catalog"</h3>
+      <p>Databricks 提出的评估框架值得关注，因为它定义了企业级 Lakehouse Catalog 应该具备的能力：</p>
+      <ol>
+        <li><strong>Open APIs + Credential Vending：</strong>任何引擎（Spark/Trino/Flink/Snowflake/DuckDB）通过 Iceberg REST API 访问，同时不暴露存储凭证</li>
+        <li><strong>Catalog Federation：</strong>一个 UC 管理所有 Iceberg 资产的元数据，已支持 AWS Glue、Snowflake Horizon、Google BigQuery、Palantir、Salesforce 等</li>
+        <li><strong>跨引擎 ABAC：</strong>细粒度治理策略在引擎外部执行——列掩码、行过滤、标签策略对任何通过 REST API 访问的引擎生效</li>
+        <li><strong>开放共享：</strong>通过 Delta Sharing 协议向 Iceberg 客户端共享，已支持外部 Iceberg 表共享（Public Preview）</li>
+        <li><strong>AI 驱动优化：</strong>Predictive Optimization 自动管理 compaction、clustering、统计信息收集</li>
+      </ol>
+
+      <h3>Roadmap：Iceberg v4 与 Delta 5.0 走向统一</h3>
+      <p>Databricks 在博客中明确提到 "<strong>Iceberg v4 and Delta 5.0 will converge on a unified open format</strong>"。这是一个极其重要的信号——如果两大格式在下一大版本实现统一，意味着企业不再需要在 Iceberg 和 Delta 之间做二选一。这对整个 Lakehouse 生态将是核弹级别的变化。</p>
+
+      <h3>UNIQUE 约束：Lakehouse 向数据库靠拢</h3>
+      <p>Databricks SQL 2026 年 6 月 5 日上线了 <a href="https://learn.microsoft.com/en-us/azure/databricks/sql/release-notes/2026" target="_blank" rel="noopener">UNIQUE 约束支持（Public Preview）</a>。这是一个信息性（informational）约束——不强制执行，但查询优化器可以基于 RELY UNIQUE 进行 Join 消除和 DISTINCT 简化。这是 Lakehouse 从 "数据湖" 向 "数据库级可靠性" 演进的又一标志。</p>
+
+      <div class="verdict">
+        <p><strong>🏆 判断：</strong>Databricks 的这波发布不是零散的功能更新，而是一张完整的 "开放 Lakehouse 治理蓝图"。五个维度环环相扣，从 API 开放、元数据联邦、策略治理、安全共享到 AI 优化，形成了一个闭环。对于需要多引擎、多团队、多治理域的企业级 AI 数据平台来说，这套方案是目前最完整的。</p>
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://www.databricks.com/blog/unity-catalog-and-next-era-apache-icebergtm" target="_blank" rel="noopener">Databricks Blog：Unity Catalog & Iceberg 新时代</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/azure/databricks/sql/release-notes/2026" target="_blank" rel="noopener">Databricks SQL 2026 年 Release Notes</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🌐 Gravitino 1.2.1 -->
+  <section id="sec-gravitino">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">🌐</div>
+      <h2>Apache Gravitino 1.2.1：多 Catalog 联邦治理持续完善</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag info">补丁版本</span><span class="tag purple">治理</span></p>
+      <p><a href="https://github.com/apache/gravitino/releases" target="_blank" rel="noopener">Apache Gravitino 1.2.1</a> 于 5 月 12 日发布，这是一个以稳定性、性能和正确性为重点的补丁版本。虽然不如 Hudi 1.2 那样重磅，但它在多 Catalog 联邦治理这个方向上的持续投入值得关注。</p>
+
+      <h3>关键改进</h3>
+      <ul class="feature-list">
+        <li><strong>Iceberg REST 合规：</strong>修正 config endpoint prefix 以符合 Iceberg REST spec，修复 table scan planning 的 SQL 生成错误</li>
+        <li><strong>Authorization 性能：</strong>优化 JCasbin 策略查找，大角色权限场景下授权性能显著提升</li>
+        <li><strong>Lance Catalog：</strong>清理 GravitinoLanceTableOperations 冗余代码，Lance 集成持续打磨</li>
+        <li><strong>Hive 稳定性：</strong>修复 Hive MetaStore 的 HttpClient 泄漏导致的 OOM</li>
+        <li><strong>Trino Connector：</strong>修复 catalog name 带 metalake 时的 TrinoException</li>
+        <li><strong>Kubernetes 部署：</strong>增加 serviceAccountName 支持，Helm Chart 启动脚本统一使用 start-gravitino.sh</li>
+      </ul>
+
+      <div class="highlight-box">
+        <strong>💡 洞察：</strong>Gravitino 作为 Apache 基金会的多 Catalog 治理项目，其价值定位与 Databricks Unity Catalog 的 Catalog Federation 能力有重叠也有互补。Gravitino 的优势是完全开源和厂商中立，而 Unity Catalog 的优势是与 Databricks 生态的深度整合。对于非 Databricks 环境的多引擎数据平台，Gravitino 仍然是最值得关注的开源选项。
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://github.com/apache/gravitino/releases" target="_blank" rel="noopener">Gravitino 1.2.1 GitHub Release</a></li>
+          <li><a href="https://github.com/apache/gravitino" target="_blank" rel="noopener">Apache Gravitino GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 📊 趋势分析 -->
+  <section id="sec-trends">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #7c3aed, #8b5cf6);">📊</div>
+      <h2>趋势分析：AI 数据平台的关键转型点</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag purple">趋势</span><span class="tag hot">综合</span></p>
+
+      <h3>🔷 趋势一：Lakehouse 从"分析平台"转型为"AI 原生数据平台"</h3>
+      <p>这是本周最明确的信号。Hudi 1.2 的 VECTOR / BLOB / VARIANT 三种新类型 + Lance 格式集成，不是功能叠加，而是 Lakehouse 定位的根本性变化。此前 Lakehouse 解决的是"在数据湖上跑 SQL"，现在它要解决的是"在一张表里管所有 AI 数据"。</p>
+      <p>三大格式的多模态路线对比：</p>
+      <table>
+        <thead>
+          <tr><th>格式</th><th>半结构化</th><th>向量/嵌入</th><th>二进制对象</th><th>空间数据</th><th>AI 列式格式</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Apache Hudi 1.2</strong></td>
+            <td>✅ VARIANT</td>
+            <td>✅ VECTOR + 相似搜索</td>
+            <td>✅ BLOB</td>
+            <td>—</td>
+            <td>✅ Lance</td>
+          </tr>
+          <tr>
+            <td><strong>Apache Iceberg v3</strong></td>
+            <td>✅ VARIANT</td>
+            <td>—</td>
+            <td>—</td>
+            <td>✅ GEOMETRY/GEOGRAPHY</td>
+            <td>🔜 File Format API</td>
+          </tr>
+          <tr>
+            <td><strong>Delta Lake 4.2.0</strong></td>
+            <td>✅ Variant GA</td>
+            <td>—</td>
+            <td>—</td>
+            <td>✅ Geospatial GA</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🔷 趋势二：Catalog 成为新的竞争高地</h3>
+      <p>当表格式趋于稳定，治理层（Catalog）成为下一个差异化战场。本周 Databricks 的五维度评估框架、Gravitino 1.2.1 的持续打磨、以及 Iceberg 1.11.0 的 Server-side Scan Planning（将计算推向 Catalog），都指向同一个方向：<strong>Catalog 不再只是元数据存储，而是 Lakehouse 的智能治理中心。</strong></p>
+      <p>特别是 Databricks 提出的跨引擎 ABAC —— 治理策略在 Catalog 层执行，而不是在每个引擎中复制——这种架构对多引擎企业环境至关重要。</p>
+
+      <h3>🔷 趋势三：Iceberg v4 + Delta 5.0 可能走向统一</h3>
+      <p>Databricks 在博客中明确提到 Iceberg v4 和 Delta 5.0 将走向统一格式。如果这成为现实，将终结 "Iceberg vs Delta vs Hudi" 的格式之争。对用户来说是好消息——不用再纠结选哪个格式；对 Hudi 来说可能构成压力——需要进一步强化差异化优势（多模态 AI 数据管理正是其最有力的差异化点）。</p>
+
+      <h3>🔷 趋势四：从"多系统组合"到"单表承载一切"</h3>
+      <p>Hudi 1.2 提出的 Unified Data Foundation 愿景——结构化数据 + Embedding + 二进制对象在同一张表中——正在挑战现有的 AI 数据架构惯例。如果这一模式被市场接受，"Lakehouse + 独立向量数据库"的组合可能会被重新评估。当然，专业的向量数据库在查询延迟和索引算法上仍有优势，但对于 Less-than-real-time 的 AI 场景，内嵌向量搜索的 Lakehouse 表可能是更简单的选择。</p>
+
+      <div class="highlight-box">
+        <strong>🎯 对 CHANG_AI_TEAM 的关键启示：</strong>
+        <ul style="margin-top: 8px; margin-bottom: 0;">
+          <li><strong>多模态 Lakehouse 是确定性趋势：</strong>Hudi 1.2 已证明单表多模态存储可落地，设计 AI 数据平台时应考虑未来多模态数据在同一存储层管理的架构</li>
+          <li><strong>Lance 格式值得重点跟踪：</strong>Hudi、Fluss 都在集成 Lance，它可能成为 AI 列式存储的事实标准</li>
+          <li><strong>Catalog 架构需要前瞻设计：</strong>跨引擎 ABAC、Catalog Federation、Server-side planning 是下一代 Catalog 的核心能力</li>
+          <li><strong>关注 Iceberg v4 + Delta 5.0 统一进展：</strong>如果实现，将重塑整个 Lakehouse 生态格局</li>
+          <li><strong>向量数据库选型需要重新评估：</strong>如果 Lakehouse 原生支持 VECTOR 类型和相似搜索，独立的向量数据库在非低延迟场景的必要性可能下降</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🔗 信息来源 -->
+  <section id="sec-sources">
+    <div class="section-header">
+      <div class="icon" style="background: linear-gradient(135deg, #475569, #64748b);">🔗</div>
+      <h2>信息来源</h2>
+    </div>
+    <div class="section-body">
+      <p>本期报告所有论断均来自公开可验证的线上资源。以下是完整的信息来源清单：</p>
+
+      <h3>Apache Hudi</h3>
+      <ul>
+        <li><a href="https://hudi.apache.org/blog/2026/06/07/apache-hudi-release-1-2-announcement/" target="_blank" rel="noopener">Hudi 1.2 官方发布公告（2026-06-07）</a></li>
+        <li><a href="https://hudi.apache.org/releases/release-1.2" target="_blank" rel="noopener">Hudi 1.2 Release Notes</a></li>
+        <li><a href="https://github.com/apache/hudi" target="_blank" rel="noopener">Apache Hudi GitHub</a></li>
+      </ul>
+
+      <h3>Apache Iceberg</h3>
+      <ul>
+        <li><a href="https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.11.0" target="_blank" rel="noopener">Iceberg 1.11.0 GitHub Release（2026-05-19）</a></li>
+        <li><a href="https://opensource.googleblog.com/2026/05/announcing-apache-iceberg-1110.html" target="_blank" rel="noopener">Google Open Source Blog：Announcing Iceberg 1.11.0</a></li>
+        <li><a href="https://tuts.alexmercedcoder.dev/2026/2026-05-28-apache-iceberg-v3-upgrade/" target="_blank" rel="noopener">Mastering Apache Iceberg v3: Upgrade Guide</a></li>
+        <li><a href="https://sparkingscala.com/latest/2026/05/19/iceberg-v3-whats-new/" target="_blank" rel="noopener">Apache Iceberg v3: What's New for Spark Users</a></li>
+        <li><a href="https://iceberg.apache.org/releases/" target="_blank" rel="noopener">Iceberg 官方 Releases 页面</a></li>
+      </ul>
+
+      <h3>Databricks / Unity Catalog</h3>
+      <ul>
+        <li><a href="https://www.databricks.com/blog/unity-catalog-and-next-era-apache-icebergtm" target="_blank" rel="noopener">Databricks Blog：Advancing Apache Iceberg on Databricks</a></li>
+        <li><a href="https://learn.microsoft.com/en-us/azure/databricks/sql/release-notes/2026" target="_blank" rel="noopener">Databricks SQL Release Notes 2026</a></li>
+      </ul>
+
+      <h3>Apache Gravitino</h3>
+      <ul>
+        <li><a href="https://github.com/apache/gravitino/releases" target="_blank" rel="noopener">Gravitino 1.2.1 GitHub Release（2026-05-12）</a></li>
+        <li><a href="https://github.com/apache/gravitino" target="_blank" rel="noopener">Apache Gravitino GitHub</a></li>
+      </ul>
+
+      <h3>生态参考</h3>
+      <ul>
+        <li><a href="https://www.cidrdb.org/cidr2021/papers/cidr2021_paper17.pdf" target="_blank" rel="noopener">Lakehouse: A New Generation of Open Platforms (CIDR 2021)</a></li>
+        <li><a href="https://iceberglakehouse.com/posts/2025-09-2026-guide-to-data-lakehouses/" target="_blank" rel="noopener">The 2025 &amp; 2026 Ultimate Guide to the Data Lakehouse</a></li>
+        <li><a href="https://jamesm.blog/data-engineering/apache-iceberg-2026/" target="_blank" rel="noopener">Apache Iceberg in 2026: The Open Table Format That Won</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>🏗️ 面向 AI 的数据平台建设 · 周报 #4 · 2026-06-11</p>
+    <p style="margin-top:6px;">CHANG_AI_TEAM CTO Research · 数据来源截至 2026年6月11日</p>
+    <p style="margin-top:4px;font-size:.75rem;color:#cbd5e1;">本报告内容基于公开可验证信息编写，观点仅代表技术分析立场。</p>
+  </footer>
+</body>
+</html>
