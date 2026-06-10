@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 论文周报 · Week 04 · 2026-06-11</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent1: #38bdf8;
+    --accent2: #a78bfa;
+    --accent3: #f472b6;
+    --accent4: #34d399;
+    --accent5: #fbbf24;
+    --tag-bg: #334155;
+    --badge-new: #22c55e;
+    --badge-hot: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0 16px 40px;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+
+  /* Global Nav */
+  .global-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    background: rgba(15,23,42,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+  }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover { background: var(--card); color: var(--text); }
+  .global-nav .nav-link.active { background: var(--card); color: var(--accent1); font-weight: 500; }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  header .subtitle { color: var(--muted); font-size: 1.05rem; margin-bottom: 8px; }
+  header .date { color: var(--muted); font-size: 0.9rem; }
+  .stats-bar { display: flex; gap: 32px; justify-content: center; margin-top: 20px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent1); }
+  .stat .num.green { color: var(--accent4); }
+  .stat .num.yellow { color: var(--accent5); }
+  .stat .label { font-size: 0.8rem; color: var(--muted); }
+
+  /* TOC */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .toc h3 { font-size: 1.1rem; margin-bottom: 12px; color: var(--accent2); }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 6px; }
+  .toc a { color: var(--accent1); text-decoration: none; font-size: 0.92rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .toc-count { color: var(--muted); font-size: 0.8rem; }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+  }
+  .section-title .icon { font-size: 1.5rem; }
+  .section-title .count {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-left: auto;
+  }
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    border-radius: 1px;
+  }
+  #sec-multi-agent .section-title::after { background: var(--accent1); }
+  #sec-reasoning .section-title::after { background: var(--accent2); }
+  #sec-tool-use .section-title::after { background: var(--accent3); }
+  #sec-safety .section-title::after { background: var(--badge-hot); }
+  #sec-memory .section-title::after { background: var(--accent4); }
+  #sec-benchmark .section-title::after { background: var(--accent5); }
+  #sec-protocol .section-title::after { background: var(--accent1); }
+  #sec-code-agent .section-title::after { background: var(--accent3); }
+  #sec-infrastructure .section-title::after { background: var(--accent2); }
+
+  /* Paper Card */
+  .paper-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s, transform 0.1s;
+    position: relative;
+  }
+  .paper-card:hover { border-color: var(--accent1); }
+  .paper-card .paper-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .paper-card .paper-meta {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .paper-card .paper-meta .date-tag {
+    font-weight: 600;
+    color: var(--accent2);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .paper-card .paper-authors {
+    font-size: 0.8rem;
+    color: var(--muted);
+    max-width: 500px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .paper-card .paper-abstract {
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .paper-card .paper-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .paper-card .paper-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--accent1);
+    text-decoration: none;
+    font-size: 0.83rem;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .paper-card .paper-links a:hover { background: rgba(56,189,248,0.1); border-color: var(--accent1); }
+  .paper-card .paper-links a.pdf { color: var(--badge-hot); }
+  .paper-card .paper-links a.pdf:hover { background: rgba(239,68,68,0.1); border-color: var(--badge-hot); }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge-new { background: rgba(34,197,94,0.15); color: var(--badge-new); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-hot { background: rgba(239,68,68,0.15); color: var(--badge-hot); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-may { background: rgba(168,123,250,0.15); color: var(--accent2); border: 1px solid rgba(168,123,250,0.3); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    background: var(--tag-bg);
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  /* Trend Summary */
+  .trend-summary {
+    background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(168,123,250,0.08));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin-bottom: 40px;
+  }
+  .trend-summary h3 {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .trend-summary ul { padding-left: 20px; }
+  .trend-summary li {
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+  }
+  .trend-summary li strong { color: var(--accent1); }
+
+  footer {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--accent1); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .paper-card .paper-meta { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .stats-bar { flex-wrap: wrap; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<header>
+  <h1>🤖 AI Agent 论文周报 · Week #4</h1>
+  <div class="subtitle">arxiv + 顶会最新论文调研 — 多 Agent 协作 · 推理规划 · 安全对齐 · 基础设施</div>
+  <div class="date">2026-06-11 · 覆盖 2026 年 5 月–6 月最新论文</div>
+  <div class="stats-bar">
+    <div class="stat"><div class="num">31</div><div class="label">收录论文</div></div>
+    <div class="stat"><div class="num green">9</div><div class="label">研究方向</div></div>
+    <div class="stat"><div class="num yellow">11</div><div class="label">2026 年 6 月新发</div></div>
+  </div>
+</header>
+
+<!-- ===== TOC ===== -->
+<div class="toc">
+  <h3>📑 目录</h3>
+  <ol>
+    <li><a href="#sec-multi-agent">多 Agent 协作与编排</a> <span class="toc-count">(4 篇)</span></li>
+    <li><a href="#sec-reasoning">Agent 推理与规划</a> <span class="toc-count">(4 篇)</span></li>
+    <li><a href="#sec-tool-use">Agent 工具使用 / Function Calling</a> <span class="toc-count">(4 篇)</span></li>
+    <li><a href="#sec-safety">Agent 安全与对齐</a> <span class="toc-count">(4 篇)</span></li>
+    <li><a href="#sec-memory">Agent 记忆与上下文管理</a> <span class="toc-count">(2 篇)</span></li>
+    <li><a href="#sec-benchmark">Agent 评估基准</a> <span class="toc-count">(4 篇)</span></li>
+    <li><a href="#sec-protocol">Agent 通信协议 (MCP / A2A / IoA)</a> <span class="toc-count">(3 篇)</span></li>
+    <li><a href="#sec-code-agent">代码生成 Agent / SWE-Agent</a> <span class="toc-count">(4 篇)</span></li>
+    <li><a href="#sec-infrastructure">企业级 Agent 基础设施</a> <span class="toc-count">(2 篇)</span></li>
+  </ol>
+</div>
+
+<!-- ====================================================================== -->
+<!-- 1. 多 Agent 协作与编排 -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-multi-agent">
+  <h2 class="section-title">
+    <span class="icon">🤝</span> 多 Agent 协作与编排
+    <span class="count">4 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">Decentralized Multi-Agent Systems with Shared Context</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-09</span>
+    </div>
+    <div class="paper-abstract">
+      提出一种去中心化的多 Agent 架构，通过 Shared Context 机制实现 Agent 间的隐式信息交换，无需中心化编排器即可协作完成复杂推理任务。
+      相比传统中心化 MAS，在并行度和容错性方面有显著提升，为大规模 Agent 系统提供了新的架构选择。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Decentralized+Multi-Agent+Systems+Shared+Context" target="_blank">🔗 arxiv</a>
+      <span class="tag">去中心化 MAS</span>
+      <span class="tag">Shared Context</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">DarkAgents: A Decentralized Multi-Agent Framework for Trustworthy and Collaborative Task Solving</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06</span>
+    </div>
+    <div class="paper-abstract">
+      基于区块链的去中心化多 Agent 框架，通过链上信用机制和共识协议实现无信任环境下的 Agent 协作。
+      重点解决 Agent 间的信任问题和任务分配公平性，在去中心化金融 (DeFi) 和分布式计算场景中展示出实际应用潜力。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=DarkAgents+decentralized+multi-agent" target="_blank">🔗 arxiv</a>
+      <span class="tag">去中心化</span>
+      <span class="tag">区块链</span>
+      <span class="tag">信任机制</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">OrgAgent: Organize Your Multi-Agent System like a Company</div>
+    <div class="paper-meta">
+      <span class="badge badge-may">Apr 2026</span>
+      <span class="date-tag">2026-04-01</span>
+      <span class="paper-authors">Yiru Wang, Xinyue Shen, Yaohui Han, Michael Backes, Pin-Yu Chen, Tsung-Yi Ho</span>
+    </div>
+    <div class="paper-abstract">
+      提出公司式层级化多 Agent 框架，将协作分为治理层 (Governance)、执行层 (Execution) 和合规层 (Compliance)。
+      借鉴企业组织结构设计 Agent 角色和汇报关系，显著提升复杂任务的完成质量和一致性。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=OrgAgent+multi-agent+company+hierarchical" target="_blank">🔗 arxiv</a>
+      <span class="tag">层级化架构</span>
+      <span class="tag">治理</span>
+      <span class="tag">合规</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Semantic Consensus: Process-Aware Conflict Detection and Resolution for Enterprise Multi-Agent LLM Systems</div>
+    <div class="paper-meta">
+      <span class="badge badge-may">Apr 2026</span>
+      <span class="date-tag">2026-04</span>
+      <span class="paper-authors">Vivek Acharya</span>
+    </div>
+    <div class="paper-abstract">
+      面向企业级多 Agent 系统，提出基于语义共识的冲突检测与解决机制。通过过程感知的语义分析，
+      自动识别 Agent 间输出冲突并进行协调，确保企业工作流的正确性和一致性。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Semantic+Consensus+conflict+detection+enterprise+multi-agent" target="_blank">🔗 arxiv</a>
+      <span class="tag">语义共识</span>
+      <span class="tag">冲突检测</span>
+      <span class="tag">企业级</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 2. Agent 推理与规划 -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-reasoning">
+  <h2 class="section-title">
+    <span class="icon">🧠</span> Agent 推理与规划
+    <span class="count">4 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">Do Agents Think Deeper? A Mechanistic Investigation of Layer-Wise Dynamics in Sequential Planning</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-27</span>
+    </div>
+    <div class="paper-abstract">
+      从机制可解释性角度研究 LLM Agent 在多轮规划任务中不同层的贡献。发现在 Agent 场景下，
+      模型深度利用模式与单轮推理完全不同：更深层在长期规划中承担更多"世界建模"和"状态追踪"职责，
+      这为设计更高效的 Agent 推理架构提供了关键洞察。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Do+Agents+Think+Deeper+layer-wise+sequential+planning" target="_blank">🔗 arxiv</a>
+      <span class="tag">机制可解释性</span>
+      <span class="tag">层间动态</span>
+      <span class="tag">世界建模</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Efficient Agentic Reasoning Through Self-Regulated Simulative Planning</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-21</span>
+      <span class="paper-authors">Mingkai Deng, Jinyu Hou, Lara Sá Neves, Varad Pimpalkhute, Taylor W. Killian, Zhengzhong Liu, Eric P. Xing</span>
+    </div>
+    <div class="paper-abstract">
+      提出自我调节的模拟规划 (Self-Regulated Simulative Planning) 机制：Agent 自主决定何时及如何规划，
+      通过"世界模拟"生成候选方案并在模拟结果反馈下迭代优化。该机制在避免过度规划的同时维持高质量决策，
+      在多个 Agent 基准上显著超越 ReAct 等主流范式。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Efficient+Agentic+Reasoning+Self-Regulated+Simulative+Planning" target="_blank">🔗 arxiv</a>
+      <span class="tag">模拟规划</span>
+      <span class="tag">自适应计算</span>
+      <span class="tag">世界模拟</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">MAP: A Map-then-Act Paradigm for Long-Horizon Interactive Agent Reasoning</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-13</span>
+      <span class="paper-authors">Yuxin Liu, Ziang Ye, Yueqing Sun, Mingye Zhu, Jinwei Xiao, Zhuowen Han, Qi Gu, Xunliang Cai, Lei Zhang</span>
+    </div>
+    <div class="paper-abstract">
+      提出"先建图再执行"(Map-then-Act) 的长周期 Agent 推理范式。Agent 先构建任务空间的显式认知地图，
+      包括子任务依赖关系和资源约束，再在地图引导下逐步执行。在复杂交互式环境中大幅减少无效探索和错误累积。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=MAP+Map-then-Act+long-horizon+interactive+agent+reasoning" target="_blank">🔗 arxiv</a>
+      <span class="tag">长周期规划</span>
+      <span class="tag">认知地图</span>
+      <span class="tag">交互式推理</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">EEVEE: Efficient Test-Time Prompt Learning for LLM Agents</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06</span>
+    </div>
+    <div class="paper-abstract">
+      提出在测试时动态学习最优 Prompt 的方法 EEVEE，使 Agent 能在不重新训练的情况下
+      根据任务反馈自动调整指令和示例。在多个 Agent 基准测试中展现出即插即用的适应性提升。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=EEVEE+test-time+prompt+learning+agent" target="_blank">🔗 arxiv</a>
+      <span class="tag">Test-Time Learning</span>
+      <span class="tag">Prompt 优化</span>
+      <span class="tag">自适应</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 3. Agent 工具使用 / Function Calling -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-tool-use">
+  <h2 class="section-title">
+    <span class="icon">🔧</span> Agent 工具使用 / Function Calling
+    <span class="count">4 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">Tools as Continuous Flow for Evolving Agentic Reasoning</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-08</span>
+      <span class="paper-authors">Tairan Huang, Siyu Shang, Qiang Chen, Xiu Su, Yi Chen</span>
+    </div>
+    <div class="paper-abstract">
+      将工具调用从离散步骤转变为连续流 (Continuous Flow) 范式。Agent 在推理过程中动态地将工具调用
+      编织进思维链，形成推理-工具的连续梯度流。相比传统 step-wise 调用，在长链工具使用任务中
+      减少错误累积且泛化到未见工具的能力显著提升。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Tools+Continuous+Flow+Evolving+Agentic+Reasoning" target="_blank">🔗 arxiv</a>
+      <span class="tag">连续流</span>
+      <span class="tag">工具编织</span>
+      <span class="tag">泛化能力</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Concurrency without Model Changes: Enabling Async Function Calling in LLM Agents</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05</span>
+    </div>
+    <div class="paper-abstract">
+      提出无需修改模型即可实现异步并发函数调用的方法。通过在 Agent 框架层面引入并发调度器，
+      支持 Agent 同时发起多个独立工具调用并异步合并结果，大幅提升多工具任务的执行效率。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Concurrency+without+Model+Changes+async+function+calling+agent" target="_blank">🔗 arxiv</a>
+      <span class="tag">异步调用</span>
+      <span class="tag">并发</span>
+      <span class="tag">效率提升</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">SkillSmith: Compiling Agent Skills into Boundary-Guided Runtime Interfaces</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-12</span>
+      <span class="paper-authors">Duling Xu, Zheng Chen, Zaifeng Pan, Jiawei Guan, Dong Dong, Jialin Li, Bangzheng Pu</span>
+    </div>
+    <div class="paper-abstract">
+      将 Agent 技能编译为边界引导的运行时接口 (Boundary-Guided Runtime Interfaces)。
+      通过静态分析技能的前置条件、副作用和资源需求，生成类型安全的调用接口，
+      避免了技能注入到系统提示中带来的 prompt 膨胀和安全隐患。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=SkillSmith+compiling+agent+skills+boundary-guided+runtime" target="_blank">🔗 arxiv</a>
+      <span class="tag">技能编译</span>
+      <span class="tag">运行时接口</span>
+      <span class="tag">类型安全</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">An Executable Benchmarking Suite for Tool-Using Agents</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-10</span>
+      <span class="paper-authors">Zhiqing Zhong, Zhijing Ye, Jiamin Wang, Xiaodong Yu</span>
+    </div>
+    <div class="paper-abstract">
+      提出可执行的工具使用 Agent 评估套件，提供标准化 Web 和 CLI 工具环境，
+      支持对 Agent 的工具选择、参数填充和执行规划能力进行全面评测。
+      包含 200+ 工具覆盖多种真实应用场景。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Executable+Benchmarking+Suite+Tool-Using+Agents" target="_blank">🔗 arxiv</a>
+      <span class="tag">工具评估</span>
+      <span class="tag">Benchmark</span>
+      <span class="tag">可执行环境</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 4. Agent 安全与对齐 -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-safety">
+  <h2 class="section-title">
+    <span class="icon">🛡️</span> Agent 安全与对齐
+    <span class="count">4 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">The Cold-Start Safety Gap in LLM Agents</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-05</span>
+    </div>
+    <div class="paper-abstract">
+      发现并系统研究了 LLM Agent 的"冷启动安全缺口"现象：Agent 在对话会话初期最不安全，
+      经过几个正常的 Agent 任务后会显著变得更安全。提出 SODA (Safety Over Depth for Agents) 基准
+      来量化这一现象，并探讨了多种缓解策略。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Cold-Start+Safety+Gap+LLM+Agents+SODA" target="_blank">🔗 arxiv</a>
+      <span class="tag">冷启动安全</span>
+      <span class="tag">SODA 基准</span>
+      <span class="tag">安全缺口</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">RUBAS: Rubric-Based Reinforcement Learning for Agent Safety</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-02</span>
+      <span class="paper-authors">Xian Qi Loye, Qinglin Su, Zhexin Zhang, Shiyao Cui, Qi Zhu, Fei Mi, Hongning Wang, Minlie Huang</span>
+    </div>
+    <div class="paper-abstract">
+      提出基于评分量规 (Rubric) 的强化学习框架 RUBAS，用于训练安全的工具使用 Agent。
+      通过多维度的安全评分体系对 Agent 轨迹进行细粒度评估，并使用 RL 优化策略。
+      在多种安全场景下显著降低不安全行为。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=RUBAS+rubric-based+reinforcement+learning+agent+safety" target="_blank">🔗 arxiv</a>
+      <span class="tag">安全 RL</span>
+      <span class="tag">评分量规</span>
+      <span class="tag">轨迹评估</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">On-Policy Self-Evolution via Failure Trajectories for Agentic Safety Alignment</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-12</span>
+      <span class="paper-authors">Bo Yin, Qi Li, Xinchao Wang</span>
+    </div>
+    <div class="paper-abstract">
+      利用 Agent 自身的失败轨迹进行在线自我进化来提升安全对齐。与仅关注最终回复不同，
+      该方法分析完整的工具调用轨迹（包括不安全的工具调用、注入指令等），
+      通过 On-Policy Self-Evolution 逐步纠正不安全行为模式。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=On-Policy+Self-Evolution+Failure+Trajectories+Agentic+Safety+Alignment" target="_blank">🔗 arxiv</a>
+      <span class="tag">自我进化</span>
+      <span class="tag">失败轨迹</span>
+      <span class="tag">安全对齐</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Owner-Harm: A Missing Threat Model for AI Agent Safety</div>
+    <div class="paper-meta">
+      <span class="badge badge-may">Apr 2026</span>
+      <span class="date-tag">2026-04-20</span>
+      <span class="paper-authors">Dongcheng Zhang, Yiqing Jiang</span>
+    </div>
+    <div class="paper-abstract">
+      指出现有 Agent 安全威胁模型中遗漏了"所有者伤害"(Owner-Harm) 威胁：
+      外部攻击者可能通过精心构造的输入（如恶意网页、文档）使 Agent 执行损害其所有者利益的操作。
+      提出分类框架和防护建议。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Owner-Harm+threat+model+AI+agent+safety" target="_blank">🔗 arxiv</a>
+      <span class="tag">威胁模型</span>
+      <span class="tag">所有者伤害</span>
+      <span class="tag">安全框架</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 5. Agent 记忆与上下文管理 -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-memory">
+  <h2 class="section-title">
+    <span class="icon">💾</span> Agent 记忆与上下文管理
+    <span class="count">2 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">Reducing Token Usage of State-in-Context Agents using Minification</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-05-31</span>
+      <span class="paper-authors">Nicolas Hrubec, Jürgen Cito</span>
+    </div>
+    <div class="paper-abstract">
+      针对 State-in-Context Agent 框架，提出通过"精简化"(Minification) 减少上下文 Token 用量。
+      独立复现 DirectSolve Agent 变体，并通过信息密度优化将上下文 Token 消耗降低的同时
+      维持任务完成质量，在大规模代码库场景中效果尤其显著。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Reducing+Token+Usage+State-in-Context+Minification+agent" target="_blank">🔗 arxiv</a>
+      <span class="tag">Token 优化</span>
+      <span class="tag">State-in-Context</span>
+      <span class="tag">上下文管理</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Git Context Controller: Manage the Context of LLM-based Agents like Git</div>
+    <div class="paper-meta">
+      <span class="badge badge-may">2025</span>
+      <span class="date-tag">2025-07-30</span>
+      <span class="paper-authors">Junde Wu, Minhao Hu, Jiayuan Zhu, Jiazhen Pan, Yuyuan Liu, Min Xu, Yueming Jin</span>
+    </div>
+    <div class="paper-abstract">
+      借鉴 Git 版本控制思想，提出 Git Context Controller 管理 LLM Agent 上下文。
+      支持上下文的分支、合并、回滚和 diff 操作，使 Agent 在长周期任务中能够高效地追踪和切换状态。
+      在软件工程和研究探索类任务中展示了大幅提升的上下文管理能力。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Git+Context+Controller+LLM+agent+context+management" target="_blank">🔗 arxiv</a>
+      <span class="tag">Git 范式</span>
+      <span class="tag">上下文版本控制</span>
+      <span class="tag">长周期</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 6. Agent 评估基准 -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-benchmark">
+  <h2 class="section-title">
+    <span class="icon">📊</span> Agent 评估基准
+    <span class="count">4 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">ABC-Bench: Agentic Bio-Capabilities Benchmark</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06</span>
+    </div>
+    <div class="paper-abstract">
+      评估 LLM Agent 在生物安全相关场景中的能力边界。覆盖合成生物学、病原体研究、基因编辑等
+      高风险生物领域的 Agent 交互任务，为 Agent 在敏感领域的部署提供安全评估框架。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=ABC-Bench+agentic+bio-capabilities+benchmark" target="_blank">🔗 arxiv</a>
+      <span class="tag">生物安全</span>
+      <span class="tag">能力评估</span>
+      <span class="tag">高风险领域</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">TravelEval: A Comprehensive Benchmarking Framework for LLM-Powered Travel Planning Agents</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-05-31</span>
+      <span class="paper-authors">Weiyi Chen, Shuaixiong Wang, Ziyun Gao, Kaichun Hu, Wangze Ni, Shimin Di, Chen Jason Zhang, Lei Chen</span>
+    </div>
+    <div class="paper-abstract">
+      面向旅行规划领域构建的综合 Agent 评估框架，覆盖多目标优化、约束满足和动态重规划能力。
+      包含真实世界的旅行约束数据集和多维度评估指标。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=TravelEval+Benchmarking+LLM+Travel+Planning+Agents" target="_blank">🔗 arxiv</a>
+      <span class="tag">旅行规划</span>
+      <span class="tag">多目标优化</span>
+      <span class="tag">约束满足</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">SWE-Explore: Benchmarking How Coding Agents Explore Repositories</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-05</span>
+      <span class="paper-authors">Shaoqiu Zhang, Yuhang Wang, Jialiang Liang, Yuling Shi, Wenhao Zeng, Maoquan Wang, Shilin He, Ningyuan Xu, Siyu Ye, Kai Cai, Xiaodong Gu</span>
+    </div>
+    <div class="paper-abstract">
+      专门评估编程 Agent 在代码仓库中的探索能力。不同于 SWE-Bench 关注最终修复结果，
+      SWE-Explore 评估 Agent 如何定位相关文件和理解代码结构，提供了对编程 Agent 搜索策略的细粒度分析。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=SWE-Explore+Benchmarking+Coding+Agents+Repositories" target="_blank">🔗 arxiv</a>
+      <span class="tag">仓库探索</span>
+      <span class="tag">代码定位</span>
+      <span class="tag">搜索策略</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">ADK Arena: Evaluating Agent Development Kits via LLM-as-a-Developer</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-03</span>
+      <span class="paper-authors">Jintao Huang, Xiaomin Li, Gaurav Mittal, Yu Hu</span>
+    </div>
+    <div class="paper-abstract">
+      提出 ADK Arena 评测框架，用 LLM 模拟开发者来评估各类 Agent Development Kits (ADKs)。
+      覆盖易用性、可扩展性、性能等多个维度，为选型提供标准化对比基准。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=ADK+Arena+Evaluating+Agent+Development+Kits" target="_blank">🔗 arxiv</a>
+      <span class="tag">ADK 评测</span>
+      <span class="tag">框架对比</span>
+      <span class="tag">标准化</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 7. Agent 通信协议 (MCP / A2A / IoA) -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-protocol">
+  <h2 class="section-title">
+    <span class="icon">🌐</span> Agent 通信协议 (MCP / A2A / IoA)
+    <span class="count">3 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">Capability Advertisement as a Market for Lemons: A Trust Layer for Heterogeneous Agent Networks</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-01</span>
+      <span class="paper-authors">Gaurav Naresh Mittal</span>
+    </div>
+    <div class="paper-abstract">
+      借鉴经济学中"柠檬市场"(Market for Lemons) 理论，分析异构 Agent 网络中的能力公告 (Capability Advertisement)
+      问题：Agent 可能夸大自身能力。提出基于信号博弈的信任层 (Trust Layer)，
+      通过可验证的能力证明和工作历史实现可信的能力发现。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Capability+Advertisement+Market+Lemons+Trust+Layer+Agent+Networks" target="_blank">🔗 arxiv</a>
+      <span class="tag">能力公告</span>
+      <span class="tag">信任层</span>
+      <span class="tag">异构网络</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Indexing the Unreadable: LLM-Native Recursive Construction and Search of Service Taxonomies</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-27</span>
+      <span class="paper-authors">Wei Zheng, Yang Yan, Yiyang Shao, Jinyang Li, Zeze Chang, Yukuang Jia, Qiming Mao, Chihyung Wang, Jingbin Zhou</span>
+    </div>
+    <div class="paper-abstract">
+      面向 IoA (Internet of Agents) 时代，提出 LLM-Native 的服务分类递归构建与搜索方法。
+      通过 LLM 自动构建和搜索 Agent 服务分类体系，解决异构 Agent 网络中服务发现问题。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Indexing+Unreadable+LLM-Native+Service+Taxonomies+IoA" target="_blank">🔗 arxiv</a>
+      <span class="tag">IoA</span>
+      <span class="tag">服务分类</span>
+      <span class="tag">服务发现</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Autogenesis: A Self-Evolving Agent Protocol</div>
+    <div class="paper-meta">
+      <span class="badge badge-may">Apr 2026</span>
+      <span class="date-tag">2026-05-19</span>
+      <span class="paper-authors">Wentao Zhang, Zhe Zhao, Haibin Wen, Yingcheng Wu, Cankun Guo, Ming Yin, Bo An, Mengdi Wang</span>
+    </div>
+    <div class="paper-abstract">
+      提出自我进化的 Agent 协议 (Autogenesis)，使 Agent 能够自主改进自身行为规范和交互接口。
+      在运行时通过自省和交互反馈持续优化协议，为多 Agent 生态系统的长期演化提供基础。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Autogenesis+Self-Evolving+Agent+Protocol" target="_blank">🔗 arxiv</a>
+      <span class="tag">自我进化</span>
+      <span class="tag">协议</span>
+      <span class="tag">运行时优化</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 8. 代码生成 Agent / SWE-Agent -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-code-agent">
+  <h2 class="section-title">
+    <span class="icon">💻</span> 代码生成 Agent / SWE-Agent
+    <span class="count">4 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">What Makes a Harness a Harness: Necessary and Sufficient Conditions for an Agent Harness</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-08</span>
+      <span class="paper-authors">Sanderson Oliveira de Macedo</span>
+    </div>
+    <div class="paper-abstract">
+      对 Agent Harness（Agent 运行框架）的概念进行了形式化分析，定义了一个 Harness 的必要条件和充分条件：
+      包括执行环境、工具接口、上下文管理、生命周期编排、可观测性等维度。为 Agent 框架的设计和比较
+      提供了理论基础。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=What+makes+harness+necessary+sufficient+conditions+agent+harness" target="_blank">🔗 arxiv</a>
+      <span class="tag">Harness 理论</span>
+      <span class="tag">形式化定义</span>
+      <span class="tag">框架设计</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">From Failed Trajectories to Reliable LLM Agents: Diagnosing and Repairing Harness Flaws</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-04</span>
+      <span class="paper-authors">Mengzhuo Chen, Junjie Wang, Zhe Liu, Yawen Wang, Qing Wang</span>
+    </div>
+    <div class="paper-abstract">
+      系统性地从失败轨迹中诊断 Agent Harness（工具接口、环境配置、上下文管理）的缺陷，
+      并提出自动修复方法。通过分析失败原因区分模型能力问题和框架问题，显著提升 Agent 可靠性。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Failed+Trajectories+Reliable+Agents+Diagnosing+Harness+Flaws" target="_blank">🔗 arxiv</a>
+      <span class="tag">Harness 诊断</span>
+      <span class="tag">失败分析</span>
+      <span class="tag">可靠性</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Polar: Agentic RL on Any Harness at Scale</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-22</span>
+      <span class="paper-authors">Binfeng Xu, Hao Zhang, Shaokun Zhang, Songyang Han, Mingjie Liu, Jian Hu, Shizhe Diao, Zhenghui Jin, Yunheng Zou, Michael Demoret, Jan Kautz, Yi Dong (NVIDIA)</span>
+    </div>
+    <div class="paper-abstract">
+      NVIDIA 提出的大规模 Agent RL 框架 Polar，支持在任何 Harness 上进行 Agent 强化学习。
+      解决长上下文、多轮工具使用和多 Agent 交互的 RL 训练挑战，在大规模代码生成和软件工程任务中
+      取得显著进展。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Polar+Agentic+RL+Harness+Scale+NVIDIA" target="_blank">🔗 arxiv</a>
+      <span class="tag">NVIDIA</span>
+      <span class="tag">Agent RL</span>
+      <span class="tag">规模化</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">Code as Agent Harness</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-18</span>
+      <span class="paper-authors">Xuying Ning, Katherine Tieu, Dongqi Fu, Tianxin Wei, Zihao Li, et al.</span>
+    </div>
+    <div class="paper-abstract">
+      系统性地审视代码在 Agent 系统中的角色转变：代码不再只是目标输出，更是 Agent 的操作载体
+      (Operational Substrate)。提出代码作为 Agent Harness 的新范式，涵盖代码执行、沙箱管理、
+      动态工具生成等维度。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=Code+Agent+Harness+operational+substrate" target="_blank">🔗 arxiv</a>
+      <span class="tag">代码即 Harness</span>
+      <span class="tag">操作载体</span>
+      <span class="tag">沙箱</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 9. 企业级 Agent 基础设施 -->
+<!-- ====================================================================== -->
+<div class="section" id="sec-infrastructure">
+  <h2 class="section-title">
+    <span class="icon">🏗️</span> 企业级 Agent 基础设施
+    <span class="count">2 篇</span>
+  </h2>
+
+  <div class="paper-card">
+    <div class="paper-title">RAILS: Verification-Native Clearing For Agentic Commerce</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">Jun 2026</span>
+      <span class="date-tag">2026-06-07</span>
+    </div>
+    <div class="paper-abstract">
+      面对自主 Agent 进行协商、购买、部署代码和资金转移等商业活动，提出 RAILS 验证原生清算协议。
+      提供中立的机制来判断 Agent 是否履行了委托义务、责任归属以及清算操作。
+      为企业级 Agent 商业应用提供了关键的可信基础设施。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=RAILS+Verification-Native+Clearing+Agentic+Commerce" target="_blank">🔗 arxiv</a>
+      <span class="tag">Agent 商业</span>
+      <span class="tag">验证清算</span>
+      <span class="tag">责任归属</span>
+    </div>
+  </div>
+
+  <div class="paper-card">
+    <div class="paper-title">When Agents Handle Secrets: A Survey of Confidential Computing for Agentic AI</div>
+    <div class="paper-meta">
+      <span class="badge badge-new">May 2026</span>
+      <span class="date-tag">2026-05-07</span>
+      <span class="paper-authors">Javad Forough, Marios Kogias, Hamed Haddadi</span>
+    </div>
+    <div class="paper-abstract">
+      系统调研 Agentic AI 系统中的机密计算需求。Agent 在自主行动时需要访问敏感数据（密码、密钥、
+      个人信息），而传统安全防护不足。综述 TEE (Trusted Execution Environment)、安全飞地等技术，
+      为 Agent 系统的隐私保护提供技术路线图。
+    </div>
+    <div class="paper-links">
+      <a href="https://arxiv.org/search/?query=When+Agents+Handle+Secrets+Confidential+Computing+Agentic+AI" target="_blank">🔗 arxiv</a>
+      <span class="tag">机密计算</span>
+      <span class="tag">TEE</span>
+      <span class="tag">隐私保护</span>
+      <span class="tag">Survey</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- 趋势总结 -->
+<!-- ====================================================================== -->
+<div class="trend-summary">
+  <h3>📈 本周研究方向趋势总结</h3>
+  <ul>
+    <li><strong>🎯 Agent Harness 概念正在系统化：</strong>
+      多篇论文聚焦于 Agent Harness 的形式化定义、缺陷诊断和可复现性。
+      "Harness" 已从工程术语上升为学术研究对象，包含执行环境、工具接口、上下文管理、生命周期等子系统。
+      这对企业选型和框架设计具有指导意义。</li>
+    <li><strong>🛡️ Agent 安全研究全面加速：</strong>
+      安全方向出现了"冷启动安全缺口"、"轨迹级别安全评估"、"所有者伤害威胁模型"等多个新概念。
+      研究从对话安全转向端到端的 Agentic 行为安全，关注完整工具调用轨迹而非仅关注最终输出。</li>
+    <li><strong>🌐 去中心化与协议层成为新热点：</strong>
+      多个团队独立提出去中心化 MAS 方案和 Agent 通信协议。IoA (Internet of Agents)
+      的概念正在形成，包括能力公告、服务发现、信任层等基础设施需求。</li>
+    <li><strong>🧠 推理规划范式持续创新：</strong>
+      从 ReAct 式逐步推理到 Self-Regulated Simulative Planning（模拟规划）、
+      Map-then-Act（建图+执行）等新范式，关注点和创新点都在从"如何推理"转向"何时推理"和"推理什么"。</li>
+    <li><strong>💻 编程 Agent 走向深度仓库理解：</strong>
+      SWE-Bench 之后的评估已超越"能不能修 Bug"，进入仓库探索能力 (SWE-Explore)、
+      规格推理 (SpecBench)、代码问答 (Code-QA-Bench) 等更细粒度的能力分析。</li>
+    <li><strong>🔧 工具使用进入"编译器"思维：</strong>
+      SkillSmith 和 Tools as Continuous Flow 两篇论文分别从编译理论和连续统角度重新思考工具使用，
+      将工具从离散的 API 调用升级为更高级的抽象。</li>
+    <li><strong>🏗️ 企业级落地需要"可信基础设施"：</strong>
+      RAILS (验证清算) 和 Confidential Computing (机密计算) 两篇论文明确指出，
+      企业级 Agent 部署需要超越模型能力的基础设施：验证、清算、隐私保护。</li>
+  </ul>
+</div>
+
+<footer>
+  <p>由 <strong>CHANG_AI_TEAM</strong> CTO Office 出品 · Week #4 · 2026-06-11</p>
+  <p>论文来源：<a href="https://arxiv.org" target="_blank">arxiv.org</a> (cs.AI, cs.MA, cs.CL, cs.SE) · 均提供免费 PDF 访问</p>
+  <p>仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+</footer>
+
+</div>
+</body>
+</html>
