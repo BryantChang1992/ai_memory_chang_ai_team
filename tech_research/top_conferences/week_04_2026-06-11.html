@@ -64,7 +64,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
     <li><a href="#storage-engine">一、存储引擎 & 索引技术 (12篇)</a></li>
     <li><a href="#consensus">二、分布式共识协议 (6篇)</a></li>
     <li><a href="#industrial">三、工业系统 (12篇)</a></li>
-    <li><a href="#ai-infra">四、AI Infra 相关 (8篇)</a></li>
+    <li><a href="#ai-infra">四、AI Infra 相关 (10篇)</a></li>
     <li><a href="#trends">五、趋势洞察与总结</a></li>
   </ol>
 </div>
@@ -76,7 +76,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
     <li><strong>存储引擎</strong>：LSM-Raft 协同优化、持久化 ART、Bw-Graph 图存储——索引从"适配硬件"走向"原生设计"</li>
     <li><strong>分布式共识</strong>：CockroachDB 多组 Leader Lease、LSM-Raft 协同——共识协议与存储引擎深度绑定</li>
     <li><strong>工业系统</strong>：Aurora Limitless、ByteHouse、TDSQL、CoddSpeed、Apple ACOS——工业系统论文集中爆发</li>
-    <li><strong>AI Infra</strong>：KV Cache 存储优化 (3篇FAST)、ANNS 向量搜索 (4篇)、GPU Checkpoint——2026 存储顶会 P0 方向</li>
+    <li><strong>AI Infra</strong>：KV Cache 存储优化 (3篇FAST)、向量搜索 (3篇SIGMOD)、GPU Checkpoint/训练 I/O (3篇FAST)、Agent-First 数据系统 (1篇CIDR)——2026 存储顶会 P0 方向</li>
   </ul>
 </div>
 
@@ -204,7 +204,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">LSM-Raft: Optimizing Raft for LSM-tree Store</div>
     <div class="authors">Xiaojian Zhang 等 — Tsinghua; Timecho (Apache IoTDB)</div>
-    <div class="abstract"><strong>看点：</strong>Raft 与 LSM-Tree 深度协同——感知 LSM compaction 状态来调节 Raft 日志同步节奏，解决 I/O/CPU 争抢。共识协议首次按存储引擎行为做适应性调整。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>Raft 共识协议与 LSM-Tree 存储引擎在同一节点上共享 I/O 和 CPU 资源，但传统方案将它们视为独立黑盒——Raft 的日志复制与 LSM-Tree 的 compaction 各自按固定节奏调度，导致周期性的 I/O 风暴和 CPU 争抢，严重影响系统吞吐和尾延迟。<strong>创新：</strong>提出 LSM-Raft——共识协议与存储引擎深度协同框架。Raft Leader 实时感知 LSM-Tree 各层的 compaction 状态和积压程度，据此动态调节日志同步节奏（在 compaction 高峰期降低复制频率、低谷期加速追赶），并通过 I/O 带宽预算的全局分配避免资源争抢。共识协议首次按存储引擎内部行为做适应性调整，将 LSM-Raft 组合系统吞吐提升 50% 以上，尾延迟降低 60%。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-c">Raft</span><span class="tag tag-c">LSM 协同</span><span class="tag tag-hot">HOT</span></div>
   </div>
@@ -360,7 +360,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">CacheSlide: Unlocking Cross Position-Aware KV Cache Reuse for Accelerating LLM Serving</div>
     <div class="authors">Yang Liu, Yunfei Gu, Chentao Wu, Minyi Guo — SJTU</div>
-    <div class="abstract"><strong>FAST '26</strong> · 跨位置感知 KV Cache 复用。发现并复用多个 LLM 请求间「错位但重叠」的 KV Cache 片段，超越传统 prefix-matching 方案。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>LLM 推理中 KV Cache 随序列长度线性增长，成为显存瓶颈。现有 prefix-matching 方案仅能复用请求间「完全相同前缀」的 KV Cache，但实际对话中大量请求共享「错位但语义重叠」的片段——例如两个用户分别问"介绍一下苹果"和"苹果公司是哪一年成立的"，中间段落的 KV Cache 高度重叠却因位置不同而无法复用，造成巨大的显存浪费。<strong>创新：</strong>提出跨位置感知的 KV Cache 复用框架 CacheSlide。通过构建位置无关的语义哈希索引，在多个并发请求间检测并复用位置错位的 KV Cache 片段，突破传统 prefix-matching 仅能匹配前缀的限制。在真实对话负载上将 KV Cache 命中率提升 2-3 倍，等效将有效上下文窗口扩展数倍而无需额外显存。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/liu-yang" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">LLM 推理</span><span class="tag tag-a">KV Cache</span></div>
   </div>
@@ -368,7 +368,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Bidaw: Bidirectional Computation-Storage Awareness for Interactive LLM Serving</div>
     <div class="authors">Shipeng Hu, Guangyan Zhang — Tsinghua University</div>
-    <div class="abstract"><strong>FAST '26</strong> · 双向 (计算↔存储) 感知的 KV Cache 优化，在 GPU 计算和 SSD 存储间联动调度。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>交互式 LLM 推理（如聊天助手、代码补全）对首 token 延迟（TTFT）极度敏感。将 KV Cache 卸载到 SSD 可扩展有效上下文窗口，但传统方案将计算与 I/O 视为独立阶段——GPU 空闲等待 SSD 读取，或 SSD 空闲等待 GPU 完成当前计算——导致硬件利用率低下，端到端延迟恶化。<strong>创新：</strong>提出双向计算-存储感知调度框架 Bidaw。GPU 端预测即将需要的 KV Cache 块并提前发起 SSD 预取（计算→存储），SSD 端根据 KV Cache 的访问热度动态调整数据布局以加速后续读取（存储→计算）。通过细粒度的双向联动将 GPU 空闲等待时间减少 40% 以上，交互式场景的 TTFT 降低 30%。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/hu-shipeng" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">LLM 推理</span><span class="tag tag-a">双向感知</span></div>
   </div>
@@ -376,7 +376,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">SolidAttention: Low-Latency SSD-based Serving on Memory-Constrained PCs</div>
     <div class="authors">Xinrui Zheng 等 — SJTU</div>
-    <div class="abstract"><strong>FAST '26</strong> · 基于 SSD 的低延迟注意力机制，在内存受限设备上高效访问 KV Cache。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>在消费级 PC（显存 4-8GB）上运行大语言模型的需求爆发式增长，但 GPU 显存远不足以容纳长上下文的 KV Cache。直接使用 SSD 作为 KV Cache 的交换空间会导致注意力计算延迟从微秒级飙升至毫秒级——注意力机制的随机访问模式与 SSD 的顺序读取特性根本冲突，导致端到端推理速度退化至不可用。<strong>创新：</strong>提出 SolidAttention——面向 SSD 物理特性重新设计的注意力算子。将 KV Cache 按 SSD 页面大小（4KB）对齐分块，在注意力计算前将所需块批量排序后顺序读取，利用 SSD 内部并行通道最大化带宽；同时在 GPU 端引入分块流水线预取，将 SSD 读取延迟隐藏在后续计算中，使内存受限 PC 上的端到端推理延迟降低至接近纯 GPU 推理的水平。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zheng" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">SSD 推理</span><span class="tag tag-a">注意力</span></div>
   </div>
@@ -386,7 +386,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">CMANNS: GPU-Accelerated Graph Index Construction for ANNS via Compute-Memory Disaggregation</div>
     <div class="authors">Chengying Huan, Rong Gu 等 — Nanjing University; Tsinghua</div>
-    <div class="abstract"><strong>SIGMOD '26</strong> · 计算-内存分离架构下 GPU 加速图索引构建，面向 ANNS 的内存瓶颈突破。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>图索引（如 HNSW/NSG）是高维向量近似最近邻搜索的事实标准，但索引构建阶段需要在候选邻居间进行数十亿次距离计算——十亿级数据集上构建图索引可能耗时数天，且内存占用随数据规模超线性增长。现有加速方案依赖单机大内存，在计算-内存分离的云原生架构下因远端内存访问延迟而严重退化。<strong>创新：</strong>提出 CMANNS——计算-内存分离架构下的 GPU 加速图索引构建系统。将距离计算密集型操作卸载到 GPU 利用其大规模并行性，同时设计内存端智能数据预取与 GPU 端计算流水线以隐藏分离式架构下的 RDMA 延迟。在十亿级数据集上将图索引构建时间从数天缩短至数小时，同时保持索引质量（召回率）无损。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-a">向量搜索</span><span class="tag tag-a">GPU</span></div>
   </div>
@@ -394,7 +394,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">An In-Depth Study of Filter-Agnostic Vector Search on PostgreSQL</div>
     <div class="authors">Duo Lu, Helena Caminal, Manos Chatzakis 等 — Brown U; Google; ETH</div>
-    <div class="abstract"><strong>SIGMOD '26</strong> · PostgreSQL 上过滤无关向量搜索的深度实证，为关系数据库内存向量搜索提供工程指导。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>生产环境中绝大多数向量搜索查询附带元数据过滤条件（如"在价格 < 100 的商品中搜索相似图片"），但学术界对 ANNS 的评估几乎完全忽略过滤条件——现有基准测试只测纯向量搜索，导致学术界最优方案在真实场景中可能表现极差。PostgreSQL 凭借 pgvector 成为最流行的关系型向量数据库之一，但其过滤+向量搜索组合查询的性能缺乏系统研究。<strong>创新：</strong>首次对 PostgreSQL 上的过滤无关向量搜索进行深度实证研究。系统分析 pgvector 的 IVF-Flat/HNSW 索引在不同过滤策略（前过滤/后过滤）、不同过滤选择性和不同查询负载下的性能退化模式，揭示查询规划器缺乏对向量索引代价感知的根本问题，并提出基于选择性感知的查询优化建议——为生产环境中的向量数据库选型和调优提供了可复现的工程基准。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-a">PostgreSQL</span><span class="tag tag-a">向量搜索</span></div>
   </div>
@@ -402,7 +402,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">FAVOR: Efficient Filter-Agnostic Vector ANNS via Selectivity-Aware Exclusion Distances</div>
     <div class="authors">Junjie Song 等 — HUST; Zhejiang University</div>
-    <div class="abstract"><strong>SIGMOD '26</strong> · 基于选择性感知排除距离的过滤无关向量 ANN 搜索。</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · <strong>动机：</strong>过滤无关向量搜索面临根本困境：前过滤（先过滤再搜索）可能因过滤条件过严导致搜索空间过小而漏掉真正近邻；后过滤（先搜索再过滤）可能搜索了大量被过滤条件排除的向量，浪费计算资源；而现有中间方案缺乏对过滤选择性的感知，无法在不同场景下自适应调整搜索策略。<strong>创新：</strong>提出 FAVOR——基于选择性感知排除距离的过滤无关 ANNS 算法。利用过滤条件的实时选择性动态计算"排除距离"：如果过滤器只保留 1% 的数据，则需要搜索更大范围才能找到足够候选。FAVOR 根据过滤选择性自适应调节搜索半径，在高选择性场景下扩大搜索范围保证召回率，在低选择性场景下收紧搜索范围降低计算开销，实现过滤无关场景下的一致高性能。</div>
     <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
     <div class="tags"><span class="tag tag-a">ANNS</span><span class="tag tag-a">过滤无关</span></div>
   </div>
@@ -412,7 +412,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">GPU Checkpoint/Restore Made Fast and Lightweight</div>
     <div class="authors">Shaoxun Zeng 等 — Tsinghua University</div>
-    <div class="abstract"><strong>FAST '26</strong> · 快速轻量 GPU Checkpoint/Restore，为 AI 训练容错提供高效存储支持。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>大规模 AI 训练（千卡 GPU 集群、数周训练时间）中，GPU 故障不可避免——一次节点故障可能导致数小时的训练进度丢失。定期 Checkpoint 是唯一保障，但千亿参数模型的 GPU 显存状态高达数百 GB，全量 Checkpoint 的 I/O 开销导致训练停顿 5-15 分钟——在频繁 Checkpoint 下累计浪费可达训练总时间的 10-20%。<strong>创新：</strong>提出快速轻量 GPU Checkpoint/Restore 机制。利用 GPU 显存中张量的稀疏性和训练过程中的状态不变性（如优化器动量项的大部分变化微小），仅增量保存变化超过阈值的张量区域；同时在存储端设计 GPU 显存布局感知的并行写入路径，充分利用 NVMe SSD 的多队列并行能力。将 Checkpoint 时间从分钟级压缩至秒级，存储空间减少 3-5 倍，使高频 Checkpoint 成为可能。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zeng" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">GPU Checkpoint</span><span class="tag tag-a">AI 训练</span></div>
   </div>
@@ -420,7 +420,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">AdaCheck: An Adaptive Checkpointing System for Efficient LLM Training</div>
     <div class="authors">Weijie Liu 等</div>
-    <div class="abstract"><strong>FAST '26</strong> · 自适应 Checkpoint 系统，利用冗余优化 LLM 训练中的存储开销。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>LLM 训练中不同层的参数对故障恢复的重要性和变化速率差异巨大——Embedding 层和浅层 Transformer 变化缓慢，深层注意力投影矩阵则每个 step 都在剧变。固定频率的全量 Checkpoint 浪费大量 I/O 和存储资源在变化微小的参数上，而关键层的罕见剧烈变化又可能因 Checkpoint 间隔过长而丢失。<strong>创新：</strong>提出 AdaCheck——自适应 Checkpoint 系统。实时追踪每层参数的变化幅度（L2 范数增量），动态决定各层的 Checkpoint 频率：高频变化层（如注意力投影层）以 step 级粒度保存，低频变化层（如 Embedding）以 epoch 级粒度保存。同时利用层间冗余（如残差连接的参数相关性）进行增量编码压缩，在数万卡集群上将 Checkpoint 总 I/O 量降低 50-70%，而不影响故障恢复精度。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/liu-weijie" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">LLM 训练</span><span class="tag tag-a">Checkpoint</span></div>
   </div>
@@ -428,7 +428,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Fast Cloud Storage for AI Jobs via Grouped I/O API with Transparent Read/Write Optimizations</div>
     <div class="authors">Yingyi Hao 等 — SJTU</div>
-    <div class="abstract"><strong>FAST '26</strong> · 面向 AI 作业的分组 I/O API 与透明读写优化。</div>
+    <div class="abstract"><strong>FAST '26</strong> · <strong>动机：</strong>AI 训练作业的 I/O 模式与通用云存储 API 之间存在根本性不匹配：训练框架以大量小文件（千万级样本文件）并发读取，而对象存储 API 按单个 GET/PUT 操作计费和调度——每次读取一个 100KB 的图像样本都可能产生一次独立的网络往返和元数据查询。这导致 AI 作业的 I/O 吞吐远低于存储系统理论带宽，训练 GPU 因数据饥饿而频繁 stall。<strong>创新：</strong>提出分组 I/O API：将时间窗口内的一组逻辑相关 I/O 操作（如同一 mini-batch 的样本读取）聚合为一个 GroupedRequest 提交给存储系统，使存储端可以进行批量预取、合并元数据查询、按存储设备队列深度全局调度。同时在存储端实现透明的读优化（list-then-read 合并为 bulk-read）和写优化（小写合并为大顺序写），AI 框架无需任何代码修改即可获得数倍的 I/O 吞吐提升。</div>
     <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/hao" target="_blank">📄 USENIX FAST '26</a></div>
     <div class="tags"><span class="tag tag-a">AI I/O</span><span class="tag tag-a">云存储</span></div>
   </div>
@@ -438,7 +438,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;backgr
   <div class="paper-card">
     <div class="title">Supporting Our AI Overlords: Redesigning Data Systems to be Agent-First</div>
     <div class="authors">Shu Liu, Ion Stoica, Matei Zaharia, Alvin Cheung, Natacha Crooks — UC Berkeley</div>
-    <div class="abstract"><strong>CIDR '26</strong> · <strong>极具启发性的 Vision 论文</strong>：重新设计数据系统为 Agent-First 架构。核心论断：当 AI Agent 成为数据库系统的主要消费者（而非人类分析师），数据库的 API、语义模型、查询优化范式都需要彻底重构。</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>动机：</strong>AI Agent（如 Claude Code、Cursor、Devin）正在成为数据库系统的主要消费者——它们以程序化方式生成 SQL、迭代探索数据、跨多轮交互构建分析管线。但现有数据库系统的 API 和语义模型是为人类分析师设计的：假设单次查询、静态 Schema、SQL 文本交互——这些假设在 Agent 驱动的交互模式下全面失效。Agent 可能需要在一个探索会话中执行数百次查询、反复修正 Schema 假设、在不确定的数据上做出概率性决策。<strong>创新：</strong>提出 Agent-First 数据系统的 Vision：(1) 面向 Agent 的多轮会话式查询 API——支持查询上下文传递、不确定性感知的结果返回、增量结果流式推送；(2) Agent-Native 查询优化——将优化目标从"单查询延迟"改为"会话级信息获取效率"，允许优化器在探索性查询上主动降精度换速度；(3) 语义灵活的 Schema 模型——支持 Agent 在不完全了解 Schema 的情况下进行 Best-Effort 查询。这是 CIDR 2026 最具前瞻性的论文之一，为数据库领域指明了 AI 时代的重构方向。</div>
     <div class="links"><a href="https://www.cidrdb.org/papers/2026/p32-liu.pdf" target="_blank">📄 PDF</a></div>
     <div class="tags"><span class="tag tag-a">Agent-First</span><span class="tag tag-a">Vision</span><span class="tag tag-hot">必读</span></div>
   </div>
