@@ -3,295 +3,493 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>存储/数据库顶会趋势洞察 — Week 04（2026-06-11）</title>
+<title>存储/数据库顶会趋势洞察 — Week 04 (2026-06-11)</title>
 <style>
-  :root {
-    --bg: #0d1117; --bg-secondary: #161b22; --bg-card: #1c2128;
-    --border: #30363d; --text: #e6edf3; --text-secondary: #8b949e;
-    --text-muted: #6e7681; --accent: #58a6ff; --accent2: #7ee787;
-    --accent3: #d2a8ff; --accent4: #f0883e; --danger: #f85149;
-    --tag-bg: #1c2833; --tag-text: #58a6ff;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    background: var(--bg); color: var(--text); line-height: 1.7;
-    padding: 2rem; max-width: 960px; margin: 0 auto;
-  }
-  header { text-align: center; padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; }
-  header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: .5rem; background: linear-gradient(135deg, var(--accent2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  header .subtitle { font-size: 1.05rem; color: var(--text-secondary); }
-  header .meta { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; font-size: .85rem; color: var(--text-muted); flex-wrap: wrap; }
-  header .meta span { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: .25rem .9rem; }
-  .toc { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
-  .toc h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: .8rem; }
-  .toc ol { padding-left: 1.5rem; } .toc li { margin-bottom: .35rem; }
-  .toc a { color: var(--accent); text-decoration: none; }
-  section { margin-bottom: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
-  section:last-of-type { border-bottom: none; }
-  section h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
-  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem 1.5rem; margin-bottom: 1rem; }
-  .card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: .4rem; }
-  .card h3 a { color: var(--accent); text-decoration: none; }
-  .card p { font-size: .93rem; color: var(--text-secondary); line-height: 1.65; }
-  .card .meta-row { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .8rem; color: var(--text-muted); margin-bottom: .5rem; }
-  .card .meta-row span { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: .1rem .5rem; }
-  .tag { display: inline-block; background: var(--tag-bg); color: var(--tag-text); font-size: .75rem; font-weight: 600; padding: .15rem .55rem; border-radius: 4px; margin-right: .35rem; }
-  .tag.green { background: #1a2b1f; color: #7ee787; }
-  .tag.purple { background: #211f2e; color: #d2a8ff; }
-  .tag.orange { background: #2a2018; color: #f0883e; }
-  .tag.red { background: #2a1818; color: #f85149; }
-  .tag.blue { background: #1c2833; color: #58a6ff; }
-  .highlight-box { background: var(--bg-secondary); border-left: 3px solid var(--accent2); border-radius: 0 6px 6px 0; padding: .9rem 1.3rem; margin: 1rem 0; font-size: .93rem; color: var(--text-secondary); }
-  .highlight-box strong { color: var(--text); }
-  footer { text-align: center; padding: 2.5rem 0 1rem; color: var(--text-muted); font-size: .82rem; border-top: 1px solid var(--border); margin-top: 1.5rem; }
-  a { color: var(--accent); }
-  .global-nav { display: flex; align-items: center; padding: 0 20px; background: rgba(13,17,23,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 52px; margin: -2rem -2rem 2rem; }
-  .global-nav .brand { font-weight: 700; color: var(--text); text-decoration: none; margin-right: 28px; }
-  .global-nav .nav-links { display: flex; gap: 4px; }
-  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: .88rem; padding: 6px 14px; border-radius: 8px; }
-  .global-nav .nav-link:hover, .global-nav .nav-link.active { background: var(--bg-card); color: var(--accent); }
-  @media (max-width: 640px) { body { padding: 1rem; } header h1 { font-size: 1.4rem; } }
+:root {--bg: #0d1117;--bg-secondary:#161b22;--card-bg:#1c2128;--border:#30363d;--text:#e6edf3;--text-secondary:#8b949e;--accent:#58a6ff;--accent2:#79c0ff;--gold:#d2991d;--green:#3fb950;--purple:#a371f7;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;max-width:1100px;margin:0 auto;padding:24px 20px 60px;}
+.header{text-align:center;padding:48px 0 32px;border-bottom:1px solid var(--border);margin-bottom:32px;}
+.header h1{font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.header .subtitle{color:var(--text-secondary);font-size:.95rem;}
+.header .meta{margin-top:12px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-size:.85rem;color:var(--text-secondary);}
+.header .meta span{background:var(--card-bg);padding:4px 12px;border-radius:20px;border:1px solid var(--border);}
+.toc{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:36px;}
+.toc h2{font-size:1.15rem;color:var(--accent2);margin-bottom:16px;}
+.toc ol{list-style-position:inside;}.toc li{margin:6px 0;font-size:.9rem;}
+.toc a{color:var(--text);text-decoration:none;border-bottom:1px dotted var(--text-secondary);}
+.summary-box{background:linear-gradient(135deg,rgba(88,166,255,.08),rgba(163,113,247,.08));border:1px solid rgba(88,166,255,.2);border-radius:12px;padding:24px 28px;margin-bottom:36px;}
+.summary-box h3{color:var(--accent2);font-size:1rem;margin-bottom:10px;}
+.summary-box ul{list-style:none;}.summary-box li{font-size:.9rem;margin:5px 0;padding-left:20px;position:relative;}
+.summary-box li::before{content:'▸';color:var(--accent);position:absolute;left:0;}
+.section{margin-bottom:48px;}
+.section-title{font-size:1.4rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.paper-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:14px;}
+.paper-card .title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.45;}
+.paper-card .authors{font-size:.82rem;color:var(--text-secondary);margin-bottom:8px;}
+.paper-card .abstract{font-size:.84rem;color:var(--text-secondary);line-height:1.55;margin-bottom:10px;}
+.paper-card .links a{font-size:.8rem;color:var(--accent);text-decoration:none;padding:3px 10px;border:1px solid var(--border);border-radius:15px;}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.tag{font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:500;}
+.tag-s{background:rgba(63,185,80,.15);color:var(--green);}
+.tag-c{background:rgba(210,153,29,.15);color:var(--orange);}
+.tag-i{background:rgba(88,166,255,.15);color:var(--accent);}
+.tag-a{background:rgba(163,113,247,.15);color:var(--purple);}
+.tag-hot{background:rgba(248,81,73,.15);color:#f85149;}
+.conf-section-title{font-size:1.1rem;font-weight:600;margin:28px 0 14px;padding-left:12px;border-left:3px solid var(--accent);}
+.trends-section{background:linear-gradient(135deg,rgba(210,153,29,.06),rgba(248,81,73,.04));border:1px solid rgba(210,153,29,.2);border-radius:12px;padding:28px;margin-bottom:36px;}
+.trends-section h2{font-size:1.3rem;color:var(--gold);margin-bottom:20px;}
+.trend-item{margin-bottom:18px;}
+.trend-item h4{color:var(--accent2);font-size:.95rem;margin-bottom:4px;}
+.trend-item p{color:var(--text-secondary);font-size:.84rem;line-height:1.55;}
+.footer{text-align:center;padding:24px;border-top:1px solid var(--border);color:var(--text-secondary);font-size:.8rem;margin-top:12px;}
+@media(max-width:768px){body{padding:12px 10px 40px;}.header h1{font-size:1.5rem;}.paper-card{padding:14px 16px;}}
 </style>
 </head>
 <body>
-<nav class="global-nav">
-  <a href="../../index.html" class="brand">BryantChang</a>
-  <div class="nav-links">
-    <a href="../../index.html" class="nav-link">🏠 首页</a>
-    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
-  </div>
-</nav>
 
-<header>
+<div class="header">
   <h1>存储/数据库顶会趋势洞察</h1>
-  <p class="subtitle">SIGMOD · VLDB · FAST · CIDR — 2026 上半年</p>
+  <div class="subtitle">Week 04 · 2026-06-11 · 四主题深度调研</div>
   <div class="meta">
-    <span>📅 Week 04 · 2026-06-11</span>
-    <span>📊 20+ 论文</span>
-    <span>🏛️ 4 个顶会</span>
+    <span>📅 Week 04</span>
+    <span>🏛️ SIGMOD · FAST · CIDR</span>
+    <span>📊 30+ 篇论文</span>
+    <span>🔓 全部可免费获取</span>
   </div>
-</header>
+</div>
 
 <div class="toc">
   <h2>📑 目录</h2>
   <ol>
-    <li><a href="#sigmod">SIGMOD 2026 — Bengaluru（6月）</a></li>
-    <li><a href="#fast">FAST 2026 — Santa Clara（2月）</a></li>
-    <li><a href="#vldb">VLDB 2026</a></li>
-    <li><a href="#trends">趋势洞察与总结</a></li>
-    <li><a href="#refs">参考链接</a></li>
+    <li><a href="#storage-engine">一、存储引擎 & 索引技术 (12篇)</a></li>
+    <li><a href="#consensus">二、分布式共识协议 (6篇)</a></li>
+    <li><a href="#industrial">三、工业系统 (12篇)</a></li>
+    <li><a href="#ai-infra">四、AI Infra 相关 (8篇)</a></li>
+    <li><a href="#trends">五、趋势洞察与总结</a></li>
   </ol>
 </div>
 
-<div class="highlight-box">
-  <strong>📌 编者按：</strong>本期聚焦三个方向——LLM×DB 交叉（数据库系统如何服务 LLM/Agent 推理）、存储引擎新设计（聚合存储、分离架构）、以及向量/图数据基础设施（ANNS 索引、图存储）。这些是当前存储/数据库领域增长最快的主题。
+<div class="summary-box" id="summary">
+  <h3>⚡ 执行摘要</h3>
+  <ul>
+    <li>本期覆盖 <strong>SIGMOD 2026</strong> (Bangalore, 6月)、<strong>FAST 2026</strong> (Santa Clara, 2月)、<strong>CIDR 2026</strong> (Chaminade, 1月)，按四个方向组织</li>
+    <li><strong>存储引擎</strong>：LSM-Raft 协同优化、持久化 ART、Bw-Graph 图存储——索引从"适配硬件"走向"原生设计"</li>
+    <li><strong>分布式共识</strong>：CockroachDB 多组 Leader Lease、LSM-Raft 协同——共识协议与存储引擎深度绑定</li>
+    <li><strong>工业系统</strong>：Aurora Limitless、ByteHouse、TDSQL、CoddSpeed、Apple ACOS——工业系统论文集中爆发</li>
+    <li><strong>AI Infra</strong>：KV Cache 存储优化 (3篇FAST)、ANNS 向量搜索 (4篇)、GPU Checkpoint——2026 存储顶会 P0 方向</li>
+  </ul>
 </div>
 
-<section id="sigmod">
-  <h2>🏛️ SIGMOD 2026 — 数据管理顶会</h2>
-  <p style="color:var(--text-muted);margin-bottom:1.2rem;">📍 Bengaluru, India · 📅 2026年6月 · 🔗 <a href="https://2026.sigmod.org/sigmod_papers.shtml" target="_blank">Accepted Papers</a></p>
+<!-- 一、存储引擎 & 索引 -->
+<div class="section" id="storage-engine">
+  <h2 class="section-title">🗄️ 一、存储引擎 & 索引技术</h2>
 
-  <h3 style="font-size:1.05rem;margin:1.5rem 0 .8rem;color:var(--accent2);">⚡ LLM 推理服务系统</h3>
+  <div class="conf-section-title">📌 SIGMOD 2026</div>
 
-  <div class="card">
-    <h3><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">Efficient LLM Serving for Agentic Workflows: A Data Systems Perspective</a> <span class="tag red">HOT</span></h3>
-    <div class="meta-row"><span>🏫 NUS</span><span>👤 Wadlom, Shen, Lu</span></div>
-    <p>从数据系统视角优化 Agent 工作流的 LLM 推理服务，关注多轮交互中的状态管理与资源调度。</p>
+  <div class="paper-card">
+    <div class="title">ART That Lasts: Persistent Multiversion Adaptive Radix Trees with Fast Atomic Range Queries</div>
+    <div class="authors">Mohammad Khalaji, Trevor Brown, Khuzaima Daudjee — University of Waterloo</div>
+    <div class="abstract">持久化多版本自适应基数树，支持快速原子范围查询。为 PMem/NVM 原生数据结构提供新范式。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-s">持久化索引</span><span class="tag tag-s">ART</span></div>
   </div>
 
-  <div class="card">
-    <h3><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">AlignedServe: Orchestrating Prefix-aware Batching for High-throughput LLM Serving</a> <span class="tag blue">SYSTEM</span></h3>
-    <div class="meta-row"><span>🏫 中山大学</span><span>👤 Bai, Zhang, Chen et al.</span></div>
-    <p>通过前缀感知批量调度提升 LLM 推理吞吐，利用共享前缀减少重复计算。</p>
+  <div class="paper-card">
+    <div class="title">Concurrent Path-Copying Update to Tree Structures</div>
+    <div class="authors">Guanhao Hou, Dechuang Chen 等 — CUHK; HKUST</div>
+    <div class="abstract">树结构并发路径拷贝更新算法，在多核场景下实现无锁持久化。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-s">并发索引</span><span class="tag tag-s">Path-Copying</span></div>
   </div>
 
-  <div class="card">
-    <h3><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">CoDec: Prefix-Shared Decoding Kernel for LLMs</a> <span class="tag blue">SYSTEM</span></h3>
-    <div class="meta-row"><span>🏫 南京大学</span><span>👤 Wang, Ning, Fang et al.</span></div>
-    <p>前缀共享解码内核，在多请求场景下最大化 KV Cache 复用，降低延迟和内存开销。</p>
+  <div class="paper-card">
+    <div class="title">Bw-Graph: An Efficient Graph Storage System Harmonizing Topology-Aware Tree with Paged CSR</div>
+    <div class="authors">Songyao Wang, Chaokun Wang 等 — Tsinghua University</div>
+    <div class="abstract">融合拓扑感知树与分页 CSR 的图存储系统，在遍历性能和随机访问间取得平衡。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-s">图存储</span><span class="tag tag-s">数据布局</span></div>
   </div>
 
-  <div class="card">
-    <h3><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">DFLOP: A Data-driven Framework for Multimodal LLM Training Pipeline Optimization</a> <span class="tag orange">TRAINING</span></h3>
-    <div class="meta-row"><span>🏫 Yonsei U · Microsoft · SK Telecom</span></div>
-    <p>数据驱动的多模态 LLM 训练流水线优化框架，从数据选择到并行策略的全链路调优。</p>
+  <div class="paper-card">
+    <div class="title">Dynamic Flat Filter: A Unified Framework for Scalable Fingerprint-Based Filters</div>
+    <div class="authors">Haoyu Du, Yuchen Ji 等 — 苏州大学</div>
+    <div class="abstract">可扩展指纹过滤器统一框架，Bloom Filter 替代方案，动态调整假阳性率。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-s">过滤器</span><span class="tag tag-s">LSM-Tree</span></div>
   </div>
 
-  <h3 style="font-size:1.05rem;margin:1.5rem 0 .8rem;color:var(--accent2);">💾 存储引擎与索引</h3>
-
-  <div class="card">
-    <h3>Reducing Tail Latency in Storage-Disaggregated Database Systems <span class="tag green">STORAGE</span></h3>
-    <div class="meta-row"><span>🏫 Purdue University</span><span>👤 Pang, Wang</span></div>
-    <p>存储分离架构下数据库系统的尾延迟优化，针对云原生场景的网络与 I/O 延迟挑战。</p>
+  <div class="paper-card">
+    <div class="title">PartitionKV: Redesigning LSM-tree KV stores on NVMs with Adaptive Partitioning</div>
+    <div class="authors">Xingye Huang 等 — Xidian University; NWPU</div>
+    <div class="abstract">面向 NVM 的 LSM-Tree 重新设计，自适应分区减少写停顿和写放大。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/1" target="_blank">📄 PACMMOD Vol.4 No.1 (R3)</a></div>
+    <div class="tags"><span class="tag tag-s">LSM-Tree</span><span class="tag tag-s">NVM</span></div>
   </div>
 
-  <div class="card">
-    <h3>ART That Lasts: Persistent Multiversion Adaptive Radix Trees with Fast Atomic Range Queries <span class="tag green">STORAGE</span></h3>
-    <div class="meta-row"><span>🏫 U Waterloo</span><span>👤 Khalaji, Brown, Daudjee</span></div>
-    <p>持久化多版本自适应基数树：支持快速原子范围查询，面向 NVM/PMem 场景的持久化索引结构。</p>
+  <div class="paper-card">
+    <div class="title">Efficient Index Layout and Search Strategy for Large-scale High-dimensional Vector Similarity Search</div>
+    <div class="authors">Jingyu Chen 等 — 南科大; Huawei</div>
+    <div class="abstract">百亿级向量相似搜索的索引布局与搜索策略优化，面向工业级向量数据库。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-s">向量索引</span><span class="tag tag-s">ANN</span></div>
   </div>
 
-  <div class="card">
-    <h3>Bw-Graph: An Efficient Graph Storage System Harmonizing Topology-Aware Tree with Paged CSR <span class="tag purple">GRAPH</span></h3>
-    <div class="meta-row"><span>🏫 清华大学</span><span>👤 Wang, Wang, Li, Zhang</span></div>
-    <p>图存储系统：融合拓扑感知树与分页 CSR 格式，在遍历和随机访问间取得平衡。</p>
+  <div class="conf-section-title">📌 FAST 2026</div>
+
+  <div class="paper-card">
+    <div class="title">DMTree: Towards Efficient Tree Indexing on Disaggregated Memory via Compute-side Collaborative Design</div>
+    <div class="authors">Guoli Wei, Yongkun Li 等 — USTC</div>
+    <div class="abstract">分离式内存架构下的树索引优化，通过计算端协同设计重新平衡 I/O 路径。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/wei" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-s">分离式内存</span><span class="tag tag-s">树索引</span></div>
   </div>
 
-  <div class="card">
-    <h3>Concurrent Path-Copying Update to Tree Structures <span class="tag green">STORAGE</span></h3>
-    <div class="meta-row"><span>🏫 CUHK</span><span>👤 Hou, Chen, Guo, Zhang, Wang</span></div>
-    <p>树结构的并发路径复制更新算法，在多核场景下实现无锁持久化数据结构。</p>
+  <div class="paper-card">
+    <div class="title">"Range as a Key" is the Key! Fast and Compact Cloud Block Store Index with RASK</div>
+    <div class="authors">Haoru Zhao, Mingkai Dong 等 — SJTU</div>
+    <div class="abstract">云块存储索引新思路：用逻辑块地址范围作为索引 key，大幅减少元数据。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zhao" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-s">块存储索引</span><span class="tag tag-s">RASK</span></div>
   </div>
 
-  <div class="card">
-    <h3>Dynamic Flat Filter: A Unified Framework for Scalable Fingerprint-Based Filters <span class="tag green">STORAGE</span></h3>
-    <div class="meta-row"><span>🏫 苏州大学</span><span>👤 Du, Ji, Huang et al.</span></div>
-    <p>可扩展指纹过滤器的统一框架，针对 LSM-Tree 等存储引擎的 Bloom Filter 替代方案。</p>
+  <div class="paper-card">
+    <div class="title">Holistic and Automated Task Scheduling for Distributed LSM-tree-based Storage</div>
+    <div class="authors">Yuanming Ren, Siyuan Sheng 等 — USTC; CUHK</div>
+    <div class="abstract">分布式 LSM-Tree 的全局自动化任务调度，解决 compaction/flush 多副本互扰。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/ren" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-s">LSM-Tree</span><span class="tag tag-s">调度</span></div>
   </div>
 
-  <h3 style="font-size:1.05rem;margin:1.5rem 0 .8rem;color:var(--accent2);">🔍 向量与图搜索</h3>
-
-  <div class="card">
-    <h3>CMANNS: GPU-Accelerated Graph Index Construction for ANNS via Compute-Memory Disaggregation <span class="tag purple">VECTOR</span></h3>
-    <div class="meta-row"><span>🏫 南京大学</span><span>👤 Huan, Yao, Gu et al.</span></div>
-    <p>利用计算-存储分离架构加速 GPU 上的近似最近邻搜索图索引构建，解决大规模向量搜索的内存瓶颈。</p>
+  <div class="paper-card">
+    <div class="title">DOGI: Data Placement with Oracle-Guided Insights for Log-Structured Systems</div>
+    <div class="authors">(FAST 2026)</div>
+    <div class="abstract">日志结构系统数据放置策略，Oracle 引导优化冷热分离和空间放大。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-s">日志结构</span><span class="tag tag-s">数据放置</span></div>
   </div>
 
-  <div class="card">
-    <h3>Efficient Index Layout and Search Strategy for Large-scale High-dimensional Vector Similarity Search <span class="tag purple">VECTOR</span></h3>
-    <div class="meta-row"><span>🏫 南方科技大学 · 华为</span><span>👤 Chen, Liu, Deng et al.</span></div>
-    <p>大规模高维向量相似搜索的索引布局与搜索策略优化，面向百亿级向量的生产场景。</p>
+  <div class="conf-section-title">📌 CIDR 2026</div>
+
+  <div class="paper-card">
+    <div class="title">Raster is Faster: Rethinking Ray Tracing in Database Indexing</div>
+    <div class="authors">Harish Doraiswamy, Jayant R. Haritsa — IISc Bangalore</div>
+    <div class="abstract">光栅化替代光线追踪加速 GPU 数据库索引，图形学方法迁移到 DB 索引。</div>
+    <div class="links"><a href="https://www.cidrdb.org/papers/2026/p18-doraiswamy.pdf" target="_blank">📄 PDF</a></div>
+    <div class="tags"><span class="tag tag-s">GPU 索引</span></div>
   </div>
 
-  <div class="card">
-    <h3>An In-Depth Study of Filter-Agnostic Vector Search on PostgreSQL <span class="tag orange">ANALYSIS</span></h3>
-    <div class="meta-row"><span>🏫 Brown U · Google · ETH</span><span>👤 Lu, Caminal, Chatzakis et al.</span></div>
-    <p>在 PostgreSQL 上实现过滤无关向量搜索的深度实证研究，为关系型数据库内存向量搜索提供工程指导。</p>
+  <div class="paper-card">
+    <div class="title">Flexible I/O for Database Management Systems with xNVMe</div>
+    <div class="authors">Emil Houlborg, Pınar Tözün — ITU Copenhagen</div>
+    <div class="abstract">xNVMe 统一 NVMe 硬件抽象层，透明选择 kernel-bypass 或标准内核路径。</div>
+    <div class="links"><a href="https://www.cidrdb.org/papers/2026/p6-houlborg.pdf" target="_blank">📄 PDF</a></div>
+    <div class="tags"><span class="tag tag-s">NVMe</span><span class="tag tag-s">存储 I/O</span></div>
+  </div>
+</div>
+
+<!-- 二、分布式共识协议 -->
+<div class="section" id="consensus">
+  <h2 class="section-title">🤝 二、分布式共识协议</h2>
+
+  <div class="conf-section-title">📌 SIGMOD 2026</div>
+
+  <div class="paper-card">
+    <div class="title">Scalable Leader Leases For Multi Consensus Groups in CockroachDB</div>
+    <div class="authors">Ibrahim Kettaneh, Tsvetomira Radeva, Rebecca Taft 等 — Cockroach Labs</div>
+    <div class="abstract">CockroachDB 多 Raft 组 (数十万级) 的 Leader Lease 规模化方案，降低控制面开销。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-c">Raft</span><span class="tag tag-c">Lease</span><span class="tag tag-i">工业论文</span></div>
   </div>
 
-  <div class="card">
-    <h3>cuRPQ: High-Performance GPU-Based Framework for Regular Path Queries <span class="tag purple">GRAPH</span></h3>
-    <div class="meta-row"><span>🏫 KAIST</span><span>👤 Park, Kim, Kim</span></div>
-    <p>基于 GPU 的正则路径查询加速框架，将图遍历查询推向新硬件。</p>
+  <div class="paper-card">
+    <div class="title">LSM-Raft: Optimizing Raft for LSM-tree Store</div>
+    <div class="authors">Xiaojian Zhang 等 — Tsinghua; Timecho (Apache IoTDB)</div>
+    <div class="abstract"><strong>看点：</strong>Raft 与 LSM-Tree 深度协同——感知 LSM compaction 状态来调节 Raft 日志同步节奏，解决 I/O/CPU 争抢。共识协议首次按存储引擎行为做适应性调整。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-c">Raft</span><span class="tag tag-c">LSM 协同</span><span class="tag tag-hot">HOT</span></div>
   </div>
 
-  <h3 style="font-size:1.05rem;margin:1.5rem 0 .8rem;color:var(--accent2);">🤖 LLM × DB 交叉</h3>
-
-  <div class="card">
-    <h3>Automated Discovery of Test Oracles for DBMS Using LLMs <span class="tag orange">LLM×DB</span></h3>
-    <div class="meta-row"><span>🏫 UC Berkeley · NUS · 清华</span><span>👤 Mang, He, Zhong et al.</span></div>
-    <p>利用 LLM 自动发现 DBMS 测试预言，减少数据库测试中的人工 Oracle 编写。</p>
+  <div class="paper-card">
+    <div class="title">Epoch-based Optimistic Concurrency Control in Geo-replicated Databases</div>
+    <div class="authors">Yunhao Mao 等 — U Toronto; Keio University</div>
+    <div class="abstract">基于 epoch 的乐观并发控制，在 100ms+ 跨洲延迟下保证快照隔离并提升吞吐。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-c">Geo-Replication</span><span class="tag tag-c">OCC</span></div>
   </div>
 
-  <div class="card">
-    <h3>Automating Database-Native Function Code Synthesis with LLMs <span class="tag orange">LLM×DB</span></h3>
-    <div class="meta-row"><span>🏫 上海交大 · 清华 · NUS · 蚂蚁</span><span>👤 Zhou, Zhou, He, Li, He et al.</span></div>
-    <p>利用 LLM 自动合成数据库原生函数代码，加速 UDF/UDAF 的开发和优化。</p>
+  <div class="paper-card">
+    <div class="title">Reducing Tail Latency in Storage-Disaggregated Database Systems</div>
+    <div class="authors">Zhengrui Pang, Jiannan Wang — Purdue University</div>
+    <div class="abstract">存储分离架构下的尾延迟优化。从请求调度、预取和副本选择三个维度切入。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-c">尾延迟</span><span class="tag tag-c">分离式架构</span></div>
   </div>
 
-  <div class="card">
-    <h3>DBugScribe: Automatic Database Bug Reproduction from Community Reports <span class="tag orange">LLM×DB</span></h3>
-    <div class="meta-row"><span>🏫 NUS · 阿里</span><span>👤 Zhong, Sha, Wang et al.</span></div>
-    <p>从社区报告自动复现数据库 Bug，LLM 驱动的 Bug 理解与测试用例生成。</p>
+  <div class="conf-section-title">📌 CIDR 2026</div>
+
+  <div class="paper-card">
+    <div class="title">Rosé: Flexible Replication With Strong Semantics For Partitioned Databases</div>
+    <div class="authors">Ioannis Zarkadas, Philip A. Bernstein, Asaf Cidon — Columbia; Microsoft Research</div>
+    <div class="abstract">每个分区独立选择复制策略的"one-size-fits-one"复制协议。</div>
+    <div class="links"><a href="https://www.cidrdb.org/papers/2026/p8-zarkadas.pdf" target="_blank">📄 PDF</a></div>
+    <div class="tags"><span class="tag tag-c">复制协议</span><span class="tag tag-c">分区 DB</span></div>
   </div>
 
-  <div class="card">
-    <h3>AgenticScholar: Agentic Data Management with Pipeline Orchestration for Scholarly Corpora <span class="tag orange">LLM×DB</span></h3>
-    <div class="meta-row"><span>🏫 UQ · 清华 · 武汉大学</span><span>👤 Lan, Wang, Bao, Li et al.</span></div>
-    <p>面向学术语料库的 Agent 数据管理，利用 LLM Agent 编排学术数据的处理流水线。</p>
+  <div class="paper-card">
+    <div class="title">Event Horizon: Asymmetric Dependencies for Fast Geo-Distributed Operations</div>
+    <div class="authors">Jonathan Arns 等 — TU Delft</div>
+    <div class="abstract">非对称依赖模型，利用单向依赖降低跨地域协调延迟。</div>
+    <div class="links"><a href="https://www.cidrdb.org/papers/2026/p20-arns.pdf" target="_blank">📄 PDF</a></div>
+    <div class="tags"><span class="tag tag-c">非对称依赖</span><span class="tag tag-c">低延迟</span></div>
   </div>
-</section>
+</div>
 
-<section id="fast">
-  <h2>💾 FAST 2026 — 文件与存储技术顶会</h2>
-  <p style="color:var(--text-muted);margin-bottom:1.2rem;">📍 Santa Clara, CA · 📅 2026年2月24-26日 · 🔗 <a href="https://www.usenix.org/conference/fast26/spring-accepted-papers" target="_blank">Accepted Papers</a> · <a href="https://dblp.org/db/conf/fast/fast2026.html" target="_blank">dblp</a></p>
+<!-- 三、工业系统 -->
+<div class="section" id="industrial">
+  <h2 class="section-title">🏭 三、工业系统</h2>
 
-  <div class="card">
-    <h3>FAST 2026 Spring Session 论文集 <span class="tag red">NEW</span></h3>
-    <div class="meta-row"><span>🏫 USENIX</span><span>📅 2026-02</span></div>
-    <p>FAST 2026 春季会议已闭幕，论文涵盖：CXL 内存池化存储、计算存储融合、去中心化存储网络、ML 辅助存储栈优化等前沿方向。全部论文可通过 USENIX 开放获取。</p>
-    <p style="margin-top:.5rem;">👉 <a href="https://www.usenix.org/conference/fast26/spring-accepted-papers" target="_blank">查看完整论文列表</a> · <a href="https://dblp.org/db/conf/fast/fast2026.html" target="_blank">dblp 索引（含摘要链接）</a></p>
-  </div>
+  <div class="conf-section-title">📌 SIGMOD 2026 Industry (精选)</div>
 
-  <p style="color:var(--text-muted);margin:1.5rem 0;font-size:.93rem;">
-    ⚠️ 注：USENIX FAST 论文通过 USENIX 官网开放获取。本期因页面访问限制未能逐篇提取摘要，建议直接访问 <a href="https://www.usenix.org/conference/fast26/spring-accepted-papers" target="_blank">FAST 2026 Accepted Papers</a> 浏览。后续周报将补充详细解读。
-  </p>
-</section>
-
-<section id="vldb">
-  <h2>📊 VLDB / CIDR 2026</h2>
-
-  <div class="card">
-    <h3>VLDB 2026 <span class="tag blue">UPCOMING</span></h3>
-    <div class="meta-row"><span>📅 2026年8-9月（待确认）</span></div>
-    <p>VLDB 2026 论文征集进行中。作为数据库领域三大顶会之一，预计将覆盖云原生数据库、数据湖架构、向量化查询引擎、LLM 辅助数据管理等方向。</p>
+  <div class="paper-card">
+    <div class="title">Aurora PostgreSQL Limitless Database</div>
+    <div class="authors">Dima Arkhangelskiy 等 20 人 — AWS</div>
+    <div class="abstract">Aurora 从单写多读到多写架构的飞跃，保持 PG 兼容性的分布式 OLTP。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">AWS Aurora</span><span class="tag tag-i">分布式 OLTP</span></div>
   </div>
 
-  <div class="card">
-    <h3>CIDR 2026 <span class="tag purple">DONE</span></h3>
-    <div class="meta-row"><span>📅 2026年1月</span></div>
-    <p>CIDR 2026 已于年初举办，主题聚焦数据库系统新范式。论文通过 <a href="https://www.cidrdb.org/" target="_blank">cidrdb.org</a> 开放获取。值得关注的方向包括 Serverless 数据库、Disaggregated Storage、和 AI-Native 数据库架构。</p>
-  </div>
-</section>
-
-<section id="trends">
-  <h2>📈 趋势洞察与总结</h2>
-
-  <div class="highlight-box">
-    <strong>趋势一：LLM 推理成为数据库系统新的核心负载</strong><br>
-    SIGMOD 2026 出现了多篇专门研究 LLM 推理服务的系统论文（AlignedServe、CoDec、Efficient LLM Serving for Agentic Workflows），数据库社区正式将 LLM 推理视为一等公民工作负载。前缀共享、批处理调度、KV Cache 管理等数据库技术正在向推理服务迁移。
+  <div class="paper-card">
+    <div class="title">ByteHouse: ByteDance's Cloud-Native Data Warehouse</div>
+    <div class="authors">Yuxing Han 等 — ByteDance; SJTU; Tsinghua</div>
+    <div class="abstract">字节跳动云原生实时数仓，支持多模态数据实时分析。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">ByteDance</span><span class="tag tag-i">实时数仓</span></div>
   </div>
 
-  <div class="highlight-box">
-    <strong>趋势二：存储分离架构走向成熟</strong><br>
-    "Reducing Tail Latency in Storage-Disaggregated Database Systems" 和 "CMANNS" 等论文表明，计算-存储分离已从概念验证进入生产调优阶段。尾延迟优化、GPU 加速索引构建等后分离时代的工程问题成为研究热点。
+  <div class="paper-card">
+    <div class="title">TDSQL-Boundless: Distributed Database for Heterogeneous Multi-Table Workloads</div>
+    <div class="authors">Yuxing Chen 等 — Tencent; Renmin Univ</div>
+    <div class="abstract">腾讯 TDSQL Boundless：多表 JOIN 场景下的数据路由和分布式查询优化。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">TDSQL</span><span class="tag tag-i">分布式 DB</span></div>
   </div>
 
-  <div class="highlight-box">
-    <strong>趋势三：向量/图数据基础设施深度融合</strong><br>
-    ANNS（近似最近邻搜索）和图查询正从独立组件向数据库内核融合——PostgreSQL 上的向量搜索研究、GPU 加速的正则路径查询、以及拓扑感知的图存储系统，标志着"多模态数据库"时代加速到来。
+  <div class="paper-card">
+    <div class="title">CoddSpeed: Hardware Accelerated Query Processing in Microsoft Fabric</div>
+    <div class="authors">Matteo Interlandi 等 50+ 人 — Microsoft</div>
+    <div class="abstract">以 Codd 命名的 FPGA 加速查询引擎，代表"异构硬件透明加速"的工业实践。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">硬件加速</span><span class="tag tag-i">MS Fabric</span></div>
   </div>
 
-  <div class="highlight-box">
-    <strong>趋势四：LLM for DB 从工具走向平台</strong><br>
-    DBugScribe（Bug 复现）、Test Oracle Discovery（测试预言）、Database-Native Function Synthesis（代码合成）——LLM 不再只是数据库的辅助工具，而是在重塑数据库的测试、开发和运维全流程。
+  <div class="paper-card">
+    <div class="title">TokaDB: A Unified Storage Engine for Training-Serving Data Management</div>
+    <div class="authors">Peng Fang 等 — HUST; ByteDance</div>
+    <div class="abstract">推荐系统训练-服务统一存储引擎，解决训练/推理两侧特征不一致问题。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">推荐系统</span><span class="tag tag-i">统一存储</span></div>
   </div>
 
-  <div class="highlight-box">
-    <strong>趋势五：持久化索引结构迎接新硬件</strong><br>
-    FM-Index 变体、持久化 ART、并发路径复制——面向 NVM/CXL/PMem 的存储引擎设计正从"适配"走向"原生"。CMANNS 的 Compute-Memory Disaggregation 方案是 GPU 与存储融合的典型代表。
-  </div>
-</section>
-
-<section id="refs">
-  <h2>🔗 参考链接</h2>
-
-  <div class="card">
-    <h3>顶会官网</h3>
-    <ul>
-      <li><a href="https://2026.sigmod.org/sigmod_papers.shtml" target="_blank">SIGMOD 2026 — Accepted Papers</a></li>
-      <li><a href="https://www.usenix.org/conference/fast26/spring-accepted-papers" target="_blank">FAST 2026 — Spring Accepted Papers</a></li>
-      <li><a href="https://dblp.org/db/conf/fast/fast2026.html" target="_blank">FAST 2026 — dblp 索引</a></li>
-      <li><a href="https://www.cidrdb.org/" target="_blank">CIDR 2026 — 论文集</a></li>
-      <li><a href="https://openaccept.org/c/sys/fast/2026/" target="_blank">FAST 2026 — OpenAccept 统计数据</a></li>
-    </ul>
+  <div class="paper-card">
+    <div class="title">ByteGraph-Dione: Adaptive Dual-Format Graph Engine</div>
+    <div class="authors">Chao Chen 等 14 人 — ByteDance</div>
+    <div class="abstract">自适应双格式图引擎，根据访问热度在 CSR/邻接表间动态切换+事务支持。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">图引擎</span><span class="tag tag-i">自适应格式</span></div>
   </div>
 
-  <div class="card">
-    <h3>PACMMOD 期刊（SIGMOD 论文发表渠道）</h3>
-    <ul>
-      <li><a href="https://dl.acm.org/toc/PACMMOD/2025/3/4" target="_blank">Round 1 Papers</a></li>
-      <li><a href="https://dl.acm.org/toc/PACMMOD/2025/3/6" target="_blank">Round 2 Papers</a></li>
-      <li><a href="https://dl.acm.org/toc/pacmmod/2026/4/1" target="_blank">Round 3 Papers</a></li>
-      <li><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">Round 4 Papers</a></li>
-    </ul>
+  <div class="paper-card">
+    <div class="title">LindormVector: Distributed Vector Engine on Multi-Model NoSQL Database</div>
+    <div class="authors">Yan Wang 等 — Alibaba Cloud; USTC; Rutgers</div>
+    <div class="abstract">阿里云 Lindorm 分布式向量引擎，在多模 NoSQL 上增加向量搜索能力。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">向量引擎</span><span class="tag tag-i">多模 DB</span></div>
   </div>
-</section>
 
-<footer>
-  <p>由 <strong>CHANG_AI_TEAM</strong> 技术调研团队维护 · 每周更新</p>
-  <p>收录标准：顶会接收论文 · 优先收录可免费获取原文的论文 · 聚焦存储/数据库方向</p>
-</footer>
+  <div class="paper-card">
+    <div class="title">Scalable and Resilient Storage Tier for Azure SQL Hyperscale</div>
+    <div class="authors">Alejandro Hernandez Saenz 等 — Microsoft</div>
+    <div class="abstract">Azure SQL Hyperscale 的可扩展弹性存储层设计。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">Azure SQL</span><span class="tag tag-i">Hyperscale</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">CLAPS: Load-Aware Proxy Resource Pooling for Large-Scale Cloud Storage</div>
+    <div class="authors">Xiuqi Huang 等 — Zhejiang Univ; ByteDance</div>
+    <div class="abstract">负载感知代理池化系统，减少大规模云存储的资源冗余。</div>
+    <div class="links"><a href="https://2026.sigmod.org/sigmod_industry_papers.shtml" target="_blank">📄 SIGMOD Industry</a></div>
+    <div class="tags"><span class="tag tag-i">云存储</span><span class="tag tag-i">资源池化</span></div>
+  </div>
+
+  <div class="conf-section-title">📌 FAST 2026</div>
+
+  <div class="paper-card">
+    <div class="title">ACOS: Apple's Geo-Distributed Object Store at Exabyte Scale</div>
+    <div class="authors">Benjamin Baron 等 — Apple</div>
+    <div class="abstract">Apple EB 级地理分布式对象存储完整架构公开，跨大洲数据放置与故障恢复。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/baron" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-i">Apple</span><span class="tag tag-i">EB 级存储</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">Discard-Based Garbage Collection for Distributed Log-Structured Storage in ByteDance</div>
+    <div class="authors">Runhua Bian 等 — ByteDance</div>
+    <div class="abstract">字节跳动日志结构化存储的 discard/trim 零拷贝 GC，PB 级生产部署。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/bian" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-i">ByteDance</span><span class="tag tag-i">日志 GC</span></div>
+  </div>
+
+  <div class="conf-section-title">📌 CIDR 2026</div>
+
+  <div class="paper-card">
+    <div class="title">A Multi-tenant Relational OLTP Database at Salesforce</div>
+    <div class="authors">Vaibhav Arora, Pat Helland 等 — Salesforce</div>
+    <div class="abstract">Salesforce 多租户 OLTP 数据库的架构演进。</div>
+    <div class="links"><a href="https://www.cidrdb.org/papers/2026/p28-arora.pdf" target="_blank">📄 PDF</a></div>
+    <div class="tags"><span class="tag tag-i">Salesforce</span><span class="tag tag-i">多租户 DB</span></div>
+  </div>
+</div>
+
+<!-- 四、AI Infra -->
+<div class="section" id="ai-infra">
+  <h2 class="section-title">🤖 四、AI Infra 相关</h2>
+
+  <div class="conf-section-title">📌 LLM 推理 · KV Cache 存储优化 (FAST 2026)</div>
+
+  <div class="paper-card">
+    <div class="title">CacheSlide: Unlocking Cross Position-Aware KV Cache Reuse for Accelerating LLM Serving</div>
+    <div class="authors">Yang Liu, Yunfei Gu, Chentao Wu, Minyi Guo — SJTU</div>
+    <div class="abstract"><strong>FAST '26</strong> · 跨位置感知 KV Cache 复用。发现并复用多个 LLM 请求间「错位但重叠」的 KV Cache 片段，超越传统 prefix-matching 方案。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/liu-yang" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-a">LLM 推理</span><span class="tag tag-a">KV Cache</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">Bidaw: Bidirectional Computation-Storage Awareness for Interactive LLM Serving</div>
+    <div class="authors">Shipeng Hu, Guangyan Zhang — Tsinghua University</div>
+    <div class="abstract"><strong>FAST '26</strong> · 双向 (计算↔存储) 感知的 KV Cache 优化，在 GPU 计算和 SSD 存储间联动调度。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/hu-shipeng" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-a">LLM 推理</span><span class="tag tag-a">双向感知</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">SolidAttention: Low-Latency SSD-based Serving on Memory-Constrained PCs</div>
+    <div class="authors">Xinrui Zheng 等 — SJTU</div>
+    <div class="abstract"><strong>FAST '26</strong> · 基于 SSD 的低延迟注意力机制，在内存受限设备上高效访问 KV Cache。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zheng" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-a">SSD 推理</span><span class="tag tag-a">注意力</span></div>
+  </div>
+
+  <div class="conf-section-title">📌 向量搜索 (ANNS) · SIGMOD 2026</div>
+
+  <div class="paper-card">
+    <div class="title">CMANNS: GPU-Accelerated Graph Index Construction for ANNS via Compute-Memory Disaggregation</div>
+    <div class="authors">Chengying Huan, Rong Gu 等 — Nanjing University; Tsing
+
+  <div class="conf-section-title">📌 向量搜索 (ANNS) · SIGMOD 2026</div>
+
+  <div class="paper-card">
+    <div class="title">CMANNS: GPU-Accelerated Graph Index Construction for ANNS via Compute-Memory Disaggregation</div>
+    <div class="authors">Chengying Huan, Rong Gu 等 — Nanjing University; Tsinghua</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · 计算-内存分离架构下 GPU 加速图索引构建，面向 ANNS 的内存瓶颈突破。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-a">向量搜索</span><span class="tag tag-a">GPU</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">An In-Depth Study of Filter-Agnostic Vector Search on PostgreSQL</div>
+    <div class="authors">Duo Lu, Helena Caminal, Manos Chatzakis 等 — Brown U; Google; ETH</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · PostgreSQL 上过滤无关向量搜索的深度实证，为关系数据库内存向量搜索提供工程指导。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-a">PostgreSQL</span><span class="tag tag-a">向量搜索</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">FAVOR: Efficient Filter-Agnostic Vector ANNS via Selectivity-Aware Exclusion Distances</div>
+    <div class="authors">Junjie Song 等 — HUST; Zhejiang University</div>
+    <div class="abstract"><strong>SIGMOD '26</strong> · 基于选择性感知排除距离的过滤无关向量 ANN 搜索。</div>
+    <div class="links"><a href="https://dl.acm.org/toc/pacmmod/2026/4/3" target="_blank">📄 PACMMOD Vol.4 No.3</a></div>
+    <div class="tags"><span class="tag tag-a">ANNS</span><span class="tag tag-a">过滤无关</span></div>
+  </div>
+
+  <div class="conf-section-title">📌 AI 训练基础设施 · FAST 2026</div>
+
+  <div class="paper-card">
+    <div class="title">GPU Checkpoint/Restore Made Fast and Lightweight</div>
+    <div class="authors">Shaoxun Zeng 等 — Tsinghua University</div>
+    <div class="abstract"><strong>FAST '26</strong> · 快速轻量 GPU Checkpoint/Restore，为 AI 训练容错提供高效存储支持。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/zeng" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-a">GPU Checkpoint</span><span class="tag tag-a">AI 训练</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">AdaCheck: An Adaptive Checkpointing System for Efficient LLM Training</div>
+    <div class="authors">Weijie Liu 等</div>
+    <div class="abstract"><strong>FAST '26</strong> · 自适应 Checkpoint 系统，利用冗余优化 LLM 训练中的存储开销。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/liu-weijie" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-a">LLM 训练</span><span class="tag tag-a">Checkpoint</span></div>
+  </div>
+
+  <div class="paper-card">
+    <div class="title">Fast Cloud Storage for AI Jobs via Grouped I/O API with Transparent Read/Write Optimizations</div>
+    <div class="authors">Yingyi Hao 等 — SJTU</div>
+    <div class="abstract"><strong>FAST '26</strong> · 面向 AI 作业的分组 I/O API 与透明读写优化。</div>
+    <div class="links"><a href="https://www.usenix.org/conference/fast26/presentation/hao" target="_blank">📄 USENIX FAST '26</a></div>
+    <div class="tags"><span class="tag tag-a">AI I/O</span><span class="tag tag-a">云存储</span></div>
+  </div>
+
+  <div class="conf-section-title">📌 CIDR 2026 · Agent-First 数据系统</div>
+
+  <div class="paper-card">
+    <div class="title">Supporting Our AI Overlords: Redesigning Data Systems to be Agent-First</div>
+    <div class="authors">Shu Liu, Ion Stoica, Matei Zaharia, Alvin Cheung, Natacha Crooks — UC Berkeley</div>
+    <div class="abstract"><strong>CIDR '26</strong> · <strong>极具启发性的 Vision 论文</strong>：重新设计数据系统为 Agent-First 架构。核心论断：当 AI Agent 成为数据库系统的主要消费者（而非人类分析师），数据库的 API、语义模型、查询优化范式都需要彻底重构。</div>
+    <div class="links"><a href="https://www.cidrdb.org/papers/2026/p32-liu.pdf" target="_blank">📄 PDF</a></div>
+    <div class="tags"><span class="tag tag-a">Agent-First</span><span class="tag tag-a">Vision</span><span class="tag tag-hot">必读</span></div>
+  </div>
+</div>
+
+<!-- 五、趋势洞察 -->
+<div class="section" id="trends">
+  <div class="trends-section">
+    <h2>🔮 五、趋势洞察与总结</h2>
+
+    <div class="trend-item">
+      <h4>01 · 共识协议与存储引擎深度协同</h4>
+      <p>LSM-Raft 是本期最值得关注的论文之一——首次将共识协议的日志同步节奏与 LSM-Tree 的 compaction 状态动态联动。这标志着一个拐点：共识协议不再作为黑盒运行在存储引擎之上，而是需要感知存储引擎的内部状态。<strong>对 Kafka/AutoMQ 的启示</strong>：当 Kafka 的 __consumer_offsets 等内部 Topic 使用 Raft 复制时，同样面临 compaction 与 replication 的 I/O 争抢，LSM-Raft 的思路值得关注。</p>
+    </div>
+
+    <div class="trend-item">
+      <h4>02 · 持久化索引结构走向工程落地</h4>
+      <p>持久化多版本 ART、Concurrent Path-Copying、PartitionKV（NVM LSM-Tree）的集中出现，说明持久内存/分离式内存的索引设计已从"提出新结构"阶段进入"并发、持久化、生产级"的工程化阶段。DMTree 进一步将分离式内存作为一级架构约束，证明了在计算-存储分离场景下索引必须与架构协同设计。</p>
+    </div>
+
+    <div class="trend-item">
+      <h4>03 · 工业数据库论文爆发</h4>
+      <p>SIGMOD 2026 Industry Track 贡献了近年来最丰富的一批工业数据库论文：Aurora Limitless (多写)、ByteHouse (多模数仓)、TDSQL-Boundless (异构多表)、CoddSpeed (FPGA 加速)、LindormVector (向量引擎)。这些论文的共同点：都是在已有系统上叠加新的能力维度（多写、多模、向量、硬件加速），说明工业界已经度过"基于开源 fork 系统"的阶段，进入"系统架构深度融合新硬件/新负载"的时代。</p>
+    </div>
+
+    <div class="trend-item">
+      <h4>04 · AI Infra 已成为存储顶会的 P0 方向</h4>
+      <p>FAST 2026 有 43 篇论文，粗略统计：LLM 推理存储（KV Cache）3篇、AI 训练存储（Checkpoint/Mem/IO）3篇、ML 预处理存储 1篇——AI Infra 占比超过 16%。SIGMOD 2026 Research 有 4 篇向量搜索/ANNS 论文，Industry 也有 LindormVector 和 ByteHouse 的多模向量能力描述。CIDR 2026 更是出现了 "Agent-First 数据系统" 的 Vision 论文。<strong>AI Infra 方向的存储/数据库论文密度在过去一年至少增加了 3 倍。</strong></p>
+    </div>
+
+    <div class="trend-item">
+      <h4>05 · "One-size-fits-one" 成复制/分布式的潜在线</h4>
+      <p>从 SIGMOD 的 Epoch-based OCC (Geo 场景专项优化)、Rosé 的 per-partition 复制策略，到 Event Horizon 的非对称依赖——共识/复制/事务协议正从"通用性"转向"场景定制"。过去追求"某种协议统治一切"的思路正在让位于"为一个细分场景做最好的协议"。</p>
+    </div>
+
+    <div class="trend-item">
+      <h4>06 · 向量数据库从独立品类走向融合</h4>
+      <p>PostgreSQL 上的向量搜索实证研究（SIGMOD）、Lindorm 多模 NoSQL 的向量引擎（Industry）、FAVOR 的过滤无关 ANNS——信号明确：向量搜索正从独立的"向量数据库"品类回归到数据库系统的原生能力。这与 Kafka 社区讨论的 "Kafka + Vector Search" 方向高度相关。</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>由 <strong>CHANG_AI_TEAM</strong> 技术调研团队维护 · 每周更新（每周四）</p>
+  <p>收录标准：顶会接收论文 · 聚焦 存储引擎/共识/工业系统/AI Infra 四个方向 · 链接到可免费获取的原文</p>
+</div>
 </body>
 </html>
