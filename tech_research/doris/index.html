@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apache Doris 实时分析数据库深度调研 · CHANG_AI_TEAM</title>
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent: #4361ee;
+    --accent2: #f472b6;
+    --border: #e5e7eb;
+    --tag-bg: #f0f4ff;
+    --tag-text: #4361ee;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  .global-nav {
+    display: flex; align-items: center; gap: 0; padding: 0 24px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 52px;
+  }
+  .global-nav .brand { font-weight: 700; font-size: 0.95rem; color: var(--accent); text-decoration: none; margin-right: 24px; white-space: nowrap; }
+  .global-nav .nav-links { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+  .global-nav .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; padding: 6px 14px; border-radius: 8px; transition: background 0.15s; white-space: nowrap; }
+  .global-nav .nav-link:hover { background: #f3f4f6; color: var(--text); }
+  .global-nav .nav-link.active { background: #eef2ff; color: var(--tag-text); font-weight: 500; }
+
+  .page-header {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+  .page-header h1 { font-size: 1.5rem; margin-bottom: 12px; line-height: 1.4; }
+  .page-header .meta { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; }
+  .page-header .meta a { color: var(--accent); text-decoration: none; }
+  .page-header .tags { margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { display: inline-block; background: var(--tag-bg); color: var(--tag-text); font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.orange { background: #ffedd5; color: #92400e; }
+  .tag.purple { background: #f3e8ff; color: #7c3aed; }
+
+  .toc {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 28px;
+    margin-bottom: 28px;
+  }
+  .toc h3 { font-size: 0.95rem; margin-bottom: 10px; color: var(--accent); }
+  .toc ol { padding-left: 20px; font-size: 0.9rem; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--text-secondary); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  h1 { font-size: 1.5rem; margin: 32px 0 16px; }
+  h2 { font-size: 1.2rem; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 1.05rem; margin: 20px 0 10px; color: var(--text); }
+  h4 { font-size: 0.95rem; margin: 16px 0 8px; color: var(--text-secondary); }
+  p { margin-bottom: 12px; font-size: 0.95rem; }
+  strong { color: var(--text); }
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    margin: 16px 0;
+    background: #f8faff;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  hr { border: none; border-top: 1px dashed var(--border); margin: 28px 0; }
+  code {
+    background: #f0f4ff;
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: 16px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9rem;
+  }
+  th {
+    background: #f8faff;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:hover td { background: #f8faff; }
+
+  li { margin-bottom: 4px; font-size: 0.95rem; }
+
+  .key-insight {
+    background: linear-gradient(135deg, #eef2ff, #f0f4ff);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.9rem;
+  }
+  .key-insight strong { color: var(--accent); }
+
+  .diagram-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+    text-align: center;
+  }
+  .diagram-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  .diagram-container figcaption {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .nav-pages {
+    display: flex;
+    justify-content: space-between;
+    margin: 32px 0 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .nav-pages a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .nav-pages a:hover { border-color: var(--accent); color: var(--accent); }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 Home</a>
+    <a href="../index.html" class="nav-link">🔬 技术调研</a>
+    <a href="index.html" class="nav-link active">🗄️ Doris 深度调研</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="page-header">
+    <h1>Apache Doris 实时分析数据库深度调研报告</h1>
+    <div class="meta">
+      <strong>作者：</strong>Stark (CTO, CHANG_AI_TEAM)<br>
+      <strong>日期：</strong>2026-06-12 · 版本 v1.0<br>
+      <strong>摘要：</strong>涵盖 Apache Doris 核心概念、存储引擎（Segment/Page/Compaction）、查询流程（MPP 向量化）、以及关键架构演进（Palo → Doris 0.x → 1.x → 2.x → 3.0 存算分离）的全面技术调研。
+    </div>
+    <div class="tags">
+      <span class="tag">Apache Doris</span>
+      <span class="tag green">OLAP</span>
+      <span class="tag orange">MPP</span>
+      <span class="tag purple">存算分离</span>
+      <span class="tag">Merge-on-Write</span>
+      <span class="tag">Segment v2</span>
+      <span class="tag">Nereids CBO</span>
+    </div>
+  </div>
+
+  <div class="toc">
+    <h3>📑 目录</h3>
+    <ol>
+      <li><a href="#s1">概述与核心概念</a></li>
+      <li><a href="#s2">存储引擎</a></li>
+      <li><a href="#s3">查询流程</a></li>
+      <li><a href="#s4">架构演进</a></li>
+      <li><a href="#s5">总结与选型建议</a></li>
+      <li><a href="#refs">参考资料</a></li>
+    </ol>
+  </div>
+
+  <h2 id="s1">1. 概述与核心概念</h2>
+
+  <p>Apache Doris 是由百度于 2017 年开源、2022 年进入 Apache 孵化器并毕业的 <strong>MPP（大规模并行处理）架构实时分析数据库</strong>。它专为 OLAP 场景设计，支持高并发、低延迟的多维分析和实时报表查询。</p>
+
+  <div class="diagram-container">
+    <img src="diagram/01-architecture-overview.svg" alt="Apache Doris 3.0 整体架构" loading="lazy">
+    <figcaption>图 1：Apache Doris 3.0 整体架构（存算分离模式）</figcaption>
+  </div>
+
+  <h3>1.1 历史沿革</h3>
+
+  <table>
+    <tr><th>时期</th><th>名称</th><th>关键事件</th></tr>
+    <tr><td>2013~2017</td><td>Palo (内部)</td><td>百度广告报表业务驱动开发，C++ 实现</td></tr>
+    <tr><td>2017~2022</td><td>Palo → Doris</td><td>开源，2018 年捐赠 Apache 进入孵化器，2022 年毕业</td></tr>
+    <tr><td>2022~2024</td><td>Doris 1.x~2.x</td><td>功能爆发期：Unique Key MoW、倒排索引、湖仓一体</td></tr>
+    <tr><td>2024.07</td><td>Doris 3.0</td><td><strong>里程碑：存算分离架构</strong>正式发布</td></tr>
+    <tr><td>2025+</td><td>Doris 3.x~4.x</td><td>Nereids 优化器、Falcon 新引擎、Parquet 原生支持</td></tr>
+  </table>
+
+  <h3>1.2 数据模型</h3>
+
+  <p>Doris 提供三种表模型，针对不同场景：</p>
+
+  <table>
+    <tr><th>模型</th><th>应用场景</th><th>写入语义</th><th>读写性能</th></tr>
+    <tr><td><strong>Duplicate</strong></td><td>明细数据、日志</td><td>Append-only，无聚合</td><td>最高吞吐</td></tr>
+    <tr><td><strong>Aggregate</strong></td><td>预聚合指标</td><td>同 Key 行聚合 (SUM/MAX/MIN/REPLACE)</td><td>写入有聚合开销</td></tr>
+    <tr><td><strong>Unique (MoW)</strong></td><td>主键更新（宽表、CDC）</td><td>同 Key UPSERT</td><td>写入有去重开销，查询最优</td></tr>
+    <tr><td><strong>Unique (MoR)</strong></td><td>追加为主，偶尔去重</td><td>同 Key 追加，查询时多版本合并</td><td>写入快，查询有合并开销</td></tr>
+  </table>
+
+  <p><strong>MoW (Merge-on-Write)</strong> 是 Doris 2.1+ 默认推荐策略，在写入时完成数据去重合并，读路径无需额外合并开销。</p>
+
+  <h3>1.3 Tablet &amp; Replica</h3>
+  <p>Doris 数据分布以 <strong>Tablet</strong> 为单位：<code>Table → Partition → Bucket (Hash) → Tablet → Replica (多副本)</code></p>
+
+  <div class="key-insight">
+    <strong>💡 Unique Key 模型详解：</strong>
+    <ul style="margin-top:8px; padding-left:20px;">
+      <li><strong>Merge-on-Write (MoW)：</strong>写入时立即查询去重，重复 Key 覆盖旧数据。Doris 2.1+ 默认，适合实时报表和 CDC 同步</li>
+      <li><strong>Merge-on-Read (MoR)：</strong>追加写入不验证 Key，查询时多版本合并取最新值。写入吞吐高但查询延迟大</li>
+    </ul>
+  </div>
+
+  <h2 id="s2">2. 存储引擎</h2>
+
+  <div class="diagram-container">
+    <img src="diagram/02-storage-engine.svg" alt="存储引擎 Segment/Page 体系" loading="lazy">
+    <figcaption>图 2：存储引擎体系 — Tablet → Rowset → Segment → Page</figcaption>
+  </div>
+
+  <h3>2.1 Segment v2 存储格式</h3>
+  <p>Doris 的 Segment 是自研列式存储格式，以 <strong>Page</strong> 为最小 I/O 单元（默认 1MB），Column Page 内部采用 <strong>RLE + Bit-Packing</strong> 压缩。</p>
+
+  <table>
+    <tr><th>维度</th><th>Doris Segment v2</th><th>Apache Parquet</th></tr>
+    <tr><td>设计哲学</td><td>OLAP 写入优化，低延迟</td><td>数据湖通用，压缩优先</td></tr>
+    <tr><td>Page 大小</td><td>1MB (可配置)</td><td>~1MB (Row Group)</td></tr>
+    <tr><td>索引粒度</td><td>Segment + Page 级</td><td>Row Group + Page 级</td></tr>
+    <tr><td>主键支持</td><td>原生 Prefix Sort Key</td><td>无</td></tr>
+    <tr><td>更新支持</td><td>MoW DELETE_BITMAP</td><td>不可变</td></tr>
+  </table>
+
+  <h3>2.2 Compaction 策略</h3>
+
+  <table>
+    <tr><th>类型</th><th>触发条件</th><th>作用</th></tr>
+    <tr><td><strong>Cumulative Compaction</strong></td><td>Cumulate Point 之前的 Rowset 数量 &gt; 阈值</td><td>合并大量小 Rowset</td></tr>
+    <tr><td><strong>Base Compaction</strong></td><td>Base Rowset 版本过期</td><td>合并所有 Rowset 为一个</td></tr>
+    <tr><td><strong>Quick Compaction</strong></td><td>MoW 表 Segment 数 &gt; 阈值</td><td>局部合并 Delete Bitmap 过多的小 Segment</td></tr>
+    <tr><td><strong>Vertical Compaction</strong></td><td>宽表 (大 Column 数)</td><td>按列组合并，减少内存开销</td></tr>
+  </table>
+
+  <h3>2.3 Merge-on-Write 存储实现</h3>
+  <p>MoW 是 Doris 2.1+ 的核心创新，写入流程：</p>
+  <ol>
+    <li>Tablet Writer 接收数据 Batch，按 Sort Key 排序</li>
+    <li>逐 Key 查询 Tablet 内是否存在 → 不存在则写入新行，存在则 <strong>DELETE_BITMAP 标记旧行 + 写入新行</strong></li>
+    <li>Segment 文件写满 (默认 256MB) 后封存</li>
+    <li>Rowset 提交，数据可见</li>
+  </ol>
+
+  <h2 id="s3">3. 查询流程</h2>
+
+  <div class="diagram-container">
+    <img src="diagram/04-query-execution.svg" alt="MPP 向量化查询执行" loading="lazy">
+    <figcaption>图 3：MPP 向量化查询执行流程</figcaption>
+  </div>
+
+  <h3>3.1 查询架构</h3>
+  <p>Doris 查询引擎基于自研 C++ 向量化执行引擎，支持标准 SQL 和 MPP 分布式执行。FE (Java) 负责 SQL 解析和优化，BE (C++) 负责数据扫描和向量化执行。</p>
+
+  <h3>3.2 Nereids CBO 优化器</h3>
+  <table>
+    <tr><th>阶段</th><th>优化器</th><th>特点</th></tr>
+    <tr><td>v0.x~v1.x</td><td>无优化器</td><td>手工编写的 SQL Rewrite 规则</td></tr>
+    <tr><td>v1.x~v2.x</td><td>RBO (Rule-Based)</td><td>固定规则重写，无成本模型</td></tr>
+    <tr><td>v2.1+</td><td>Nereids (CBO, 实验)</td><td>基于成本的优化器，统计信息驱动</td></tr>
+    <tr><td>v3.0+</td><td><strong>Nereids (CBO, 稳定)</strong></td><td>默认优化器，支持 Join Reorder、CTE 重用</td></tr>
+  </table>
+
+  <h3>3.3 Shuffle 策略</h3>
+  <table>
+    <tr><th>策略</th><th>触发条件</th><th>说明</th></tr>
+    <tr><td><strong>Broadcast</strong></td><td>右表数据量 &lt; broadcast_row_limit</td><td>全量广播到所有 Scan Node</td></tr>
+    <tr><td><strong>Hash Shuffle</strong></td><td>Join Key 或 Agg Key</td><td>按 Key Hash 重分布</td></tr>
+    <tr><td><strong>Bucket Shuffle</strong></td><td>Join Key 与分桶键一致</td><td>直接按 Bucket 映射，<strong>避免 Shuffle</strong></td></tr>
+    <tr><td><strong>Colocate Join</strong></td><td>两张表 Colocation Group 相同</td><td><strong>零 Shuffle，本地 Join</strong></td></tr>
+  </table>
+
+  <div class="key-insight">
+    <strong>💡 Runtime Filter：</strong>Join Build 侧生成 Bloom Filter，广播到 Scan 侧提前过滤，可过滤 50%~99% 的无效数据，大幅减少 Shuffle 和 Join 数据量。
+  </div>
+
+  <h2 id="s4">4. 架构演进</h2>
+
+  <div class="diagram-container">
+    <img src="diagram/05-architecture-evolution.svg" alt="Palo → Doris 3.0 架构演进" loading="lazy">
+    <figcaption>图 4：Palo → Doris 3.0 架构演进全景</figcaption>
+  </div>
+
+  <h3>4.1 各阶段关键特征</h3>
+
+  <table>
+    <tr><th>阶段</th><th>时期</th><th>核心能力</th></tr>
+    <tr><td><strong>Palo</strong></td><td>2013~2017</td><td>C++ MPP 验证，Segment v1，Aggregate 模型</td></tr>
+    <tr><td><strong>Doris 0.x</strong></td><td>2017~2021</td><td>Apache 开源，Segment v2 + 向量化，Colocate Join</td></tr>
+    <tr><td><strong>Doris 1~2.x</strong></td><td>2022~2024</td><td>Unique Key MoW，倒排索引，Multi-Catalog 湖仓</td></tr>
+    <tr><td><strong>Doris 3.x</strong></td><td>2024~</td><td>存算分离，读写分离 Compute Group，远程 Compaction</td></tr>
+    <tr><td><strong>Doris 4.x</strong></td><td>2025+</td><td>Falcon 引擎，Parquet 原生，Streaming SQL，AI/ML</td></tr>
+  </table>
+
+  <h3>4.2 竞品对比</h3>
+
+  <table>
+    <tr><th>维度</th><th>Doris</th><th>ClickHouse</th><th>StarRocks</th><th>Impala</th></tr>
+    <tr><td>Upsert 能力</td><td>★★★★★</td><td>★★</td><td>★★★★</td><td>★★</td></tr>
+    <tr><td>高并发查询</td><td>★★★★</td><td>★★</td><td>★★★★</td><td>★★</td></tr>
+    <tr><td>大宽表扫描</td><td>★★★★</td><td>★★★★★</td><td>★★★★</td><td>★★★</td></tr>
+    <tr><td>湖仓一体</td><td>★★★★</td><td>★★★</td><td>★★★★</td><td>★★★★★</td></tr>
+    <tr><td>实时导入</td><td>★★★★★</td><td>★★★</td><td>★★★★</td><td>★★</td></tr>
+    <tr><td>存算分离</td><td>★★★★</td><td>★★★★★</td><td>★★★★</td><td>★★</td></tr>
+    <tr><td>运维复杂度</td><td>★★★(中)</td><td>★★★★(高)</td><td>★★★(中)</td><td>★★★★★(高)</td></tr>
+  </table>
+
+  <h2 id="s5">5. 总结与选型建议</h2>
+
+  <h3>5.1 存算分离 vs Shared-Nothing</h3>
+
+  <table>
+    <tr><th>维度</th><th>Doris 2.x (Shared-Nothing)</th><th>Doris 3.x (存算分离)</th></tr>
+    <tr><td>架构模式</td><td>Shared-Nothing MPP</td><td>Compute-Storage Separation</td></tr>
+    <tr><td>存储层</td><td>本地 SSD/HDD</td><td>Object Store (S3/HDFS/MinIO)</td></tr>
+    <tr><td>弹性扩缩</td><td>数据重分布，小时级</td><td>计算节点秒级弹性</td></tr>
+    <tr><td>成本</td><td>高 (计算+存储绑定)</td><td>低 (按需弹性，存储下沉)</td></tr>
+    <tr><td>写路径</td><td>MoW 本地写入</td><td>MoW + 远程 Compaction</td></tr>
+    <tr><td>读路径</td><td>本地 Segment 读取</td><td>File Cache + 远程拉取</td></tr>
+  </table>
+
+  <h3>5.2 选型建议</h3>
+
+  <table>
+    <tr><th>场景</th><th>推荐方案</th><th>原因</th></tr>
+    <tr><td><strong>实时报表 / 多维分析</strong></td><td>Doris 3.x</td><td>极致查询性能，标准 SQL，亚秒级响应</td></tr>
+    <tr><td><strong>广告归因 / 用户行为分析</strong></td><td>Doris 3.x Unique MoW</td><td>高效 Upsert，QPS 万级</td></tr>
+    <tr><td><strong>日志分析 + 全文搜索</strong></td><td>Doris 3.x + Inverted Index</td><td>倒排索引性能接近 Elasticsearch 2~5x</td></tr>
+    <tr><td><strong>数据湖查询加速</strong></td><td>Doris 3.x Lakehouse</td><td>原生 Iceberg/Paimon/Hudi 联邦查询</td></tr>
+    <tr><td><strong>IoT 时序 / 监控指标</strong></td><td>考虑 InfluxDB 3 或 ClickHouse</td><td>Doris 非专为高基数时序优化</td></tr>
+    <tr><td><strong>ETL 宽表加工</strong></td><td>Doris 2.x / Doris 3.x</td><td>支持增量 Upsert，CDC 实时导入</td></tr>
+  </table>
+
+  <h3>5.3 我们的建议</h3>
+  <p>对于 CHANG_AI_TEAM 的可观测性平台项目，Apache Doris 定位为分析层：</p>
+  <ol>
+    <li><strong>定位为分析层：</strong>Doris 擅长大规模数据多维聚合分析，适合查询层、报表层</li>
+    <li><strong>不替代时序存储：</strong>热指标数据仍用 InfluxDB，Doris 聚焦聚合结果和用户行为分析</li>
+    <li><strong>Lakehouse 补充：</strong>使用 Doris Iceberg Catalog 对接数据湖，实现分析查询加速</li>
+    <li><strong>关注 3.x 存算分离：</strong>降低成本、提升弹性，适配云原生部署策略</li>
+    <li><strong>Nereids + Falcon 值得关注：</strong>全新优化器 + 执行引擎，预计 4.x 主推</li>
+  </ol>
+
+  <hr>
+
+  <h2 id="refs">参考资料</h2>
+  <ul>
+    <li><a href="https://doris.apache.org/docs/" target="_blank">Apache Doris 官方文档</a></li>
+    <li><a href="https://github.com/apache/doris/issues/37502" target="_blank">Doris 3.0 Release Notes</a></li>
+    <li><a href="https://www.velodb.io/blog/slash-your-cost-90-apache-doris-compute" target="_blank">Compute-Storage Decoupled Architecture</a></li>
+    <li><a href="https://doris.apache.org/docs/dev/key-features/unique-key/" target="_blank">Unique Key &amp; Merge-on-Write</a></li>
+    <li><a href="https://github.com/apache/doris/issues/47948" target="_blank">Doris Roadmap 2025</a></li>
+    <li><a href="https://doris.apache.org/docs/dev/admin-manual/trouble-shooting/compaction-principles/" target="_blank">Doris Compaction Principles</a></li>
+  </ul>
+
+  <div class="nav-pages">
+    <a href="../index.html">← 返回技术调研首页</a>
+    <a href="../index.html">所有深度调研 →</a>
+  </div>
+
+  <footer>
+    <p>由 <strong>CHANG_AI_TEAM</strong> CTO Stark 维护</p>
+    <p>仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+    <p style="margin-top:4px">Obsidian Wiki：<code>技术文章/Doris调研.md</code></p>
+  </footer>
+
+</div>
+</body>
+</html>
