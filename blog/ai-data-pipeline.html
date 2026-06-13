@@ -187,41 +187,28 @@
   }
   .article-body a:hover { text-decoration: underline; }
 
-  /* XHS Cards Gallery */
-  .xhs-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
+  /* Inline figure */
+  .article-body figure {
     margin: 32px 0;
-  }
-  .xhs-gallery.single {
-    grid-template-columns: 1fr;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .xhs-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.15s;
-  }
-  .xhs-card:hover {
-    border-color: rgba(255,255,255,0.15);
-    transform: translateY(-2px);
-  }
-  .xhs-card img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .xhs-card .caption {
-    padding: 10px 16px;
-    font-size: 0.8rem;
-    color: var(--dim);
     text-align: center;
-    border-top: 1px solid var(--border);
+  }
+  .article-body figure img {
+    max-width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .article-body figure figcaption {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--dim);
+  }
+  .article-body figure.hero-figure {
+    margin: 0 0 32px;
+  }
+  .article-body figure.hero-figure img {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
   }
 
   .article-body .diagram-center {
@@ -310,46 +297,13 @@
   </div>
 </section>
 
-<!-- 小红书知识卡片画廊 -->
 <div class="article-body">
-  <div class="xhs-gallery">
-    <div class="xhs-card">
-      <a href="../技术文章/diagram/xhs-cards/01-cover-ai-data-pipeline.png" target="_blank">
-        <img src="../技术文章/diagram/xhs-cards/01-cover-ai-data-pipeline.png" alt="封面：AI吃的不是数据" loading="lazy">
-      </a>
-      <div class="caption">01 · 封面</div>
-    </div>
-    <div class="xhs-card">
-      <a href="../技术文章/diagram/xhs-cards/02-content-pipeline-architecture.png" target="_blank">
-        <img src="../技术文章/diagram/xhs-cards/02-content-pipeline-architecture.png" alt="管道全景架构" loading="lazy">
-      </a>
-      <div class="caption">02 · 管道全景架构</div>
-    </div>
-    <div class="xhs-card">
-      <a href="../技术文章/diagram/xhs-cards/03-content-feature-leakage.png" target="_blank">
-        <img src="../技术文章/diagram/xhs-cards/03-content-feature-leakage.png" alt="特征穿越" loading="lazy">
-      </a>
-      <div class="caption">03 · 特征穿越</div>
-    </div>
-    <div class="xhs-card">
-      <a href="../技术文章/diagram/xhs-cards/04-content-gpu-starvation.png" target="_blank">
-        <img src="../技术文章/diagram/xhs-cards/04-content-gpu-starvation.png" alt="GPU Starvation" loading="lazy">
-      </a>
-      <div class="caption">04 · GPU Starvation</div>
-    </div>
-    <div class="xhs-card">
-      <a href="../技术文章/diagram/xhs-cards/05-content-data-drift.png" target="_blank">
-        <img src="../技术文章/diagram/xhs-cards/05-content-data-drift.png" alt="数据漂移" loading="lazy">
-      </a>
-      <div class="caption">05 · 数据漂移 & 质量塌缩</div>
-    </div>
-    <div class="xhs-card">
-      <a href="../技术文章/diagram/xhs-cards/06-ending-pipeline-moat.png" target="_blank">
-        <img src="../技术文章/diagram/xhs-cards/06-ending-pipeline-moat.png" alt="管道即护城河" loading="lazy">
-      </a>
-      <div class="caption">06 · 管道即护城河</div>
-    </div>
-  </div>
+
+  <figure class="hero-figure">
+    <a href="../技术文章/diagram/xhs-cards/01-cover-ai-data-pipeline.png" target="_blank">
+      <img src="../技术文章/diagram/xhs-cards/01-cover-ai-data-pipeline.png" alt="AI吃的不是数据——封面图" loading="lazy">
+    </a>
+  </figure>
 
   <h2>引言</h2>
 
@@ -400,6 +354,13 @@
 
   <h2>第二章：从"水源"到"水龙头"——数据管道全景</h2>
 
+  <figure>
+    <a href="../技术文章/diagram/xhs-cards/02-content-pipeline-architecture.png" target="_blank">
+      <img src="../技术文章/diagram/xhs-cards/02-content-pipeline-architecture.png" alt="管道全景架构" loading="lazy">
+    </a>
+    <figcaption>▲ 管道全景架构（点击放大）</figcaption>
+  </figure>
+
   <p>如果把整个 AI 数据基础设施比作城市供水系统，它大致是这样的：</p>
 
   <blockquote>水源（原始数据）→ 输水管道（采集 & 传输）→ 净水厂（清洗 & 转换）→ 配水管网（特征工程）→ 水龙头（DataLoader → GPU）</blockquote>
@@ -441,6 +402,14 @@
   <h2>第三章：为什么管道出了问题，模型就"智障"了</h2>
 
   <h3>特征穿越（Feature Leakage）</h3>
+
+  <figure>
+    <a href="../技术文章/diagram/xhs-cards/03-content-feature-leakage.png" target="_blank">
+      <img src="../技术文章/diagram/xhs-cards/03-content-feature-leakage.png" alt="特征穿越" loading="lazy">
+    </a>
+    <figcaption>▲ 特征穿越示意（点击放大）</figcaption>
+  </figure>
+
   <p><strong>特征穿越</strong>，也叫"时间穿越"或"目标泄漏"，是指训练样本在构造时，<strong>无意中使用了"未来信息"</strong>。训练集准确率 94%，上了线准确率跌到 50%——这几乎是特征穿越的经典症状。</p>
 
   <p>防护手段：<strong>Point-in-Time Join</strong>（所有特征拼接必须精确到时间戳）、特征管道审计（每个 join 显式标注时间窗口并跑自动化测试）、隔离测试（按时间切分训练/验证集）。</p>
@@ -451,9 +420,24 @@
   <p>防护手段：<strong>持续监控</strong>（PSI、KL 散度等指标）、<strong>增量训练</strong>（从"月度更新"进化到"日级"甚至"小时级"）、<strong>特征归一化</strong>（在线 Z-score normalization）。</p>
 
   <h3>数据延迟 & 清洗过度</h3>
+
+  <figure>
+    <a href="../技术文章/diagram/xhs-cards/04-content-gpu-starvation.png" target="_blank">
+      <img src="../技术文章/diagram/xhs-cards/04-content-gpu-starvation.png" alt="GPU Starvation" loading="lazy">
+    </a>
+    <figcaption>▲ GPU Starvation 烧钱逻辑（点击放大）</figcaption>
+  </figure>
+
   <p>数据延迟看似是工程细节，但会直接破坏 A/B 实验的有效性。而过度清洗同样危险——用 3-sigma 规则把所有"异常值"删除，可能恰好删掉了模型最需要学习的关键信号（欺诈交易、病毒式传播、黑天鹅事件）。</p>
 
   <blockquote>你训练了三个月的模型，可能毁在一根断了的管道上。</blockquote>
+
+  <figure>
+    <a href="../技术文章/diagram/xhs-cards/05-content-data-drift.png" target="_blank">
+      <img src="../技术文章/diagram/xhs-cards/05-content-data-drift.png" alt="数据漂移 & 质量塌缩" loading="lazy">
+    </a>
+    <figcaption>▲ 数据漂移 & 质量塌缩（点击放大）</figcaption>
+  </figure>
 
   <h2>第四章：AI 时代数据管道的新挑战</h2>
 
@@ -485,6 +469,13 @@
   <p>管道的工程师们可能是 AI 产业链里最被低估的一群人。他们不写论文、不出现在 Keynote 上、不参加 AI Summit 的圆桌讨论。但他们的工作决定了模型能不能按时训练、上线后会不会翻车、训练成本能不能打平商业回报。</p>
 
   <p><strong>做管道的，是 AI 时代的地下水务工人——你看不到他们，但离开他们一天，整座城市就会瘫痪。</strong></p>
+
+  <figure>
+    <a href="../技术文章/diagram/xhs-cards/06-ending-pipeline-moat.png" target="_blank">
+      <img src="../技术文章/diagram/xhs-cards/06-ending-pipeline-moat.png" alt="管道即护城河" loading="lazy">
+    </a>
+    <figcaption>▲ 管道即护城河（点击放大）</figcaption>
+  </figure>
 
   <blockquote>当所有人都在抢 GPU 的时候，聪明的人在修水管。</blockquote>
 </div>
