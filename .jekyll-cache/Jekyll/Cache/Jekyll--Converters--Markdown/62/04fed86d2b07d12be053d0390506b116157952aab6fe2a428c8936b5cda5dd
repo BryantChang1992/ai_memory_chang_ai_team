@@ -1,0 +1,704 @@
+I"��<h1 id="infographic-generator">Infographic Generator</h1>
+
+<p>Two dimensions: <strong>layout</strong> (information structure) × <strong>style</strong> (visual aesthetics). Freely combine any layout with any style.</p>
+
+<h2 id="user-input-tools">User Input Tools</h2>
+
+<p>When this skill prompts the user, follow this tool-selection rule (priority order):</p>
+
+<ol>
+  <li><strong>Prefer built-in user-input tools</strong> exposed by the current agent runtime — e.g., <code class="language-plaintext highlighter-rouge">AskUserQuestion</code>, <code class="language-plaintext highlighter-rouge">request_user_input</code>, <code class="language-plaintext highlighter-rouge">clarify</code>, <code class="language-plaintext highlighter-rouge">ask_user</code>, or any equivalent.</li>
+  <li><strong>Fallback</strong>: if no such tool exists, emit a numbered plain-text message and ask the user to reply with the chosen number/answer for each question.</li>
+  <li><strong>Batching</strong>: if the tool supports multiple questions per call, combine all applicable questions into a single call; if only single-question, ask them one at a time in priority order.</li>
+</ol>
+
+<p>Concrete <code class="language-plaintext highlighter-rouge">AskUserQuestion</code> references below are examples — substitute the local equivalent in other runtimes.</p>
+
+<h2 id="image-generation-tools">Image Generation Tools</h2>
+
+<p>When this skill needs to render an image, resolve the backend in this order:</p>
+
+<ol>
+  <li><strong>Current-request override</strong> — if the user names a specific backend in the current message, use it.</li>
+  <li><strong>Saved preference</strong> — if <code class="language-plaintext highlighter-rouge">EXTEND.md</code> sets <code class="language-plaintext highlighter-rouge">preferred_image_backend</code> to a backend available right now, use it.</li>
+  <li><strong>Auto-select</strong> (when the preference is <code class="language-plaintext highlighter-rouge">auto</code>, unset, or the pinned backend isn’t available):
+    <ul>
+      <li><strong>Codex (<code class="language-plaintext highlighter-rouge">imagegen</code>)</strong> — first, inspect your available-skills / tool inventory. If a skill named <code class="language-plaintext highlighter-rouge">imagegen</code> is listed, you are running inside Codex and MUST use it: invoke via the <code class="language-plaintext highlighter-rouge">Skill</code> tool with <code class="language-plaintext highlighter-rouge">skill: "imagegen"</code>, passing the saved prompt file’s content (plus output path and aspect ratio per Codex <code class="language-plaintext highlighter-rouge">imagegen</code>’s own args). Codex <code class="language-plaintext highlighter-rouge">imagegen</code> is the official raster backend in that runtime and outranks any non-native skill (e.g., <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>) unless the user has explicitly pinned a different <code class="language-plaintext highlighter-rouge">preferred_image_backend</code>.</li>
+      <li><strong>Other runtime-native tools</strong> — if the runtime exposes a different native image tool (e.g., Hermes <code class="language-plaintext highlighter-rouge">image_generate</code>), use it the same way.</li>
+      <li>Otherwise, if exactly one non-native backend is installed (e.g., <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>), use it.</li>
+      <li>Otherwise (multiple non-native backends with no runtime-native tool), ask the user once — batch with any other initial questions.</li>
+    </ul>
+  </li>
+  <li><strong>If none are available</strong>, tell the user and ask how to proceed.</li>
+</ol>
+
+<p><strong>⛔ Never substitute SVG, HTML, canvas, or other code-based rendering for raster image generation.</strong> Codex <code class="language-plaintext highlighter-rouge">imagegen</code>’s own description says it should be used “when the output should be a bitmap asset rather than repo-native code or vector.” If you cannot resolve a raster backend via step 3, fall through to step 4 and ask the user — do <strong>not</strong> silently emit SVG, write inline <code class="language-plaintext highlighter-rouge">&lt;svg&gt;</code> markup, or produce HTML/CSS art as a substitute. This applies even if the article/section seems “diagram-like”: the consumer skill calling this rule has already decided that a raster image is what it needs.</p>
+
+<p><strong>⛔ Never repair rendered text by painting over a generated bitmap.</strong> Do not use ImageMagick, Pillow, Canvas, SVG, HTML/CSS, OCR scripts, or any other programmatic overlay to cover, rewrite, erase, stroke, or replace labels, headings, callouts, data values, or any other text inside an already generated infographic. If text is wrong or unclear, regenerate from a corrected prompt, switch to a layout with less on-image text, or ask the user which imperfect candidate to keep.</p>
+
+<p>Setting <code class="language-plaintext highlighter-rouge">preferred_image_backend: ask</code> forces the step-3 prompt every run regardless of available backends. Users change the pinned backend via the <code class="language-plaintext highlighter-rouge">## Changing Preferences</code> section below.</p>
+
+<p><strong>Prompt file requirement (hard)</strong>: write each image’s full, final prompt to a standalone file under <code class="language-plaintext highlighter-rouge">prompts/</code> (naming: <code class="language-plaintext highlighter-rouge">NN-{type}-[slug].md</code>) BEFORE invoking any backend. The backend receives the prompt file (or its content); the file is the reproducibility record and lets you switch backends without regenerating prompts.</p>
+
+<p>Concrete tool names (<code class="language-plaintext highlighter-rouge">imagegen</code>, <code class="language-plaintext highlighter-rouge">image_generate</code>, <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>) above are examples — substitute the local equivalents under the same rule.</p>
+
+<h2 id="reference-images">Reference Images</h2>
+
+<p>Users may supply reference images to guide style, palette, composition, or subject.</p>
+
+<p><strong>Intake</strong>: Accept via <code class="language-plaintext highlighter-rouge">--ref &lt;files...&gt;</code> or when the user provides file paths / pastes images in conversation.</p>
+<ul>
+  <li>File path(s) → copy to <code class="language-plaintext highlighter-rouge">refs/NN-ref-{slug}.{ext}</code> alongside the output</li>
+  <li>Pasted image with no path → ask the user for the path (per the User Input Tools rule above), or extract style traits verbally as a text fallback</li>
+  <li>No reference → skip this section</li>
+</ul>
+
+<p><strong>Usage modes</strong> (per reference):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Usage</th>
+      <th>Effect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">direct</code></td>
+      <td>Pass the file to the backend as a reference image</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">style</code></td>
+      <td>Extract style traits (line treatment, texture, mood) and append to the prompt body</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">palette</code></td>
+      <td>Extract hex colors from the image and append to the prompt body</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Record in <code class="language-plaintext highlighter-rouge">prompts/infographic.md</code> frontmatter</strong> when refs exist:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">references</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">ref_id</span><span class="pi">:</span> <span class="m">01</span>
+    <span class="na">filename</span><span class="pi">:</span> <span class="s">01-ref-brand.png</span>
+    <span class="na">usage</span><span class="pi">:</span> <span class="s">direct</span>
+</code></pre></div></div>
+
+<p><strong>At generation time</strong>:</p>
+<ul>
+  <li>Verify each referenced file exists on disk</li>
+  <li>If <code class="language-plaintext highlighter-rouge">usage: direct</code> AND the chosen backend accepts reference images (e.g., <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code> via <code class="language-plaintext highlighter-rouge">--ref</code>) → pass the file via the backend’s ref parameter</li>
+  <li>Otherwise → embed extracted <code class="language-plaintext highlighter-rouge">style</code>/<code class="language-plaintext highlighter-rouge">palette</code> traits in the prompt text</li>
+</ul>
+
+<h2 id="confirmation-policy">Confirmation Policy</h2>
+
+<p>Default behavior: <strong>confirm before generation</strong>.</p>
+
+<ul>
+  <li>Treat explicit skill invocation, a file path, a matched keyword shortcut, <code class="language-plaintext highlighter-rouge">EXTEND.md</code> defaults, and the documented default combination as <strong>recommendation inputs only</strong>. None of them authorizes skipping confirmation.</li>
+  <li>Do <strong>not</strong> start Step 5 or Step 6 until the user confirms the combination/aspect/language/backend choices.</li>
+  <li>Skip confirmation only when the current request explicitly says to do so, for example: <code class="language-plaintext highlighter-rouge">--no-confirm</code>, “直接生成”, “不用确认”, “跳过确认”, “按默认出图”, or equivalent wording.</li>
+  <li>If confirmation is skipped explicitly, state the assumed combination/aspect/language/backend in the next user-facing update before generating.</li>
+</ul>
+
+<h2 id="options">Options</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Values</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--layout</code></td>
+      <td>21 options (see Layout Gallery), default: bento-grid</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--style</code></td>
+      <td>22 options (see Style Gallery), default: craft-handmade</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--aspect</code></td>
+      <td>Named: landscape (16:9), portrait (9:16), square (1:1). Custom: any W:H ratio (e.g., 3:4, 4:3, 2.35:1)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--lang</code></td>
+      <td>en, zh, ja, etc.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--no-confirm</code></td>
+      <td>Skip Step 4 only when the user explicitly requests direct generation without confirmation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ref &lt;files...&gt;</code></td>
+      <td>Reference images (file paths) for style / palette / composition / subject guidance</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="layout-gallery-21">Layout Gallery (21)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Layout</th>
+      <th>Best For</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">linear-progression</code></td>
+      <td>Timelines, processes, tutorials</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">binary-comparison</code></td>
+      <td>A vs B, before-after, pros-cons</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">comparison-matrix</code></td>
+      <td>Multi-factor comparisons</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">hierarchical-layers</code></td>
+      <td>Pyramids, priority levels</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tree-branching</code></td>
+      <td>Categories, taxonomies</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">hub-spoke</code></td>
+      <td>Central concept with related items</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">structural-breakdown</code></td>
+      <td>Exploded views, cross-sections</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">bento-grid</code></td>
+      <td>Multiple topics, overview (default)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">iceberg</code></td>
+      <td>Surface vs hidden aspects</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">bridge</code></td>
+      <td>Problem-solution</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">funnel</code></td>
+      <td>Conversion, filtering</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">isometric-map</code></td>
+      <td>Spatial relationships</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dashboard</code></td>
+      <td>Metrics, KPIs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">periodic-table</code></td>
+      <td>Categorized collections</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">comic-strip</code></td>
+      <td>Narratives, sequences</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">story-mountain</code></td>
+      <td>Plot structure, tension arcs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">jigsaw</code></td>
+      <td>Interconnected parts</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">venn-diagram</code></td>
+      <td>Overlapping concepts</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">winding-roadmap</code></td>
+      <td>Journey, milestones</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">circular-flow</code></td>
+      <td>Cycles, recurring processes</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code></td>
+      <td>High-density modules, data-rich guides</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Full definitions live at <code class="language-plaintext highlighter-rouge">references/layouts/&lt;layout&gt;.md</code>.</p>
+
+<h2 id="style-gallery-22">Style Gallery (22)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Style</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+      <td>Hand-drawn, paper craft (default)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">claymation</code></td>
+      <td>3D clay figures, stop-motion</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">kawaii</code></td>
+      <td>Japanese cute, pastels</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">storybook-watercolor</code></td>
+      <td>Soft painted, whimsical</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">chalkboard</code></td>
+      <td>Chalk on black board</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cyberpunk-neon</code></td>
+      <td>Neon glow, futuristic</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">bold-graphic</code></td>
+      <td>Comic style, halftone</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">aged-academia</code></td>
+      <td>Vintage science, sepia</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">corporate-memphis</code></td>
+      <td>Flat vector, vibrant</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">technical-schematic</code></td>
+      <td>Blueprint, engineering</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">origami</code></td>
+      <td>Folded paper, geometric</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pixel-art</code></td>
+      <td>Retro 8-bit</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ui-wireframe</code></td>
+      <td>Grayscale interface mockup</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">subway-map</code></td>
+      <td>Transit diagram</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ikea-manual</code></td>
+      <td>Minimal line art</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">knolling</code></td>
+      <td>Organized flat-lay</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">lego-brick</code></td>
+      <td>Toy brick construction</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pop-laboratory</code></td>
+      <td>Blueprint grid, coordinate markers, lab precision</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">morandi-journal</code></td>
+      <td>Hand-drawn doodle, warm Morandi tones</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">retro-pop-grid</code></td>
+      <td>1970s retro pop art, Swiss grid, thick outlines</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">hand-drawn-edu</code></td>
+      <td>Macaron pastels, hand-drawn wobble, stick figures</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">retro-popup-pop</code></td>
+      <td>Retro popup collage, vintage UI, thick outlines, flat pop colors</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Full definitions live at <code class="language-plaintext highlighter-rouge">references/styles/&lt;style&gt;.md</code>.</p>
+
+<h2 id="recommended-combinations">Recommended Combinations</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Content Type</th>
+      <th>Layout + Style</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Timeline/History</td>
+      <td><code class="language-plaintext highlighter-rouge">linear-progression</code> + <code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+    </tr>
+    <tr>
+      <td>Step-by-step</td>
+      <td><code class="language-plaintext highlighter-rouge">linear-progression</code> + <code class="language-plaintext highlighter-rouge">ikea-manual</code></td>
+    </tr>
+    <tr>
+      <td>A vs B</td>
+      <td><code class="language-plaintext highlighter-rouge">binary-comparison</code> + <code class="language-plaintext highlighter-rouge">corporate-memphis</code></td>
+    </tr>
+    <tr>
+      <td>Hierarchy</td>
+      <td><code class="language-plaintext highlighter-rouge">hierarchical-layers</code> + <code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+    </tr>
+    <tr>
+      <td>Overlap</td>
+      <td><code class="language-plaintext highlighter-rouge">venn-diagram</code> + <code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+    </tr>
+    <tr>
+      <td>Conversion</td>
+      <td><code class="language-plaintext highlighter-rouge">funnel</code> + <code class="language-plaintext highlighter-rouge">corporate-memphis</code></td>
+    </tr>
+    <tr>
+      <td>Cycles</td>
+      <td><code class="language-plaintext highlighter-rouge">circular-flow</code> + <code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+    </tr>
+    <tr>
+      <td>Technical</td>
+      <td><code class="language-plaintext highlighter-rouge">structural-breakdown</code> + <code class="language-plaintext highlighter-rouge">technical-schematic</code></td>
+    </tr>
+    <tr>
+      <td>Metrics</td>
+      <td><code class="language-plaintext highlighter-rouge">dashboard</code> + <code class="language-plaintext highlighter-rouge">corporate-memphis</code></td>
+    </tr>
+    <tr>
+      <td>Educational</td>
+      <td><code class="language-plaintext highlighter-rouge">bento-grid</code> + <code class="language-plaintext highlighter-rouge">chalkboard</code></td>
+    </tr>
+    <tr>
+      <td>Journey</td>
+      <td><code class="language-plaintext highlighter-rouge">winding-roadmap</code> + <code class="language-plaintext highlighter-rouge">storybook-watercolor</code></td>
+    </tr>
+    <tr>
+      <td>Categories</td>
+      <td><code class="language-plaintext highlighter-rouge">periodic-table</code> + <code class="language-plaintext highlighter-rouge">bold-graphic</code></td>
+    </tr>
+    <tr>
+      <td>Product Guide</td>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code> + <code class="language-plaintext highlighter-rouge">morandi-journal</code></td>
+    </tr>
+    <tr>
+      <td>Technical Guide</td>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code> + <code class="language-plaintext highlighter-rouge">pop-laboratory</code></td>
+    </tr>
+    <tr>
+      <td>Trendy Guide</td>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code> + <code class="language-plaintext highlighter-rouge">retro-pop-grid</code></td>
+    </tr>
+    <tr>
+      <td>Retro Pop Guide</td>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code> + <code class="language-plaintext highlighter-rouge">retro-popup-pop</code></td>
+    </tr>
+    <tr>
+      <td>Educational Diagram</td>
+      <td><code class="language-plaintext highlighter-rouge">hub-spoke</code> + <code class="language-plaintext highlighter-rouge">hand-drawn-edu</code></td>
+    </tr>
+    <tr>
+      <td>Process Tutorial</td>
+      <td><code class="language-plaintext highlighter-rouge">linear-progression</code> + <code class="language-plaintext highlighter-rouge">hand-drawn-edu</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Default combination: <code class="language-plaintext highlighter-rouge">bento-grid</code> + <code class="language-plaintext highlighter-rouge">craft-handmade</code> (fallback recommendation only — per the <a href="#confirmation-policy">Confirmation Policy</a>, defaults never bypass Step 4).</p>
+
+<h2 id="keyword-shortcuts">Keyword Shortcuts</h2>
+
+<p>When the user’s input contains these keywords, use the mapped layout as the leading Step 3 recommendation and promote the listed styles to the top of the Step 3 list. Skip content-based layout inference for matched keywords. Append any <code class="language-plaintext highlighter-rouge">Prompt Notes</code> to the Step 5 prompt.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>User Keyword</th>
+      <th>Layout</th>
+      <th>Recommended Styles</th>
+      <th>Default Aspect</th>
+      <th>Prompt Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>高密度信息大图 / high-density-info</td>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code></td>
+      <td><code class="language-plaintext highlighter-rouge">morandi-journal</code>, <code class="language-plaintext highlighter-rouge">pop-laboratory</code>, <code class="language-plaintext highlighter-rouge">retro-pop-grid</code>, <code class="language-plaintext highlighter-rouge">retro-popup-pop</code></td>
+      <td>portrait</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>信息图 / infographic</td>
+      <td><code class="language-plaintext highlighter-rouge">bento-grid</code></td>
+      <td><code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+      <td>landscape</td>
+      <td>Minimalist: clean canvas, ample whitespace, no complex background textures. Simple cartoon elements and icons only.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="output-structure">Output Structure</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>infographic/{topic-slug}/
+├── source-{slug}.{ext}
+├── analysis.md
+├── structured-content.md
+├── prompts/infographic.md
+└── infographic.png
+</code></pre></div></div>
+
+<p>Slug: 2-4 words kebab-case from topic. Conflict: append <code class="language-plaintext highlighter-rouge">-YYYYMMDD-HHMMSS</code>.</p>
+
+<h2 id="core-principles">Core Principles</h2>
+
+<ul>
+  <li>Preserve source data faithfully—no summarization or rephrasing (but <strong>strip any credentials, API keys, tokens, or secrets</strong> before including in outputs)</li>
+  <li>Define learning objectives before structuring content</li>
+  <li>Structure for visual communication (headlines, labels, visual elements)</li>
+</ul>
+
+<h2 id="workflow">Workflow</h2>
+
+<h3 id="step-1-setup--analyze">Step 1: Setup &amp; Analyze</h3>
+
+<p><strong>1.1 Load Preferences (EXTEND.md)</strong></p>
+
+<p>Check EXTEND.md in priority order — the first one found wins:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Priority</th>
+      <th>Path</th>
+      <th>Scope</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><code class="language-plaintext highlighter-rouge">.baoyu-skills/baoyu-infographic/EXTEND.md</code></td>
+      <td>Project</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code class="language-plaintext highlighter-rouge">${XDG_CONFIG_HOME:-$HOME/.config}/baoyu-skills/baoyu-infographic/EXTEND.md</code></td>
+      <td>XDG</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code class="language-plaintext highlighter-rouge">$HOME/.baoyu-skills/baoyu-infographic/EXTEND.md</code></td>
+      <td>User home</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Result</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Found</td>
+      <td>Read, parse, display a one-line summary</td>
+    </tr>
+    <tr>
+      <td>Not found</td>
+      <td>Ask the user with <code class="language-plaintext highlighter-rouge">AskUserQuestion</code> (see <code class="language-plaintext highlighter-rouge">references/config/first-time-setup.md</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>EXTEND.md supports</strong>: preferred layout/style, default aspect ratio, language preference, preferred image backend, custom style definitions.</p>
+
+<p>Schema: <code class="language-plaintext highlighter-rouge">references/config/preferences-schema.md</code></p>
+
+<p><strong>1.2 Analyze Content → <code class="language-plaintext highlighter-rouge">analysis.md</code></strong></p>
+
+<ol>
+  <li>Save source content (file path or paste → <code class="language-plaintext highlighter-rouge">source.md</code>)
+    <ul>
+      <li><strong>Backup rule</strong>: If <code class="language-plaintext highlighter-rouge">source.md</code> exists, rename to <code class="language-plaintext highlighter-rouge">source-backup-YYYYMMDD-HHMMSS.md</code></li>
+    </ul>
+  </li>
+  <li>Analyze: topic, data type, complexity, tone, audience</li>
+  <li>Detect source language and user language</li>
+  <li>Extract design instructions from user input</li>
+  <li>Save analysis
+    <ul>
+      <li><strong>Backup rule</strong>: If <code class="language-plaintext highlighter-rouge">analysis.md</code> exists, rename to <code class="language-plaintext highlighter-rouge">analysis-backup-YYYYMMDD-HHMMSS.md</code></li>
+    </ul>
+  </li>
+</ol>
+
+<p>See <code class="language-plaintext highlighter-rouge">references/analysis-framework.md</code> for detailed format.</p>
+
+<h3 id="step-2-generate-structured-content--structured-contentmd">Step 2: Generate Structured Content → <code class="language-plaintext highlighter-rouge">structured-content.md</code></h3>
+
+<p>Transform content into infographic structure:</p>
+<ol>
+  <li>Title and learning objectives</li>
+  <li>Sections with: key concept, content (verbatim), visual element, text labels</li>
+  <li>Data points (all statistics/quotes copied exactly)</li>
+  <li>Design instructions from user</li>
+</ol>
+
+<p><strong>Rules</strong>: Markdown only. No new information. Preserve data faithfully. Strip any credentials or secrets from output.</p>
+
+<p>See <code class="language-plaintext highlighter-rouge">references/structured-content-template.md</code> for detailed format.</p>
+
+<h3 id="step-3-recommend-combinations">Step 3: Recommend Combinations</h3>
+
+<p><strong>3.1 Check Keyword Shortcuts first</strong>: If user input matches a keyword from the <strong>Keyword Shortcuts</strong> table, use the associated layout as the leading recommendation and prioritize associated styles as top recommendations. Skip content-based layout inference.</p>
+
+<p><strong>3.2 Otherwise</strong>, recommend 3-5 layout×style combinations based on:</p>
+<ul>
+  <li>Data structure → matching layout</li>
+  <li>Content tone → matching style</li>
+  <li>Audience expectations</li>
+  <li>User design instructions</li>
+</ul>
+
+<h3 id="step-4-confirm-options">Step 4: Confirm Options</h3>
+
+<p><strong>Hard gate</strong>: this step is mandatory per the <a href="#confirmation-policy">Confirmation Policy</a> — Steps 5–6 cannot start until the user confirms here (or explicitly opts out with <code class="language-plaintext highlighter-rouge">--no-confirm</code> / equivalent in the current request).</p>
+
+<p>Ask the user to confirm the questions below following the <a href="#user-input-tools">User Input Tools</a> rule at the top of this file (batch into one call if the runtime supports multiple questions; otherwise ask one at a time in priority order).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Priority</th>
+      <th>Question</th>
+      <th>When</th>
+      <th>Options</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><strong>Combination</strong></td>
+      <td>Always</td>
+      <td>3+ layout×style combos with rationale</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>Aspect</strong></td>
+      <td>Always</td>
+      <td>Named presets (landscape/portrait/square) or custom W:H ratio (e.g., 3:4, 4:3, 2.35:1)</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><strong>Language</strong></td>
+      <td>Only if source ≠ user language</td>
+      <td>Language for text content</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><strong>Image Backend</strong></td>
+      <td>Only if step 3 of the <code class="language-plaintext highlighter-rouge">## Image Generation Tools</code> rule needs to ask (no runtime-native tool AND multiple non-native backends, OR <code class="language-plaintext highlighter-rouge">preferred_image_backend: ask</code>)</td>
+      <td>Available backends</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="step-5-generate-prompt--promptsinfographicmd">Step 5: Generate Prompt → <code class="language-plaintext highlighter-rouge">prompts/infographic.md</code></h3>
+
+<p><strong>Backup rule</strong>: If <code class="language-plaintext highlighter-rouge">prompts/infographic.md</code> exists, rename to <code class="language-plaintext highlighter-rouge">prompts/infographic-backup-YYYYMMDD-HHMMSS.md</code></p>
+
+<p>Combine:</p>
+<ol>
+  <li>Layout definition from <code class="language-plaintext highlighter-rouge">references/layouts/&lt;layout&gt;.md</code></li>
+  <li>Style definition from <code class="language-plaintext highlighter-rouge">references/styles/&lt;style&gt;.md</code></li>
+  <li>Base template from <code class="language-plaintext highlighter-rouge">references/base-prompt.md</code></li>
+  <li>Structured content from Step 2</li>
+  <li>All text in confirmed language</li>
+</ol>
+
+<p><strong>Aspect ratio resolution</strong> for ``:</p>
+<ul>
+  <li>Named presets → ratio string: landscape→<code class="language-plaintext highlighter-rouge">16:9</code>, portrait→<code class="language-plaintext highlighter-rouge">9:16</code>, square→<code class="language-plaintext highlighter-rouge">1:1</code></li>
+  <li>Custom W:H ratios → use as-is (e.g., <code class="language-plaintext highlighter-rouge">3:4</code>, <code class="language-plaintext highlighter-rouge">4:3</code>, <code class="language-plaintext highlighter-rouge">2.35:1</code>)</li>
+</ul>
+
+<h3 id="step-6-generate-image">Step 6: Generate Image</h3>
+
+<ol>
+  <li>Resolve the backend per the <code class="language-plaintext highlighter-rouge">## Image Generation Tools</code> rule at the top of this file.</li>
+  <li>Ensure the full final prompt is persisted at <code class="language-plaintext highlighter-rouge">prompts/infographic.md</code> (already written in Step 5) BEFORE invoking the backend — the file is the reproducibility record.</li>
+  <li><strong>Check for existing file</strong>: Before generating, check if <code class="language-plaintext highlighter-rouge">infographic.png</code> exists
+    <ul>
+      <li>If exists: Rename to <code class="language-plaintext highlighter-rouge">infographic-backup-YYYYMMDD-HHMMSS.png</code></li>
+    </ul>
+  </li>
+  <li>Call the chosen backend with the prompt file and output path</li>
+  <li>On failure, auto-retry once</li>
+</ol>
+
+<p>Text correction policy:</p>
+
+<ul>
+  <li>If labels, headings, callouts, data values, or any other rendered text is misspelled, garbled, hard to read, or visually weak, do not patch the bitmap with code.</li>
+  <li>For text-correction regenerations, write a new prompt file and a new output path so the flawed candidate is preserved for comparison.</li>
+  <li>Post-processing is limited to crop, resize, compression, or format conversion that does not alter text or the main composition.</li>
+</ul>
+
+<h3 id="step-7-output-summary">Step 7: Output Summary</h3>
+
+<p>Report: topic, layout, style, aspect, language, image backend, output path, files created.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">references/analysis-framework.md</code> - Analysis methodology</li>
+  <li><code class="language-plaintext highlighter-rouge">references/structured-content-template.md</code> - Content format</li>
+  <li><code class="language-plaintext highlighter-rouge">references/base-prompt.md</code> - Prompt template</li>
+  <li><code class="language-plaintext highlighter-rouge">references/layouts/&lt;layout&gt;.md</code> - 21 layout definitions</li>
+  <li><code class="language-plaintext highlighter-rouge">references/styles/&lt;style&gt;.md</code> - 21 style definitions</li>
+</ul>
+
+<h2 id="changing-preferences">Changing Preferences</h2>
+
+<p>EXTEND.md lives at the first matching path in Step 1.1. Three ways to change it:</p>
+
+<ul>
+  <li><strong>Edit directly</strong> — open EXTEND.md and change fields. Full schema: <code class="language-plaintext highlighter-rouge">references/config/preferences-schema.md</code>.</li>
+  <li><strong>Reconfigure interactively</strong> — delete EXTEND.md (or ask “reconfigure baoyu-infographic preferences” / “重新配置”). The next run re-triggers first-time setup.</li>
+  <li><strong>Common one-line edits</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">preferred_image_backend: auto</code> — default; runtime-native tool wins, falls back to the only installed backend, asks only if multiple non-native are present.</li>
+      <li><code class="language-plaintext highlighter-rouge">preferred_image_backend: codex-imagegen</code> — pin to Codex’s built-in.</li>
+      <li><code class="language-plaintext highlighter-rouge">preferred_image_backend: baoyu-image-gen</code> — pin to the baoyu-image-gen skill.</li>
+      <li><code class="language-plaintext highlighter-rouge">preferred_image_backend: ask</code> — confirm backend every run.</li>
+      <li><code class="language-plaintext highlighter-rouge">preferred_layout: dense-modules</code>, <code class="language-plaintext highlighter-rouge">preferred_style: morandi-journal</code>, <code class="language-plaintext highlighter-rouge">preferred_aspect: portrait</code>, <code class="language-plaintext highlighter-rouge">language: zh</code> — shift the Step-3 recommendations and Step-4 defaults (per <a href="#confirmation-policy">Confirmation Policy</a>, these never bypass Step 4).</li>
+    </ul>
+  </li>
+</ul>
+:ET

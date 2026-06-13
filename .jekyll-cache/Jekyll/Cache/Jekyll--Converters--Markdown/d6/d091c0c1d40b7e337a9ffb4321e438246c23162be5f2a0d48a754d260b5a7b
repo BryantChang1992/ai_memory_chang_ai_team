@@ -1,0 +1,378 @@
+I"��<h1 id="first-time-setup">First-Time Setup</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p>Triggered when:</p>
+<ol>
+  <li>No EXTEND.md found → full setup (provider + model + preferences)</li>
+  <li>EXTEND.md found but <code class="language-plaintext highlighter-rouge">default_model.[provider]</code> is null → model selection only</li>
+</ol>
+
+<h2 id="setup-flow">Setup Flow</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>No EXTEND.md found          EXTEND.md found, model null
+        │                            │
+        ▼                            ▼
+┌─────────────────────┐    ┌──────────────────────┐
+│ AskUserQuestion     │    │ AskUserQuestion      │
+│ (full setup)        │    │ (model only)         │
+└─────────────────────┘    └──────────────────────┘
+        │                            │
+        ▼                            ▼
+┌─────────────────────┐    ┌──────────────────────┐
+│ Create EXTEND.md    │    │ Update EXTEND.md     │
+└─────────────────────┘    └──────────────────────┘
+        │                            │
+        ▼                            ▼
+    Continue                     Continue
+</code></pre></div></div>
+
+<h2 id="flow-1-no-extendmd-full-setup">Flow 1: No EXTEND.md (Full Setup)</h2>
+
+<p><strong>Language</strong>: Use user’s input language or saved language preference.</p>
+
+<p>Use AskUserQuestion with ALL questions in ONE call:</p>
+
+<h3 id="question-1-default-provider">Question 1: Default Provider</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Provider"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">provider?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Google</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Gemini</span><span class="nv"> </span><span class="s">multimodal</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">high</span><span class="nv"> </span><span class="s">quality,</span><span class="nv"> </span><span class="s">reference</span><span class="nv"> </span><span class="s">images,</span><span class="nv"> </span><span class="s">flexible</span><span class="nv"> </span><span class="s">sizes"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">OpenAI"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">latest</span><span class="nv"> </span><span class="s">OpenAI</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">model,</span><span class="nv"> </span><span class="s">reference-image</span><span class="nv"> </span><span class="s">workflows"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Azure</span><span class="nv"> </span><span class="s">OpenAI"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Azure-hosted</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">deployments</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">resource-specific</span><span class="nv"> </span><span class="s">routing"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">OpenRouter"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Router</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">Gemini/FLUX/OpenAI-compatible</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">models"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">DashScope"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Alibaba</span><span class="nv"> </span><span class="s">Cloud</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">Qwen-Image,</span><span class="nv"> </span><span class="s">strong</span><span class="nv"> </span><span class="s">Chinese/English</span><span class="nv"> </span><span class="s">text</span><span class="nv"> </span><span class="s">rendering"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Z.AI"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">GLM-image,</span><span class="nv"> </span><span class="s">strong</span><span class="nv"> </span><span class="s">poster</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">text-heavy</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">MiniMax"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">subject-reference</span><span class="nv"> </span><span class="s">character</span><span class="nv"> </span><span class="s">workflows"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Replicate"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Curated</span><span class="nv"> </span><span class="s">Replicate</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">families</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">nano-banana-2,</span><span class="nv"> </span><span class="s">Seedream,</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">Wan</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">models"</span>
+</code></pre></div></div>
+
+<h3 id="question-2-default-google-model">Question 2: Default Google Model</h3>
+
+<p>Only show if user selected Google or auto-detect (no explicit provider).</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Google</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">Google</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3-pro-image-preview</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Highest</span><span class="nv"> </span><span class="s">quality,</span><span class="nv"> </span><span class="s">best</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">production</span><span class="nv"> </span><span class="s">use"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3.1-flash-image-preview"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">generation,</span><span class="nv"> </span><span class="s">good</span><span class="nv"> </span><span class="s">quality,</span><span class="nv"> </span><span class="s">lower</span><span class="nv"> </span><span class="s">cost"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3-flash-preview"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">generation,</span><span class="nv"> </span><span class="s">balanced</span><span class="nv"> </span><span class="s">quality</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">speed"</span>
+</code></pre></div></div>
+
+<h3 id="question-2b-default-openrouter-model">Question 2b: Default OpenRouter Model</h3>
+
+<p>Only show if user selected OpenRouter.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">OpenRouter</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">OpenRouter</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/gemini-3.1-flash-image-preview</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Best</span><span class="nv"> </span><span class="s">general-purpose</span><span class="nv"> </span><span class="s">OpenRouter</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">reference-image</span><span class="nv"> </span><span class="s">workflows"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/gemini-2.5-flash-image-preview"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">Gemini</span><span class="nv"> </span><span class="s">preview</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">OpenRouter"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">black-forest-labs/flux.2-pro"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Strong</span><span class="nv"> </span><span class="s">text-to-image</span><span class="nv"> </span><span class="s">quality</span><span class="nv"> </span><span class="s">through</span><span class="nv"> </span><span class="s">OpenRouter"</span>
+</code></pre></div></div>
+
+<h3 id="question-2c-default-azure-deployment">Question 2c: Default Azure Deployment</h3>
+
+<p>Only show if user selected Azure OpenAI.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Azure</span><span class="nv"> </span><span class="s">Deploy"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">Azure</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-2</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Use</span><span class="nv"> </span><span class="s">if</span><span class="nv"> </span><span class="s">your</span><span class="nv"> </span><span class="s">Azure</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">uses</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">name"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-1.5"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Previous</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-1"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Earlier</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name"</span>
+</code></pre></div></div>
+
+<h3 id="question-2d-default-minimax-model">Question 2d: Default MiniMax Model</h3>
+
+<p>Only show if user selected MiniMax.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">image-01</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Best</span><span class="nv"> </span><span class="s">default,</span><span class="nv"> </span><span class="s">supports</span><span class="nv"> </span><span class="s">aspect</span><span class="nv"> </span><span class="s">ratios</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">custom</span><span class="nv"> </span><span class="s">width/height"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">image-01-live"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Faster</span><span class="nv"> </span><span class="s">variant,</span><span class="nv"> </span><span class="s">use</span><span class="nv"> </span><span class="s">aspect</span><span class="nv"> </span><span class="s">ratio</span><span class="nv"> </span><span class="s">instead</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">custom</span><span class="nv"> </span><span class="s">size"</span>
+</code></pre></div></div>
+
+<h3 id="question-2e-default-zai-model">Question 2e: Default Z.AI Model</h3>
+
+<p>Only show if user selected Z.AI.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Z.AI</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">Z.AI</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">glm-image</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Best</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">posters,</span><span class="nv"> </span><span class="s">diagrams,</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">text-heavy</span><span class="nv"> </span><span class="s">images"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cogview-4-250304"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Legacy</span><span class="nv"> </span><span class="s">Z.AI</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">same</span><span class="nv"> </span><span class="s">endpoint"</span>
+</code></pre></div></div>
+
+<h3 id="question-3-default-quality">Question 3: Default Quality</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Quality"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Default</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">quality?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">2k</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">2048px</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">covers,</span><span class="nv"> </span><span class="s">illustrations,</span><span class="nv"> </span><span class="s">infographics"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">normal"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1024px</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">quick</span><span class="nv"> </span><span class="s">previews,</span><span class="nv"> </span><span class="s">drafts"</span>
+</code></pre></div></div>
+
+<h3 id="question-4-save-location">Question 4: Save Location</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Save"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Where</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">save</span><span class="nv"> </span><span class="s">preferences?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Project</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">.baoyu-skills/</span><span class="nv"> </span><span class="s">(this</span><span class="nv"> </span><span class="s">project</span><span class="nv"> </span><span class="s">only)"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">User"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">~/.baoyu-skills/</span><span class="nv"> </span><span class="s">(all</span><span class="nv"> </span><span class="s">projects)"</span>
+</code></pre></div></div>
+
+<h3 id="save-locations">Save Locations</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Choice</th>
+      <th>Path</th>
+      <th>Scope</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Project</td>
+      <td><code class="language-plaintext highlighter-rouge">.baoyu-skills/baoyu-image-gen/EXTEND.md</code></td>
+      <td>Current project</td>
+    </tr>
+    <tr>
+      <td>User</td>
+      <td><code class="language-plaintext highlighter-rouge">$HOME/.baoyu-skills/baoyu-image-gen/EXTEND.md</code></td>
+      <td>All projects</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="extendmd-template">EXTEND.md Template</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">default_provider</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected provider or null</span><span class="pi">]</span>
+<span class="na">default_quality</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected quality</span><span class="pi">]</span>
+<span class="na">default_aspect_ratio</span><span class="pi">:</span> <span class="no">null</span>
+<span class="na">default_image_size</span><span class="pi">:</span> <span class="no">null</span>
+<span class="na">default_image_api_dialect</span><span class="pi">:</span> <span class="no">null</span>
+<span class="na">default_model</span><span class="pi">:</span>
+  <span class="na">google</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected google model or null</span><span class="pi">]</span>
+  <span class="na">openai</span><span class="pi">:</span> <span class="no">null</span>
+  <span class="na">azure</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected azure deployment or null</span><span class="pi">]</span>
+  <span class="na">openrouter</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected openrouter model or null</span><span class="pi">]</span>
+  <span class="na">dashscope</span><span class="pi">:</span> <span class="no">null</span>
+  <span class="na">zai</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected Z.AI model or null</span><span class="pi">]</span>
+  <span class="na">minimax</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected minimax model or null</span><span class="pi">]</span>
+  <span class="na">replicate</span><span class="pi">:</span> <span class="no">null</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+
+<p>If the user selects <code class="language-plaintext highlighter-rouge">OpenAI</code> but says their endpoint is only OpenAI-compatible and fronts another image model family, save <code class="language-plaintext highlighter-rouge">default_image_api_dialect: ratio-metadata</code> when they explicitly confirm the gateway expects aspect-ratio <code class="language-plaintext highlighter-rouge">size</code> plus metadata-based resolution. Otherwise leave it <code class="language-plaintext highlighter-rouge">null</code> / <code class="language-plaintext highlighter-rouge">openai-native</code>.</p>
+
+<h2 id="flow-2-extendmd-exists-model-null">Flow 2: EXTEND.md Exists, Model Null</h2>
+
+<p>When EXTEND.md exists but <code class="language-plaintext highlighter-rouge">default_model.[current_provider]</code> is null, ask ONLY the model question for the current provider.</p>
+
+<h3 id="google-model-selection">Google Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Google</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">Google</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3-pro-image-preview</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Highest</span><span class="nv"> </span><span class="s">quality,</span><span class="nv"> </span><span class="s">best</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">production</span><span class="nv"> </span><span class="s">use"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3.1-flash-image-preview"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">generation,</span><span class="nv"> </span><span class="s">good</span><span class="nv"> </span><span class="s">quality,</span><span class="nv"> </span><span class="s">lower</span><span class="nv"> </span><span class="s">cost"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3-flash-preview"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">generation,</span><span class="nv"> </span><span class="s">balanced</span><span class="nv"> </span><span class="s">quality</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">speed"</span>
+</code></pre></div></div>
+
+<h3 id="openai-model-selection">OpenAI Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">OpenAI</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">OpenAI</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-2</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Latest</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">model,</span><span class="nv"> </span><span class="s">flexible</span><span class="nv"> </span><span class="s">sizes</span><span class="nv"> </span><span class="s">up</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">4K,</span><span class="nv"> </span><span class="s">high-fidelity</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">inputs"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-1.5"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Previous</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">model"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-1"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Earlier</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">model"</span>
+</code></pre></div></div>
+
+<h3 id="azure-deployment-selection">Azure Deployment Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Azure</span><span class="nv"> </span><span class="s">Deploy"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">Azure</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-2</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Use</span><span class="nv"> </span><span class="s">when</span><span class="nv"> </span><span class="s">your</span><span class="nv"> </span><span class="s">Azure</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name</span><span class="nv"> </span><span class="s">matches</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">model"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-1.5"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Use</span><span class="nv"> </span><span class="s">when</span><span class="nv"> </span><span class="s">your</span><span class="nv"> </span><span class="s">Azure</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name</span><span class="nv"> </span><span class="s">matches</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">GPT</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">1.5</span><span class="nv"> </span><span class="s">model"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-1"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Use</span><span class="nv"> </span><span class="s">when</span><span class="nv"> </span><span class="s">your</span><span class="nv"> </span><span class="s">Azure</span><span class="nv"> </span><span class="s">deployment</span><span class="nv"> </span><span class="s">name</span><span class="nv"> </span><span class="s">matches</span><span class="nv"> </span><span class="s">GPT-image-1"</span>
+</code></pre></div></div>
+
+<p>Notes for Azure setup:</p>
+
+<ul>
+  <li>In <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>, Azure <code class="language-plaintext highlighter-rouge">--model</code> / <code class="language-plaintext highlighter-rouge">default_model.azure</code> should be the Azure deployment name, not just the underlying model family.</li>
+  <li>If the deployment name is custom, save that exact deployment name in <code class="language-plaintext highlighter-rouge">default_model.azure</code>.</li>
+</ul>
+
+<h3 id="openrouter-model-selection">OpenRouter Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">OpenRouter</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">OpenRouter</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/gemini-3.1-flash-image-preview</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Recommended</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">output</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">reference-image</span><span class="nv"> </span><span class="s">edits"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/gemini-2.5-flash-image-preview"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">preview-oriented</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">black-forest-labs/flux.2-pro"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">High-quality</span><span class="nv"> </span><span class="s">text-to-image</span><span class="nv"> </span><span class="s">through</span><span class="nv"> </span><span class="s">OpenRouter"</span>
+</code></pre></div></div>
+
+<h3 id="dashscope-model-selection">DashScope Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">DashScope</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">DashScope</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">qwen-image-2.0-pro</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Best</span><span class="nv"> </span><span class="s">DashScope</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">text</span><span class="nv"> </span><span class="s">rendering</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">custom</span><span class="nv"> </span><span class="s">sizes"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">qwen-image-2.0"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Faster</span><span class="nv"> </span><span class="s">2.0</span><span class="nv"> </span><span class="s">variant</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">flexible</span><span class="nv"> </span><span class="s">output</span><span class="nv"> </span><span class="s">size"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">qwen-image-max"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Legacy</span><span class="nv"> </span><span class="s">Qwen</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">five</span><span class="nv"> </span><span class="s">fixed</span><span class="nv"> </span><span class="s">output</span><span class="nv"> </span><span class="s">sizes"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">qwen-image-plus"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Legacy</span><span class="nv"> </span><span class="s">Qwen</span><span class="nv"> </span><span class="s">model,</span><span class="nv"> </span><span class="s">same</span><span class="nv"> </span><span class="s">current</span><span class="nv"> </span><span class="s">capability</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">qwen-image"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">wan2.7-image-pro"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Wan</span><span class="nv"> </span><span class="s">2.7</span><span class="nv"> </span><span class="s">Pro</span><span class="nv"> </span><span class="s">—</span><span class="nv"> </span><span class="s">supports</span><span class="nv"> </span><span class="s">up</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">4K</span><span class="nv"> </span><span class="s">text-to-image</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">reference-image</span><span class="nv"> </span><span class="s">editing"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">wan2.7-image"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Wan</span><span class="nv"> </span><span class="s">2.7</span><span class="nv"> </span><span class="s">base</span><span class="nv"> </span><span class="s">—</span><span class="nv"> </span><span class="s">faster</span><span class="nv"> </span><span class="s">generation,</span><span class="nv"> </span><span class="s">up</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">2K,</span><span class="nv"> </span><span class="s">supports</span><span class="nv"> </span><span class="s">reference-image</span><span class="nv"> </span><span class="s">editing"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">z-image-turbo"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Legacy</span><span class="nv"> </span><span class="s">DashScope</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">compatibility"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">z-image-ultra"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Legacy</span><span class="nv"> </span><span class="s">DashScope</span><span class="nv"> </span><span class="s">model,</span><span class="nv"> </span><span class="s">higher</span><span class="nv"> </span><span class="s">quality</span><span class="nv"> </span><span class="s">but</span><span class="nv"> </span><span class="s">slower"</span>
+</code></pre></div></div>
+
+<p>Notes for DashScope setup:</p>
+
+<ul>
+  <li>Prefer <code class="language-plaintext highlighter-rouge">qwen-image-2.0-pro</code> when the user needs custom <code class="language-plaintext highlighter-rouge">--size</code>, uncommon ratios like <code class="language-plaintext highlighter-rouge">21:9</code>, or strong Chinese/English text rendering.</li>
+  <li><code class="language-plaintext highlighter-rouge">qwen-image-max</code> / <code class="language-plaintext highlighter-rouge">qwen-image-plus</code> / <code class="language-plaintext highlighter-rouge">qwen-image</code> only support five fixed sizes: <code class="language-plaintext highlighter-rouge">1664*928</code>, <code class="language-plaintext highlighter-rouge">1472*1104</code>, <code class="language-plaintext highlighter-rouge">1328*1328</code>, <code class="language-plaintext highlighter-rouge">1104*1472</code>, <code class="language-plaintext highlighter-rouge">928*1664</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">wan2.7-image-pro</code> and <code class="language-plaintext highlighter-rouge">wan2.7-image</code> are the only DashScope models that accept <code class="language-plaintext highlighter-rouge">--ref</code>. Pick one of these when the user wants reference-image editing or multi-image fusion via DashScope.</li>
+  <li>In <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>, <code class="language-plaintext highlighter-rouge">quality</code> is a compatibility preset. It is not a native DashScope parameter.</li>
+</ul>
+
+<h3 id="zai-model-selection">Z.AI Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Z.AI</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">Z.AI</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">glm-image</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Current</span><span class="nv"> </span><span class="s">flagship</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">better</span><span class="nv"> </span><span class="s">text</span><span class="nv"> </span><span class="s">rendering</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">poster</span><span class="nv"> </span><span class="s">layouts"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cogview-4-250304"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Legacy</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">sync</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">endpoint"</span>
+</code></pre></div></div>
+
+<p>Notes for Z.AI setup:</p>
+
+<ul>
+  <li>Prefer <code class="language-plaintext highlighter-rouge">glm-image</code> for posters, diagrams, and Chinese/English text-heavy layouts.</li>
+  <li>In <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>, Z.AI currently exposes text-to-image only; reference images are not wired for this provider.</li>
+  <li>The sync Z.AI image API returns a downloadable image URL, which the runtime saves locally after download.</li>
+</ul>
+
+<h3 id="replicate-model-selection">Replicate Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Replicate</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">Replicate</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/nano-banana-2</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Current</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">general</span><span class="nv"> </span><span class="s">Replicate</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">baoyu-image-gen"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">bytedance/seedream-4.5"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Replicate</span><span class="nv"> </span><span class="s">Seedream</span><span class="nv"> </span><span class="s">4.5</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">validated</span><span class="nv"> </span><span class="s">local</span><span class="nv"> </span><span class="s">size/ref</span><span class="nv"> </span><span class="s">guardrails"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">bytedance/seedream-5-lite"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Replicate</span><span class="nv"> </span><span class="s">Seedream</span><span class="nv"> </span><span class="s">5</span><span class="nv"> </span><span class="s">Lite</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">validated</span><span class="nv"> </span><span class="s">local</span><span class="nv"> </span><span class="s">size/ref</span><span class="nv"> </span><span class="s">guardrails"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">wan-video/wan-2.7-image-pro"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Replicate</span><span class="nv"> </span><span class="s">Wan</span><span class="nv"> </span><span class="s">2.7</span><span class="nv"> </span><span class="s">Image</span><span class="nv"> </span><span class="s">Pro</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">4K</span><span class="nv"> </span><span class="s">text-to-image</span><span class="nv"> </span><span class="s">support"</span>
+</code></pre></div></div>
+
+<h3 id="minimax-model-selection">MiniMax Model Selection</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">header</span><span class="pi">:</span> <span class="s2">"</span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">Model"</span>
+<span class="na">question</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Choose</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">model?"</span>
+<span class="na">options</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">image-01</span><span class="nv"> </span><span class="s">(Recommended)"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Best</span><span class="nv"> </span><span class="s">general-purpose</span><span class="nv"> </span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">custom</span><span class="nv"> </span><span class="s">width/height</span><span class="nv"> </span><span class="s">support"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">image-01-live"</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Lower-latency</span><span class="nv"> </span><span class="s">MiniMax</span><span class="nv"> </span><span class="s">image</span><span class="nv"> </span><span class="s">model</span><span class="nv"> </span><span class="s">using</span><span class="nv"> </span><span class="s">aspect</span><span class="nv"> </span><span class="s">ratios"</span>
+</code></pre></div></div>
+
+<p>Notes for MiniMax setup:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">image-01</code> is the safest default. It supports official <code class="language-plaintext highlighter-rouge">aspect_ratio</code> values and documented custom <code class="language-plaintext highlighter-rouge">width</code> / <code class="language-plaintext highlighter-rouge">height</code> output sizes.</li>
+  <li><code class="language-plaintext highlighter-rouge">image-01-live</code> is useful when the user prefers faster generation and can work with aspect-ratio-based sizing.</li>
+  <li>MiniMax subject reference currently uses <code class="language-plaintext highlighter-rouge">subject_reference[].type = character</code>; docs recommend front-facing portrait references in JPG/JPEG/PNG under 10MB.</li>
+</ul>
+
+<h3 id="update-extendmd">Update EXTEND.md</h3>
+
+<p>After user selects a model:</p>
+
+<ol>
+  <li>Read existing EXTEND.md</li>
+  <li>If <code class="language-plaintext highlighter-rouge">default_model:</code> section exists → update the provider-specific key</li>
+  <li>If <code class="language-plaintext highlighter-rouge">default_model:</code> section missing → add the full section:</li>
+</ol>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">default_model</span><span class="pi">:</span>
+  <span class="na">google</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">openai</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">azure</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">openrouter</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">dashscope</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">zai</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">minimax</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+  <span class="na">replicate</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">value or null</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<p>Only set the selected provider’s model; leave others as their current value or null.</p>
+
+<h2 id="after-setup">After Setup</h2>
+
+<ol>
+  <li>Create directory if needed</li>
+  <li>Write/update EXTEND.md with frontmatter</li>
+  <li>Confirm: “Preferences saved to [path]”</li>
+  <li>Continue with image generation</li>
+</ol>
+:ET

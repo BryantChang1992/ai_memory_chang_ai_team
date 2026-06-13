@@ -1,0 +1,223 @@
+I"å1<h1 id="preferences-schema">Preferences Schema</h1>
+
+<h2 id="full-schema">Full Schema</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="na">default_provider</span><span class="pi">:</span> <span class="no">null</span>      <span class="c1"># google|openai|azure|openrouter|dashscope|zai|minimax|replicate|null (null = auto-detect)</span>
+
+<span class="na">default_quality</span><span class="pi">:</span> <span class="no">null</span>       <span class="c1"># normal|2k|null (null = use default: 2k)</span>
+
+<span class="na">default_aspect_ratio</span><span class="pi">:</span> <span class="no">null</span>  <span class="c1"># "16:9"|"1:1"|"4:3"|"3:4"|"2.35:1"|null</span>
+
+<span class="na">default_image_size</span><span class="pi">:</span> <span class="no">null</span>    <span class="c1"># 1K|2K|4K|null (Google/OpenRouter, overrides quality)</span>
+
+<span class="na">default_image_api_dialect</span><span class="pi">:</span> <span class="no">null</span>  <span class="c1"># openai-native|ratio-metadata|null (OpenAI-compatible gateways; null = use env/default)</span>
+
+<span class="na">default_model</span><span class="pi">:</span>
+  <span class="na">google</span><span class="pi">:</span> <span class="no">null</span>              <span class="c1"># e.g., "gemini-3-pro-image-preview", "gemini-3.1-flash-image-preview"</span>
+  <span class="na">openai</span><span class="pi">:</span> <span class="no">null</span>              <span class="c1"># e.g., "gpt-image-2", "gpt-image-1.5", "gpt-image-1"</span>
+  <span class="na">azure</span><span class="pi">:</span> <span class="no">null</span>               <span class="c1"># Azure deployment name, e.g., "gpt-image-2" or "image-prod"</span>
+  <span class="na">openrouter</span><span class="pi">:</span> <span class="no">null</span>          <span class="c1"># e.g., "google/gemini-3.1-flash-image-preview"</span>
+  <span class="na">dashscope</span><span class="pi">:</span> <span class="no">null</span>           <span class="c1"># e.g., "qwen-image-2.0-pro"</span>
+  <span class="na">zai</span><span class="pi">:</span> <span class="no">null</span>                 <span class="c1"># e.g., "glm-image"</span>
+  <span class="na">minimax</span><span class="pi">:</span> <span class="no">null</span>             <span class="c1"># e.g., "image-01"</span>
+  <span class="na">replicate</span><span class="pi">:</span> <span class="no">null</span>           <span class="c1"># e.g., "google/nano-banana-2"</span>
+
+<span class="na">batch</span><span class="pi">:</span>
+  <span class="na">max_workers</span><span class="pi">:</span> <span class="m">10</span>
+  <span class="na">provider_limits</span><span class="pi">:</span>
+    <span class="na">replicate</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">5</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">700</span>
+    <span class="na">google</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">openai</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">azure</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">openrouter</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">dashscope</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">zai</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">minimax</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+
+<h2 id="field-reference">Field Reference</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">version</code></td>
+      <td>int</td>
+      <td>1</td>
+      <td>Schema version</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_provider</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Default provider (null = auto-detect)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_quality</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Default quality (null = 2k)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_aspect_ratio</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Default aspect ratio</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_image_size</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Google/OpenRouter image size (overrides quality)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_image_api_dialect</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>OpenAI-compatible image dialect (<code class="language-plaintext highlighter-rouge">openai-native</code> or <code class="language-plaintext highlighter-rouge">ratio-metadata</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.google</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Google default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.openai</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>OpenAI default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.azure</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Azure default deployment name</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.openrouter</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>OpenRouter default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.dashscope</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>DashScope default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.zai</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Z.AI default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.minimax</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>MiniMax default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_model.replicate</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Replicate default model</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">batch.max_workers</code></td>
+      <td>int|null</td>
+      <td>10</td>
+      <td>Batch worker cap</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">batch.provider_limits.&lt;provider&gt;.concurrency</code></td>
+      <td>int|null</td>
+      <td>provider default</td>
+      <td>Max simultaneous requests per provider</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">batch.provider_limits.&lt;provider&gt;.start_interval_ms</code></td>
+      <td>int|null</td>
+      <td>provider default</td>
+      <td>Minimum gap between request starts per provider</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="examples">Examples</h2>
+
+<p><strong>Minimal</strong>:</p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">default_provider</span><span class="pi">:</span> <span class="s">google</span>
+<span class="na">default_quality</span><span class="pi">:</span> <span class="s">2k</span>
+<span class="na">default_image_api_dialect</span><span class="pi">:</span> <span class="no">null</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+
+<p><strong>Full</strong>:</p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">default_provider</span><span class="pi">:</span> <span class="s">google</span>
+<span class="na">default_quality</span><span class="pi">:</span> <span class="s">2k</span>
+<span class="na">default_aspect_ratio</span><span class="pi">:</span> <span class="s2">"</span><span class="s">16:9"</span>
+<span class="na">default_image_size</span><span class="pi">:</span> <span class="s">2K</span>
+<span class="na">default_image_api_dialect</span><span class="pi">:</span> <span class="no">null</span>
+<span class="na">default_model</span><span class="pi">:</span>
+  <span class="na">google</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gemini-3-pro-image-preview"</span>
+  <span class="na">openai</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-2"</span>
+  <span class="na">azure</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gpt-image-2"</span>
+  <span class="na">openrouter</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/gemini-3.1-flash-image-preview"</span>
+  <span class="na">dashscope</span><span class="pi">:</span> <span class="s2">"</span><span class="s">qwen-image-2.0-pro"</span>
+  <span class="na">zai</span><span class="pi">:</span> <span class="s2">"</span><span class="s">glm-image"</span>
+  <span class="na">minimax</span><span class="pi">:</span> <span class="s2">"</span><span class="s">image-01"</span>
+  <span class="na">replicate</span><span class="pi">:</span> <span class="s2">"</span><span class="s">google/nano-banana-2"</span>
+<span class="na">batch</span><span class="pi">:</span>
+  <span class="na">max_workers</span><span class="pi">:</span> <span class="m">10</span>
+  <span class="na">provider_limits</span><span class="pi">:</span>
+    <span class="na">replicate</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">5</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">700</span>
+    <span class="na">azure</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">zai</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">openrouter</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+    <span class="na">minimax</span><span class="pi">:</span>
+      <span class="na">concurrency</span><span class="pi">:</span> <span class="m">3</span>
+      <span class="na">start_interval_ms</span><span class="pi">:</span> <span class="m">1100</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+:ET
