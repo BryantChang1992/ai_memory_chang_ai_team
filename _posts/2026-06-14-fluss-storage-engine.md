@@ -1,7 +1,7 @@
 ---
 title: "Fluss 源码分析：存储引擎模块"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss]
+categories: [技术调研]
 tags: [Fluss, 存储引擎, 流存储]
 description: >-
   Fluss 三层存储模型（本地 Log + KV Store + 远程分层）的深度分析，与 Kafka 2.7.2 单层存储的逐类对比。

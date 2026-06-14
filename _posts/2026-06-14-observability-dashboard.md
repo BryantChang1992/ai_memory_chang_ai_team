@@ -1,7 +1,7 @@
 ---
 title: "Agent 基础设施可观测性平台 · 设计文档"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术方案设计]
+categories: [项目文档]
 tags: [方案设计, Agent基础设施, 可观测性, SQLite, 日志解析]
 description: "CHANG_AI_TEAM 从单 Agent 走向多 Agent 协作后的可观测性平台设计——任务看板、Token 统计、Agent 状态机、冷启动恢复"
 ---

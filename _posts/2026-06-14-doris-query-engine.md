@@ -1,7 +1,7 @@
 ---
 title: "Apache Doris 调研：查询流程"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Doris]
+categories: [技术调研]
 tags: [Doris, 查询引擎, OLAP]
 description: >-
   Doris 查询引擎基于自研 C++ 向量化执行引擎，支持标准 SQL 和 MPP 分布式执行，Nereids CBO 优化器驱动 Runtime Filter 加速。
@@ -10,7 +10,7 @@ Doris 查询引擎是其高性能的核心，基于自研 C++ 向量化执行引
 
 ### 3.2 查询架构总览
 
-![[diagram/04-query-execution.svg]]
+![Doris 查询执行](/ai_memory_chang_ai_team/media/diagrams/04-query-execution.svg)
 
 ```
 Client (MySQL Protocol / HTTP / Arrow Flight)

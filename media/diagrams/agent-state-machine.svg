@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 700">
+  <defs>
+    <pattern id="grid3" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-cyan3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrow-violet3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrow-green3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+    </marker>
+    <marker id="arrow-rose3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185"/>
+    </marker>
+    <marker id="arrow-amber3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+    </marker>
+
+    <filter id="shadow3" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    text { font-family: 'JetBrains Mono', 'Noto Sans SC', 'PingFang SC', sans-serif; }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect width="100%" height="100%" fill="url(#grid3)"/>
+
+  <!-- Title -->
+  <text x="30" y="35" fill="#f1f5f9" font-size="15" font-weight="700">Agent 任务状态机 — 完整状态转移图</text>
+
+  <!-- ===== Start node ===== -->
+  <circle cx="95" cy="130" r="8" fill="#334155" stroke="#64748b" stroke-width="1.5"/>
+  <text x="95" y="118" fill="#64748b" font-size="7" text-anchor="middle">任务创建</text>
+  <line x1="103" y1="130" x2="152" y2="130" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+  <text x="128" y="122" fill="#64748b" font-size="7" text-anchor="middle">Agent 接收</text>
+
+  <!-- ===== pending ===== -->
+  <rect x="158" y="98" width="200" height="64" rx="12" fill="#0f172a" filter="url(#shadow3)"/>
+  <rect x="158" y="98" width="200" height="64" rx="12" fill="rgba(30,41,59,0.6)" stroke="#64748b" stroke-width="2"/>
+  <text x="258" y="122" fill="#94a3b8" font-size="12" font-weight="700" text-anchor="middle">⏳ pending</text>
+  <text x="258" y="142" fill="#64748b" font-size="9" text-anchor="middle">等待 Agent 接收</text>
+  <text x="258" y="154" fill="#64748b" font-size="8" text-anchor="middle">任务创建后初始状态</text>
+
+  <!-- pending → in_progress -->
+  <path d="M 358,130 L 405,130" fill="none" stroke="#22d3ee" stroke-width="2.5" marker-end="url(#arrow-cyan3)"/>
+  <text x="382" y="120" fill="#22d3ee" font-size="8" text-anchor="middle">开始执行</text>
+
+  <!-- ===== in_progress ===== -->
+  <rect x="410" y="98" width="220" height="64" rx="12" fill="#0f172a" filter="url(#shadow3)"/>
+  <rect x="410" y="98" width="220" height="64" rx="12" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="2"/>
+  <text x="520" y="122" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">⚡ in_progress</text>
+  <text x="520" y="142" fill="#94a3b8" font-size="9" text-anchor="middle">任务执行中</text>
+  <text x="520" y="154" fill="#64748b" font-size="8" text-anchor="middle">Supervisor 监控 activity</text>
+
+  <!-- Self-loop: in_progress → in_progress (internal progress) -->
+  <path d="M 410,108 Q 390,60 520,60 Q 620,60 630,108" fill="none" stroke="#34d399" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.4"/>
+  <text x="520" y="52" fill="#34d399" font-size="7" text-anchor="middle" opacity="0.6">子任务完成返回 · 继续执行</text>
+
+  <!-- in_progress → done -->
+  <path d="M 630,130 L 690,130" fill="none" stroke="#22d3ee" stroke-width="2.5" marker-end="url(#arrow-green3)"/>
+  <text x="660" y="120" fill="#34d399" font-size="8" text-anchor="middle">完成 ✅</text>
+
+  <!-- ===== done ===== -->
+  <rect x="694" y="98" width="155" height="64" rx="12" fill="#0f172a" filter="url(#shadow3)"/>
+  <rect x="694" y="98" width="155" height="64" rx="12" fill="rgba(6,78,59,0.2)" stroke="#34d399" stroke-width="2"/>
+  <text x="771" y="122" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">✅ done</text>
+  <text x="771" y="142" fill="#94a3b8" font-size="9" text-anchor="middle">任务完成</text>
+  <text x="771" y="154" fill="#64748b" font-size="8" text-anchor="middle">终态</text>
+
+  <!-- End marker for done -->
+  <circle cx="780" cy="192" r="10" fill="none" stroke="#34d399" stroke-width="1.5"/>
+  <circle cx="780" cy="192" r="5" fill="#34d399"/>
+
+  <!-- ===== failed ===== -->
+  <rect x="520" y="240" width="220" height="64" rx="12" fill="#0f172a" filter="url(#shadow3)"/>
+  <rect x="520" y="240" width="220" height="64" rx="12" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="2"/>
+  <text x="630" y="264" fill="#fb7185" font-size="12" font-weight="700" text-anchor="middle">❌ failed</text>
+  <text x="630" y="284" fill="#94a3b8" font-size="9" text-anchor="middle">执行失败 / 异常</text>
+  <text x="630" y="296" fill="#64748b" font-size="8" text-anchor="middle">可手动重试 → pending</text>
+
+  <!-- in_progress → failed -->
+  <path d="M 520,162 L 520,235" fill="none" stroke="#fb7185" stroke-width="2.5" marker-end="url(#arrow-rose3)"/>
+  <text x="506" y="200" fill="#fb7185" font-size="8" text-anchor="middle">异常 ❌</text>
+
+  <!-- failed → pending (retry) -->
+  <path d="M 520,272 C 300,272 300,272 160,162" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-amber3)"/>
+  <text x="300" y="260" fill="#fbbf24" font-size="8" text-anchor="middle">用户重试 / 自动重试</text>
+
+  <!-- ===== blocked ===== -->
+  <rect x="110" y="240" width="220" height="64" rx="12" fill="#0f172a" filter="url(#shadow3)"/>
+  <rect x="110" y="240" width="220" height="64" rx="12" fill="rgba(120,53,15,0.4)" stroke="#fbbf24" stroke-width="2"/>
+  <text x="220" y="264" fill="#fbbf24" font-size="12" font-weight="700" text-anchor="middle">🚧 blocked</text>
+  <text x="220" y="284" fill="#94a3b8" font-size="9" text-anchor="middle">等待外部条件</text>
+  <text x="220" y="296" fill="#64748b" font-size="8" text-anchor="middle">子任务完成 / API 就绪</text>
+
+  <!-- in_progress → blocked -->
+  <path d="M 410,130 C 370,240 340,255 330,272" fill="none" stroke="#fbbf24" stroke-width="2.5" marker-end="url(#arrow-amber3)"/>
+  <text x="350" y="210" fill="#fbbf24" font-size="8" text-anchor="middle">等待输入 🚧</text>
+
+  <!-- blocked → in_progress -->
+  <path d="M 330,272 C 340,300 370,310 410,162" fill="none" stroke="#22d3ee" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-cyan3)"/>
+  <text x="356" y="345" fill="#22d3ee" font-size="8" text-anchor="middle">阻塞解除 → 恢复</text>
+
+  <!-- blocked → failed (timeout) -->
+  <path d="M 330,272 C 400,360 480,350 520,304" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-rose3)"/>
+  <text x="455" y="360" fill="#fb7185" font-size="7" text-anchor="middle">Supervisor 超时检测</text>
+
+  <!-- ===== cancelled ===== -->
+  <rect x="110" y="430" width="220" height="64" rx="12" fill="#0f172a" filter="url(#shadow3)"/>
+  <rect x="110" y="430" width="220" height="64" rx="12" fill="rgba(30,41,59,0.6)" stroke="#94a3b8" stroke-width="2"/>
+  <text x="220" y="454" fill="#94a3b8" font-size="12" font-weight="700" text-anchor="middle">🗑 cancelled</text>
+  <text x="220" y="474" fill="#64748b" font-size="9" text-anchor="middle">用户手动取消</text>
+  <text x="220" y="486" fill="#64748b" font-size="8" text-anchor="middle">终态</text>
+
+  <!-- pending → cancelled -->
+  <path d="M 215,162 L 190,425" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow3)"/>
+  <text x="155" y="300" fill="#64748b" font-size="7" text-anchor="middle">用户取消</text>
+
+  <!-- blocked → cancelled -->
+  <line x1="220" y1="410" x2="220" y2="425" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow3)"/>
+
+  <!-- ===== stuck / stale annotations ===== -->
+  <rect x="410" y="430" width="430" height="120" rx="8" fill="#0f172a" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="425" y="452" fill="#a78bfa" font-size="11" font-weight="700">👁 Supervisor 自动检测异常状态</text>
+
+  <line x1="425" y1="462" x2="820" y2="462" stroke="#334155" stroke-width="0.5"/>
+
+  <text x="440" y="478" fill="#fbbf24" font-size="9" font-weight="600">stuck (卡死)</text>
+  <text x="440" y="494" fill="#94a3b8" font-size="9">in_progress 状态持续 30min 无任何 activity</text>
+  <text x="440" y="510" fill="#64748b" font-size="8">→ Supervisor 标记为 stuck → 通知用户 → 可转为 failed</text>
+
+  <text x="440" y="532" fill="#94a3b8" font-size="9" font-weight="600">stale (僵尸)</text>
+  <text x="440" y="546" fill="#94a3b8" font-size="9">task=dong 但 session 仍 active</text>
+
+  <!-- ===== Legend ===== -->
+  <rect x="30" y="610" width="820" height="70" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="50" y="632" fill="#94a3b8" font-size="10" font-weight="700">图例</text>
+  <line x1="50" y1="660" x2="100" y2="660" stroke="#22d3ee" stroke-width="2.5"/>
+  <text x="110" y="663" fill="#94a3b8" font-size="9">自动转移</text>
+  <line x1="200" y1="660" x2="250" y2="660" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="260" y="663" fill="#94a3b8" font-size="9">条件转移 / 手动</text>
+  <line x1="400" y1="660" x2="450" y2="660" stroke="#64748b" stroke-width="2"/>
+  <text x="460" y="663" fill="#94a3b8" font-size="9">初始转移</text>
+  <line x1="560" y1="660" x2="610" y2="660" stroke="#fb7185" stroke-width="2.5"/>
+  <text x="620" y="663" fill="#94a3b8" font-size="9">异常转移</text>
+  <line x1="720" y1="660" x2="770" y2="660" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="780" y="663" fill="#94a3b8" font-size="9">终止转移</text>
+</svg>

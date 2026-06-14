@@ -1,7 +1,7 @@
 ---
 title: "论文精读：Event Horizon — 非对称依赖与半线性化"
 date: 2026-06-11 08:00:00 +0800
-categories: [论文精读]
+categories: [技术调研]
 tags: [论文精读, Event Horizon, CIDR 2026]
 description: >-
   CIDR 2026 论文精读：Event Horizon 提出半线性化（Semi-Linearizability）一致性模型，通过非对称操作依赖突破地理分布式系统的过度协调瓶颈。

@@ -1,7 +1,7 @@
 ---
 title: "技术调研周报 — Week 01 (2026-05-26)"
 date: 2026-05-26 08:00:00 +0800
-categories: [技术调研周报]
+categories: [技术调研]
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-
   首期技术调研周报，覆盖 AI Harness Agent 基础设施、面向 AI 的数据平台建设、Kafka/AutoMQ/Fluss 社区动态三大主题。

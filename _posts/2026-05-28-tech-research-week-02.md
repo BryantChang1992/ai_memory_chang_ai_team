@@ -1,7 +1,7 @@
 ---
 title: "技术调研周报 — Week 02 (2026-05-28)"
 date: 2026-05-28 08:00:00 +0800
-categories: [技术调研周报]
+categories: [技术调研]
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-
   覆盖周期 2026-05-21 ~ 2026-05-28，追踪 GPT-5.5 Instant、Claude Opus 4.7、Iceberg 1.11.0 深度拆解、Kafka 4.3.0 等动态。

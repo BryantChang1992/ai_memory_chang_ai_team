@@ -1,7 +1,7 @@
 ---
 title: "事务模型深度调研：从 ACID 到全球分布式事务"
 date: 2026-06-14 08:00:00 +0800
-categories: [知识库]
+categories: [技术调研]
 tags: [事务, ACID, MVCC, 分布式事务, MySQL, PostgreSQL]
 description: >-
   涵盖 ACID 隔离级别、单机并发控制（2PL/MVCC）、分布式事务协议（2PC/3PC/TCC/SAGA）、现代架构（Percolator/Spanner/Calvin）及主流数据库实现的全面技术调研。

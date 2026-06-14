@@ -1,7 +1,7 @@
 ---
 title: "基于 ZooKeeper 的 Kafka JBOD 磁盘故障处理方案设计"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术方案设计]
+categories: [项目文档]
 tags: [方案设计, Kafka, ZooKeeper, JBOD, KIP-1066, KIP-858, Cordon, 磁盘故障]
 description: "参考 KIP-1066 设计思路，面向 ZK 模式 Kafka 集群的磁盘故障感知、副本迁移与自动化恢复方案"
 ---

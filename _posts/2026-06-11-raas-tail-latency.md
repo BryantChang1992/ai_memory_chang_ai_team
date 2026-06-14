@@ -1,7 +1,7 @@
 ---
 title: "RaaS：存储计算分离数据库的 Tail Latency 消除"
 date: 2026-06-11 08:00:00 +0800
-categories: [论文精读]
+categories: [技术调研]
 tags: [论文精读, RaaS, SIGMOD 2026]
 description: "SIGMOD 2026 论文精读：Reducing Tail Latency in Storage-Disaggregated Database Systems"
 ---

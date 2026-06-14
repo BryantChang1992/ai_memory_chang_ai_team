@@ -1,7 +1,7 @@
 ---
 title: "Fluss 源码分析：模块对应关系总表"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss]
+categories: [技术调研]
 tags: [Fluss, 模块总结]
 description: >-
   Fluss 所有模块与 Kafka 2.7.2 的完整对照表，包含 100+ 类的逐一对比、独家能力矩阵和代码复用度统计。

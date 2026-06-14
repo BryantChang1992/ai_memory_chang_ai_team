@@ -1,7 +1,7 @@
 ---
 title: "论文精读：RaaS — 存储计算分离数据库的 Tail Latency 消除"
 date: 2026-06-11 08:00:00 +0800
-categories: [论文精读]
+categories: [技术调研]
 tags: [论文精读, RaaS, SIGMOD 2026]
 description: >-
   SIGMOD 2026 论文精读：RaaS（Replay-as-a-Service）将日志回放从存储引擎解耦为独立服务，降低存储计算分离数据库 P95 尾延迟 40.1%。

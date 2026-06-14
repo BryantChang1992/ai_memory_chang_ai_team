@@ -1,7 +1,7 @@
 ---
 title: "🤖 AI Agent 论文周报 · Week #4"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研, AI Agent]
+categories: [技术调研]
 tags: [AI Agent, 论文速览]
 description: "arxiv + 顶会最新论文调研 — 多 Agent 协作 · 推理规划 · 安全对齐 · 基础设施"
 ---

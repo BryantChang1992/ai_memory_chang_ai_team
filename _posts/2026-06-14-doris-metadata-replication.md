@@ -1,7 +1,7 @@
 ---
 title: "Apache Doris 调研：元数据存储与一致性复制"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Doris]
+categories: [技术调研]
 tags: [Doris, 元数据, 一致性复制]
 description: >-
   Doris 元数据管理从 BDB-JE 单机到 Meta Service 存算分离的演进，控制面多副本复制与数据面写入一致性保障的深度分析。
@@ -12,7 +12,7 @@ description: >-
 
 Doris 元数据管理经历了从 **BDB-JE 单机** → **BDB-JE Replication（类 Paxos）** → **Meta Service 存算分离** 的演进。
 
-![[diagram/06-metadata-store.svg]]
+![Doris 元数据存储](/ai_memory_chang_ai_team/media/diagrams/06-metadata-store.svg)
 
 #### 6.1.1 元数据存储分层
 
@@ -136,7 +136,7 @@ FE ImageCache 采用 **LRU 链表 + 版本校验**：
 
 ### 6.3 数据面：写入路径一致性
 
-![[diagram/07-write-consistency.svg]]
+![Doris 写一致性](/ai_memory_chang_ai_team/media/diagrams/07-write-consistency.svg)
 
 #### 6.3.1 单 Tablet 写入一致性
 
