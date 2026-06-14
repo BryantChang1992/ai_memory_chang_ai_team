@@ -4,44 +4,159 @@ layout: page
 
 {% assign cat_name = page.title %}
 
-{% comment %} Gather all subcategories for this category {% endcomment %}
+{% comment %}
+  Build subcategory tree from page.posts.
+  For 技术调研 page with posts having categories like:
+    [技术调研, Fluss 源码分析]             → L2 = "Fluss 源码分析" (leaf)
+    [技术调研, 周报, Kafka]                → L2 = "周报", L3 = "Kafka"
+    [技术调研, 周报, AI Harness]           → L2 = "周报", L3 = "AI Harness"
+    [技术调研, 周报, 面向AI的数据平台]     → L2 = "周报", L3 = "面向AI的数据平台"
+    [技术调研]                              → direct (no subcat)
+{% endcomment %}
+
 {% assign has_subcats = false %}
-{% assign subcats = "" | split: "" %}
 {% for post in page.posts %}
   {% if post.categories.size > 1 %}
-    {% assign last_cat = post.categories | last %}
-    {% unless last_cat == cat_name %}
-      {% assign has_subcats = true %}
-    {% endunless %}
-    {% unless subcats contains last_cat %}
-      {% assign subcats = subcats | push: last_cat %}
-    {% endunless %}
+    {% assign has_subcats = true %}
+    {% break %}
   {% endif %}
 {% endfor %}
 
 {% if has_subcats %}
-  {% for sc in subcats %}
-    {% assign sc_posts = "" | split: "" %}
-    {% for post in page.posts %}
-      {% if post.categories contains sc %}
-        {% assign sc_posts = sc_posts | push: post %}
+  {% comment %} Collect unique L2 subcategories and their L3 children {% endcomment %}
+  {% assign l2_list = "" | split: "" %}
+  {% assign l2_children = "" | split: "" %}  {% comment %} parallel: pipe-separated L3 names for each L2 {% endcomment %}
+  
+  {% for post in page.posts %}
+    {% if post.categories.size > 1 %}
+      {% assign l2 = post.categories[1] %}
+      {% if post.categories.size > 2 %}
+        {% assign l3 = post.categories[2] %}
+      {% else %}
+        {% assign l3 = "" %}
       {% endif %}
-    {% endfor %}
-    <h2><a href="{{ '/categories/' | relative_url }}{{ sc | uri_escape }}/">{{ sc }}</a> <span class="text-muted">（{{ sc_posts | size }} 篇）</span></h2>
-    <ul>
-    {% for post in sc_posts %}
-      <li>
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-        <small class="text-muted">{{ post.date | date: "%Y/%m/%d" }}</small>
-      </li>
-    {% endfor %}
-    </ul>
+      
+      {% comment %} Check if this L2 exists {% endcomment %}
+      {% assign l2_exists = false %}
+      {% assign l2_idx = -1 %}
+      {% for existing in l2_list %}
+        {% assign l2_idx = forloop.index0 %}
+        {% if existing == l2 %}
+          {% assign l2_exists = true %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+      
+      {% if l2_exists == false %}
+        {% assign l2_list = l2_list | push: l2 %}
+        {% if l3 != "" %}
+          {% assign l2_children = l2_children | push: l3 %}
+        {% else %}
+          {% assign l2_children = l2_children | push: "" %}
+        {% endif %}
+      {% else %}
+        {% comment %} L2 exists; add L3 to its children if not already present {% endcomment %}
+        {% assign existing_children = l2_children[l2_idx] %}
+        {% if l3 != "" %}
+          {% assign child_parts = existing_children | split: "|" %}
+          {% assign child_exists = false %}
+          {% for cp in child_parts %}
+            {% if cp == l3 %}
+              {% assign child_exists = true %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+          {% if child_exists == false %}
+            {% if existing_children == "" %}
+              {% assign new_children = l3 %}
+            {% else %}
+              {% assign new_children = existing_children | append: "|" | append: l3 %}
+            {% endif %}
+            {% comment %} Can't modify array in-place — rebuild {% endcomment %}
+            {% assign new_arr = "" | split: "" %}
+            {% for ec in l2_children %}
+              {% if forloop.index0 == l2_idx %}
+                {% assign new_arr = new_arr | push: new_children %}
+              {% else %}
+                {% assign new_arr = new_arr | push: ec %}
+              {% endif %}
+            {% endfor %}
+            {% assign l2_children = new_arr %}
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
   {% endfor %}
-
-  {% comment %} Posts directly in this category (no subcategory) {% endcomment %}
+  
+  {% comment %} Render: for each L2 {% endcomment %}
+  {% for i in (0..l2_list.size) %}
+    {% assign l2 = l2_list[i] %}
+    {% if l2 == nil %}
+      {% break %}
+    {% endif %}
+    {% assign children_str = l2_children[i] %}
+    
+    {% if children_str == "" %}
+      {% comment %} L2 is leaf — show posts directly {% endcomment %}
+      {% assign leaf_posts = "" | split: "" %}
+      {% for post in page.posts %}
+        {% if post.categories.size == 2 and post.categories[1] == l2 %}
+          {% assign leaf_posts = leaf_posts | push: post %}
+        {% endif %}
+      {% endfor %}
+      
+      <h2><strong>{{ l2 }}</strong> <span class="text-muted">（{{ leaf_posts | size }} 篇）</span></h2>
+      <ul>
+      {% for post in leaf_posts %}
+        <li>
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <small class="text-muted">{{ post.date | date: "%Y/%m/%d" }}</small>
+        </li>
+      {% endfor %}
+      </ul>
+      
+    {% else %}
+      {% comment %} L2 has L3 children {% endcomment %}
+      {% assign child_list = children_str | split: "|" %}
+      {% assign total_count = 0 %}
+      
+      {% comment %} Count total posts under this L2 (for summary) {% endcomment %}
+      {% for post in page.posts %}
+        {% if post.categories.size >= 2 and post.categories[1] == l2 %}
+          {% assign total_count = total_count | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+      
+      <h2><strong>{{ l2 }}</strong> <span class="text-muted">（{{ total_count }} 篇）</span></h2>
+      
+      {% for child in child_list %}
+        {% if child == "" %}
+          {% continue %}
+        {% endif %}
+        {% assign child_posts = "" | split: "" %}
+        {% for post in page.posts %}
+          {% if post.categories.size >= 3 and post.categories[1] == l2 and post.categories[2] == child %}
+            {% assign child_posts = child_posts | push: post %}
+          {% endif %}
+        {% endfor %}
+        
+        <h3>{{ child }} <span class="text-muted">（{{ child_posts | size }} 篇）</span></h3>
+        <ul>
+        {% for post in child_posts %}
+          <li>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <small class="text-muted">{{ post.date | date: "%Y/%m/%d" }}</small>
+          </li>
+        {% endfor %}
+        </ul>
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+  
+  {% comment %} Direct posts (exactly one category) {% endcomment %}
   {% assign direct_posts = "" | split: "" %}
   {% for post in page.posts %}
-    {% if post.categories.size == 1 or post.categories.last == cat_name %}
+    {% if post.categories.size == 1 %}
       {% assign direct_posts = direct_posts | push: post %}
     {% endif %}
   {% endfor %}
