@@ -4,230 +4,473 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agent 基础设施可观测性平台 · 设计文档</title>
+
 <style>
   :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --border: #334155;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-    --dim: #64748b;
-    --accent: #38bdf8;
-    --accent2: #a78bfa;
+    --bg: #09090b;
+    --surface: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --dim: #71717a;
+    --accent: #22d3ee;
+    --accent2: #818cf8;
     --accent3: #f472b6;
     --green: #34d399;
     --amber: #fbbf24;
     --red: #f87171;
+    --code-bg: #1e1e2e;
     --radius: 10px;
     --radius-sm: 6px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.75;
+    line-height: 1.7;
+    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
-  .container { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
-
-  /* Nav */
+  /* Global Nav */
   .global-nav {
-    display: flex; align-items: center; padding: 0 24px;
-    background: rgba(15,23,42,0.92); backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: rgba(9,9,11,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100; height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
   }
   .global-nav .brand {
-    font-weight: 700; font-size: 0.95rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; text-decoration: none; margin-right: 28px;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .global-nav .nav-links { display: flex; gap: 4px; }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .global-nav .nav-links::-webkit-scrollbar { display: none; }
   .global-nav .nav-link {
-    color: var(--muted); text-decoration: none; font-size: 0.88rem;
-    padding: 6px 14px; border-radius: 8px; transition: background 0.15s, color 0.15s;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
   }
-  .global-nav .nav-link:hover { background: var(--surface); color: var(--text); }
-
-  /* Header */
+  .global-nav .nav-link:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .global-nav .nav-link .badge {
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+  /* Container */
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, rgba(34,211,238,0.04) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .hero .tagline { color: var(--muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto; }
+  .hero .meta { margin-top: 16px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  .hero .meta span { color: var(--dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+  /* Doc Header */
   .doc-header {
-    text-align: center; padding: 48px 0 36px;
-    border-bottom: 2px solid var(--border); margin-bottom: 40px;
+    text-align: center;
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
   }
   .doc-header .badge {
     display: inline-block;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-    padding: 4px 16px; border-radius: 20px; margin-bottom: 16px; text-transform: uppercase;
+    color: var(--bg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
   }
-  .doc-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 8px; }
-  .doc-header .meta { font-size: 0.88rem; color: var(--muted); }
-  .doc-header .meta span { margin: 0 8px; }
-
-  /* TOC */
-  .toc {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px 28px; margin-bottom: 40px;
-    border-left: 4px solid var(--accent);
+  .doc-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
   }
-  .toc h2 { font-size: 0.9rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
-  .toc ol { padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
-  .toc a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.92rem; }
-  .toc a:hover { color: var(--accent2); }
-
-  /* Sections */
-  section {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); margin-bottom: 32px; overflow: hidden;
+  .doc-header .meta { font-size: 0.88rem; color: var(--dim); }
+  .doc-header .tags { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .doc-header .tag { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; border: 1px solid var(--border); color: var(--dim); background: var(--surface); }
+  /* Content Typography */
+  .content { font-size: 0.95rem; line-height: 1.8; }
+  .content h2 { font-size: 1.35rem; font-weight: 700; margin: 48px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); color: var(--accent); }
+  .content h3 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 14px; color: var(--accent2); }
+  .content h4 { font-size: 1rem; font-weight: 600; margin: 24px 0 10px; color: var(--text); }
+  .content p { margin-bottom: 16px; }
+  .content ul, .content ol { margin-bottom: 16px; padding-left: 24px; }
+  .content li { margin-bottom: 8px; }
+  .content a { color: var(--accent); text-decoration: none; }
+  .content a:hover { text-decoration: underline; }
+  .content strong { font-weight: 600; }
+  .content code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--accent3);
+    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
   }
-  .section-header {
-    padding: 22px 28px 16px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 14px;
+  .content pre {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
   }
-  .section-header .icon {
-    width: 40px; height: 40px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-  .section-header h2 { font-size: 1.15rem; font-weight: 700; }
-  .section-header .status {
-    margin-left: auto; font-size: 0.78rem; font-weight: 600;
-    padding: 3px 12px; border-radius: 12px;
-  }
-  .section-header .status.draft { background: #1c2833; color: var(--accent); }
-  .section-header .status.planned { background: #2a2018; color: var(--amber); }
-  .section-body { padding: 24px 28px 28px; }
-  .section-body h3 {
-    font-size: 1rem; font-weight: 600; color: var(--text);
-    margin: 28px 0 10px; padding-bottom: 6px;
-    border-bottom: 2px solid rgba(56,189,248,0.15);
-  }
-  .section-body h3:first-child { margin-top: 0; }
-  .section-body p { margin-bottom: 14px; color: var(--muted); font-size: 0.93rem; }
-  .section-body a { color: var(--accent); text-decoration: none; font-weight: 500; }
-  .section-body a:hover { text-decoration: underline; }
-
-  /* Code */
-  code {
-    background: rgba(56,189,248,0.1); color: var(--accent);
-    padding: 2px 6px; border-radius: 3px; font-size: 0.85em;
-    font-family: "JetBrains Mono", "Fira Code", monospace;
-  }
-  pre {
-    background: #0f172a; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 16px 20px;
-    overflow-x: auto; margin: 14px 0; font-size: 0.82rem;
-  }
-  pre code { background: none; color: var(--text); padding: 0; }
-
+  .content pre code { background: none; padding: 0; color: #e2e8f0; font-size: inherit; }
   /* Tables */
-  table {
-    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem;
+  .content table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+  .content th, .content td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .content th { background: var(--surface); font-weight: 600; }
+  .content tr:hover td { background: rgba(255,255,255,0.02); }
+  /* Callouts */
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; font-size: 0.9rem; line-height: 1.7; border-left: 4px solid var(--border); }
+  .callout.info { background: rgba(34,211,238,0.08); border-left-color: var(--accent); }
+  .callout.success { background: rgba(52,211,153,0.08); border-left-color: var(--green); }
+  .callout.warn { background: rgba(251,191,36,0.08); border-left-color: var(--amber); }
+  .callout.danger { background: rgba(248,113,113,0.08); border-left-color: var(--red); }
+  /* Tags */
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .tag-blue { background: rgba(34,211,238,0.12); color: var(--accent); }
+  .tag-green { background: rgba(52,211,153,0.12); color: var(--green); }
+  .tag-purple { background: rgba(129,140,248,0.12); color: var(--accent2); }
+  .tag-pink { background: rgba(244,114,182,0.12); color: var(--accent3); }
+  .tag-red { background: rgba(248,113,113,0.12); color: var(--red); }
+  /* Blockquote */
+  .content blockquote {
+    border-left: 4px solid var(--accent);
+    background: rgba(34,211,238,0.06);
+    padding: 10px 18px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   }
-  thead th {
-    text-align: left; padding: 10px 14px;
-    background: rgba(56,189,248,0.08); color: var(--text);
-    font-weight: 600; font-size: 0.82rem; text-transform: uppercase;
-    letter-spacing: 0.04em; border-bottom: 2px solid var(--border);
+  /* Module Cards */
+  .module-grid { display: grid; gap: 20px; }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
   }
-  tbody td {
-    padding: 10px 14px; border-bottom: 1px solid rgba(51,65,85,0.5);
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .module-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .module-card .module-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .module-card .module-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .module-card .module-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+  .module-card .module-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .module-card .module-stats .stat { font-size: 0.8rem; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+  .module-card .module-stats .stat strong { color: var(--muted); }
+  /* Chapter Cards */
+  .chapter-list { display: flex; flex-direction: column; gap: 12px; }
+  .chapter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .chapter-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+  .chapter-num { font-size: 1.6rem; font-weight: 800; color: var(--accent); min-width: 40px; line-height: 1; }
+  .chapter-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .chapter-info .desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+  .chapter-info .stats { font-size: 0.75rem; color: var(--dim); display: flex; gap: 16px; }
+  /* Week Cards */
+  .weeks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .week-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .week-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .week-card .week-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .week-card .week-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .week-card .week-meta { font-size: 0.8rem; color: var(--muted); }
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title .icon { font-size: 1.5rem; }
+  .section-title .count { color: var(--muted); font-size: 0.85rem; font-weight: 400; margin-left: auto; }
+  /* Stats bar */
+  .stats-bar { display: flex; gap: 24px; justify-content: center; margin-top: 16px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 0.8rem; color: var(--muted); }
+  /* Empty state */
+  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 0.9rem; border: 1px dashed var(--border); border-radius: 10px; }
+  /* Back link */
+  .back-link {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: background 0.15s, color 0.15s;
+  }
+  .back-link:hover { background: var(--surface); color: var(--text); }
+  /* Design cards */
+  .designs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .design-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .design-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .design-card .design-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .design-card .design-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .design-card .design-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+  .design-card .design-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+  /* Page nav */
+  .page-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 40px 0 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .page-nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+  .page-nav a:hover { text-decoration: underline; }
+  .page-nav .prev::before { content: "← "; }
+  .page-nav .next::after { content: " →"; }
+  .page-nav .disabled { color: var(--dim); cursor: default; text-decoration: none; }
+  /* End marker / About */
+  .end-marker { text-align: center; padding: 24px 0; color: var(--dim); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 32px; }
+  .end-marker a { color: var(--accent); text-decoration: none; }
+  .end-marker a:hover { text-decoration: underline; }
+  /* Footer */
+  footer { text-align: center; padding: 32px 0; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  /* Figures */
+  .content figure { margin: 20px 0; text-align: center; }
+  .content figure img { max-width: 100%; border-radius: var(--radius); }
+  .content figure figcaption { margin-top: 8px; font-size: 0.85rem; color: var(--dim); }
+  /* HR */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  /* Mermaid */
+  .mermaid {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin: 14px 0;
+    overflow-x: auto;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
     color: var(--muted);
   }
-  tbody tr:hover { background: rgba(56,189,248,0.04); }
-
-  /* Tags */
-  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-  .tag {
-    display: inline-block; padding: 2px 10px; border-radius: 6px;
-    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3px;
+  /* Doris legacy content overrides */
+  .doris-content .p { margin: 1.5em 0; margin-left: 8px; color: var(--text); font-size: 0.95rem; line-height: 1.8; }
+  .doris-content .h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2em 0 0.75em 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent);
+    color: var(--text);
   }
-  .tag.arch { background: rgba(56,189,248,0.15); color: var(--accent); }
-  .tag.db { background: rgba(167,139,250,0.15); color: var(--accent2); }
-  .tag.frontend { background: rgba(244,114,182,0.15); color: var(--accent3); }
-  .tag.data { background: rgba(52,211,153,0.15); color: var(--green); }
-  .tag.ai { background: rgba(251,191,36,0.15); color: var(--amber); }
-  .tag.risk { background: rgba(248,113,113,0.15); color: var(--red); }
-
-  /* Highlights */
-  .highlight-box {
-    border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
-    padding: 14px 18px; margin: 16px 0; font-size: 0.9rem;
-    background: rgba(56,189,248,0.06); color: var(--muted);
+  .doris-content .ul { margin: 1em 0; padding-left: 1.5em; color: var(--text); }
+  .doris-content .listitem { margin: 0.3em 8px; color: var(--text); }
+  .doris-content .code__pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 0 !important;
+    margin: 10px 8px;
+    overflow-x: auto;
   }
-  .highlight-box strong { color: var(--text); }
-  .highlight-box.warn {
-    border-left-color: var(--amber); background: rgba(251,191,36,0.06);
+  .doris-content .mac-sign { display: flex; padding: 10px 14px 0; }
+  .doris-content .codespan {
+    font-size: 0.88em;
+    color: var(--accent3);
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 4px;
   }
-  .highlight-box.info {
-    border-left-color: var(--accent2); background: rgba(167,139,250,0.06);
+  .doris-content .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9rem;
   }
-
-  /* Decision grid */
-  .decision-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 14px; margin: 14px 0;
+  .doris-content .th {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--text);
   }
-  .decision-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 16px;
+  .doris-content .td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    color: var(--text);
   }
-  .decision-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
-  .decision-card .choice { color: var(--accent); font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
-  .decision-card p { font-size: 0.82rem; color: var(--dim); margin: 0; }
-
-  /* Architecture diagram container */
-  .arch-diagram {
-    background: #0f172a; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 24px;
-    margin: 16px 0; overflow-x: auto;
+  .doris-content .tr:hover .td { background: rgba(255,255,255,0.02); }
+  .doris-content img { max-width: 100%; border-radius: var(--radius-sm); }
+  .doris-content .hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; height: 0; }
+  /* Blog article cards */
+  .article-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-bottom: 20px;
   }
-  .arch-diagram pre {
-    background: none; border: none; padding: 0; margin: 0;
-    line-height: 1.4; letter-spacing: 0.02em;
+  .article-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .article-card .article-date { font-size: 0.8rem; color: var(--dim); margin-bottom: 8px; }
+  .article-card .article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .diagram-figure {
-    margin: 20px 0; text-align: center;
+  .article-card .article-desc { color: var(--muted); font-size: 0.92rem; margin-bottom: 12px; }
+  .article-card .article-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* Key findings */
+  .key-findings {
+    background: rgba(34,211,238,0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
   }
-  .diagram-figure img {
-    transition: transform .2s ease, box-shadow .2s ease;
-    box-shadow: 0 4px 24px rgba(0,0,0,.3);
+  .key-findings h3 { color: var(--accent); margin-top: 0; }
+  .key-findings li { margin-bottom: 8px; font-size: 0.92rem; }
+  /* Module TOC */
+  .module-toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
   }
-  .diagram-figure img:hover {
-    transform: scale(1.02); box-shadow: 0 8px 32px rgba(0,0,0,.5);
-  }
-  .diagram-caption {
-    color: var(--dim); font-size: 0.8rem; margin-top: 10px;
-    font-style: italic;
-  }
-
-  /* Milestone timeline */
-  .milestone-list { list-style: none; margin: 12px 0; }
-  .milestone-list li {
-    padding: 14px 0 14px 28px; position: relative;
-    border-bottom: 1px solid rgba(51,65,85,0.4);
-  }
-  .milestone-list li:last-child { border-bottom: none; }
-  .milestone-list li::before {
-    content: ''; position: absolute; left: 0; top: 18px;
-    width: 12px; height: 12px; border-radius: 50%;
-    border: 2px solid var(--accent); background: var(--bg);
-  }
-  .milestone-list li.done::before { background: var(--green); border-color: var(--green); }
-  .milestone-list li h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
-  .milestone-list li .milestone-meta { font-size: 0.78rem; color: var(--dim); }
-  .milestone-list li p { font-size: 0.85rem; color: var(--muted); margin: 4px 0 0; }
-
-  /* Footer */
-  footer { text-align: center; padding: 32px 0; color: var(--dim); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 16px; }
-
+  .module-toc h3 { margin-top: 0; font-size: 0.95rem; color: var(--text); }
+  .module-toc ol { padding-left: 20px; }
+  .module-toc ol li { font-size: 0.88rem; margin-bottom: 4px; }
+  .module-toc ol li a { color: var(--muted); }
+  .module-toc ol li a:hover { color: var(--accent); }
+  /* Responsive */
   @media (max-width: 640px) {
-    .container { padding: 16px; }
-    .doc-header h1 { font-size: 1.4rem; }
-    .section-body { padding: 16px; }
-    .decision-grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 16px 28px; }
+    .hero h1 { font-size: 1.6rem; }
+    .doc-header h1 { font-size: 1.5rem; }
+    .global-nav { padding: 0 12px; }
+    .global-nav .brand { margin-right: 12px; font-size: 0.85rem; }
+    .container { padding: 20px 16px 60px; }
+    .module-card { padding: 20px 24px; }
+    .weeks-grid { grid-template-columns: 1fr; }
+    .designs-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -238,10 +481,11 @@
   <div class="nav-links">
     <a href="../../index.html" class="nav-link">🏠 首页</a>
     <a href="../../tech_research/index.html" class="nav-link">🔬 技术调研</a>
-    <a href="../index.html" class="nav-link">📐 技术方案设计</a>
-    <a href="observability-dashboard.html" class="nav-link" style="color:var(--accent);font-weight:500">📊 Agent 基建</a>
+    <a href="../index.html" class="nav-link active">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
   </div>
 </nav>
+
 
 <div class="container">
 
@@ -285,7 +529,7 @@
   <!-- ==================== 1. 背景与动机 ==================== -->
   <section id="background">
     <div class="section-header">
-      <div class="icon" style="background: rgba(56,189,248,0.2);">🎯</div>
+      <div class="icon">🎯</div>
       <h2>1. 背景与动机</h2>
       <span class="status draft">DRAFT</span>
     </div>
@@ -310,7 +554,7 @@
       </table>
 
       <h3>1.2 为什么现在做</h3>
-      <ul style="padding-left:20px;color:var(--muted);font-size:0.9rem">
+      <ul style="padding-left:20px;font-size:0.9rem">
         <li>CHANG_AI_TEAM 已有 CTO → 专家 → 执行层三级结构，协作复杂度在增长</li>
         <li>技术调研周报已经跑了 2 期，自动化调度需要可靠的监控</li>
         <li>OpenClaw 提供了 Hooks、Webhooks、结构化日志等基础设施，集成成本可控</li>
@@ -322,7 +566,7 @@
   <!-- ==================== 2. 设计目标 ==================== -->
   <section id="goals">
     <div class="section-header">
-      <div class="icon" style="background: rgba(167,139,250,0.2);">🎯</div>
+      <div class="icon">🎯</div>
       <h2>2. 设计目标</h2>
       <span class="status draft">DRAFT</span>
     </div>
@@ -362,7 +606,7 @@
       </div>
 
       <h3>非目标（明确不做）</h3>
-      <ul style="padding-left:20px;color:var(--muted);font-size:0.9rem">
+      <ul style="padding-left:20px;font-size:0.9rem">
         <li>不做 Agent 调度引擎（调度由 OpenClaw 本身负责）</li>
         <li>不做实时流式日志采集（日志解析 + 轮询够用）</li>
         <li>不做用户权限系统（单用户场景）</li>
@@ -374,7 +618,7 @@
   <!-- ==================== 3. 系统架构 ==================== -->
   <section id="architecture">
     <div class="section-header">
-      <div class="icon" style="background: rgba(52,211,153,0.2);">🏗️</div>
+      <div class="icon">🏗️</div>
       <h2>3. 系统架构</h2>
       <span class="status draft">DRAFT</span>
     </div>
@@ -397,11 +641,11 @@
           <tr><th>对比维度</th><th>SQLite + Git</th><th>飞书 Bitable</th><th>纯 Git JSON</th></tr>
         </thead>
         <tbody>
-          <tr><td>查询能力</td><td style="color:var(--green)">✅ SQL 聚合/过滤/排序</td><td style="color:var(--amber)">⚠️ API 查询受限</td><td style="color:var(--red)">❌ 无查询能力</td></tr>
-          <tr><td>冷启动</td><td style="color:var(--green)">✅ Git clone 恢复</td><td style="color:var(--amber)">⚠️ 依赖飞书 API</td><td style="color:var(--green)">✅ Git clone</td></tr>
-          <tr><td>写性能</td><td style="color:var(--green)">✅ 本地毫秒级</td><td style="color:var(--red)">❌ 限流 100/s</td><td style="color:var(--amber)">⚠️ 需 fsync</td></tr>
-          <tr><td>离线可用</td><td style="color:var(--green)">✅ 完全本地</td><td style="color:var(--red)">❌ 需网络</td><td style="color:var(--green)">✅ 本地</td></tr>
-          <tr><td>可视化</td><td style="color:var(--amber)">⚠️ 需自建前端</td><td style="color:var(--green)">✅ 飞书原生</td><td style="color:var(--amber)">⚠️ 需自建前端</td></tr>
+          <tr><td>查询能力</td><td>✅ SQL 聚合/过滤/排序</td><td>⚠️ API 查询受限</td><td>❌ 无查询能力</td></tr>
+          <tr><td>冷启动</td><td>✅ Git clone 恢复</td><td>⚠️ 依赖飞书 API</td><td>✅ Git clone</td></tr>
+          <tr><td>写性能</td><td>✅ 本地毫秒级</td><td>❌ 限流 100/s</td><td>⚠️ 需 fsync</td></tr>
+          <tr><td>离线可用</td><td>✅ 完全本地</td><td>❌ 需网络</td><td>✅ 本地</td></tr>
+          <tr><td>可视化</td><td>⚠️ 需自建前端</td><td>✅ 飞书原生</td><td>⚠️ 需自建前端</td></tr>
         </tbody>
       </table>
     </div>
@@ -410,7 +654,7 @@
   <!-- ==================== 4. 数据模型 ==================== -->
   <section id="data-model">
     <div class="section-header">
-      <div class="icon" style="background: rgba(251,191,36,0.2);">🗄️</div>
+      <div class="icon">🗄️</div>
       <h2>4. 数据模型</h2>
       <span class="status draft">DRAFT</span>
     </div>
@@ -494,7 +738,7 @@ CREATE INDEX idx_toolcalls_created ON tool_calls(created_at);</code></pre>
   <!-- ==================== 5. 数据采集层 ==================== -->
   <section id="collector">
     <div class="section-header">
-      <div class="icon" style="background: rgba(244,114,182,0.2);">📡</div>
+      <div class="icon">📡</div>
       <h2>5. 数据采集层</h2>
       <span class="status planned">PLANNED</span>
     </div>
@@ -597,7 +841,7 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
 
       <h3>5.5 Supervisor Agent 对账</h3>
       <p>Log Parser 写入的是"客观事实"（session 起止、tool call），Agent 上报的是"主观意图"（任务进度）。Supervisor Agent 定期运行对账脚本：</p>
-      <ul style="padding-left:20px;color:var(--muted);font-size:0.9rem">
+      <ul style="padding-left:20px;font-size:0.9rem">
         <li>如果 Agent 上报 <code>done</code> 但 session 未结束 → 标记为 <code>stale</code>，可能 agent 提前退出了</li>
         <li>如果 session 已结束但任务仍 <code>in_progress</code> → 自动标记 <code>done</code> 或 <code>failed</code></li>
         <li>如果 Agent 30 分钟无任何 tool call 且状态为 <code>in_progress</code> → 标记 <code>stuck</code></li>
@@ -608,7 +852,7 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
   <!-- ==================== 6. Dashboard 前端 ==================== -->
   <section id="dashboard">
     <div class="section-header">
-      <div class="icon" style="background: rgba(56,189,248,0.2);">📊</div>
+      <div class="icon">📊</div>
       <h2>6. Dashboard 前端设计</h2>
       <span class="status planned">PLANNED</span>
     </div>
@@ -665,7 +909,7 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
   <!-- ==================== 7. Agent 协作规范 ==================== -->
   <section id="agent-spec">
     <div class="section-header">
-      <div class="icon" style="background: rgba(167,139,250,0.2);">📜</div>
+      <div class="icon">📜</div>
       <h2>7. Agent 协作规范</h2>
       <span class="status draft">DRAFT</span>
     </div>
@@ -677,12 +921,12 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
           <tr><th>操作</th><th>CTO</th><th>VP 层</th><th>专家层</th><th>执行层</th></tr>
         </thead>
         <tbody>
-          <tr><td>创建子 Agent</td><td style="color:var(--green)">✅ any</td><td style="color:var(--green)">✅ 同领域专家</td><td style="color:var(--red)">❌ 仅建议</td><td style="color:var(--red)">❌</td></tr>
-          <tr><td>任命 VP/专家</td><td style="color:var(--green)">✅</td><td style="color:var(--red)">❌</td><td style="color:var(--red)">❌</td><td style="color:var(--red)">❌</td></tr>
-          <tr><td>技术决策</td><td style="color:var(--green)">✅ 最终决策</td><td style="color:var(--accent)">🔶 领域内</td><td style="color:var(--accent)">🔶 建议</td><td style="color:var(--red)">❌</td></tr>
-          <tr><td>写入 Dashboard</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td></tr>
-          <tr><td>修改规范</td><td style="color:var(--green)">✅</td><td style="color:var(--red)">❌</td><td style="color:var(--red)">❌</td><td style="color:var(--red)">❌</td></tr>
-          <tr><td>直接操作 Git</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--accent)">🔶 受限</td><td style="color:var(--red)">❌</td></tr>
+          <tr><td>创建子 Agent</td><td>✅ any</td><td>✅ 同领域专家</td><td>❌ 仅建议</td><td>❌</td></tr>
+          <tr><td>任命 VP/专家</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>技术决策</td><td>✅ 最终决策</td><td>🔶 领域内</td><td>🔶 建议</td><td>❌</td></tr>
+          <tr><td>写入 Dashboard</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr><td>修改规范</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>直接操作 Git</td><td>✅</td><td>✅</td><td>🔶 受限</td><td>❌</td></tr>
         </tbody>
       </table>
 
@@ -724,7 +968,7 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
   <!-- ==================== 8. Agent 状态机 ==================== -->
   <section id="state-machine">
     <div class="section-header">
-      <div class="icon" style="background: rgba(52,211,153,0.2);">🔄</div>
+      <div class="icon">🔄</div>
       <h2>8. Agent 任务状态机</h2>
       <span class="status draft">DRAFT</span>
     </div>
@@ -757,7 +1001,7 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
   <!-- ==================== 9. 数据 API 设计 ==================== -->
   <section id="api-design">
     <div class="section-header">
-      <div class="icon" style="background: rgba(251,191,36,0.2);">🔌</div>
+      <div class="icon">🔌</div>
       <h2>9. 数据 API 设计</h2>
       <span class="status planned">PLANNED</span>
     </div>
@@ -812,7 +1056,7 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
   <!-- ==================== 10. 实施路径 ==================== -->
   <section id="implementation">
     <div class="section-header">
-      <div class="icon" style="background: rgba(244,114,182,0.2);">🚀</div>
+      <div class="icon">🚀</div>
       <h2>10. 实施路径</h2>
       <span class="status planned">PLANNED</span>
     </div>
@@ -877,11 +1121,11 @@ $ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka
           <tr><th>风险</th><th>概率</th><th>影响</th><th>缓解措施</th></tr>
         </thead>
         <tbody>
-          <tr><td>Log Parser 遗漏事件</td><td style="color:var(--amber)">中</td><td style="color:var(--red)">高</td><td>Supervisor 对账兜底；关键事件同时用 Hook 采集</td></tr>
-          <tr><td>Agent prompt 不稳定</td><td style="color:var(--amber)">中</td><td style="color:var(--amber)">中</td><td>taskboard CLI 设计为幂等操作；Supervisor 自动纠正</td></tr>
-          <tr><td>ngrok 隧道不稳定</td><td style="color:var(--amber)">中</td><td style="color:var(--amber)">中</td><td>Dashboard 静态数据兜底（显示"数据暂不可用"）；考虑用 Cloudflare Tunnel</td></tr>
-          <tr><td>SQLite 并发写入冲突</td><td style="color:var(--green)">低</td><td style="color:var(--red)">高</td><td>WAL 模式 + 单写入者设计（Collector 是唯一写入者）</td></tr>
-          <tr><td>Token 数据采集不全</td><td style="color:var(--amber)">中</td><td style="color:var(--green)">低</td><td>仅影响统计精度，不影响功能；后续可补采集</td></tr>
+          <tr><td>Log Parser 遗漏事件</td><td>中</td><td>高</td><td>Supervisor 对账兜底；关键事件同时用 Hook 采集</td></tr>
+          <tr><td>Agent prompt 不稳定</td><td>中</td><td>中</td><td>taskboard CLI 设计为幂等操作；Supervisor 自动纠正</td></tr>
+          <tr><td>ngrok 隧道不稳定</td><td>中</td><td>中</td><td>Dashboard 静态数据兜底（显示"数据暂不可用"）；考虑用 Cloudflare Tunnel</td></tr>
+          <tr><td>SQLite 并发写入冲突</td><td>低</td><td>高</td><td>WAL 模式 + 单写入者设计（Collector 是唯一写入者）</td></tr>
+          <tr><td>Token 数据采集不全</td><td>中</td><td>低</td><td>仅影响统计精度，不影响功能；后续可补采集</td></tr>
         </tbody>
       </table>
     </div>

@@ -1,24 +1,502 @@
-<!doctype html>
-<html style="      ">
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>6. 元数据存储与一致性复制</title>
-  <meta name="description" content="Doris 元数据管理经历了从 BDB-JE 单机 → BDB-JE Replication（类 Paxos） → Meta Service 存算分离 的演进。">
-  
-  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6. 元数据存储与一致性复制</title>
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --dim: #71717a;
+    --accent: #22d3ee;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --code-bg: #1e1e2e;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Global Nav */
+  .global-nav {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: rgba(9,9,11,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .global-nav .nav-links::-webkit-scrollbar { display: none; }
+  .global-nav .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .global-nav .nav-link .badge {
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+  /* Container */
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, rgba(34,211,238,0.04) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .hero .tagline { color: var(--muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto; }
+  .hero .meta { margin-top: 16px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  .hero .meta span { color: var(--dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+  /* Doc Header */
+  .doc-header {
+    text-align: center;
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .doc-header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .doc-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .doc-header .meta { font-size: 0.88rem; color: var(--dim); }
+  .doc-header .tags { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .doc-header .tag { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; border: 1px solid var(--border); color: var(--dim); background: var(--surface); }
+  /* Content Typography */
+  .content { font-size: 0.95rem; line-height: 1.8; }
+  .content h2 { font-size: 1.35rem; font-weight: 700; margin: 48px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); color: var(--accent); }
+  .content h3 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 14px; color: var(--accent2); }
+  .content h4 { font-size: 1rem; font-weight: 600; margin: 24px 0 10px; color: var(--text); }
+  .content p { margin-bottom: 16px; }
+  .content ul, .content ol { margin-bottom: 16px; padding-left: 24px; }
+  .content li { margin-bottom: 8px; }
+  .content a { color: var(--accent); text-decoration: none; }
+  .content a:hover { text-decoration: underline; }
+  .content strong { font-weight: 600; }
+  .content code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--accent3);
+    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  }
+  .content pre {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  }
+  .content pre code { background: none; padding: 0; color: #e2e8f0; font-size: inherit; }
+  /* Tables */
+  .content table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+  .content th, .content td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .content th { background: var(--surface); font-weight: 600; }
+  .content tr:hover td { background: rgba(255,255,255,0.02); }
+  /* Callouts */
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; font-size: 0.9rem; line-height: 1.7; border-left: 4px solid var(--border); }
+  .callout.info { background: rgba(34,211,238,0.08); border-left-color: var(--accent); }
+  .callout.success { background: rgba(52,211,153,0.08); border-left-color: var(--green); }
+  .callout.warn { background: rgba(251,191,36,0.08); border-left-color: var(--amber); }
+  .callout.danger { background: rgba(248,113,113,0.08); border-left-color: var(--red); }
+  /* Tags */
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .tag-blue { background: rgba(34,211,238,0.12); color: var(--accent); }
+  .tag-green { background: rgba(52,211,153,0.12); color: var(--green); }
+  .tag-purple { background: rgba(129,140,248,0.12); color: var(--accent2); }
+  .tag-pink { background: rgba(244,114,182,0.12); color: var(--accent3); }
+  .tag-red { background: rgba(248,113,113,0.12); color: var(--red); }
+  /* Blockquote */
+  .content blockquote {
+    border-left: 4px solid var(--accent);
+    background: rgba(34,211,238,0.06);
+    padding: 10px 18px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  /* Module Cards */
+  .module-grid { display: grid; gap: 20px; }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .module-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .module-card .module-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .module-card .module-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .module-card .module-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+  .module-card .module-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .module-card .module-stats .stat { font-size: 0.8rem; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+  .module-card .module-stats .stat strong { color: var(--muted); }
+  /* Chapter Cards */
+  .chapter-list { display: flex; flex-direction: column; gap: 12px; }
+  .chapter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .chapter-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+  .chapter-num { font-size: 1.6rem; font-weight: 800; color: var(--accent); min-width: 40px; line-height: 1; }
+  .chapter-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .chapter-info .desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+  .chapter-info .stats { font-size: 0.75rem; color: var(--dim); display: flex; gap: 16px; }
+  /* Week Cards */
+  .weeks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .week-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .week-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .week-card .week-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .week-card .week-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .week-card .week-meta { font-size: 0.8rem; color: var(--muted); }
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title .icon { font-size: 1.5rem; }
+  .section-title .count { color: var(--muted); font-size: 0.85rem; font-weight: 400; margin-left: auto; }
+  /* Stats bar */
+  .stats-bar { display: flex; gap: 24px; justify-content: center; margin-top: 16px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 0.8rem; color: var(--muted); }
+  /* Empty state */
+  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 0.9rem; border: 1px dashed var(--border); border-radius: 10px; }
+  /* Back link */
+  .back-link {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: background 0.15s, color 0.15s;
+  }
+  .back-link:hover { background: var(--surface); color: var(--text); }
+  /* Design cards */
+  .designs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .design-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .design-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .design-card .design-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .design-card .design-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .design-card .design-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+  .design-card .design-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+  /* Page nav */
+  .page-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 40px 0 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .page-nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+  .page-nav a:hover { text-decoration: underline; }
+  .page-nav .prev::before { content: "← "; }
+  .page-nav .next::after { content: " →"; }
+  .page-nav .disabled { color: var(--dim); cursor: default; text-decoration: none; }
+  /* End marker / About */
+  .end-marker { text-align: center; padding: 24px 0; color: var(--dim); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 32px; }
+  .end-marker a { color: var(--accent); text-decoration: none; }
+  .end-marker a:hover { text-decoration: underline; }
+  /* Footer */
+  footer { text-align: center; padding: 32px 0; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  /* Figures */
+  .content figure { margin: 20px 0; text-align: center; }
+  .content figure img { max-width: 100%; border-radius: var(--radius); }
+  .content figure figcaption { margin-top: 8px; font-size: 0.85rem; color: var(--dim); }
+  /* HR */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  /* Mermaid */
+  .mermaid {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin: 14px 0;
+    overflow-x: auto;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  /* Doris legacy content overrides */
+  .doris-content .p { margin: 1.5em 0; margin-left: 8px; color: var(--text); font-size: 0.95rem; line-height: 1.8; }
+  .doris-content .h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2em 0 0.75em 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent);
+    color: var(--text);
+  }
+  .doris-content .ul { margin: 1em 0; padding-left: 1.5em; color: var(--text); }
+  .doris-content .listitem { margin: 0.3em 8px; color: var(--text); }
+  .doris-content .code__pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 0 !important;
+    margin: 10px 8px;
+    overflow-x: auto;
+  }
+  .doris-content .mac-sign { display: flex; padding: 10px 14px 0; }
+  .doris-content .codespan {
+    font-size: 0.88em;
+    color: var(--accent3);
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+  .doris-content .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9rem;
+  }
+  .doris-content .th {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--text);
+  }
+  .doris-content .td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    color: var(--text);
+  }
+  .doris-content .tr:hover .td { background: rgba(255,255,255,0.02); }
+  .doris-content img { max-width: 100%; border-radius: var(--radius-sm); }
+  .doris-content .hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; height: 0; }
+  /* Blog article cards */
+  .article-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-bottom: 20px;
+  }
+  .article-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .article-card .article-date { font-size: 0.8rem; color: var(--dim); margin-bottom: 8px; }
+  .article-card .article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .article-card .article-desc { color: var(--muted); font-size: 0.92rem; margin-bottom: 12px; }
+  .article-card .article-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* Key findings */
+  .key-findings {
+    background: rgba(34,211,238,0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .key-findings h3 { color: var(--accent); margin-top: 0; }
+  .key-findings li { margin-bottom: 8px; font-size: 0.92rem; }
+  /* Module TOC */
+  .module-toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+  .module-toc h3 { margin-top: 0; font-size: 0.95rem; color: var(--text); }
+  .module-toc ol { padding-left: 20px; }
+  .module-toc ol li { font-size: 0.88rem; margin-bottom: 4px; }
+  .module-toc ol li a { color: var(--muted); }
+  .module-toc ol li a:hover { color: var(--accent); }
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero { padding: 40px 16px 28px; }
+    .hero h1 { font-size: 1.6rem; }
+    .doc-header h1 { font-size: 1.5rem; }
+    .global-nav { padding: 0 12px; }
+    .global-nav .brand { margin-right: 12px; font-size: 0.85rem; }
+    .container { padding: 20px 16px 60px; }
+    .module-card { padding: 20px 24px; }
+    .weeks-grid { grid-template-columns: 1fr; }
+    .designs-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
-<body style="padding: 24px; background: #ffffff; max-width: 860px; margin: 0 auto; font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left;">
-  <a href="index.html" style="display: inline-block; margin: 16px 0 12px 8px; color: #576b95; text-decoration: none; font-size: 14px; border: 1px solid #e8e8e8; padding: 4px 12px; border-radius: 6px;">← 返回目录</a>
-<div id="output">
-<section class="container" style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left;"><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2; margin-top: 0 !important;">6.1 Meta Service：元数据存储结构</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris 元数据管理经历了从 <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">BDB-JE 单机</strong> → <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">BDB-JE Replication（类 Paxos）</strong> → <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Meta Service 存算分离</strong> 的演进。</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><img src="diagram/06-metadata-store.svg" alt="Meta Service 元数据存储三层模型" style="display: block; width: 100%; margin: 1.5em auto;"></p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.1.1 元数据存储分层</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris 元数据采用 <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">三层存储模型</strong>，渐进式加载以减少内存压力：</p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">层级</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">存储位置</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">内容</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">特点</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Catalog (FE)</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE 元数据持久化层 (BDB-JE / Meta Service)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">所有元数据全集</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">持久化，版本化，支持事务</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">FE 内存缓存</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE Heap</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">热点元数据</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">LRU 淘汰，被动加载</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">BE 内存</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BE Heap</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">本地 Tablet 元数据子集</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">仅自己所管理 Tablet</td></tr></tbody>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+  <a href="index.html" class="back-link">← 返回目录</a>
+  <div class="doris-content">
+<section class="container" style="font-size: 16px; line-height: 1.75; text-align: left;"><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2; margin-top: 0 !important;">6.1 Meta Service：元数据存储结构</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris 元数据管理经历了从 <strong style="font-weight: bold; font-size: inherit;">BDB-JE 单机</strong> → <strong style="font-weight: bold; font-size: inherit;">BDB-JE Replication（类 Paxos）</strong> → <strong style="font-weight: bold; font-size: inherit;">Meta Service 存算分离</strong> 的演进。</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><img src="diagram/06-metadata-store.svg" alt="Meta Service 元数据存储三层模型" style="display: block; width: 100%; margin: 1.5em auto;"></p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.1.1 元数据存储分层</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris 元数据采用 <strong style="font-weight: bold; font-size: inherit;">三层存储模型</strong>，渐进式加载以减少内存压力：</p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">层级</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">存储位置</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">内容</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">特点</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Catalog (FE)</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE 元数据持久化层 (BDB-JE / Meta Service)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">所有元数据全集</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">持久化，版本化，支持事务</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">FE 内存缓存</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE Heap</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">热点元数据</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">LRU 淘汰，被动加载</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">BE 内存</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BE Heap</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">本地 Tablet 元数据子集</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">仅自己所管理 Tablet</td></tr></tbody>
           </table>
         </section>
-      <h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.1.2 元数据核心对象关系</h4><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+      <h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.1.2 元数据核心对象关系</h4><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
@@ -32,42 +510,42 @@
 │               └── Replica (NORMAL/ALTER/DECOMMISSION/CLONE)
 ├── Hive Catalog → ExternalTable (映射 Metastore)
 ├── Iceberg Catalog → IcebergTable (映射 REST/HMS)
-└── ES/JDBC Catalog → ExternalTable" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">Catalog&nbsp;Root<br>├──&nbsp;Internal&nbsp;Catalog&nbsp;(Doris&nbsp;原生表)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Database&nbsp;→&nbsp;Table<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Column&nbsp;(类型/编码/压缩)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Index&nbsp;(前缀/Bloom/Bitmap/Inverted)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Partition&nbsp;(Range/List/TTL)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Tablet<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Replica&nbsp;(NORMAL/ALTER/DECOMMISSION/CLONE)<br>├──&nbsp;Hive&nbsp;Catalog&nbsp;→&nbsp;ExternalTable&nbsp;(映射&nbsp;Metastore)<br>├──&nbsp;Iceberg&nbsp;Catalog&nbsp;→&nbsp;IcebergTable&nbsp;(映射&nbsp;REST/HMS)<br>└──&nbsp;ES/JDBC&nbsp;Catalog&nbsp;→&nbsp;ExternalTable</code></pre><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.1.3 BDB-JE 元数据存储 (v0.x~v2.x)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris 0.x~2.x 使用 <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">BDB-JE</strong> 作为 FE 元数据持久化引擎：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; color: #3f3f3f;"><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">单 Leader 写入</strong>：通过 BDB-JE 类 Paxos 协议实现 FE 间复制</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">事务性写入</strong>：CREATE TABLE / schema change 以 BDB-JE 事务提交</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">EditLog 机制</strong>：每次变更生成 EditLog Entry，Follower 重放</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Checkpoint</strong>：定期 Snapshot，减少 EditLog 回放开销</li></ul><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">FE 元数据文件布局：</p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+└── ES/JDBC Catalog → ExternalTable" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">Catalog&nbsp;Root<br>├──&nbsp;Internal&nbsp;Catalog&nbsp;(Doris&nbsp;原生表)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Database&nbsp;→&nbsp;Table<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Column&nbsp;(类型/编码/压缩)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Index&nbsp;(前缀/Bloom/Bitmap/Inverted)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Partition&nbsp;(Range/List/TTL)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Tablet<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Replica&nbsp;(NORMAL/ALTER/DECOMMISSION/CLONE)<br>├──&nbsp;Hive&nbsp;Catalog&nbsp;→&nbsp;ExternalTable&nbsp;(映射&nbsp;Metastore)<br>├──&nbsp;Iceberg&nbsp;Catalog&nbsp;→&nbsp;IcebergTable&nbsp;(映射&nbsp;REST/HMS)<br>└──&nbsp;ES/JDBC&nbsp;Catalog&nbsp;→&nbsp;ExternalTable</code></pre><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.1.3 BDB-JE 元数据存储 (v0.x~v2.x)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris 0.x~2.x 使用 <strong style="font-weight: bold; font-size: inherit;">BDB-JE</strong> 作为 FE 元数据持久化引擎：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; "><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">单 Leader 写入</strong>：通过 BDB-JE 类 Paxos 协议实现 FE 间复制</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">事务性写入</strong>：CREATE TABLE / schema change 以 BDB-JE 事务提交</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">EditLog 机制</strong>：每次变更生成 EditLog Entry，Follower 重放</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">Checkpoint</strong>：定期 Snapshot，减少 EditLog 回放开销</li></ul><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">FE 元数据文件布局：</p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
   </svg></span><code class="language-" data-language-pending data-raw-code="fe/doris-meta/
 ├── bdb/           # BDB-JE Journal + Data
 ├── image/         # LFS 格式 Checkpoint (image.100, image.200)
-└── edit_log/      # 增量日志 (edit_log.100-200)" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">fe/doris-meta/<br>├──&nbsp;bdb/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;BDB-JE&nbsp;Journal&nbsp;+&nbsp;Data<br>├──&nbsp;image/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;LFS&nbsp;格式&nbsp;Checkpoint&nbsp;(image.100,&nbsp;image.200)<br>└──&nbsp;edit_log/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;增量日志&nbsp;(edit_log.100-200)</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Follower 回放流程：</strong> BRPC 拉取最新 EditLog → 校验 CheckSum → 逐 Entry 回放到本地内存 → 更新版本号</p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.1.4 Meta Service：存算分离元数据 (Doris 3.0+)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris 3.0 将元数据从 FE 内嵌 BDB-JE 剥离到<strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">独立集中式 Meta Service</strong>：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; color: #3f3f3f;"><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">存储引擎</strong>：BDB-JE → FoundationDB (FDB) 或自研 Raft-based KV Store</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">多客户端并发写</strong>：多 FE 可并发写不同 Key 范围，不再受单写锁限制</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">弹性恢复</strong>：新 FE 启动直接查询 Meta Service，无需回放完整 EditLog</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">存算分离</strong>：元数据和数据层彻底解耦</li></ul><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.1.5 Meta Service 元数据 Key 设计</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">分层 Key-Value 命名空间，按前缀组织，支持 CAS Write（revision 字段）：</p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+└── edit_log/      # 增量日志 (edit_log.100-200)" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">fe/doris-meta/<br>├──&nbsp;bdb/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;BDB-JE&nbsp;Journal&nbsp;+&nbsp;Data<br>├──&nbsp;image/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;LFS&nbsp;格式&nbsp;Checkpoint&nbsp;(image.100,&nbsp;image.200)<br>└──&nbsp;edit_log/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;增量日志&nbsp;(edit_log.100-200)</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Follower 回放流程：</strong> BRPC 拉取最新 EditLog → 校验 CheckSum → 逐 Entry 回放到本地内存 → 更新版本号</p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.1.4 Meta Service：存算分离元数据 (Doris 3.0+)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris 3.0 将元数据从 FE 内嵌 BDB-JE 剥离到<strong style="font-weight: bold; font-size: inherit;">独立集中式 Meta Service</strong>：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; "><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">存储引擎</strong>：BDB-JE → FoundationDB (FDB) 或自研 Raft-based KV Store</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">多客户端并发写</strong>：多 FE 可并发写不同 Key 范围，不再受单写锁限制</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">弹性恢复</strong>：新 FE 启动直接查询 Meta Service，无需回放完整 EditLog</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">存算分离</strong>：元数据和数据层彻底解耦</li></ul><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.1.5 Meta Service 元数据 Key 设计</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">分层 Key-Value 命名空间，按前缀组织，支持 CAS Write（revision 字段）：</p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
   </svg></span><code class="language-" data-language-pending data-raw-code="/meta/{cluster}/db/{db}/table/{table}         → 表层元数据
 /meta/{cluster}/tablet/{tablet}                → Tablet 元数据
 /meta/{cluster}/tablet/{tablet}/replica/{be}   → Replica 状态
-/txn/{cluster}/db/{db}/txn/{txn}               → 事务元数据" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">/meta/{cluster}/db/{db}/table/{table}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;表层元数据<br>/meta/{cluster}/tablet/{tablet}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;Tablet&nbsp;元数据<br>/meta/{cluster}/tablet/{tablet}/replica/{be}&nbsp;&nbsp;&nbsp;→&nbsp;Replica&nbsp;状态<br>/txn/{cluster}/db/{db}/txn/{txn}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;事务元数据</code></pre><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.1.6 元数据缓存与淘汰</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">FE ImageCache 采用 <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">LRU 链表 + 版本校验</strong>：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; color: #3f3f3f;"><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• 每次查询先校验本地版本号 vs Meta Service 版本号</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• 惰性加载：未命中时从 Meta Service 增量拉取</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• 热点表标记 Pinned，不参与淘汰</li></ul><hr class="hr" style="border-style: solid; border-width: 2px 0 0; border-color: rgba(0, 0, 0, 0.1); -webkit-transform-origin: 0 0; -webkit-transform: scale(1, 0.5); transform-origin: 0 0; transform: scale(1, 0.5); height: 0.4em; margin: 1.5em 0;"><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.2 控制面：多副本复制 (Tablet Replication)</h3><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.2.1 Shared-Nothing 复制 (v0.x~v2.x)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">写入路径：Load Job → FE 分配 Tablet → BE 本地写入 Segment → Rowset 提交 → <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">TabletScheduler 异步 Clone 补齐副本</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">TabletScheduler</strong> 控制面核心组件：</p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">功能</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">说明</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">修复</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Replica 缺失/版本落后/故障时创建 Clone Task</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">均衡</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BE 间 Tablet 数量不均衡时创建 Balance Task</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">变更</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Alter Job 触发 Tablet 重写</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">退役</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Decommission BE 时迁移 Tablets</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">优先级</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">REPAIR &gt; BALANCE &gt; ALTER</strong></td></tr></tbody>
+/txn/{cluster}/db/{db}/txn/{txn}               → 事务元数据" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">/meta/{cluster}/db/{db}/table/{table}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;表层元数据<br>/meta/{cluster}/tablet/{tablet}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;Tablet&nbsp;元数据<br>/meta/{cluster}/tablet/{tablet}/replica/{be}&nbsp;&nbsp;&nbsp;→&nbsp;Replica&nbsp;状态<br>/txn/{cluster}/db/{db}/txn/{txn}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;事务元数据</code></pre><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.1.6 元数据缓存与淘汰</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">FE ImageCache 采用 <strong style="font-weight: bold; font-size: inherit;">LRU 链表 + 版本校验</strong>：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; "><li class="listitem" style="display: block; margin: 0.2em 8px; ">• 每次查询先校验本地版本号 vs Meta Service 版本号</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• 惰性加载：未命中时从 Meta Service 增量拉取</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• 热点表标记 Pinned，不参与淘汰</li></ul><hr class="hr" style="border-style: solid; border-width: 2px 0 0; border--webkit-transform-origin: 0 0; -webkit-transform: scale(1, 0.5); transform-origin: 0 0; transform: scale(1, 0.5); height: 0.4em; margin: 1.5em 0;"><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.2 控制面：多副本复制 (Tablet Replication)</h3><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.2.1 Shared-Nothing 复制 (v0.x~v2.x)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">写入路径：Load Job → FE 分配 Tablet → BE 本地写入 Segment → Rowset 提交 → <strong style="font-weight: bold; font-size: inherit;">TabletScheduler 异步 Clone 补齐副本</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">TabletScheduler</strong> 控制面核心组件：</p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">功能</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">说明</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">修复</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Replica 缺失/版本落后/故障时创建 Clone Task</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">均衡</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BE 间 Tablet 数量不均衡时创建 Balance Task</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">变更</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Alter Job 触发 Tablet 重写</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">退役</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Decommission BE 时迁移 Tablets</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">优先级</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">REPAIR &gt; BALANCE &gt; ALTER</strong></td></tr></tbody>
           </table>
         </section>
-      <p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Clone Task 状态机：</strong> PENDING → SCHEDULED → RUNNING → FINISHED / TIMEOUT（重试 3 次后放弃）</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">多副本一致性保障：</strong></p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">阶段</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">策略</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">写入</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Single-Replica Write（单副本成功即完成）</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">复制</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Asynchronous Clone（TabletScheduler 异步调度）</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">读取</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Replica Version Check（仅选版本足够的 Replica）</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">健康</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">定期心跳 + VersionReport（BE 每 10s 上报）</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">修复</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">自动检测版本缺失 → 触发 Clone 补齐</td></tr></tbody>
+      <p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Clone Task 状态机：</strong> PENDING → SCHEDULED → RUNNING → FINISHED / TIMEOUT（重试 3 次后放弃）</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">多副本一致性保障：</strong></p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">阶段</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">策略</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">写入</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Single-Replica Write（单副本成功即完成）</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">复制</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Asynchronous Clone（TabletScheduler 异步调度）</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">读取</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Replica Version Check（仅选版本足够的 Replica）</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">健康</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">定期心跳 + VersionReport（BE 每 10s 上报）</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">修复</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">自动检测版本缺失 → 触发 Clone 补齐</td></tr></tbody>
           </table>
         </section>
-      <h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.2.2 存算分离复制 (Doris 3.0+)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">复制策略从「BE 间 Clone」变为「Object Store 为中心」：</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">写入路径：BE 写 WAL → Flush Object Store → Meta Service 更新版本 → 其他 Compute Node 感知 → File Cache 预热</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">核心差异：</strong></p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">维度</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">Shared-Nothing</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">存算分离</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">复制目标</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BE 间 Clone</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Object Store 持久数据</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">副本数</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">3</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">1 (Object Store 高可用)</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">一致性</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">最终一致性</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">写后即持久</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">故障恢复</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">TabletScheduler 克隆</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">直读 Object Store</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">存储成本</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">3×</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">1× + Object Store 副本</td></tr></tbody>
+      <h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.2.2 存算分离复制 (Doris 3.0+)</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">复制策略从「BE 间 Clone」变为「Object Store 为中心」：</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">写入路径：BE 写 WAL → Flush Object Store → Meta Service 更新版本 → 其他 Compute Node 感知 → File Cache 预热</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">核心差异：</strong></p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">维度</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">Shared-Nothing</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">存算分离</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">复制目标</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BE 间 Clone</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Object Store 持久数据</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">副本数</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">3</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">1 (Object Store 高可用)</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">一致性</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">最终一致性</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">写后即持久</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">故障恢复</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">TabletScheduler 克隆</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">直读 Object Store</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">存储成本</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">3×</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">1× + Object Store 副本</td></tr></tbody>
           </table>
         </section>
-      <hr class="hr" style="border-style: solid; border-width: 2px 0 0; border-color: rgba(0, 0, 0, 0.1); -webkit-transform-origin: 0 0; -webkit-transform: scale(1, 0.5); transform-origin: 0 0; transform: scale(1, 0.5); height: 0.4em; margin: 1.5em 0;"><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.3 数据面：写入路径一致性</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><img src="diagram/07-write-consistency.svg" alt="写入路径 2PC 事务一致性流程" style="display: block; width: 100%; margin: 1.5em auto;"></p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.3.1 单 Tablet 写入一致性</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">三层保证：<strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">FE 2PC 事务协调 + BE 本地 WAL + TabletScheduler 修复</strong></p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+      <hr class="hr" style="border-style: solid; border-width: 2px 0 0; border--webkit-transform-origin: 0 0; -webkit-transform: scale(1, 0.5); transform-origin: 0 0; transform: scale(1, 0.5); height: 0.4em; margin: 1.5em 0;"><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.3 数据面：写入路径一致性</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><img src="diagram/07-write-consistency.svg" alt="写入路径 2PC 事务一致性流程" style="display: block; width: 100%; margin: 1.5em auto;"></p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.3.1 单 Tablet 写入一致性</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">三层保证：<strong style="font-weight: bold; font-size: inherit;">FE 2PC 事务协调 + BE 本地 WAL + TabletScheduler 修复</strong></p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
@@ -75,27 +553,27 @@
 2. PREPARE → 所有 BE 写入本地 WAL（任一失败则 ABORT）
 3. COMMIT → 全部成功则提交
 4. PUBLISH → 版本号递增，查询可见
-5. TabletScheduler → 异步修复失败 Replica" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">1.&nbsp;BEGIN&nbsp;Txn&nbsp;→&nbsp;生成事务&nbsp;ID<br>2.&nbsp;PREPARE&nbsp;→&nbsp;所有&nbsp;BE&nbsp;写入本地&nbsp;WAL（任一失败则&nbsp;ABORT）<br>3.&nbsp;COMMIT&nbsp;→&nbsp;全部成功则提交<br>4.&nbsp;PUBLISH&nbsp;→&nbsp;版本号递增，查询可见<br>5.&nbsp;TabletScheduler&nbsp;→&nbsp;异步修复失败&nbsp;Replica</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">失败处理：</strong></p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; color: #3f3f3f;"><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• PREPARE 部分成功 → FE 发 ABORT，BE 撤销 WAL</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• COMMIT 部分到达 → BE 重启后 Gossip 同步版本 + TabletScheduler 修复</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• PUBLISH 后部分不可见 → 查询跳过不可见 Replica，补齐后恢复</li></ul><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.3.2 事务模型</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">A. 单 Tablet 事务</strong>（Routine Load / Small Batch）：延迟最低，写入结束即提交</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">B. 2PC 分布式事务</strong>（Broker Load / INSERT INTO SELECT）：</p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+5. TabletScheduler → 异步修复失败 Replica" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">1.&nbsp;BEGIN&nbsp;Txn&nbsp;→&nbsp;生成事务&nbsp;ID<br>2.&nbsp;PREPARE&nbsp;→&nbsp;所有&nbsp;BE&nbsp;写入本地&nbsp;WAL（任一失败则&nbsp;ABORT）<br>3.&nbsp;COMMIT&nbsp;→&nbsp;全部成功则提交<br>4.&nbsp;PUBLISH&nbsp;→&nbsp;版本号递增，查询可见<br>5.&nbsp;TabletScheduler&nbsp;→&nbsp;异步修复失败&nbsp;Replica</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">失败处理：</strong></p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; "><li class="listitem" style="display: block; margin: 0.2em 8px; ">• PREPARE 部分成功 → FE 发 ABORT，BE 撤销 WAL</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• COMMIT 部分到达 → BE 重启后 Gossip 同步版本 + TabletScheduler 修复</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• PUBLISH 后部分不可见 → 查询跳过不可见 Replica，补齐后恢复</li></ul><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.3.2 事务模型</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">A. 单 Tablet 事务</strong>（Routine Load / Small Batch）：延迟最低，写入结束即提交</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">B. 2PC 分布式事务</strong>（Broker Load / INSERT INTO SELECT）：</p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
   </svg></span><code class="language-" data-language-pending data-raw-code="Phase 1: PREPARE  → 所有 BE 并行写入
 Phase 2: COMMIT   → 全部成功或全部回滚 (ABORT)
-Phase 3: PUBLISH  → 版本递增，查询可见" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">Phase&nbsp;1:&nbsp;PREPARE&nbsp;&nbsp;→&nbsp;所有&nbsp;BE&nbsp;并行写入<br>Phase&nbsp;2:&nbsp;COMMIT&nbsp;&nbsp;&nbsp;→&nbsp;全部成功或全部回滚&nbsp;(ABORT)<br>Phase&nbsp;3:&nbsp;PUBLISH&nbsp;&nbsp;→&nbsp;版本递增，查询可见</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Label 幂等性：</strong> 每个 Load Job 全局唯一 Label，FE 持久化 <code class="codespan" style="font-size: 90%; color: #d14; background: rgba(27, 31, 35, 0.05); padding: 3px 5px; border-radius: 4px;">Label → TxnId</code>，重试返回已存在 TxnId → Exactly-Once Write</p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; color: #0F4C81; font-size: calc(16px * 1); font-weight: bold;">6.3.3 Compaction 一致性</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">每个 Replica 独立执行 Compaction，不依赖跨副本一致性：</p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">阶段</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">保证</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">选择 Rowset</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">仅选已 Publish 版本</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">合并执行</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">读取源 → 合并 → 写新文件（不修改源）</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">原子替换</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">CAS 替换元数据指针</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">并发安全</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">每 Tablet 同时最多 1 个 Compaction</td></tr></tbody>
+Phase 3: PUBLISH  → 版本递增，查询可见" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">Phase&nbsp;1:&nbsp;PREPARE&nbsp;&nbsp;→&nbsp;所有&nbsp;BE&nbsp;并行写入<br>Phase&nbsp;2:&nbsp;COMMIT&nbsp;&nbsp;&nbsp;→&nbsp;全部成功或全部回滚&nbsp;(ABORT)<br>Phase&nbsp;3:&nbsp;PUBLISH&nbsp;&nbsp;→&nbsp;版本递增，查询可见</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Label 幂等性：</strong> 每个 Load Job 全局唯一 Label，FE 持久化 <code class="codespan" style="font-size: 90%; padding: 3px 5px; border-radius: 4px;">Label → TxnId</code>，重试返回已存在 TxnId → Exactly-Once Write</p><h4 class="h4" data-heading="true" style="margin: 2em 8px 0.5em; font-size: calc(16px * 1); font-weight: bold;">6.3.3 Compaction 一致性</h4><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">每个 Replica 独立执行 Compaction，不依赖跨副本一致性：</p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">阶段</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">保证</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">选择 Rowset</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">仅选已 Publish 版本</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">合并执行</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">读取源 → 合并 → 写新文件（不修改源）</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">原子替换</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">CAS 替换元数据指针</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">并发安全</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">每 Tablet 同时最多 1 个 Compaction</td></tr></tbody>
           </table>
         </section>
-      <hr class="hr" style="border-style: solid; border-width: 2px 0 0; border-color: rgba(0, 0, 0, 0.1); -webkit-transform-origin: 0 0; -webkit-transform: scale(1, 0.5); transform-origin: 0 0; transform: scale(1, 0.5); height: 0.4em; margin: 1.5em 0;"><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.4 故障恢复矩阵</h3>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">故障</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">检测</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">恢复</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">RTO</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE Master 宕机</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BDB-JE 心跳</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Follower 提升，重放 EditLog</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">~10-30s</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE Follower 宕机</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BDB-JE 心跳</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">其他 Follower/Observer 承接查询</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">0</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BE 宕机 (SN)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE 心跳 10s</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">TabletScheduler Clone Task</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">分钟级</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BE 宕机 (存算分离)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE 心跳</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">新 Compute Node 直读 Object Store</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">秒级</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">磁盘故障</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">BE 自检</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">TabletScheduler 修复</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">分钟级</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">版本不一致</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">VersionReport</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">TabletScheduler 自动补齐</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">分钟级</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Meta Service 宕机</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">FE 检测</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">RAFT 自身高可用</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">秒级</td></tr></tbody>
+      <hr class="hr" style="border-style: solid; border-width: 2px 0 0; border--webkit-transform-origin: 0 0; -webkit-transform: scale(1, 0.5); transform-origin: 0 0; transform: scale(1, 0.5); height: 0.4em; margin: 1.5em 0;"><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.4 故障恢复矩阵</h3>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">故障</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">检测</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">恢复</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">RTO</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE Master 宕机</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BDB-JE 心跳</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Follower 提升，重放 EditLog</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">~10-30s</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE Follower 宕机</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BDB-JE 心跳</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">其他 Follower/Observer 承接查询</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">0</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BE 宕机 (SN)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE 心跳 10s</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">TabletScheduler Clone Task</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">分钟级</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BE 宕机 (存算分离)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE 心跳</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">新 Compute Node 直读 Object Store</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">秒级</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">磁盘故障</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">BE 自检</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">TabletScheduler 修复</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">分钟级</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">版本不一致</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">VersionReport</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">TabletScheduler 自动补齐</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">分钟级</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Meta Service 宕机</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">FE 检测</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">RAFT 自身高可用</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">秒级</td></tr></tbody>
           </table>
         </section>
-      <h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.5 核心设计哲学</h3><blockquote class="blockquote" style="margin-top: 0; margin-right: 0; margin-left: 0; font-style: normal; padding: 1em; border-left: 4px solid #0F4C81; border-radius: 6px; color: #3f3f3f; background: #f7f7f7; margin-bottom: 1em;"><p class="p" style="display: block; font-size: 1em; letter-spacing: 0.1em; color: #3f3f3f; margin: 0;">💡 Doris 采用 <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">控制面集中协调 + 数据面去中心化执行</strong> 架构。FE 负责元数据一致性和全局调度（2PC、TabletScheduler），BE 间无中心依赖，数据复制通过异步 Clone 或 Object Store 共享实现。存算分离 3.0 进一步将控制面元数据从 FE 剥离到独立 Meta Service，实现完全解耦。</p></blockquote><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">控制面：</strong> BDB-JE/Meta Service + Paxos/RAFT + TabletScheduler + 2PC + Load Manager</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">数据面：</strong> Segment v2 + WAL/MoW + Compaction + Clone + File Cache</p>
+      <h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">6.5 核心设计哲学</h3><blockquote class="blockquote" style="margin-top: 0; margin-right: 0; margin-left: 0; font-style: normal; padding: 1em; border-radius: 6px; margin-bottom: 1em;"><p class="p" style="display: block; font-size: 1em; letter-spacing: 0.1em; margin: 0;">💡 Doris 采用 <strong style="font-weight: bold; font-size: inherit;">控制面集中协调 + 数据面去中心化执行</strong> 架构。FE 负责元数据一致性和全局调度（2PC、TabletScheduler），BE 间无中心依赖，数据复制通过异步 Clone 或 Object Store 共享实现。存算分离 3.0 进一步将控制面元数据从 FE 剥离到独立 Meta Service，实现完全解耦。</p></blockquote><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">控制面：</strong> BDB-JE/Meta Service + Paxos/RAFT + TabletScheduler + 2PC + Load Manager</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">数据面：</strong> Segment v2 + WAL/MoW + Compaction + Clone + File Cache</p>
     
   
     
@@ -103,5 +581,7 @@ Phase 3: PUBLISH  → 版本递增，查询可见" data-show-line-number="false"
     
   </section>
   </div>
+</div>
+
 </body>
 </html>

@@ -1,17 +1,495 @@
-<!doctype html>
-<html style="      ">
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>03-查询流程</title>
-  <meta name="description" content="Doris 查询引擎是其高性能的核心，基于自研 C++ 向量化执行引擎，支持标准 SQL 和 MPP 分布式执行。">
-  
-  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03-查询流程</title>
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --dim: #71717a;
+    --accent: #22d3ee;
+    --accent2: #818cf8;
+    --accent3: #f472b6;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --code-bg: #1e1e2e;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Global Nav */
+  .global-nav {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: rgba(9,9,11,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+  }
+  .global-nav .brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    margin-right: 28px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .global-nav .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex: 1;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .global-nav .nav-links::-webkit-scrollbar { display: none; }
+  .global-nav .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .global-nav .nav-link:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .global-nav .nav-link.active {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .global-nav .nav-link .badge {
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+  /* Container */
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, rgba(34,211,238,0.04) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .hero .tagline { color: var(--muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto; }
+  .hero .meta { margin-top: 16px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  .hero .meta span { color: var(--dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+  /* Doc Header */
+  .doc-header {
+    text-align: center;
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .doc-header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .doc-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .doc-header .meta { font-size: 0.88rem; color: var(--dim); }
+  .doc-header .tags { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .doc-header .tag { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; border: 1px solid var(--border); color: var(--dim); background: var(--surface); }
+  /* Content Typography */
+  .content { font-size: 0.95rem; line-height: 1.8; }
+  .content h2 { font-size: 1.35rem; font-weight: 700; margin: 48px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); color: var(--accent); }
+  .content h3 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 14px; color: var(--accent2); }
+  .content h4 { font-size: 1rem; font-weight: 600; margin: 24px 0 10px; color: var(--text); }
+  .content p { margin-bottom: 16px; }
+  .content ul, .content ol { margin-bottom: 16px; padding-left: 24px; }
+  .content li { margin-bottom: 8px; }
+  .content a { color: var(--accent); text-decoration: none; }
+  .content a:hover { text-decoration: underline; }
+  .content strong { font-weight: 600; }
+  .content code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--accent3);
+    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  }
+  .content pre {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  }
+  .content pre code { background: none; padding: 0; color: #e2e8f0; font-size: inherit; }
+  /* Tables */
+  .content table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+  .content th, .content td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .content th { background: var(--surface); font-weight: 600; }
+  .content tr:hover td { background: rgba(255,255,255,0.02); }
+  /* Callouts */
+  .callout { border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; font-size: 0.9rem; line-height: 1.7; border-left: 4px solid var(--border); }
+  .callout.info { background: rgba(34,211,238,0.08); border-left-color: var(--accent); }
+  .callout.success { background: rgba(52,211,153,0.08); border-left-color: var(--green); }
+  .callout.warn { background: rgba(251,191,36,0.08); border-left-color: var(--amber); }
+  .callout.danger { background: rgba(248,113,113,0.08); border-left-color: var(--red); }
+  /* Tags */
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .tag-blue { background: rgba(34,211,238,0.12); color: var(--accent); }
+  .tag-green { background: rgba(52,211,153,0.12); color: var(--green); }
+  .tag-purple { background: rgba(129,140,248,0.12); color: var(--accent2); }
+  .tag-pink { background: rgba(244,114,182,0.12); color: var(--accent3); }
+  .tag-red { background: rgba(248,113,113,0.12); color: var(--red); }
+  /* Blockquote */
+  .content blockquote {
+    border-left: 4px solid var(--accent);
+    background: rgba(34,211,238,0.06);
+    padding: 10px 18px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  /* Module Cards */
+  .module-grid { display: grid; gap: 20px; }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .module-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .module-card .module-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .module-card .module-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .module-card .module-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+  .module-card .module-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .module-card .module-stats .stat { font-size: 0.8rem; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+  .module-card .module-stats .stat strong { color: var(--muted); }
+  /* Chapter Cards */
+  .chapter-list { display: flex; flex-direction: column; gap: 12px; }
+  .chapter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .chapter-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+  .chapter-num { font-size: 1.6rem; font-weight: 800; color: var(--accent); min-width: 40px; line-height: 1; }
+  .chapter-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .chapter-info .desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+  .chapter-info .stats { font-size: 0.75rem; color: var(--dim); display: flex; gap: 16px; }
+  /* Week Cards */
+  .weeks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .week-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .week-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .week-card .week-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .week-card .week-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .week-card .week-meta { font-size: 0.8rem; color: var(--muted); }
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title .icon { font-size: 1.5rem; }
+  .section-title .count { color: var(--muted); font-size: 0.85rem; font-weight: 400; margin-left: auto; }
+  /* Stats bar */
+  .stats-bar { display: flex; gap: 24px; justify-content: center; margin-top: 16px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 0.8rem; color: var(--muted); }
+  /* Empty state */
+  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 0.9rem; border: 1px dashed var(--border); border-radius: 10px; }
+  /* Back link */
+  .back-link {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: background 0.15s, color 0.15s;
+  }
+  .back-link:hover { background: var(--surface); color: var(--text); }
+  /* Design cards */
+  .designs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .design-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .design-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .design-card .design-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .design-card .design-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .design-card .design-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+  .design-card .design-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+  /* Page nav */
+  .page-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 40px 0 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .page-nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+  .page-nav a:hover { text-decoration: underline; }
+  .page-nav .prev::before { content: "← "; }
+  .page-nav .next::after { content: " →"; }
+  .page-nav .disabled { color: var(--dim); cursor: default; text-decoration: none; }
+  /* End marker / About */
+  .end-marker { text-align: center; padding: 24px 0; color: var(--dim); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 32px; }
+  .end-marker a { color: var(--accent); text-decoration: none; }
+  .end-marker a:hover { text-decoration: underline; }
+  /* Footer */
+  footer { text-align: center; padding: 32px 0; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  /* Figures */
+  .content figure { margin: 20px 0; text-align: center; }
+  .content figure img { max-width: 100%; border-radius: var(--radius); }
+  .content figure figcaption { margin-top: 8px; font-size: 0.85rem; color: var(--dim); }
+  /* HR */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  /* Mermaid */
+  .mermaid {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin: 14px 0;
+    overflow-x: auto;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  /* Doris legacy content overrides */
+  .doris-content .p { margin: 1.5em 0; margin-left: 8px; color: var(--text); font-size: 0.95rem; line-height: 1.8; }
+  .doris-content .h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2em 0 0.75em 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent);
+    color: var(--text);
+  }
+  .doris-content .ul { margin: 1em 0; padding-left: 1.5em; color: var(--text); }
+  .doris-content .listitem { margin: 0.3em 8px; color: var(--text); }
+  .doris-content .code__pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 0 !important;
+    margin: 10px 8px;
+    overflow-x: auto;
+  }
+  .doris-content .mac-sign { display: flex; padding: 10px 14px 0; }
+  .doris-content .codespan {
+    font-size: 0.88em;
+    color: var(--accent3);
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+  .doris-content .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9rem;
+  }
+  .doris-content .th {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--text);
+  }
+  .doris-content .td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    color: var(--text);
+  }
+  .doris-content .tr:hover .td { background: rgba(255,255,255,0.02); }
+  .doris-content img { max-width: 100%; border-radius: var(--radius-sm); }
+  .doris-content .hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; height: 0; }
+  /* Blog article cards */
+  .article-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-bottom: 20px;
+  }
+  .article-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .article-card .article-date { font-size: 0.8rem; color: var(--dim); margin-bottom: 8px; }
+  .article-card .article-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .article-card .article-desc { color: var(--muted); font-size: 0.92rem; margin-bottom: 12px; }
+  .article-card .article-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* Key findings */
+  .key-findings {
+    background: rgba(34,211,238,0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .key-findings h3 { color: var(--accent); margin-top: 0; }
+  .key-findings li { margin-bottom: 8px; font-size: 0.92rem; }
+  /* Module TOC */
+  .module-toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+  .module-toc h3 { margin-top: 0; font-size: 0.95rem; color: var(--text); }
+  .module-toc ol { padding-left: 20px; }
+  .module-toc ol li { font-size: 0.88rem; margin-bottom: 4px; }
+  .module-toc ol li a { color: var(--muted); }
+  .module-toc ol li a:hover { color: var(--accent); }
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero { padding: 40px 16px 28px; }
+    .hero h1 { font-size: 1.6rem; }
+    .doc-header h1 { font-size: 1.5rem; }
+    .global-nav { padding: 0 12px; }
+    .global-nav .brand { margin-right: 12px; font-size: 0.85rem; }
+    .container { padding: 20px 16px 60px; }
+    .module-card { padding: 20px 24px; }
+    .weeks-grid { grid-template-columns: 1fr; }
+    .designs-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
-<body style="padding: 24px; background: #ffffff; max-width: 860px; margin: 0 auto; font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left;">
-  <a href="index.html" style="display: inline-block; margin: 16px 0 12px 8px; color: #576b95; text-decoration: none; font-size: 14px; border: 1px solid #e8e8e8; padding: 4px 12px; border-radius: 6px;">← 返回目录</a>
-<div id="output">
-<section class="container" style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left;"><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f; margin-top: 0 !important;">Doris 查询引擎是其高性能的核心，基于自研 C++ 向量化执行引擎，支持标准 SQL 和 MPP 分布式执行。</p><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.2 查询架构总览</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><img src="diagram/04-query-execution.svg" alt="MPP 向量化查询执行" style="display: block; width: 100%; margin: 1.5em auto;"></p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+  <a href="index.html" class="back-link">← 返回目录</a>
+  <div class="doris-content">
+<section class="container" style="font-size: 16px; line-height: 1.75; text-align: left;"><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; margin-top: 0 !important;">Doris 查询引擎是其高性能的核心，基于自研 C++ 向量化执行引擎，支持标准 SQL 和 MPP 分布式执行。</p><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.2 查询架构总览</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><img src="diagram/04-query-execution.svg" alt="MPP 向量化查询执行" style="display: block; width: 100%; margin: 1.5em auto;"></p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
@@ -50,45 +528,45 @@ BE (Backend) — C++
 │   └── 内存池管理 (避免碎片)
 └── Runtime Filter
     ├── Bloom Filter 生成 (Join Build 侧)
-    └── 广播到 Scan Node (提前过滤)" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">Client&nbsp;(MySQL&nbsp;Protocol&nbsp;/&nbsp;HTTP&nbsp;/&nbsp;Arrow&nbsp;Flight)<br>&nbsp;&nbsp;&nbsp;&nbsp;↓<br>FE&nbsp;(Frontend)&nbsp;—&nbsp;Java<br>├──&nbsp;SQL&nbsp;Parser&nbsp;(ANSI&nbsp;SQL&nbsp;兼容)<br>├──&nbsp;Analyzer&nbsp;(语义分析，Catalog&nbsp;元数据校验)<br>├──&nbsp;Optimizer<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;RBO&nbsp;(Rule-Based&nbsp;Optimizer,&nbsp;v1.x~v2.x)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Nereids&nbsp;(CBO,&nbsp;v2.1+&nbsp;实验，v3.0&nbsp;稳定)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;统计信息收集<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Cost&nbsp;Model&nbsp;(CBO&nbsp;选&nbsp;Best&nbsp;Plan)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Plan&nbsp;Rewrite&nbsp;(列裁剪、谓词下推、常量折叠)<br>├──&nbsp;Coordinator<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Plan&nbsp;Fragment&nbsp;生成&nbsp;(MPP&nbsp;分布式计划)<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Parallelism&nbsp;计算<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Schedule&nbsp;to&nbsp;BEs<br>└──&nbsp;Result&nbsp;Merger&nbsp;(结果合并&nbsp;→&nbsp;Client)<br>&nbsp;&nbsp;&nbsp;&nbsp;↓<br>BE&nbsp;(Backend)&nbsp;—&nbsp;C++<br>├──&nbsp;Plan&nbsp;Fragment&nbsp;Executor<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Scan&nbsp;Node&nbsp;→&nbsp;Segment&nbsp;Reader<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;ZoneMap&nbsp;剪枝<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;Bloom&nbsp;Filter&nbsp;过滤<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──&nbsp;Page&nbsp;级&nbsp;IO<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Join&nbsp;Node<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;Hash&nbsp;Join&nbsp;(Build/Probe)<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;Broadcast&nbsp;Join&nbsp;(小表广播)<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──&nbsp;Shuffle&nbsp;Join&nbsp;(大表重分布)<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Agg&nbsp;Node&nbsp;(预聚合)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Sort&nbsp;/&nbsp;Limit&nbsp;/&nbsp;Exchange<br>├──&nbsp;向量化引擎<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Columnar&nbsp;Batch&nbsp;(4096行/Batch)<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;SIMD&nbsp;指令集加速&nbsp;(SSE/AVX2)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;内存池管理&nbsp;(避免碎片)<br>└──&nbsp;Runtime&nbsp;Filter<br>&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Bloom&nbsp;Filter&nbsp;生成&nbsp;(Join&nbsp;Build&nbsp;侧)<br>&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;广播到&nbsp;Scan&nbsp;Node&nbsp;(提前过滤)</code></pre><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.3 分布式执行模型</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris MPP 执行分为三个阶段：</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Phase 1：Plan Fragment 分发</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">FE 将 SQL Plan 拆分为多个 Fragment，每个 Fragment 由 BE 上的一个 Instance 执行：</p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+    └── 广播到 Scan Node (提前过滤)" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">Client&nbsp;(MySQL&nbsp;Protocol&nbsp;/&nbsp;HTTP&nbsp;/&nbsp;Arrow&nbsp;Flight)<br>&nbsp;&nbsp;&nbsp;&nbsp;↓<br>FE&nbsp;(Frontend)&nbsp;—&nbsp;Java<br>├──&nbsp;SQL&nbsp;Parser&nbsp;(ANSI&nbsp;SQL&nbsp;兼容)<br>├──&nbsp;Analyzer&nbsp;(语义分析，Catalog&nbsp;元数据校验)<br>├──&nbsp;Optimizer<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;RBO&nbsp;(Rule-Based&nbsp;Optimizer,&nbsp;v1.x~v2.x)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Nereids&nbsp;(CBO,&nbsp;v2.1+&nbsp;实验，v3.0&nbsp;稳定)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;统计信息收集<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Cost&nbsp;Model&nbsp;(CBO&nbsp;选&nbsp;Best&nbsp;Plan)<br>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;Plan&nbsp;Rewrite&nbsp;(列裁剪、谓词下推、常量折叠)<br>├──&nbsp;Coordinator<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Plan&nbsp;Fragment&nbsp;生成&nbsp;(MPP&nbsp;分布式计划)<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Parallelism&nbsp;计算<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Schedule&nbsp;to&nbsp;BEs<br>└──&nbsp;Result&nbsp;Merger&nbsp;(结果合并&nbsp;→&nbsp;Client)<br>&nbsp;&nbsp;&nbsp;&nbsp;↓<br>BE&nbsp;(Backend)&nbsp;—&nbsp;C++<br>├──&nbsp;Plan&nbsp;Fragment&nbsp;Executor<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Scan&nbsp;Node&nbsp;→&nbsp;Segment&nbsp;Reader<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;ZoneMap&nbsp;剪枝<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;Bloom&nbsp;Filter&nbsp;过滤<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──&nbsp;Page&nbsp;级&nbsp;IO<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Join&nbsp;Node<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;Hash&nbsp;Join&nbsp;(Build/Probe)<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├──&nbsp;Broadcast&nbsp;Join&nbsp;(小表广播)<br>│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──&nbsp;Shuffle&nbsp;Join&nbsp;(大表重分布)<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Agg&nbsp;Node&nbsp;(预聚合)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;Sort&nbsp;/&nbsp;Limit&nbsp;/&nbsp;Exchange<br>├──&nbsp;向量化引擎<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;Columnar&nbsp;Batch&nbsp;(4096行/Batch)<br>│&nbsp;&nbsp;&nbsp;├──&nbsp;SIMD&nbsp;指令集加速&nbsp;(SSE/AVX2)<br>│&nbsp;&nbsp;&nbsp;└──&nbsp;内存池管理&nbsp;(避免碎片)<br>└──&nbsp;Runtime&nbsp;Filter<br>&nbsp;&nbsp;&nbsp;&nbsp;├──&nbsp;Bloom&nbsp;Filter&nbsp;生成&nbsp;(Join&nbsp;Build&nbsp;侧)<br>&nbsp;&nbsp;&nbsp;&nbsp;└──&nbsp;广播到&nbsp;Scan&nbsp;Node&nbsp;(提前过滤)</code></pre><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.3 分布式执行模型</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris MPP 执行分为三个阶段：</p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Phase 1：Plan Fragment 分发</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">FE 将 SQL Plan 拆分为多个 Fragment，每个 Fragment 由 BE 上的一个 Instance 执行：</p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
   </svg></span><code class="language-" data-language-pending data-raw-code="Fragment 0 (Coordinator): Result Sink → Merge → Client
 Fragment 1 (Agg BE):       Final Agg ← EXCHANGE ←
-Fragment 2 (Scan BE):      Pre Agg → EXCHANGE →" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">Fragment&nbsp;0&nbsp;(Coordinator):&nbsp;Result&nbsp;Sink&nbsp;→&nbsp;Merge&nbsp;→&nbsp;Client<br>Fragment&nbsp;1&nbsp;(Agg&nbsp;BE):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Final&nbsp;Agg&nbsp;←&nbsp;EXCHANGE&nbsp;←<br>Fragment&nbsp;2&nbsp;(Scan&nbsp;BE):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pre&nbsp;Agg&nbsp;→&nbsp;EXCHANGE&nbsp;→</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Phase 2：Data Shuffle</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">BE 间通过 BRPC 进行数据交换，交换策略：</p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">策略</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">触发条件</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">说明</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Broadcast</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">右表数据量 &lt; broadcast_row_limit</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">全量广播到所有 Scan Node</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Hash Shuffle (Partition)</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Join Key 或 Agg Key</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">按 Key Hash 重分布</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Bucket Shuffle</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Join Key 与分桶键一致</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">直接按 Bucket 映射，避免 Shuffle</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Colocate Join</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">两张表 Colocation Group 相同</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">零 Shuffle，本地 Join</td></tr></tbody>
+Fragment 2 (Scan BE):      Pre Agg → EXCHANGE →" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">Fragment&nbsp;0&nbsp;(Coordinator):&nbsp;Result&nbsp;Sink&nbsp;→&nbsp;Merge&nbsp;→&nbsp;Client<br>Fragment&nbsp;1&nbsp;(Agg&nbsp;BE):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Final&nbsp;Agg&nbsp;←&nbsp;EXCHANGE&nbsp;←<br>Fragment&nbsp;2&nbsp;(Scan&nbsp;BE):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pre&nbsp;Agg&nbsp;→&nbsp;EXCHANGE&nbsp;→</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Phase 2：Data Shuffle</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">BE 间通过 BRPC 进行数据交换，交换策略：</p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">策略</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">触发条件</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">说明</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Broadcast</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">右表数据量 &lt; broadcast_row_limit</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">全量广播到所有 Scan Node</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Hash Shuffle (Partition)</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Join Key 或 Agg Key</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">按 Key Hash 重分布</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Bucket Shuffle</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Join Key 与分桶键一致</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">直接按 Bucket 映射，避免 Shuffle</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Colocate Join</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">两张表 Colocation Group 相同</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">零 Shuffle，本地 Join</td></tr></tbody>
           </table>
         </section>
-      <p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Phase 3：Vectorized Execution</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">BE 内部以 4096 行为一个 Columnar Batch 流水线处理：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; color: #3f3f3f;"><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• Scan → Filter → Project → Join → Agg → Sort → Sink</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• 全程列式操作，利用 SIMD 加速</li></ul><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.4 Optimizer 演进</h3>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">阶段</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">优化器</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">特点</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">v0.x~v1.x</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">无优化器</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">手工编写的 SQL Rewrite 规则</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">v1.x~v2.x</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">RBO (Rule-Based)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">固定规则重写，无成本模型</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">v2.1+</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Nereids (CBO, 实验)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">基于成本的优化器，统计信息驱动</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">v3.0+</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Nereids (CBO, 稳定)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">默认优化器，支持 Join Reorder、CTE 重用</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">v4.0 (计划)</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Nereids + Falcon</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">新执行引擎，Runtime Filter 增强</td></tr></tbody>
+      <p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Phase 3：Vectorized Execution</strong></p><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">BE 内部以 4096 行为一个 Columnar Batch 流水线处理：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; "><li class="listitem" style="display: block; margin: 0.2em 8px; ">• Scan → Filter → Project → Join → Agg → Sort → Sink</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• 全程列式操作，利用 SIMD 加速</li></ul><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.4 Optimizer 演进</h3>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">阶段</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">优化器</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">特点</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">v0.x~v1.x</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">无优化器</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">手工编写的 SQL Rewrite 规则</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">v1.x~v2.x</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">RBO (Rule-Based)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">固定规则重写，无成本模型</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">v2.1+</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Nereids (CBO, 实验)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">基于成本的优化器，统计信息驱动</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">v3.0+</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Nereids (CBO, 稳定)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">默认优化器，支持 Join Reorder、CTE 重用</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">v4.0 (计划)</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Nereids + Falcon</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">新执行引擎，Runtime Filter 增强</td></tr></tbody>
           </table>
         </section>
-      <p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Nereids CBO 核心能力</strong>：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; color: #3f3f3f;"><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Join Reorder</strong>：基于表统计信息 (RowCount/NDV) 动态调整 Join 顺序</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">CTE 物化</strong>：公共表表达式物化重用，避免重复计算</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Runtime Filter</strong>：Join Build 侧生成 Bloom Filter，提前下推过滤 Scan</li><li class="listitem" style="display: block; margin: 0.2em 8px; color: #3f3f3f;">• <strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Derived Column Rewrite</strong>：派生列改写，消除不必要的列计算</li></ul><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.5 Runtime Filter</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris Runtime Filter 是查询加速的核心技术：</p><pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+      <p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">Nereids CBO 核心能力</strong>：</p><ul class="ul" style="list-style: circle; padding-left: 1em; margin-left: 0; "><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">Join Reorder</strong>：基于表统计信息 (RowCount/NDV) 动态调整 Join 顺序</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">CTE 物化</strong>：公共表表达式物化重用，避免重复计算</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">Runtime Filter</strong>：Join Build 侧生成 Bloom Filter，提前下推过滤 Scan</li><li class="listitem" style="display: block; margin: 0.2em 8px; ">• <strong style="font-weight: bold; font-size: inherit;">Derived Column Rewrite</strong>：派生列改写，消除不必要的列计算</li></ul><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.5 Runtime Filter</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris Runtime Filter 是查询加速的核心技术：</p><pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
   </svg></span><code class="language-" data-language-pending data-raw-code="1. Small Table (右表) Join Key → Build Bloom Filter
 2. Broadcast Bloom Filter to Scan Node (左表)
 3. Scan Node 利用 Bloom Filter 过滤不需要的行
-4. 大幅减少 Shuffle & Join 数据量" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;">1.&nbsp;Small&nbsp;Table&nbsp;(右表)&nbsp;Join&nbsp;Key&nbsp;→&nbsp;Build&nbsp;Bloom&nbsp;Filter<br>2.&nbsp;Broadcast&nbsp;Bloom&nbsp;Filter&nbsp;to&nbsp;Scan&nbsp;Node&nbsp;(左表)<br>3.&nbsp;Scan&nbsp;Node&nbsp;利用&nbsp;Bloom&nbsp;Filter&nbsp;过滤不需要的行<br>4.&nbsp;大幅减少&nbsp;Shuffle&nbsp;&amp;&nbsp;Join&nbsp;数据量</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">典型收益</strong>：大表 Join 小表，Runtime Filter 可过滤 50%~99% 的无效数据。</p><h3 class="h3" data-heading="true" style="padding-left: 8px; border-left: 3px solid #0F4C81; margin: 2em 8px 0.75em 0; color: #3f3f3f; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.6 Lakehouse 联邦查询</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; color: #3f3f3f;">Doris 3.0 支持原生联邦查询多种数据源：</p>
-        <section style="font-family: -apple-system-font,BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB , Microsoft YaHei UI , Microsoft YaHei ,Arial,sans-serif; font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
-          <table class="preview-table" style="color: #3f3f3f; margin-top: 0 !important;">
-            <thead style="font-weight: bold; color: #3f3f3f;"><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">Catalog 类型</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">支持引擎</th><th class="th" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all; background: rgba(0, 0, 0, 0.05);">能力</th></thead>
-            <tbody><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Hive</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Hive Metastore</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">读 Hive 表，支持多文件格式</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Iceberg</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Iceberg REST / HMS</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">读 Iceberg v2 表，支持 Time Travel</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Paimon</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Filesystem / HMS</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">读 Paimon 表，支持 CDC</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">Hudi</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">HMS</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">读 Hudi MOR/COW 表</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">JDBC</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">MySQL/PG/Oracle</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">联邦查询 RDBMS</td></tr><tr class="tr"><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;"><strong style="color: #0F4C81; font-weight: bold; font-size: inherit;">ES</strong></td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">Elasticsearch</td><td class="td" style="border: 1px solid #dfdfdf; padding: 0.25em 0.5em; color: #3f3f3f; word-break: keep-all;">联邦查询 ES</td></tr></tbody>
+4. 大幅减少 Shuffle & Join 数据量" data-show-line-number="false" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;">1.&nbsp;Small&nbsp;Table&nbsp;(右表)&nbsp;Join&nbsp;Key&nbsp;→&nbsp;Build&nbsp;Bloom&nbsp;Filter<br>2.&nbsp;Broadcast&nbsp;Bloom&nbsp;Filter&nbsp;to&nbsp;Scan&nbsp;Node&nbsp;(左表)<br>3.&nbsp;Scan&nbsp;Node&nbsp;利用&nbsp;Bloom&nbsp;Filter&nbsp;过滤不需要的行<br>4.&nbsp;大幅减少&nbsp;Shuffle&nbsp;&amp;&nbsp;Join&nbsp;数据量</code></pre><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; "><strong style="font-weight: bold; font-size: inherit;">典型收益</strong>：大表 Join 小表，Runtime Filter 可过滤 50%~99% 的无效数据。</p><h3 class="h3" data-heading="true" style="padding-left: 8px; margin: 2em 8px 0.75em 0; font-size: calc(16px * 1.1); font-weight: bold; line-height: 1.2;">3.6 Lakehouse 联邦查询</h3><p class="p" style="margin: 1.5em 8px; letter-spacing: 0.1em; ">Doris 3.0 支持原生联邦查询多种数据源：</p>
+        <section style="font-size: 16px; line-height: 1.75; text-align: left; max-width: 100%; overflow: auto;">
+          <table class="preview-table" style="margin-top: 0 !important;">
+            <thead style="font-weight: bold; "><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">Catalog 类型</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">支持引擎</th><th class="th" style="padding: 0.25em 0.5em; word-break: keep-all; ">能力</th></thead>
+            <tbody><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Hive</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Hive Metastore</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">读 Hive 表，支持多文件格式</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Iceberg</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Iceberg REST / HMS</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">读 Iceberg v2 表，支持 Time Travel</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Paimon</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Filesystem / HMS</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">读 Paimon 表，支持 CDC</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">Hudi</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">HMS</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">读 Hudi MOR/COW 表</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">JDBC</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">MySQL/PG/Oracle</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">联邦查询 RDBMS</td></tr><tr class="tr"><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;"><strong style="font-weight: bold; font-size: inherit;">ES</strong></td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">Elasticsearch</td><td class="td" style="padding: 0.25em 0.5em; word-break: keep-all;">联邦查询 ES</td></tr></tbody>
           </table>
         </section>
-      <pre class="hljs code__pre" style="color: #24292e; background: #fff; font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
+      <pre class="hljs code__pre" style="font-size: 90%; overflow-x: auto; border-radius: 8px; line-height: 1.5; margin: 10px 8px; padding: 0 !important;"><span class="mac-sign" style="display: flex; padding: 10px 14px 0;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">
     <ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>
     <ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>
     <ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>
-  </svg></span><code class="language-sql" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; color: inherit; background: none; white-space: nowrap; margin: 0;"><span class="hljs-comment" style="color: #6a737d;">--&nbsp;创建&nbsp;Iceberg&nbsp;Catalog</span><span class="hljs-keyword" style="color: #d73a49;"><br>CREATE</span>&nbsp;CATALOG&nbsp;iceberg_catalog&nbsp;PROPERTIES&nbsp;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;type&quot;<span class="hljs-operator" style="color: #005cc5;">&nbsp;=</span>&nbsp;&quot;iceberg&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;iceberg.catalog.type&quot;<span class="hljs-operator" style="color: #005cc5;">&nbsp;=</span>&nbsp;&quot;rest&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;uri&quot;<span class="hljs-operator" style="color: #005cc5;">&nbsp;=</span>&nbsp;&quot;http://iceberg-rest:8181/&quot;<br>);<span class="hljs-comment" style="color: #6a737d;"><br><br>--&nbsp;联邦&nbsp;Join&nbsp;查询</span><span class="hljs-keyword" style="color: #d73a49;"><br>SELECT</span>&nbsp;d.user_id,&nbsp;d.order_count,&nbsp;i.item_name<span class="hljs-keyword" style="color: #d73a49;"><br>FROM</span>&nbsp;doris_db.user_order_daily&nbsp;d<span class="hljs-keyword" style="color: #d73a49;"><br>JOIN</span>&nbsp;iceberg_catalog.item_db.items&nbsp;i<span class="hljs-keyword" style="color: #d73a49;">&nbsp;ON</span>&nbsp;d.item_id<span class="hljs-operator" style="color: #005cc5;">&nbsp;=</span>&nbsp;i.item_id;</code></pre>
+  </svg></span><code class="language-sql" style="font-size: 90%; border-radius: 4px; display: -webkit-box; padding: 0.5em 1em 1em; overflow-x: auto; text-indent: 0; white-space: nowrap; margin: 0;"><span class="hljs-comment">--&nbsp;创建&nbsp;Iceberg&nbsp;Catalog</span><span class="hljs-keyword"><br>CREATE</span>&nbsp;CATALOG&nbsp;iceberg_catalog&nbsp;PROPERTIES&nbsp;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;type&quot;<span class="hljs-operator">&nbsp;=</span>&nbsp;&quot;iceberg&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;iceberg.catalog.type&quot;<span class="hljs-operator">&nbsp;=</span>&nbsp;&quot;rest&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;uri&quot;<span class="hljs-operator">&nbsp;=</span>&nbsp;&quot;http://iceberg-rest:8181/&quot;<br>);<span class="hljs-comment"><br><br>--&nbsp;联邦&nbsp;Join&nbsp;查询</span><span class="hljs-keyword"><br>SELECT</span>&nbsp;d.user_id,&nbsp;d.order_count,&nbsp;i.item_name<span class="hljs-keyword"><br>FROM</span>&nbsp;doris_db.user_order_daily&nbsp;d<span class="hljs-keyword"><br>JOIN</span>&nbsp;iceberg_catalog.item_db.items&nbsp;i<span class="hljs-keyword">&nbsp;ON</span>&nbsp;d.item_id<span class="hljs-operator">&nbsp;=</span>&nbsp;i.item_id;</code></pre>
     
   
     
@@ -96,5 +574,7 @@ Fragment 2 (Scan BE):      Pre Agg → EXCHANGE →" data-show-line-number="fals
     
   </section>
   </div>
+</div>
+
 </body>
 </html>
