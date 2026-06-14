@@ -114,31 +114,32 @@ interface LakeTable {
 
 ### 6.3.1 IcebergLakeStorage 结构
 
-```
-IcebergLakeStorage (impl LakeStorage)
-├── IcebergLakeCatalog
-│   ├── 创建 Iceberg Table（复用 TableDescriptor → Iceberg Schema）
-│   ├── 管理 Iceberg Namespace/TableProperties
-│   └── 支持 HadoopCatalog / HiveCatalog
-├── IcebergLakeSource (impl LakeTableRead)
-│   ├── IcebergSplitPlanner（分区规划）
-│   ├── IcebergSplit（单个 split）
-│   ├── IcebergRecordReader → 读取 DataFile
-│   ├── 谓词下推（File format filter + Row group filter）
-│   └── FlussToIcebergPredicateConverter（谓词转换）
-├── IcebergLakeWriter (impl LakeTableAppend / LakeTableDelta)
-│   ├── AppendOnlyTaskWriter（普通表：无 PK）
-│   │   └── 每 batch → DataFile (.parquet)
-│   └── DeltaTaskWriter（PK 表：支持 delete/update）
-│       └── 支持 Position Delete / Equality Delete
-├── IcebergLakeCommitter (impl LakeTableCommit)
-│   ├── 收集每个 task 的 WriteResult
-│   ├── 提交 Iceberg Snapshot
-│   └── 过期 Snapshot 清理
-└── IcebergRewriteDataFiles（compaction）
-    ├── 合并小 DataFile
-    ├── 清理 Delete Files
-    └── 支持 Z-ordering / Sorting
+```mermaid
+flowchart TD
+    ILS["IcebergLakeStorage (impl LakeStorage)"]
+    ILS --> ILC["IcebergLakeCatalog"]
+    ILC --> ILC1["Create Iceberg Table (TableDescriptor -> Iceberg Schema)"]
+    ILC --> ILC2["Manage Iceberg Namespace/TableProperties"]
+    ILC --> ILC3["Support HadoopCatalog / HiveCatalog"]
+    ILS --> ILS2["IcebergLakeSource (impl LakeTableRead)"]
+    ILS2 --> ISP["IcebergSplitPlanner (partition planning)"]
+    ILS2 --> IS["IcebergSplit (single split)"]
+    ILS2 --> IRR["IcebergRecordReader -> read DataFile"]
+    ILS2 --> PD["Predicate pushdown (File filter + Row group filter)"]
+    ILS2 --> FIPC["FlussToIcebergPredicateConverter"]
+    ILS --> ILW["IcebergLakeWriter (impl LakeTableAppend/Delta)"]
+    ILW --> AOTW["AppendOnlyTaskWriter (non-PK: pure append)"]
+    AOTW --> AB["per batch -> DataFile (.parquet)"]
+    ILW --> DTW["DeltaTaskWriter (PK table: delete/update)"]
+    DTW --> PDEL["supports Position Delete / Equality Delete"]
+    ILS --> ILCM["IcebergLakeCommitter (impl LakeTableCommit)"]
+    ILCM --> WR["Collect WriteResult per task"]
+    ILCM --> ICS["Commit Iceberg Snapshot"]
+    ILCM --> SNC["Expired Snapshot cleanup"]
+    ILS --> IRDF["IcebergRewriteDataFiles (compaction)"]
+    IRDF --> MDF["Merge small DataFiles"]
+    IRDF --> CDF["Clean up Delete Files"]
+    IRDF --> ZORD["Z-ordering / Sorting"]
 ```
 
 ### 6.3.2 写入模式
@@ -151,16 +152,16 @@ IcebergLakeStorage (impl LakeStorage)
 
 ### 6.3.3 读取模式
 
-```
-IcebergLakeSource → Fluss Source:
-  1. IcebergSplitPlanner: 根据 filter + snapshot 规划 split
-  2. 每个 split → IcebergSplit (filePath, offset, length)
-  3. IcebergRecordReader: 读取 Parquet → InternalRow
-  4. 可选谓词下推：
-     - Partition filter (目录级)
-     - Row group filter (Parquet 统计信息级)
-     - Arrow 统计信息 filter (列 min/max/null-count)
-  5. InternalRow → Fluss Row (Arrow 格式)
+```mermaid
+flowchart TD
+    S1["1. IcebergSplitPlanner: plan splits by filter + snapshot"]
+    S1 --> S2["2. Each split -> IcebergSplit (filePath, offset, length)"]
+    S2 --> S3["3. IcebergRecordReader: read Parquet -> InternalRow"]
+    S3 --> S4["4. Optional predicate pushdown:"]
+    S4 --> S4a["Partition filter (directory level)"]
+    S4 --> S4b["Row group filter (Parquet stats level)"]
+    S4 --> S4c["Arrow stats filter (column min/max/null-count)"]
+    S3 --> S5["5. InternalRow -> Fluss Row (Arrow format)"]
 ```
 
 ---
@@ -169,24 +170,25 @@ IcebergLakeSource → Fluss Source:
 
 ### 6.4.1 PaimonLakeStorage 结构
 
-```
-PaimonLakeStorage (impl LakeStorage)
-├── PaimonLakeCatalog
-│   ├── 创建 Paimon Table
-│   └── 管理 Paimon Schema / Options
-├── PaimonLakeSource
-│   ├── PaimonSplitPlanner
-│   ├── PaimonRecordReader
-│   └── PaimonSortedRecordReader（有序读取）
-├── PaimonLakeWriter
-│   ├── AppendOnlyWriter（普通表）
-│   │   └── Arrow → Paimon Arrow Vector Column
-│   ├── MergeTreeWriter（PK 表 + Merge Engine）
-│   └── AppendOnlyArrowBatchHelper
-├── PaimonLakeCommitter
-├── DV Table 支持
-│   ├── DvTableReadableSnapshotRetriever
-│   └── PaimonDvTableUtils
+```mermaid
+flowchart TD
+    PLS["PaimonLakeStorage (impl LakeStorage)"]
+    PLS --> PLC["PaimonLakeCatalog"]
+    PLC --> PLC1["Create Paimon Table"]
+    PLC --> PLC2["Manage Paimon Schema / Options"]
+    PLS --> PLS2["PaimonLakeSource"]
+    PLS2 --> PSP["PaimonSplitPlanner"]
+    PLS2 --> PRR["PaimonRecordReader"]
+    PLS2 --> PSR["PaimonSortedRecordReader (ordered read)"]
+    PLS --> PLW["PaimonLakeWriter"]
+    PLW --> AOW["AppendOnlyWriter (non-PK table)"]
+    AOW --> ARROW["Arrow -> Paimon Arrow Vector Column"]
+    PLW --> MTW["MergeTreeWriter (PK table + Merge Engine)"]
+    PLW --> AABH["AppendOnlyArrowBatchHelper"]
+    PLS --> PLCM["PaimonLakeCommitter"]
+    PLS --> DVT["DV Table support"]
+    DVT --> DV1["DvTableReadableSnapshotRetriever"]
+    DVT --> DV2["PaimonDvTableUtils"]
 ```
 
 ### 6.4.2 Paimon 特有功能
@@ -261,19 +263,20 @@ sequenceDiagram
 
 Lance 是新兴的 Arrow-native 列式存储格式，Fluss 支持作为 Lake 后端：
 
+```mermaid
+flowchart TD
+    LLS["LanceLakeStorage"]
+    LLS --> LLC["LanceLakeCatalog"]
+    LLS --> LLW["LanceLakeWriter"]
+    LLW --> SABW["ShadedArrowBatchWriter (direct Arrow IPC, zero-copy)"]
+    LLS --> LLCM["LanceLakeCommitter"]
+    LLS --> LWR["LanceWriteResult"]
 ```
-LanceLakeStorage
-├── LanceLakeCatalog
-├── LanceLakeWriter
-│   └── ShadedArrowBatchWriter（直接写 Arrow IPC，零拷贝）
-├── LanceLakeCommitter
-└── LanceWriteResult
 
 特点：
 - Arrow-native：无需序列化/反序列化转换，直接操作 Arrow Vector
 - 零拷贝路径：Fluss Arrow batch → Lance write（同一格式）
 - 列裁剪 + 谓词下推完全复用 Arrow 能力
-```
 
 ---
 
