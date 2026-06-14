@@ -1,0 +1,555 @@
+<h1 id="image-generation-ai-sdk">Image Generation (AI SDK)</h1>
+
+<p>Official API-based image generation. Supports OpenAI GPT Image 2, Azure OpenAI, Google, OpenRouter, DashScope (阿里通义万象), Z.AI GLM-Image, MiniMax, Jimeng (即梦), Seedream (豆包) and Replicate.</p>
+
+<h2 id="user-input-tools">User Input Tools</h2>
+
+<p>When this skill prompts the user, follow this tool-selection rule (priority order):</p>
+
+<ol>
+  <li><strong>Prefer built-in user-input tools</strong> exposed by the current agent runtime — e.g., <code class="language-plaintext highlighter-rouge">AskUserQuestion</code>, <code class="language-plaintext highlighter-rouge">request_user_input</code>, <code class="language-plaintext highlighter-rouge">clarify</code>, <code class="language-plaintext highlighter-rouge">ask_user</code>, or any equivalent.</li>
+  <li><strong>Fallback</strong>: if no such tool exists, emit a numbered plain-text message and ask the user to reply with the chosen number/answer for each question.</li>
+  <li><strong>Batching</strong>: if the tool supports multiple questions per call, combine all applicable questions into a single call; if only single-question, ask them one at a time in priority order.</li>
+</ol>
+
+<p>Concrete <code class="language-plaintext highlighter-rouge">AskUserQuestion</code> references below are examples — substitute the local equivalent in other runtimes.</p>
+
+<h2 id="script-directory">Script Directory</h2>
+
+<p><code class="language-plaintext highlighter-rouge">{baseDir}</code> = this SKILL.md’s directory. Main script: <code class="language-plaintext highlighter-rouge">{baseDir}/scripts/main.ts</code>. Resolve <code class="language-plaintext highlighter-rouge">${BUN_X}</code>: prefer <code class="language-plaintext highlighter-rouge">bun</code>; else <code class="language-plaintext highlighter-rouge">npx -y bun</code>; else suggest <code class="language-plaintext highlighter-rouge">brew install oven-sh/bun/bun</code>.</p>
+
+<h2 id="step-0-load-preferences--blocking">Step 0: Load Preferences ⛔ BLOCKING</h2>
+
+<p>This step MUST complete before any image generation — generation is blocked until EXTEND.md exists.</p>
+
+<p>Check these paths in order; first hit wins:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Scope</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.baoyu-skills/baoyu-image-gen/EXTEND.md</code></td>
+      <td>Project</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${XDG_CONFIG_HOME:-$HOME/.config}/baoyu-skills/baoyu-image-gen/EXTEND.md</code></td>
+      <td>XDG</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">$HOME/.baoyu-skills/baoyu-image-gen/EXTEND.md</code></td>
+      <td>User home</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>Found</strong> → load, parse, apply. If <code class="language-plaintext highlighter-rouge">default_model.[provider]</code> is null → ask model only.</li>
+  <li><strong>Not found</strong> → run first-time setup (<code class="language-plaintext highlighter-rouge">references/config/first-time-setup.md</code>) using AskUserQuestion to collect provider + model + quality + save location. Save EXTEND.md, then continue. Do not generate images before this completes.</li>
+</ul>
+
+<p>Legacy compatibility: if <code class="language-plaintext highlighter-rouge">.baoyu-skills/baoyu-imagine/EXTEND.md</code> exists and the new path doesn’t, the runtime renames it to <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>. If both exist, the runtime leaves them alone and uses the new path.</p>
+
+<p><strong>EXTEND.md keys</strong>: default provider, default quality, default aspect ratio, default image size, OpenAI image API dialect, default models, batch worker cap, provider-specific batch limits. Schema: <code class="language-plaintext highlighter-rouge">references/config/preferences-schema.md</code>.</p>
+
+<h2 id="usage">Usage</h2>
+
+<p>Minimum working examples — see <code class="language-plaintext highlighter-rouge">references/usage-examples.md</code> for the full set including per-provider invocations and batch mode.</p>
+
+<h3 id="identity-preserving-reference-prompts">Identity-preserving reference prompts</h3>
+
+<p>When the user wants a real person/character/object preserved from reference images, do <strong>not</strong> replace the reference with a long generic description. Prefer short, hard identity-preservation language:</p>
+
+<ul>
+  <li>“Use the person/object in the reference image(s) as the same identity. Do not redesign it or create a similar-looking new subject.”</li>
+  <li>“Only change scene, clothing, pose, lighting, rendering style, and composition. Keep the face/proportions/hair/key accessories/overall identity from the references.”</li>
+  <li>If using multiple references, state that they are the same subject and should jointly define identity.</li>
+</ul>
+
+<p>Pitfall: long descriptions like “young East Asian woman, oval face, clear eyes…” can cause the model to synthesize a new person matching the description instead of preserving the referenced person.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="c"># Basic</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--prompt</span> <span class="s2">"A cat"</span> <span class="nt">--image</span> cat.png
+
+<span class="c"># With aspect ratio and high quality</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--prompt</span> <span class="s2">"A landscape"</span> <span class="nt">--image</span> out.png <span class="nt">--ar</span> 16:9 <span class="nt">--quality</span> 2k
+
+<span class="c"># Prompt from files</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--promptfiles</span> system.md content.md <span class="nt">--image</span> out.png
+
+<span class="c"># With reference image</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--prompt</span> <span class="s2">"Make blue"</span> <span class="nt">--image</span> out.png <span class="nt">--ref</span> source.png
+
+<span class="c"># Specific provider</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--prompt</span> <span class="s2">"A cat"</span> <span class="nt">--image</span> out.png <span class="nt">--provider</span> dashscope <span class="nt">--model</span> qwen-image-2.0-pro
+
+<span class="c"># OpenAI GPT Image 2</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--prompt</span> <span class="s2">"A cat"</span> <span class="nt">--image</span> out.png <span class="nt">--provider</span> openai <span class="nt">--model</span> gpt-image-2
+
+<span class="c"># Batch mode</span>
+<span class="k">${</span><span class="nv">BUN_X</span><span class="k">}</span> <span class="o">{</span>baseDir<span class="o">}</span>/scripts/main.ts <span class="nt">--batchfile</span> batch.json <span class="nt">--jobs</span> 4
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="reference-image-identity-preservation">Reference-Image Identity Preservation</h2>
+
+<p>When the user wants a person/object preserved from reference images:</p>
+
+<ul>
+  <li>Prefer a small curated set of existing source references (usually 2–4) over many images; large multi-megabyte refs can destabilize streaming providers.</li>
+  <li>Make the prompt say the references are the same subject and the output must use that identity. Avoid long generic facial-feature descriptions that can cause the model to synthesize a new similar-looking person.</li>
+  <li>Do not use newly generated outputs as references unless the user explicitly asks; generated refs compound drift.</li>
+  <li>If results become too polished or influencer-like, reduce stylized refs and add explicit anti-beautification constraints (no face slimming, eye enlargement, heavy makeup, commercial travel shoot, over-smoothing).</li>
+  <li>If the subject should look younger/older, preserve the face and express age through clothing, posture, scene, and styling; do not ask the model to change facial identity.</li>
+</ul>
+
+<h2 id="options">Options</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--prompt &lt;text&gt;</code>, <code class="language-plaintext highlighter-rouge">-p</code></td>
+      <td>Prompt text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--promptfiles &lt;files...&gt;</code></td>
+      <td>Read prompt from files (concatenated)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--image &lt;path&gt;</code></td>
+      <td>Output image path (required in single-image mode)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--batchfile &lt;path&gt;</code></td>
+      <td>JSON batch file for multi-image generation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--jobs &lt;count&gt;</code></td>
+      <td>Worker count for batch mode (default: auto, max from config, built-in default 10)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--provider google\|openai\|azure\|openrouter\|dashscope\|zai\|minimax\|jimeng\|seedream\|replicate</code></td>
+      <td>Force provider (default: auto-detect)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--model &lt;id&gt;</code>, <code class="language-plaintext highlighter-rouge">-m</code></td>
+      <td>Model ID — see provider references for defaults and allowed values</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ar &lt;ratio&gt;</code></td>
+      <td>Aspect ratio (<code class="language-plaintext highlighter-rouge">16:9</code>, <code class="language-plaintext highlighter-rouge">1:1</code>, <code class="language-plaintext highlighter-rouge">4:3</code>, …)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--size &lt;WxH&gt;</code></td>
+      <td>Explicit size (e.g., <code class="language-plaintext highlighter-rouge">1024x1024</code>; for <code class="language-plaintext highlighter-rouge">gpt-image-2</code>, width/height must be multiples of 16, max edge 3840px, ratio no wider than 3:1)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--quality normal\|2k</code></td>
+      <td>Quality preset (default: <code class="language-plaintext highlighter-rouge">2k</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--imageSize 1K\|2K\|4K</code></td>
+      <td>Image size for Google/OpenRouter (default: from quality)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--imageApiDialect openai-native\|ratio-metadata</code></td>
+      <td>OpenAI-compatible endpoint dialect — use <code class="language-plaintext highlighter-rouge">ratio-metadata</code> for gateways that expect aspect-ratio <code class="language-plaintext highlighter-rouge">size</code> plus <code class="language-plaintext highlighter-rouge">metadata.resolution</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ref &lt;files...&gt;</code></td>
+      <td>Reference images. Supported by Google multimodal, OpenAI GPT Image edits, Azure OpenAI edits (PNG/JPG only), OpenRouter multimodal models, Replicate supported families, MiniMax subject-reference, Seedream 5.0/4.5/4.0, DashScope <code class="language-plaintext highlighter-rouge">wan2.7-image-pro</code>/<code class="language-plaintext highlighter-rouge">wan2.7-image</code>. Not supported by Jimeng, Seedream 3.0, SeedEdit 3.0, or any DashScope model outside the <code class="language-plaintext highlighter-rouge">wan2.7-image*</code> family</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--n &lt;count&gt;</code></td>
+      <td>Number of images. Replicate requires <code class="language-plaintext highlighter-rouge">--n 1</code> (single-output save semantics)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--json</code></td>
+      <td>JSON output</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="environment-variables">Environment Variables</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code></td>
+      <td>OpenAI API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">AZURE_OPENAI_API_KEY</code></td>
+      <td>Azure OpenAI API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">OPENROUTER_API_KEY</code></td>
+      <td>OpenRouter API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GOOGLE_API_KEY</code></td>
+      <td>Google API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DASHSCOPE_API_KEY</code></td>
+      <td>DashScope API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ZAI_API_KEY</code> (alias <code class="language-plaintext highlighter-rouge">BIGMODEL_API_KEY</code>)</td>
+      <td>Z.AI API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">MINIMAX_API_KEY</code></td>
+      <td>MiniMax API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">REPLICATE_API_TOKEN</code></td>
+      <td>Replicate API token</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">JIMENG_ACCESS_KEY_ID</code>, <code class="language-plaintext highlighter-rouge">JIMENG_SECRET_ACCESS_KEY</code></td>
+      <td>Jimeng (即梦) Volcengine credentials</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ARK_API_KEY</code></td>
+      <td>Seedream (豆包) Volcengine ARK API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&lt;PROVIDER&gt;_IMAGE_MODEL</code></td>
+      <td>Per-provider model override (<code class="language-plaintext highlighter-rouge">OPENAI_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">GOOGLE_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">DASHSCOPE_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">ZAI_IMAGE_MODEL</code>/<code class="language-plaintext highlighter-rouge">BIGMODEL_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">MINIMAX_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">OPENROUTER_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">REPLICATE_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">JIMENG_IMAGE_MODEL</code>, <code class="language-plaintext highlighter-rouge">SEEDREAM_IMAGE_MODEL</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">AZURE_OPENAI_DEPLOYMENT</code> (alias <code class="language-plaintext highlighter-rouge">AZURE_OPENAI_IMAGE_MODEL</code>)</td>
+      <td>Azure default deployment</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&lt;PROVIDER&gt;_BASE_URL</code></td>
+      <td>Per-provider endpoint override</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">AZURE_API_VERSION</code></td>
+      <td>Azure image API version (default <code class="language-plaintext highlighter-rouge">2025-04-01-preview</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">JIMENG_REGION</code></td>
+      <td>Jimeng region (default <code class="language-plaintext highlighter-rouge">cn-north-1</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">OPENAI_IMAGE_API_DIALECT</code></td>
+      <td><code class="language-plaintext highlighter-rouge">openai-native</code> | <code class="language-plaintext highlighter-rouge">ratio-metadata</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">OPENROUTER_HTTP_REFERER</code>, <code class="language-plaintext highlighter-rouge">OPENROUTER_TITLE</code></td>
+      <td>Optional OpenRouter attribution</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">BAOYU_IMAGE_GEN_MAX_WORKERS</code></td>
+      <td>Override batch worker cap</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">BAOYU_IMAGE_GEN_&lt;PROVIDER&gt;_CONCURRENCY</code></td>
+      <td>Per-provider concurrency (e.g., <code class="language-plaintext highlighter-rouge">BAOYU_IMAGE_GEN_REPLICATE_CONCURRENCY</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">BAOYU_IMAGE_GEN_&lt;PROVIDER&gt;_START_INTERVAL_MS</code></td>
+      <td>Per-provider start-gap</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Load priority</strong>: CLI args &gt; EXTEND.md &gt; env vars &gt; <code class="language-plaintext highlighter-rouge">&lt;cwd&gt;/.baoyu-skills/.env</code> &gt; <code class="language-plaintext highlighter-rouge">~/.baoyu-skills/.env</code></p>
+
+<h3 id="codexchatgpt-oauth-is-not-an-openai-api-key">Codex/ChatGPT OAuth is not an OpenAI API key</h3>
+
+<p><code class="language-plaintext highlighter-rouge">--provider openai --model gpt-image-2</code> uses the standard OpenAI Images API (<code class="language-plaintext highlighter-rouge">/v1/images/generations</code> or <code class="language-plaintext highlighter-rouge">/v1/images/edits</code>) and requires <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code>. A Codex or ChatGPT desktop login is a different entitlement and is not a drop-in replacement for <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code>; do not paste a Codex OAuth token into <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code> or only set <code class="language-plaintext highlighter-rouge">OPENAI_BASE_URL</code> to a Codex backend.</p>
+
+<p>If the user wants to use their Codex subscription / GPT Image 2 entitlement without an OpenAI API key, route through a Codex-native backend instead of this skill’s <code class="language-plaintext highlighter-rouge">openai</code> provider:</p>
+
+<ul>
+  <li>In Codex runtime: use the native <code class="language-plaintext highlighter-rouge">imagegen</code> skill/tool.</li>
+  <li>In non-Codex runtimes with <code class="language-plaintext highlighter-rouge">codex</code> CLI installed and logged in: use the repo-level <code class="language-plaintext highlighter-rouge">scripts/codex-imagegen.sh</code> wrapper when the calling skill supports it (for example <code class="language-plaintext highlighter-rouge">baoyu-cover-image</code>). Resolve it from the plugin/repo root and pass absolute prompt/output/reference paths.</li>
+  <li>In Hermes runtimes with a native <code class="language-plaintext highlighter-rouge">image_generate</code> tool: use that tool as a fallback, and state whether reference images were passed directly or reconstructed from extracted traits.</li>
+</ul>
+
+<p>Do not modify the existing <code class="language-plaintext highlighter-rouge">openai</code> provider to silently consume Codex OAuth. If first-class Codex OAuth support is added to <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>, implement it as a distinct provider (for example <code class="language-plaintext highlighter-rouge">openai-codex</code>) with its own auth, route, request shape, docs, and tests. See <code class="language-plaintext highlighter-rouge">references/codex-oauth-vs-openai-api-key.md</code>.</p>
+
+<h2 id="model-resolution">Model Resolution</h2>
+
+<p>Priority (highest → lowest) applies to every provider:</p>
+
+<ol>
+  <li>CLI flag <code class="language-plaintext highlighter-rouge">--model &lt;id&gt;</code></li>
+  <li>EXTEND.md <code class="language-plaintext highlighter-rouge">default_model.[provider]</code></li>
+  <li>Env var <code class="language-plaintext highlighter-rouge">&lt;PROVIDER&gt;_IMAGE_MODEL</code></li>
+  <li>Built-in default</li>
+</ol>
+
+<p>For OpenAI, the built-in default is <code class="language-plaintext highlighter-rouge">gpt-image-2</code>. <code class="language-plaintext highlighter-rouge">gpt-image-1.5</code>, <code class="language-plaintext highlighter-rouge">gpt-image-1</code>, and GPT Image snapshots remain selectable with <code class="language-plaintext highlighter-rouge">--model</code> or <code class="language-plaintext highlighter-rouge">OPENAI_IMAGE_MODEL</code>.</p>
+
+<p>For Azure, <code class="language-plaintext highlighter-rouge">--model</code> / <code class="language-plaintext highlighter-rouge">default_model.azure</code> is the Azure deployment name. <code class="language-plaintext highlighter-rouge">AZURE_OPENAI_DEPLOYMENT</code> is the preferred env var; <code class="language-plaintext highlighter-rouge">AZURE_OPENAI_IMAGE_MODEL</code> is kept as a backward-compatible alias. If your Azure deployment is named after the underlying model, use <code class="language-plaintext highlighter-rouge">gpt-image-2</code>; otherwise use the exact custom deployment name.</p>
+
+<p>EXTEND.md overrides env vars: if EXTEND.md sets <code class="language-plaintext highlighter-rouge">default_model.google: "gemini-3-pro-image-preview"</code> and the env var sets <code class="language-plaintext highlighter-rouge">GOOGLE_IMAGE_MODEL=gemini-3.1-flash-image-preview</code>, EXTEND.md wins.</p>
+
+<p><strong>Display model info before each generation</strong>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Using [provider] / [model]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Switch model: --model &lt;id&gt; | EXTEND.md default_model.[provider] | env &lt;PROVIDER&gt;_IMAGE_MODEL</code></li>
+</ul>
+
+<h2 id="openai-compatible-gateway-dialects">OpenAI-Compatible Gateway Dialects</h2>
+
+<p><code class="language-plaintext highlighter-rouge">provider=openai</code> means the auth and routing entrypoint is OpenAI-compatible. It does <strong>not</strong> guarantee the upstream image API uses OpenAI native semantics. When a gateway expects a different wire format, set <code class="language-plaintext highlighter-rouge">default_image_api_dialect</code> in EXTEND.md, <code class="language-plaintext highlighter-rouge">OPENAI_IMAGE_API_DIALECT</code>, or <code class="language-plaintext highlighter-rouge">--imageApiDialect</code>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">openai-native</code>: pixel <code class="language-plaintext highlighter-rouge">size</code> (<code class="language-plaintext highlighter-rouge">1536x1024</code>) and native OpenAI quality fields</li>
+  <li><code class="language-plaintext highlighter-rouge">ratio-metadata</code>: aspect-ratio <code class="language-plaintext highlighter-rouge">size</code> (<code class="language-plaintext highlighter-rouge">16:9</code>) plus <code class="language-plaintext highlighter-rouge">metadata.resolution</code> (<code class="language-plaintext highlighter-rouge">1K|2K|4K</code>) and <code class="language-plaintext highlighter-rouge">metadata.orientation</code></li>
+</ul>
+
+<p>Use <code class="language-plaintext highlighter-rouge">openai-native</code> for the OpenAI native API or strict clones; try <code class="language-plaintext highlighter-rouge">ratio-metadata</code> for compatibility gateways in front of Gemini or similar models. Current limitation: <code class="language-plaintext highlighter-rouge">ratio-metadata</code> applies only to text-to-image; reference-image edits still need <code class="language-plaintext highlighter-rouge">openai-native</code> or a provider with first-class edit support.</p>
+
+<h2 id="provider-specific-guides">Provider-Specific Guides</h2>
+
+<p>Each provider has its own quirks (model families, size rules, ref support, limits). Read these when the user picks that provider or asks for non-default behavior:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Provider</th>
+      <th>Reference</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DashScope (Qwen-Image families, custom sizes)</td>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/dashscope.md</code></td>
+    </tr>
+    <tr>
+      <td>Z.AI (GLM-Image, cogview-4)</td>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/zai.md</code></td>
+    </tr>
+    <tr>
+      <td>MiniMax (image-01, subject-reference)</td>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/minimax.md</code></td>
+    </tr>
+    <tr>
+      <td>OpenRouter (multimodal models, <code class="language-plaintext highlighter-rouge">/chat/completions</code> flow)</td>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/openrouter.md</code></td>
+    </tr>
+    <tr>
+      <td>Replicate (nano-banana, Seedream, Wan)</td>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/replicate.md</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="provider-selection">Provider Selection</h2>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">--ref</code> provided + no <code class="language-plaintext highlighter-rouge">--provider</code> → auto-select Google → OpenAI → Azure → OpenRouter → Replicate → Seedream → MiniMax (MiniMax’s subject reference is more specialized toward character/portrait consistency)</li>
+  <li><code class="language-plaintext highlighter-rouge">--provider</code> specified → use it (if <code class="language-plaintext highlighter-rouge">--ref</code>, must be google/openai/azure/openrouter/replicate/seedream/minimax)</li>
+  <li>Only one API key present → use that provider</li>
+  <li>Multiple keys → default priority: Google → OpenAI → Azure → OpenRouter → DashScope → Z.AI → MiniMax → Replicate → Jimeng → Seedream</li>
+</ol>
+
+<h2 id="quality-presets">Quality Presets</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Preset</th>
+      <th>Google imageSize</th>
+      <th>OpenAI size</th>
+      <th>OpenRouter size</th>
+      <th>Replicate resolution</th>
+      <th>Use case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">normal</code></td>
+      <td>1K</td>
+      <td>1024px target</td>
+      <td>1K</td>
+      <td>1K</td>
+      <td>Quick previews</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">2k</code> (default)</td>
+      <td>2K</td>
+      <td>2048px target</td>
+      <td>2K</td>
+      <td>2K</td>
+      <td>Covers, illustrations, infographics</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Google/OpenRouter <code class="language-plaintext highlighter-rouge">imageSize</code> can be overridden with <code class="language-plaintext highlighter-rouge">--imageSize 1K|2K|4K</code>.</p>
+
+<p>For OpenAI native <code class="language-plaintext highlighter-rouge">gpt-image-2</code>, <code class="language-plaintext highlighter-rouge">normal</code> maps to <code class="language-plaintext highlighter-rouge">quality=medium</code> and a low-latency valid size near the requested aspect ratio; <code class="language-plaintext highlighter-rouge">2k</code> maps to <code class="language-plaintext highlighter-rouge">quality=high</code> and 2048px-class sizes such as <code class="language-plaintext highlighter-rouge">2048x2048</code>, <code class="language-plaintext highlighter-rouge">2048x1152</code>, or <code class="language-plaintext highlighter-rouge">1152x2048</code>. Use explicit <code class="language-plaintext highlighter-rouge">--size</code> for valid custom or 4K outputs, e.g. <code class="language-plaintext highlighter-rouge">3840x2160</code>.</p>
+
+<h2 id="aspect-ratios">Aspect Ratios</h2>
+
+<p>Supported: <code class="language-plaintext highlighter-rouge">1:1</code>, <code class="language-plaintext highlighter-rouge">16:9</code>, <code class="language-plaintext highlighter-rouge">9:16</code>, <code class="language-plaintext highlighter-rouge">4:3</code>, <code class="language-plaintext highlighter-rouge">3:4</code>, <code class="language-plaintext highlighter-rouge">2.35:1</code>.</p>
+
+<ul>
+  <li>Google multimodal: <code class="language-plaintext highlighter-rouge">imageConfig.aspectRatio</code></li>
+  <li>OpenAI: <code class="language-plaintext highlighter-rouge">gpt-image-2</code> uses the closest valid custom size for the requested ratio; older GPT Image and DALL·E models use their closest supported fixed size</li>
+  <li>OpenRouter: <code class="language-plaintext highlighter-rouge">imageGenerationOptions.aspect_ratio</code>; if only <code class="language-plaintext highlighter-rouge">--size &lt;WxH&gt;</code> is given, the ratio is inferred</li>
+  <li>Replicate: behavior is model-specific — <code class="language-plaintext highlighter-rouge">google/nano-banana*</code> uses <code class="language-plaintext highlighter-rouge">aspect_ratio</code>, <code class="language-plaintext highlighter-rouge">bytedance/seedream-*</code> uses documented Replicate ratios, Wan 2.7 maps <code class="language-plaintext highlighter-rouge">--ar</code> to a concrete <code class="language-plaintext highlighter-rouge">size</code></li>
+  <li>MiniMax: official <code class="language-plaintext highlighter-rouge">aspect_ratio</code> values; if <code class="language-plaintext highlighter-rouge">--size &lt;WxH&gt;</code> is given without <code class="language-plaintext highlighter-rouge">--ar</code>, sends <code class="language-plaintext highlighter-rouge">width</code>/<code class="language-plaintext highlighter-rouge">height</code> for <code class="language-plaintext highlighter-rouge">image-01</code></li>
+</ul>
+
+<h2 id="generation-mode">Generation Mode</h2>
+
+<p><strong>Default</strong>: sequential. <strong>Batch parallel</strong>: enabled automatically when <code class="language-plaintext highlighter-rouge">--batchfile</code> contains 2+ pending tasks.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Situation</th>
+      <th>Prefer</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>One image, or 1-2 simple images</td>
+      <td>Sequential</td>
+      <td>Lower coordination overhead, easier debugging</td>
+    </tr>
+    <tr>
+      <td>Multiple images with saved prompt files</td>
+      <td>Batch (<code class="language-plaintext highlighter-rouge">--batchfile</code>)</td>
+      <td>Reuses finalized prompts, applies shared throttling/retries, predictable throughput</td>
+    </tr>
+    <tr>
+      <td>Each image still needs its own reasoning / prompt writing / style exploration</td>
+      <td>Subagents</td>
+      <td>Work is still exploratory, each needs independent analysis</td>
+    </tr>
+    <tr>
+      <td>Input is <code class="language-plaintext highlighter-rouge">outline.md</code> + <code class="language-plaintext highlighter-rouge">prompts/</code> (e.g. from <code class="language-plaintext highlighter-rouge">baoyu-article-illustrator</code>)</td>
+      <td>Batch — use <code class="language-plaintext highlighter-rouge">scripts/build-batch.ts</code> to assemble the payload</td>
+      <td>The outline + prompt files already contain everything needed</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Rule of thumb: once prompt files are saved and the task is “generate all of these”, prefer batch over subagents. Use subagents only when generation is coupled with per-image thinking or divergent creative exploration.</p>
+
+<p><strong>Parallel behavior</strong>:</p>
+
+<ul>
+  <li>Default worker count is automatic, capped by config, built-in default 10</li>
+  <li>Provider-specific throttling applies only in batch mode; defaults are tuned for throughput while avoiding RPM bursts</li>
+  <li>Override with <code class="language-plaintext highlighter-rouge">--jobs &lt;count&gt;</code></li>
+  <li>Each image retries up to 3 attempts</li>
+  <li>Final output includes success count, failure count, and per-image failure reasons</li>
+</ul>
+
+<h2 id="error-handling">Error Handling</h2>
+
+<ul>
+  <li>Missing API key → error with setup instructions</li>
+  <li>Generation failure → auto-retry up to 3 attempts per image</li>
+  <li>Invalid aspect ratio → warning, proceed with default</li>
+  <li>Reference images with unsupported provider/model → error with fix hint</li>
+</ul>
+
+<h3 id="codex-image2-fallback">Codex image2 fallback</h3>
+
+<p>If <code class="language-plaintext highlighter-rouge">--provider openai --model gpt-image-2</code> fails because <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code> is missing but the current runtime has a native image-generation backend or the repo-level <code class="language-plaintext highlighter-rouge">codex-imagegen</code> wrapper is available, use that path rather than leaving the user waiting. Be explicit about whether the fallback is true reference-image generation or only a text-prompt reconstruction from extracted visual traits. See <code class="language-plaintext highlighter-rouge">references/codex-image2-fallback.md</code>.</p>
+
+<h2 id="references">References</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>File</th>
+      <th>Content</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/usage-examples.md</code></td>
+      <td>Extended CLI examples across providers and batch mode</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/codex-oauth-vs-openai-api-key.md</code></td>
+      <td>Why Codex/ChatGPT OAuth image2 entitlement is not usable through baoyu-image-gen’s standard OpenAI API-key provider</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/codex-image2-fallback.md</code></td>
+      <td>Practical fallback behavior when OpenAI API credentials are absent but Codex/native image generation is available</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/dashscope.md</code></td>
+      <td>DashScope families, sizes, limits</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/zai.md</code></td>
+      <td>Z.AI GLM-image / cogview-4</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/minimax.md</code></td>
+      <td>MiniMax image-01 + subject reference</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/openrouter.md</code></td>
+      <td>OpenRouter multimodal flow</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/providers/replicate.md</code></td>
+      <td>Replicate supported families + guardrails</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/config/preferences-schema.md</code></td>
+      <td>EXTEND.md schema</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">references/config/first-time-setup.md</code></td>
+      <td>First-time setup flow</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="extension-support">Extension Support</h2>
+
+<p>Custom configurations via EXTEND.md. See Step 0 for paths and schema.</p>

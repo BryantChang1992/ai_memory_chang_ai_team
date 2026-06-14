@@ -1,0 +1,235 @@
+<h1 id="first-time-setup">First-Time Setup</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p>When no EXTEND.md is found, guide the user through preference setup before generating any infographic. Saved preferences shift Step-3 recommendations and Step-4 defaults only — they never bypass Step 4 confirmation (see the <code class="language-plaintext highlighter-rouge">## Confirmation Policy</code> section in SKILL.md).</p>
+
+<p><strong>⛔ BLOCKING OPERATION</strong>: This setup MUST complete before ANY other workflow steps. Do NOT:</p>
+<ul>
+  <li>Ask about source content or topic</li>
+  <li>Ask about layout, style, or aspect</li>
+  <li>Begin Step 1.2 content analysis</li>
+</ul>
+
+<p>ONLY ask the questions in this setup flow, save EXTEND.md, then continue to Step 1.2.</p>
+
+<h2 id="setup-flow">Setup Flow</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>No EXTEND.md found
+        │
+        ▼
+┌─────────────────────┐
+│ AskUserQuestion     │
+│ (all questions)     │
+└─────────────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│ Create EXTEND.md    │
+└─────────────────────┘
+        │
+        ▼
+    Continue to Step 1.2
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="questions">Questions</h2>
+
+<p><strong>Language</strong>: Use the user’s input language for question text. Do not always default to English.</p>
+
+<p>Use a single <code class="language-plaintext highlighter-rouge">AskUserQuestion</code> with multiple questions (the runtime auto-adds an “Other” option):</p>
+
+<h3 id="question-1-preferred-layout">Question 1: Preferred Layout</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>header: "Layout"
+question: "Default layout preference?"
+options:
+  - label: "Auto-select (Recommended)"
+    description: "Pick layout per content in Step 3"
+  - label: "bento-grid"
+    description: "Multiple topics, overview (general default)"
+  - label: "linear-progression"
+    description: "Timelines, processes, tutorials"
+  - label: "dense-modules"
+    description: "High-density modules, data-rich guides"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="question-2-preferred-style">Question 2: Preferred Style</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>header: "Style"
+question: "Default visual style preference?"
+options:
+  - label: "Auto-select (Recommended)"
+    description: "Pick style per tone in Step 3"
+  - label: "craft-handmade"
+    description: "Hand-drawn, paper craft (general default)"
+  - label: "corporate-memphis"
+    description: "Flat vector, vibrant"
+  - label: "morandi-journal"
+    description: "Hand-drawn doodle, warm Morandi tones"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="question-3-preferred-aspect">Question 3: Preferred Aspect</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>header: "Aspect"
+question: "Default aspect ratio?"
+options:
+  - label: "Auto-select (Recommended)"
+    description: "Pick per layout in Step 4"
+  - label: "landscape"
+    description: "16:9 (slides, blogs, web)"
+  - label: "portrait"
+    description: "9:16 (mobile, social, dense modules)"
+  - label: "square"
+    description: "1:1 (social, thumbnails)"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="question-4-language">Question 4: Language</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>header: "Language"
+question: "Output language for infographic text?"
+options:
+  - label: "Auto-detect (Recommended)"
+    description: "Match source content language"
+  - label: "zh"
+    description: "Chinese (中文)"
+  - label: "en"
+    description: "English"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="question-5-save-location">Question 5: Save Location</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>header: "Save"
+question: "Where to save preferences?"
+options:
+  - label: "Project"
+    description: ".baoyu-skills/ (this project only)"
+  - label: "User"
+    description: "~/.baoyu-skills/ (all projects)"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="save-locations">Save Locations</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Choice</th>
+      <th>Path</th>
+      <th>Scope</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Project</td>
+      <td><code class="language-plaintext highlighter-rouge">.baoyu-skills/baoyu-infographic/EXTEND.md</code></td>
+      <td>Current project</td>
+    </tr>
+    <tr>
+      <td>User</td>
+      <td><code class="language-plaintext highlighter-rouge">~/.baoyu-skills/baoyu-infographic/EXTEND.md</code></td>
+      <td>All projects</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>XDG path (<code class="language-plaintext highlighter-rouge">${XDG_CONFIG_HOME:-$HOME/.config}/baoyu-skills/baoyu-infographic/EXTEND.md</code>) is also recognized at read time but not offered as a save target during first-time setup.</p>
+
+<h2 id="after-setup">After Setup</h2>
+
+<ol>
+  <li>Create the directory if needed</li>
+  <li>Write EXTEND.md with frontmatter (see template below)</li>
+  <li>Confirm: “Preferences saved to [path]”</li>
+  <li>Continue to Step 1.2</li>
+</ol>
+
+<h2 id="extendmd-template">EXTEND.md Template</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">preferred_layout</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected layout or null</span><span class="pi">]</span>
+<span class="na">preferred_style</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected style or null</span><span class="pi">]</span>
+<span class="na">preferred_aspect</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">landscape|portrait|square|null</span><span class="pi">]</span>
+<span class="na">language</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected language or null</span><span class="pi">]</span>
+<span class="na">preferred_image_backend</span><span class="pi">:</span> <span class="s">auto</span>
+<span class="na">custom_styles</span><span class="pi">:</span> <span class="pi">[]</span>
+<span class="nn">---</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">preferred_image_backend: auto</code> is the baked-in default — first-time setup never asks about it. The <code class="language-plaintext highlighter-rouge">## Image Generation Tools</code> rule in SKILL.md then picks the runtime-native tool (Codex <code class="language-plaintext highlighter-rouge">imagegen</code>, Hermes <code class="language-plaintext highlighter-rouge">image_generate</code>, etc.) when one is available, and falls back to installed backends like <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>.</p>
+
+<h2 id="modifying-preferences-later">Modifying Preferences Later</h2>
+
+<p>See the <code class="language-plaintext highlighter-rouge">## Changing Preferences</code> section in <code class="language-plaintext highlighter-rouge">SKILL.md</code> for the canonical list of common edits (pin backend, change layout/style defaults, retrigger setup). Full schema: <code class="language-plaintext highlighter-rouge">references/config/preferences-schema.md</code>.</p>

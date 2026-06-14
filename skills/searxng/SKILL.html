@@ -1,0 +1,65 @@
+<h1 id="searxng-search">SearXNG Search</h1>
+
+<p>Search the web using your local SearXNG instance - a privacy-respecting metasearch engine.</p>
+
+<h2 id="commands">Commands</h2>
+
+<h3 id="web-search">Web Search</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span>              <span class="c"># Top 10 results</span>
+uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span> <span class="nt">-n</span> 20        <span class="c"># Top 20 results</span>
+uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span> <span class="nt">--format</span> json <span class="c"># JSON output</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="category-search">Category Search</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span> <span class="nt">--category</span> images
+uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span> <span class="nt">--category</span> videos
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="advanced-options">Advanced Options</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span> <span class="nt">--language</span> en
+uv run <span class="o">{</span>baseDir<span class="o">}</span>/scripts/searxng.py search <span class="s2">"query"</span> <span class="nt">--time-range</span> day
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="configuration">Configuration</h2>
+
+<p><strong>Required:</strong> Set the <code class="language-plaintext highlighter-rouge">SEARXNG_URL</code> environment variable to your SearXNG instance:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">export </span><span class="nv">SEARXNG_URL</span><span class="o">=</span>https://your-searxng-instance.com
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Or configure in your Clawdbot config:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
+  </span><span class="nl">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"SEARXNG_URL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-searxng-instance.com"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Default (if not set): <code class="language-plaintext highlighter-rouge">http://localhost:8080</code></p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+  <li>🔒 Privacy-focused (uses your local instance)</li>
+  <li>🌐 Multi-engine aggregation</li>
+  <li>📰 Multiple search categories</li>
+  <li>🎨 Rich formatted output</li>
+  <li>🚀 Fast JSON mode for programmatic use</li>
+</ul>
+
+<h2 id="api">API</h2>
+
+<p>Uses your local SearXNG JSON API endpoint (no authentication required by default).</p>

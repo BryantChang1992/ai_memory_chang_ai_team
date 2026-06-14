@@ -1,0 +1,310 @@
+<h1 id="preferences-schema">Preferences Schema</h1>
+
+<h2 id="full-schema">Full Schema</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="na">preferred_layout</span><span class="pi">:</span> <span class="kc">null</span>    <span class="c1"># any of the 21 layouts (see Layout Gallery in SKILL.md) or null</span>
+<span class="na">preferred_style</span><span class="pi">:</span> <span class="kc">null</span>     <span class="c1"># any of the 21 styles (see Style Gallery in SKILL.md) or null</span>
+<span class="na">preferred_aspect</span><span class="pi">:</span> <span class="kc">null</span>    <span class="c1"># landscape|portrait|square|null  (custom W:H also accepted)</span>
+
+<span class="na">language</span><span class="pi">:</span> <span class="kc">null</span>            <span class="c1"># zh|en|ja|ko|null (null = auto-detect from source)</span>
+
+<span class="na">preferred_image_backend</span><span class="pi">:</span> <span class="s">auto</span>   <span class="c1"># auto|ask|&lt;backend-id&gt;</span>
+
+<span class="na">custom_styles</span><span class="pi">:</span>            <span class="c1"># extra style definitions merged with the 21 built-ins</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">my-brand</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Short</span><span class="nv"> </span><span class="s">description</span><span class="nv"> </span><span class="s">shown</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">Step</span><span class="nv"> </span><span class="s">3</span><span class="nv"> </span><span class="s">recommendations"</span>
+    <span class="na">prompt_fragment</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Style</span><span class="nv"> </span><span class="s">traits</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">inject</span><span class="nv"> </span><span class="s">into</span><span class="nv"> </span><span class="s">Step</span><span class="nv"> </span><span class="s">5</span><span class="nv"> </span><span class="s">prompt"</span>
+<span class="nn">---</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="field-reference">Field Reference</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">version</code></td>
+      <td>int</td>
+      <td>1</td>
+      <td>Schema version</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">preferred_layout</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Pre-selected layout — surfaces as the top recommendation in Step 3</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">preferred_style</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Pre-selected style — surfaces as the top recommendation in Step 3</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">preferred_aspect</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Default aspect for Step 4 (named preset or W:H string)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">language</code></td>
+      <td>string|null</td>
+      <td>null</td>
+      <td>Output language (null = auto-detect from source content)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">preferred_image_backend</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">auto</code></td>
+      <td>Image backend selection. <code class="language-plaintext highlighter-rouge">auto</code> = prefer runtime-native tool, fall back to the only installed backend, ask if multiple non-native are present. <code class="language-plaintext highlighter-rouge">ask</code> = always confirm on every run. <code class="language-plaintext highlighter-rouge">&lt;backend-id&gt;</code> (e.g., <code class="language-plaintext highlighter-rouge">codex-imagegen</code>, <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>, <code class="language-plaintext highlighter-rouge">image_generate</code>) = pin this backend when available; fall back to <code class="language-plaintext highlighter-rouge">auto</code> when it isn’t. Absent = <code class="language-plaintext highlighter-rouge">auto</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">custom_styles</code></td>
+      <td>array</td>
+      <td>[]</td>
+      <td>Additional styles available alongside the 21 built-ins</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Backend resolution logic is documented in the <code class="language-plaintext highlighter-rouge">## Image Generation Tools</code> section of <code class="language-plaintext highlighter-rouge">SKILL.md</code>. This doc only defines the field.</p>
+
+<p>All fields in this schema are defaults only — they shape Step-3 recommendations and Step-4 defaults but never bypass Step 4 confirmation (see the <code class="language-plaintext highlighter-rouge">## Confirmation Policy</code> section in SKILL.md).</p>
+
+<p>Example backend ids:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">codex-imagegen</code></td>
+      <td>Codex built-in <code class="language-plaintext highlighter-rouge">imagegen</code> tool</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">baoyu-image-gen</code></td>
+      <td><code class="language-plaintext highlighter-rouge">baoyu-image-gen</code> skill / script backend</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">image_generate</code></td>
+      <td>Generic runtime image tool such as Hermes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="layout-options">Layout Options</h2>
+
+<p>See the <strong>Layout Gallery (21)</strong> table in <code class="language-plaintext highlighter-rouge">SKILL.md</code> for the canonical list. Common picks:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Best For</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">bento-grid</code></td>
+      <td>General default — overview, multiple topics</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">linear-progression</code></td>
+      <td>Timelines, processes, tutorials</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dense-modules</code></td>
+      <td>High-density modules, data-rich guides</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">hub-spoke</code></td>
+      <td>Central concept with related items</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dashboard</code></td>
+      <td>Metrics, KPIs</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="style-options">Style Options</h2>
+
+<p>See the <strong>Style Gallery (21)</strong> table in <code class="language-plaintext highlighter-rouge">SKILL.md</code> for the canonical list. Common picks:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">craft-handmade</code></td>
+      <td>Hand-drawn, paper craft (default)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">corporate-memphis</code></td>
+      <td>Flat vector, vibrant</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">morandi-journal</code></td>
+      <td>Hand-drawn doodle, warm Morandi tones</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pop-laboratory</code></td>
+      <td>Blueprint grid, lab precision</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">retro-pop-grid</code></td>
+      <td>1970s retro pop art, Swiss grid</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="aspect-options">Aspect Options</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Ratio</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">landscape</code></td>
+      <td>16:9</td>
+      <td>Slides, blog headers, web banners</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">portrait</code></td>
+      <td>9:16</td>
+      <td>Mobile, social, dense modules (default for <code class="language-plaintext highlighter-rouge">dense-modules</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">square</code></td>
+      <td>1:1</td>
+      <td>Social posts, thumbnails</td>
+    </tr>
+    <tr>
+      <td>Custom W:H</td>
+      <td>e.g. <code class="language-plaintext highlighter-rouge">3:4</code>, <code class="language-plaintext highlighter-rouge">4:3</code>, <code class="language-plaintext highlighter-rouge">2.35:1</code></td>
+      <td>Pass through verbatim to the prompt</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="custom-style-fields">Custom Style Fields</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">name</code></td>
+      <td>Yes</td>
+      <td>Unique style identifier (kebab-case)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">description</code></td>
+      <td>Yes</td>
+      <td>One-line description shown in Step 3 recommendations</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">prompt_fragment</code></td>
+      <td>Yes</td>
+      <td>Style traits appended into the Step 5 prompt body</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="example-minimal-preferences">Example: Minimal Preferences</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">preferred_layout</span><span class="pi">:</span> <span class="s">bento-grid</span>
+<span class="na">preferred_style</span><span class="pi">:</span> <span class="s">craft-handmade</span>
+<span class="na">language</span><span class="pi">:</span> <span class="s">zh</span>
+<span class="nn">---</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">preferred_image_backend</code> is omitted above; absence is treated as <code class="language-plaintext highlighter-rouge">auto</code>.</p>
+
+<h2 id="example-full-preferences">Example: Full Preferences</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
+<span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="na">preferred_layout</span><span class="pi">:</span> <span class="s">dense-modules</span>
+<span class="na">preferred_style</span><span class="pi">:</span> <span class="s">morandi-journal</span>
+<span class="na">preferred_aspect</span><span class="pi">:</span> <span class="s">portrait</span>
+
+<span class="na">language</span><span class="pi">:</span> <span class="s">zh</span>
+
+<span class="na">preferred_image_backend</span><span class="pi">:</span> <span class="s">codex-imagegen</span>
+
+<span class="na">custom_styles</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">my-brand</span>
+    <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Brand-aligned</span><span class="nv"> </span><span class="s">warm</span><span class="nv"> </span><span class="s">pastel</span><span class="nv"> </span><span class="s">infographic"</span>
+    <span class="na">prompt_fragment</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Use</span><span class="nv"> </span><span class="s">brand</span><span class="nv"> </span><span class="s">pastel</span><span class="nv"> </span><span class="s">palette</span><span class="nv"> </span><span class="s">(#F2C7B6,</span><span class="nv"> </span><span class="s">#B6D7E8,</span><span class="nv"> </span><span class="s">#C8E0B4);</span><span class="nv"> </span><span class="s">rounded</span><span class="nv"> </span><span class="s">rectangles;</span><span class="nv"> </span><span class="s">warm</span><span class="nv"> </span><span class="s">hand-drawn</span><span class="nv"> </span><span class="s">outlines;</span><span class="nv"> </span><span class="s">ample</span><span class="nv"> </span><span class="s">whitespace."</span>
+<span class="nn">---</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

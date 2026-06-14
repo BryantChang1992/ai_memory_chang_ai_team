@@ -1,0 +1,1056 @@
+<h1 id="self-improvement-skill">Self-Improvement Skill</h1>
+
+<p>Log learnings and errors to markdown files for continuous improvement. Coding agents can later process these into fixes, and important learnings get promoted to project memory.</p>
+
+<h2 id="first-use-initialisation">First-Use Initialisation</h2>
+
+<p>Before logging anything, ensure the <code class="language-plaintext highlighter-rouge">.learnings/</code> directory and files exist in the project or workspace root. If any are missing, create them:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir</span> <span class="nt">-p</span> .learnings
+<span class="o">[</span> <span class="nt">-f</span> .learnings/LEARNINGS.md <span class="o">]</span> <span class="o">||</span> <span class="nb">printf</span> <span class="s2">"# Learnings</span><span class="se">\n\n</span><span class="s2">Corrections, insights, and knowledge gaps captured during development.</span><span class="se">\n\n</span><span class="s2">**Categories**: correction | insight | knowledge_gap | best_practice</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> .learnings/LEARNINGS.md
+<span class="o">[</span> <span class="nt">-f</span> .learnings/ERRORS.md <span class="o">]</span> <span class="o">||</span> <span class="nb">printf</span> <span class="s2">"# Errors</span><span class="se">\n\n</span><span class="s2">Command failures and integration errors.</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> .learnings/ERRORS.md
+<span class="o">[</span> <span class="nt">-f</span> .learnings/FEATURE_REQUESTS.md <span class="o">]</span> <span class="o">||</span> <span class="nb">printf</span> <span class="s2">"# Feature Requests</span><span class="se">\n\n</span><span class="s2">Capabilities requested by the user.</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> .learnings/FEATURE_REQUESTS.md
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Never overwrite existing files. This is a no-op if <code class="language-plaintext highlighter-rouge">.learnings/</code> is already initialised.</p>
+
+<p>Do not log secrets, tokens, private keys, environment variables, or full source/config files unless the user explicitly asks for that level of detail. Prefer short summaries or redacted excerpts over raw command output or full transcripts.</p>
+
+<p>If you want automatic reminders or setup assistance, use the opt-in hook workflow described in <a href="#hook-integration">Hook Integration</a>.</p>
+
+<h2 id="quick-reference">Quick Reference</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Situation</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Command/operation fails</td>
+      <td>Log to <code class="language-plaintext highlighter-rouge">.learnings/ERRORS.md</code></td>
+    </tr>
+    <tr>
+      <td>User corrects you</td>
+      <td>Log to <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code> with category <code class="language-plaintext highlighter-rouge">correction</code></td>
+    </tr>
+    <tr>
+      <td>User wants missing feature</td>
+      <td>Log to <code class="language-plaintext highlighter-rouge">.learnings/FEATURE_REQUESTS.md</code></td>
+    </tr>
+    <tr>
+      <td>API/external tool fails</td>
+      <td>Log to <code class="language-plaintext highlighter-rouge">.learnings/ERRORS.md</code> with integration details</td>
+    </tr>
+    <tr>
+      <td>Knowledge was outdated</td>
+      <td>Log to <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code> with category <code class="language-plaintext highlighter-rouge">knowledge_gap</code></td>
+    </tr>
+    <tr>
+      <td>Found better approach</td>
+      <td>Log to <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code> with category <code class="language-plaintext highlighter-rouge">best_practice</code></td>
+    </tr>
+    <tr>
+      <td>Simplify/Harden recurring patterns</td>
+      <td>Log/update <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code> with <code class="language-plaintext highlighter-rouge">Source: simplify-and-harden</code> and a stable <code class="language-plaintext highlighter-rouge">Pattern-Key</code></td>
+    </tr>
+    <tr>
+      <td>Similar to existing entry</td>
+      <td>Link with <code class="language-plaintext highlighter-rouge">**See Also**</code>, consider priority bump</td>
+    </tr>
+    <tr>
+      <td>Broadly applicable learning</td>
+      <td>Promote to <code class="language-plaintext highlighter-rouge">CLAUDE.md</code>, <code class="language-plaintext highlighter-rouge">AGENTS.md</code>, and/or <code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code></td>
+    </tr>
+    <tr>
+      <td>Workflow improvements</td>
+      <td>Promote to <code class="language-plaintext highlighter-rouge">AGENTS.md</code> (OpenClaw workspace)</td>
+    </tr>
+    <tr>
+      <td>Tool gotchas</td>
+      <td>Promote to <code class="language-plaintext highlighter-rouge">TOOLS.md</code> (OpenClaw workspace)</td>
+    </tr>
+    <tr>
+      <td>Behavioral patterns</td>
+      <td>Promote to <code class="language-plaintext highlighter-rouge">SOUL.md</code> (OpenClaw workspace)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="openclaw-setup-recommended">OpenClaw Setup (Recommended)</h2>
+
+<p>OpenClaw is the primary platform for this skill. It uses workspace-based prompt injection with automatic skill loading.</p>
+
+<h3 id="installation">Installation</h3>
+
+<p><strong>Via ClawdHub (recommended):</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>clawdhub <span class="nb">install </span>self-improving-agent
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Manual:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>git clone https://github.com/peterskoett/self-improving-agent.git ~/.openclaw/skills/self-improving-agent
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Remade for openclaw from original repo : https://github.com/pskoett/pskoett-ai-skills - https://github.com/pskoett/pskoett-ai-skills/tree/main/skills/self-improvement</p>
+
+<h3 id="workspace-structure">Workspace Structure</h3>
+
+<p>OpenClaw injects these files into every session:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>~/.openclaw/workspace/
+├── AGENTS.md          # Multi-agent workflows, delegation patterns
+├── SOUL.md            # Behavioral guidelines, personality, principles
+├── TOOLS.md           # Tool capabilities, integration gotchas
+├── MEMORY.md          # Long-term memory (main session only)
+├── memory/            # Daily memory files
+│   └── YYYY-MM-DD.md
+└── .learnings/        # This skill's log files
+    ├── LEARNINGS.md
+    ├── ERRORS.md
+    └── FEATURE_REQUESTS.md
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="create-learning-files">Create Learning Files</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.openclaw/workspace/.learnings
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Then create the log files (or copy from <code class="language-plaintext highlighter-rouge">assets/</code>):</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">LEARNINGS.md</code> — corrections, knowledge gaps, best practices</li>
+  <li><code class="language-plaintext highlighter-rouge">ERRORS.md</code> — command failures, exceptions</li>
+  <li><code class="language-plaintext highlighter-rouge">FEATURE_REQUESTS.md</code> — user-requested capabilities</li>
+</ul>
+
+<h3 id="promotion-targets">Promotion Targets</h3>
+
+<p>When learnings prove broadly applicable, promote them to workspace files:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Learning Type</th>
+      <th>Promote To</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Behavioral patterns</td>
+      <td><code class="language-plaintext highlighter-rouge">SOUL.md</code></td>
+      <td>“Be concise, avoid disclaimers”</td>
+    </tr>
+    <tr>
+      <td>Workflow improvements</td>
+      <td><code class="language-plaintext highlighter-rouge">AGENTS.md</code></td>
+      <td>“Spawn sub-agents for long tasks”</td>
+    </tr>
+    <tr>
+      <td>Tool gotchas</td>
+      <td><code class="language-plaintext highlighter-rouge">TOOLS.md</code></td>
+      <td>“Git push needs auth configured first”</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="inter-session-communication">Inter-Session Communication</h3>
+
+<p>OpenClaw provides tools to share learnings across sessions:</p>
+
+<ul>
+  <li><strong>sessions_list</strong> — View active/recent sessions</li>
+  <li><strong>sessions_history</strong> — Read another session’s transcript</li>
+  <li><strong>sessions_send</strong> — Send a learning to another session</li>
+  <li><strong>sessions_spawn</strong> — Spawn a sub-agent for background work</li>
+</ul>
+
+<p>Use these only in trusted environments and only when the user explicitly wants cross-session sharing. Prefer sending a short sanitized summary and relevant file paths, not raw transcripts, secrets, or full command output.</p>
+
+<h3 id="optional-enable-hook">Optional: Enable Hook</h3>
+
+<p>For automatic reminders at session start:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c"># Copy hook to OpenClaw hooks directory</span>
+<span class="nb">cp</span> <span class="nt">-r</span> hooks/openclaw ~/.openclaw/hooks/self-improvement
+
+<span class="c"># Enable it</span>
+openclaw hooks <span class="nb">enable </span>self-improvement
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>See <code class="language-plaintext highlighter-rouge">references/openclaw-integration.md</code> for complete details.</p>
+
+<hr />
+
+<h2 id="generic-setup-other-agents">Generic Setup (Other Agents)</h2>
+
+<p>For Claude Code, Codex, Copilot, or other agents, create <code class="language-plaintext highlighter-rouge">.learnings/</code> in the project or workspace root:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir</span> <span class="nt">-p</span> .learnings
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Create the files inline using the headers shown above. Avoid reading templates from the current repo or workspace unless you explicitly trust that path.</p>
+
+<h3 id="add-reference-to-agent-files-agentsmd-claudemd-or-githubcopilot-instructionsmd-to-remind-yourself-to-log-learnings-this-is-an-alternative-to-hook-based-reminders">Add reference to agent files AGENTS.md, CLAUDE.md, or .github/copilot-instructions.md to remind yourself to log learnings. (this is an alternative to hook-based reminders)</h3>
+
+<h4 id="self-improvement-workflow">Self-Improvement Workflow</h4>
+
+<p>When errors or corrections occur:</p>
+<ol>
+  <li>Log to <code class="language-plaintext highlighter-rouge">.learnings/ERRORS.md</code>, <code class="language-plaintext highlighter-rouge">LEARNINGS.md</code>, or <code class="language-plaintext highlighter-rouge">FEATURE_REQUESTS.md</code></li>
+  <li>Review and promote broadly applicable learnings to:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">CLAUDE.md</code> - project facts and conventions</li>
+      <li><code class="language-plaintext highlighter-rouge">AGENTS.md</code> - workflows and automation</li>
+      <li><code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code> - Copilot context</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="logging-format">Logging Format</h2>
+
+<h3 id="learning-entry">Learning Entry</h3>
+
+<p>Append to <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code>:</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="gu">## [LRN-YYYYMMDD-XXX] category</span>
+
+<span class="gs">**Logged**</span>: ISO-8601 timestamp
+<span class="gs">**Priority**</span>: low | medium | high | critical
+<span class="gs">**Status**</span>: pending
+<span class="gs">**Area**</span>: frontend | backend | infra | tests | docs | config
+
+<span class="gu">### Summary</span>
+One-line description of what was learned
+
+<span class="gu">### Details</span>
+Full context: what happened, what was wrong, what's correct
+
+<span class="gu">### Suggested Action</span>
+Specific fix or improvement to make
+
+<span class="gu">### Metadata</span>
+<span class="p">-</span> Source: conversation | error | user_feedback
+<span class="p">-</span> Related Files: path/to/file.ext
+<span class="p">-</span> Tags: tag1, tag2
+<span class="p">-</span> See Also: LRN-20250110-001 (if related to existing entry)
+<span class="p">-</span> Pattern-Key: simplify.dead_code | harden.input_validation (optional, for recurring-pattern tracking)
+<span class="p">-</span> Recurrence-Count: 1 (optional)
+<span class="p">-</span> First-Seen: 2025-01-15 (optional)
+<span class="p">-</span> Last-Seen: 2025-01-15 (optional)
+<span class="p">
+---
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="error-entry">Error Entry</h3>
+
+<p>Append to <code class="language-plaintext highlighter-rouge">.learnings/ERRORS.md</code>:</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="gu">## [ERR-YYYYMMDD-XXX] skill_or_command_name</span>
+
+<span class="gs">**Logged**</span>: ISO-8601 timestamp
+<span class="gs">**Priority**</span>: high
+<span class="gs">**Status**</span>: pending
+<span class="gs">**Area**</span>: frontend | backend | infra | tests | docs | config
+
+<span class="gu">### Summary</span>
+Brief description of what failed
+
+<span class="gu">### Error</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Actual error message or output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>
+### Context
+- Command/operation attempted
+- Input or parameters used
+- Environment details if relevant
+- Summary or redacted excerpt of relevant output (avoid full transcripts and secret-bearing data by default)
+
+### Suggested Fix
+If identifiable, what might resolve this
+
+### Metadata
+- Reproducible: yes | no | unknown
+- Related Files: path/to/file.ext
+- See Also: ERR-20250110-001 (if recurring)
+
+---
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="feature-request-entry">Feature Request Entry</h3>
+
+<p>Append to <code class="language-plaintext highlighter-rouge">.learnings/FEATURE_REQUESTS.md</code>:</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="gu">## [FEAT-YYYYMMDD-XXX] capability_name</span>
+
+<span class="gs">**Logged**</span>: ISO-8601 timestamp
+<span class="gs">**Priority**</span>: medium
+<span class="gs">**Status**</span>: pending
+<span class="gs">**Area**</span>: frontend | backend | infra | tests | docs | config
+
+<span class="gu">### Requested Capability</span>
+What the user wanted to do
+
+<span class="gu">### User Context</span>
+Why they needed it, what problem they're solving
+
+<span class="gu">### Complexity Estimate</span>
+simple | medium | complex
+
+<span class="gu">### Suggested Implementation</span>
+How this could be built, what it might extend
+
+<span class="gu">### Metadata</span>
+<span class="p">-</span> Frequency: first_time | recurring
+<span class="p">-</span> Related Features: existing_feature_name
+<span class="p">
+---
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="id-generation">ID Generation</h2>
+
+<p>Format: <code class="language-plaintext highlighter-rouge">TYPE-YYYYMMDD-XXX</code></p>
+<ul>
+  <li>TYPE: <code class="language-plaintext highlighter-rouge">LRN</code> (learning), <code class="language-plaintext highlighter-rouge">ERR</code> (error), <code class="language-plaintext highlighter-rouge">FEAT</code> (feature)</li>
+  <li>YYYYMMDD: Current date</li>
+  <li>XXX: Sequential number or random 3 chars (e.g., <code class="language-plaintext highlighter-rouge">001</code>, <code class="language-plaintext highlighter-rouge">A7B</code>)</li>
+</ul>
+
+<p>Examples: <code class="language-plaintext highlighter-rouge">LRN-20250115-001</code>, <code class="language-plaintext highlighter-rouge">ERR-20250115-A3F</code>, <code class="language-plaintext highlighter-rouge">FEAT-20250115-002</code></p>
+
+<h2 id="resolving-entries">Resolving Entries</h2>
+
+<p>When an issue is fixed, update the entry:</p>
+
+<ol>
+  <li>Change <code class="language-plaintext highlighter-rouge">**Status**: pending</code> → <code class="language-plaintext highlighter-rouge">**Status**: resolved</code></li>
+  <li>Add resolution block after Metadata:</li>
+</ol>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="gu">### Resolution</span>
+<span class="p">-</span> <span class="gs">**Resolved**</span>: 2025-01-16T09:00:00Z
+<span class="p">-</span> <span class="gs">**Commit/PR**</span>: abc123 or #42
+<span class="p">-</span> <span class="gs">**Notes**</span>: Brief description of what was done
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Other status values:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">in_progress</code> - Actively being worked on</li>
+  <li><code class="language-plaintext highlighter-rouge">wont_fix</code> - Decided not to address (add reason in Resolution notes)</li>
+  <li><code class="language-plaintext highlighter-rouge">promoted</code> - Elevated to CLAUDE.md, AGENTS.md, or .github/copilot-instructions.md</li>
+</ul>
+
+<h2 id="promoting-to-project-memory">Promoting to Project Memory</h2>
+
+<p>When a learning is broadly applicable (not a one-off fix), promote it to permanent project memory.</p>
+
+<h3 id="when-to-promote">When to Promote</h3>
+
+<ul>
+  <li>Learning applies across multiple files/features</li>
+  <li>Knowledge any contributor (human or AI) should know</li>
+  <li>Prevents recurring mistakes</li>
+  <li>Documents project-specific conventions</li>
+</ul>
+
+<h3 id="promotion-targets-1">Promotion Targets</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Target</th>
+      <th>What Belongs There</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">CLAUDE.md</code></td>
+      <td>Project facts, conventions, gotchas for all Claude interactions</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">AGENTS.md</code></td>
+      <td>Agent-specific workflows, tool usage patterns, automation rules</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code></td>
+      <td>Project context and conventions for GitHub Copilot</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">SOUL.md</code></td>
+      <td>Behavioral guidelines, communication style, principles (OpenClaw workspace)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TOOLS.md</code></td>
+      <td>Tool capabilities, usage patterns, integration gotchas (OpenClaw workspace)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="how-to-promote">How to Promote</h3>
+
+<ol>
+  <li><strong>Distill</strong> the learning into a concise rule or fact</li>
+  <li><strong>Add</strong> to appropriate section in target file (create file if needed)</li>
+  <li><strong>Update</strong> original entry:
+    <ul>
+      <li>Change <code class="language-plaintext highlighter-rouge">**Status**: pending</code> → <code class="language-plaintext highlighter-rouge">**Status**: promoted</code></li>
+      <li>Add <code class="language-plaintext highlighter-rouge">**Promoted**: CLAUDE.md</code>, <code class="language-plaintext highlighter-rouge">AGENTS.md</code>, or <code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code></li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="promotion-examples">Promotion Examples</h3>
+
+<p><strong>Learning</strong> (verbose):</p>
+<blockquote>
+  <p>Project uses pnpm workspaces. Attempted <code class="language-plaintext highlighter-rouge">npm install</code> but failed. 
+Lock file is <code class="language-plaintext highlighter-rouge">pnpm-lock.yaml</code>. Must use <code class="language-plaintext highlighter-rouge">pnpm install</code>.</p>
+</blockquote>
+
+<p><strong>In CLAUDE.md</strong> (concise):</p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="gu">## Build &amp; Dependencies</span>
+<span class="p">-</span> Package manager: pnpm (not npm) - use <span class="sb">`pnpm install`</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Learning</strong> (verbose):</p>
+<blockquote>
+  <p>When modifying API endpoints, must regenerate TypeScript client.
+Forgetting this causes type mismatches at runtime.</p>
+</blockquote>
+
+<p><strong>In AGENTS.md</strong> (actionable):</p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="gu">## After API Changes</span>
+<span class="p">1.</span> Regenerate client: <span class="sb">`pnpm run generate:api`</span>
+<span class="p">2.</span> Check for type errors: <span class="sb">`pnpm tsc --noEmit`</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="recurring-pattern-detection">Recurring Pattern Detection</h2>
+
+<p>If logging something similar to an existing entry:</p>
+
+<ol>
+  <li><strong>Search first</strong>: <code class="language-plaintext highlighter-rouge">grep -r "keyword" .learnings/</code></li>
+  <li><strong>Link entries</strong>: Add <code class="language-plaintext highlighter-rouge">**See Also**: ERR-20250110-001</code> in Metadata</li>
+  <li><strong>Bump priority</strong> if issue keeps recurring</li>
+  <li><strong>Consider systemic fix</strong>: Recurring issues often indicate:
+    <ul>
+      <li>Missing documentation (→ promote to CLAUDE.md or .github/copilot-instructions.md)</li>
+      <li>Missing automation (→ add to AGENTS.md)</li>
+      <li>Architectural problem (→ create tech debt ticket)</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="simplify--harden-feed">Simplify &amp; Harden Feed</h2>
+
+<p>Use this workflow to ingest recurring patterns from the <code class="language-plaintext highlighter-rouge">simplify-and-harden</code>
+skill and turn them into durable prompt guidance.</p>
+
+<h3 id="ingestion-workflow">Ingestion Workflow</h3>
+
+<ol>
+  <li>Read <code class="language-plaintext highlighter-rouge">simplify_and_harden.learning_loop.candidates</code> from the task summary.</li>
+  <li>For each candidate, use <code class="language-plaintext highlighter-rouge">pattern_key</code> as the stable dedupe key.</li>
+  <li>Search <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code> for an existing entry with that key:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">grep -n "Pattern-Key: &lt;pattern_key&gt;" .learnings/LEARNINGS.md</code></li>
+    </ul>
+  </li>
+  <li>If found:
+    <ul>
+      <li>Increment <code class="language-plaintext highlighter-rouge">Recurrence-Count</code></li>
+      <li>Update <code class="language-plaintext highlighter-rouge">Last-Seen</code></li>
+      <li>Add <code class="language-plaintext highlighter-rouge">See Also</code> links to related entries/tasks</li>
+    </ul>
+  </li>
+  <li>If not found:
+    <ul>
+      <li>Create a new <code class="language-plaintext highlighter-rouge">LRN-...</code> entry</li>
+      <li>Set <code class="language-plaintext highlighter-rouge">Source: simplify-and-harden</code></li>
+      <li>Set <code class="language-plaintext highlighter-rouge">Pattern-Key</code>, <code class="language-plaintext highlighter-rouge">Recurrence-Count: 1</code>, and <code class="language-plaintext highlighter-rouge">First-Seen</code>/<code class="language-plaintext highlighter-rouge">Last-Seen</code></li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="promotion-rule-system-prompt-feedback">Promotion Rule (System Prompt Feedback)</h3>
+
+<p>Promote recurring patterns into agent context/system prompt files when all are true:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Recurrence-Count &gt;= 3</code></li>
+  <li>Seen across at least 2 distinct tasks</li>
+  <li>Occurred within a 30-day window</li>
+</ul>
+
+<p>Promotion targets:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">CLAUDE.md</code></li>
+  <li><code class="language-plaintext highlighter-rouge">AGENTS.md</code></li>
+  <li><code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code></li>
+  <li><code class="language-plaintext highlighter-rouge">SOUL.md</code> / <code class="language-plaintext highlighter-rouge">TOOLS.md</code> for OpenClaw workspace-level guidance when applicable</li>
+</ul>
+
+<p>Write promoted rules as short prevention rules (what to do before/while coding),
+not long incident write-ups.</p>
+
+<h2 id="periodic-review">Periodic Review</h2>
+
+<p>Review <code class="language-plaintext highlighter-rouge">.learnings/</code> at natural breakpoints:</p>
+
+<h3 id="when-to-review">When to Review</h3>
+<ul>
+  <li>Before starting a new major task</li>
+  <li>After completing a feature</li>
+  <li>When working in an area with past learnings</li>
+  <li>Weekly during active development</li>
+</ul>
+
+<h3 id="quick-status-check">Quick Status Check</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="c"># Count pending items</span>
+<span class="nb">grep</span> <span class="nt">-h</span> <span class="s2">"Status</span><span class="se">\*\*</span><span class="s2">: pending"</span> .learnings/<span class="k">*</span>.md | <span class="nb">wc</span> <span class="nt">-l</span>
+
+<span class="c"># List pending high-priority items</span>
+<span class="nb">grep</span> <span class="nt">-B5</span> <span class="s2">"Priority</span><span class="se">\*\*</span><span class="s2">: high"</span> .learnings/<span class="k">*</span>.md | <span class="nb">grep</span> <span class="s2">"^## </span><span class="se">\[</span><span class="s2">"</span>
+
+<span class="c"># Find learnings for a specific area</span>
+<span class="nb">grep</span> <span class="nt">-l</span> <span class="s2">"Area</span><span class="se">\*\*</span><span class="s2">: backend"</span> .learnings/<span class="k">*</span>.md
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="review-actions">Review Actions</h3>
+<ul>
+  <li>Resolve fixed items</li>
+  <li>Promote applicable learnings</li>
+  <li>Link related entries</li>
+  <li>Escalate recurring issues</li>
+</ul>
+
+<h2 id="detection-triggers">Detection Triggers</h2>
+
+<p>Automatically log when you notice:</p>
+
+<p><strong>Corrections</strong> (→ learning with <code class="language-plaintext highlighter-rouge">correction</code> category):</p>
+<ul>
+  <li>“No, that’s not right…”</li>
+  <li>“Actually, it should be…”</li>
+  <li>“You’re wrong about…”</li>
+  <li>“That’s outdated…”</li>
+</ul>
+
+<p><strong>Feature Requests</strong> (→ feature request):</p>
+<ul>
+  <li>“Can you also…”</li>
+  <li>“I wish you could…”</li>
+  <li>“Is there a way to…”</li>
+  <li>“Why can’t you…”</li>
+</ul>
+
+<p><strong>Knowledge Gaps</strong> (→ learning with <code class="language-plaintext highlighter-rouge">knowledge_gap</code> category):</p>
+<ul>
+  <li>User provides information you didn’t know</li>
+  <li>Documentation you referenced is outdated</li>
+  <li>API behavior differs from your understanding</li>
+</ul>
+
+<p><strong>Errors</strong> (→ error entry):</p>
+<ul>
+  <li>Command returns non-zero exit code</li>
+  <li>Exception or stack trace</li>
+  <li>Unexpected output or behavior</li>
+  <li>Timeout or connection failure</li>
+</ul>
+
+<h2 id="priority-guidelines">Priority Guidelines</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Priority</th>
+      <th>When to Use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">critical</code></td>
+      <td>Blocks core functionality, data loss risk, security issue</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">high</code></td>
+      <td>Significant impact, affects common workflows, recurring issue</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">medium</code></td>
+      <td>Moderate impact, workaround exists</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">low</code></td>
+      <td>Minor inconvenience, edge case, nice-to-have</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="area-tags">Area Tags</h2>
+
+<p>Use to filter learnings by codebase region:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Area</th>
+      <th>Scope</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">frontend</code></td>
+      <td>UI, components, client-side code</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">backend</code></td>
+      <td>API, services, server-side code</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">infra</code></td>
+      <td>CI/CD, deployment, Docker, cloud</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tests</code></td>
+      <td>Test files, testing utilities, coverage</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">docs</code></td>
+      <td>Documentation, comments, READMEs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">config</code></td>
+      <td>Configuration files, environment, settings</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="best-practices">Best Practices</h2>
+
+<ol>
+  <li><strong>Log immediately</strong> - context is freshest right after the issue</li>
+  <li><strong>Be specific</strong> - future agents need to understand quickly</li>
+  <li><strong>Include reproduction steps</strong> - especially for errors</li>
+  <li><strong>Link related files</strong> - makes fixes easier</li>
+  <li><strong>Suggest concrete fixes</strong> - not just “investigate”</li>
+  <li><strong>Use consistent categories</strong> - enables filtering</li>
+  <li><strong>Promote aggressively</strong> - if in doubt, add to CLAUDE.md or .github/copilot-instructions.md</li>
+  <li><strong>Review regularly</strong> - stale learnings lose value</li>
+</ol>
+
+<h2 id="gitignore-options">Gitignore Options</h2>
+
+<p><strong>Keep learnings local</strong> (per-developer):</p>
+<pre><code class="language-gitignore">.learnings/
+</code></pre>
+
+<p>This repo uses that default to avoid committing sensitive or noisy local logs by accident.</p>
+
+<p><strong>Track learnings in repo</strong> (team-wide):
+Don’t add to .gitignore - learnings become shared knowledge.</p>
+
+<p><strong>Hybrid</strong> (track templates, ignore entries):</p>
+<pre><code class="language-gitignore">.learnings/*.md
+!.learnings/.gitkeep
+</code></pre>
+
+<h2 id="hook-integration">Hook Integration</h2>
+
+<p>Enable automatic reminders through agent hooks. This is <strong>opt-in</strong> - you must explicitly configure hooks.</p>
+
+<h3 id="quick-setup-claude-code--codex">Quick Setup (Claude Code / Codex)</h3>
+
+<p>Create <code class="language-plaintext highlighter-rouge">.claude/settings.json</code> in your project:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
+  </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"UserPromptSubmit"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"command"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./skills/self-improvement/scripts/activator.sh"</span><span class="w">
+      </span><span class="p">}]</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This injects a learning evaluation reminder after each prompt (~50-100 tokens overhead).</p>
+
+<h3 id="advanced-setup-with-error-detection">Advanced Setup (With Error Detection)</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
+  </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"UserPromptSubmit"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"command"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./skills/self-improvement/scripts/activator.sh"</span><span class="w">
+      </span><span class="p">}]</span><span class="w">
+    </span><span class="p">}],</span><span class="w">
+    </span><span class="nl">"PostToolUse"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bash"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"command"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./skills/self-improvement/scripts/error-detector.sh"</span><span class="w">
+      </span><span class="p">}]</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This is optional. The recommended default is activator-only setup; enable <code class="language-plaintext highlighter-rouge">PostToolUse</code> only if you are comfortable with hook scripts inspecting command output for error patterns.</p>
+
+<h3 id="available-hook-scripts">Available Hook Scripts</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Script</th>
+      <th>Hook Type</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scripts/activator.sh</code></td>
+      <td>UserPromptSubmit</td>
+      <td>Reminds to evaluate learnings after tasks</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scripts/error-detector.sh</code></td>
+      <td>PostToolUse (Bash)</td>
+      <td>Triggers on command errors</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>See <code class="language-plaintext highlighter-rouge">references/hooks-setup.md</code> for detailed configuration and troubleshooting.</p>
+
+<h2 id="automatic-skill-extraction">Automatic Skill Extraction</h2>
+
+<p>When a learning is valuable enough to become a reusable skill, extract it using the provided helper.</p>
+
+<h3 id="skill-extraction-criteria">Skill Extraction Criteria</h3>
+
+<p>A learning qualifies for skill extraction when ANY of these apply:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Criterion</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Recurring</strong></td>
+      <td>Has <code class="language-plaintext highlighter-rouge">See Also</code> links to 2+ similar issues</td>
+    </tr>
+    <tr>
+      <td><strong>Verified</strong></td>
+      <td>Status is <code class="language-plaintext highlighter-rouge">resolved</code> with working fix</td>
+    </tr>
+    <tr>
+      <td><strong>Non-obvious</strong></td>
+      <td>Required actual debugging/investigation to discover</td>
+    </tr>
+    <tr>
+      <td><strong>Broadly applicable</strong></td>
+      <td>Not project-specific; useful across codebases</td>
+    </tr>
+    <tr>
+      <td><strong>User-flagged</strong></td>
+      <td>User says “save this as a skill” or similar</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="extraction-workflow">Extraction Workflow</h3>
+
+<ol>
+  <li><strong>Identify candidate</strong>: Learning meets extraction criteria</li>
+  <li><strong>Run helper</strong> (or create manually):
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>./skills/self-improvement/scripts/extract-skill.sh skill-name <span class="nt">--dry-run</span>
+./skills/self-improvement/scripts/extract-skill.sh skill-name
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li><strong>Customize SKILL.md</strong>: Fill in template with learning content</li>
+  <li><strong>Update learning</strong>: Set status to <code class="language-plaintext highlighter-rouge">promoted_to_skill</code>, add <code class="language-plaintext highlighter-rouge">Skill-Path</code></li>
+  <li><strong>Verify</strong>: Read skill in fresh session to ensure it’s self-contained</li>
+</ol>
+
+<h3 id="manual-extraction">Manual Extraction</h3>
+
+<p>If you prefer manual creation:</p>
+
+<ol>
+  <li>Create <code class="language-plaintext highlighter-rouge">skills/&lt;skill-name&gt;/SKILL.md</code></li>
+  <li>Use template from <code class="language-plaintext highlighter-rouge">assets/SKILL-TEMPLATE.md</code></li>
+  <li>Follow <a href="https://agentskills.io/specification">Agent Skills spec</a>:
+    <ul>
+      <li>YAML frontmatter with <code class="language-plaintext highlighter-rouge">name</code> and <code class="language-plaintext highlighter-rouge">description</code></li>
+      <li>Name must match folder name</li>
+      <li>No README.md inside skill folder</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="extraction-detection-triggers">Extraction Detection Triggers</h3>
+
+<p>Watch for these signals that a learning should become a skill:</p>
+
+<p><strong>In conversation:</strong></p>
+<ul>
+  <li>“Save this as a skill”</li>
+  <li>“I keep running into this”</li>
+  <li>“This would be useful for other projects”</li>
+  <li>“Remember this pattern”</li>
+</ul>
+
+<p><strong>In learning entries:</strong></p>
+<ul>
+  <li>Multiple <code class="language-plaintext highlighter-rouge">See Also</code> links (recurring issue)</li>
+  <li>High priority + resolved status</li>
+  <li>Category: <code class="language-plaintext highlighter-rouge">best_practice</code> with broad applicability</li>
+  <li>User feedback praising the solution</li>
+</ul>
+
+<h3 id="skill-quality-gates">Skill Quality Gates</h3>
+
+<p>Before extraction, verify:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Solution is tested and working</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Description is clear without original context</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Code examples are self-contained</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />No project-specific hardcoded values</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Follows skill naming conventions (lowercase, hyphens)</li>
+</ul>
+
+<h2 id="multi-agent-support">Multi-Agent Support</h2>
+
+<p>This skill works across different AI coding agents with agent-specific activation.</p>
+
+<h3 id="claude-code">Claude Code</h3>
+
+<p><strong>Activation</strong>: Hooks (UserPromptSubmit, PostToolUse)
+<strong>Setup</strong>: <code class="language-plaintext highlighter-rouge">.claude/settings.json</code> with hook configuration
+<strong>Detection</strong>: Automatic via hook scripts</p>
+
+<h3 id="codex-cli">Codex CLI</h3>
+
+<p><strong>Activation</strong>: Hooks (same pattern as Claude Code)
+<strong>Setup</strong>: <code class="language-plaintext highlighter-rouge">.codex/settings.json</code> with hook configuration
+<strong>Detection</strong>: Automatic via hook scripts</p>
+
+<h3 id="github-copilot">GitHub Copilot</h3>
+
+<p><strong>Activation</strong>: Manual (no hook support)
+<strong>Setup</strong>: Add to <code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code>:</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="gu">## Self-Improvement</span>
+
+After solving non-obvious issues, consider logging to <span class="sb">`.learnings/`</span>:
+<span class="p">1.</span> Use format from self-improvement skill
+<span class="p">2.</span> Link related entries with See Also
+<span class="p">3.</span> Promote high-value learnings to skills
+
+Ask in chat: "Should I log this as a learning?"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Detection</strong>: Manual review at session end</p>
+
+<h3 id="openclaw">OpenClaw</h3>
+
+<p><strong>Activation</strong>: Workspace injection + inter-agent messaging
+<strong>Setup</strong>: See “OpenClaw Setup” section above
+<strong>Detection</strong>: Via session tools and workspace files</p>
+
+<h3 id="agent-agnostic-guidance">Agent-Agnostic Guidance</h3>
+
+<p>Regardless of agent, apply self-improvement when you:</p>
+
+<ol>
+  <li><strong>Discover something non-obvious</strong> - solution wasn’t immediate</li>
+  <li><strong>Correct yourself</strong> - initial approach was wrong</li>
+  <li><strong>Learn project conventions</strong> - discovered undocumented patterns</li>
+  <li><strong>Hit unexpected errors</strong> - especially if diagnosis was difficult</li>
+  <li><strong>Find better approaches</strong> - improved on your original solution</li>
+</ol>
+
+<h3 id="copilot-chat-integration">Copilot Chat Integration</h3>
+
+<p>For Copilot users, add this to your prompts when relevant:</p>
+
+<blockquote>
+  <p>After completing this task, evaluate if any learnings should be logged to <code class="language-plaintext highlighter-rouge">.learnings/</code> using the self-improvement skill format.</p>
+</blockquote>
+
+<p>Or use quick prompts:</p>
+<ul>
+  <li>“Log this to learnings”</li>
+  <li>“Create a skill from this solution”</li>
+  <li>“Check .learnings/ for related issues”</li>
+</ul>

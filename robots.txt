@@ -1,0 +1,5 @@
+User-agent: *
+
+Disallow: /norobots/
+
+Sitemap: https://bryantchang1992.github.io/ai_memory_chang_ai_team/sitemap.xml

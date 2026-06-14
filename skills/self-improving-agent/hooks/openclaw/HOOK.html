@@ -1,0 +1,19 @@
+<h1 id="self-improvement-hook">Self-Improvement Hook</h1>
+
+<p>Injects a reminder to evaluate learnings during agent bootstrap.</p>
+
+<h2 id="what-it-does">What It Does</h2>
+
+<ul>
+  <li>Fires on <code class="language-plaintext highlighter-rouge">agent:bootstrap</code> (before workspace files are injected)</li>
+  <li>Adds a reminder block to check <code class="language-plaintext highlighter-rouge">.learnings/</code> for relevant entries</li>
+  <li>Prompts the agent to log corrections, errors, and discoveries</li>
+</ul>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>No configuration needed. Enable with:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>openclaw hooks <span class="nb">enable </span>self-improvement
+</pre></td></tr></tbody></table></code></pre></div></div>

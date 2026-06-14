@@ -1,0 +1,40 @@
+<h1 id="codex-image2-fallback">Codex Image2 Fallback</h1>
+
+<p>When using <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code> with <code class="language-plaintext highlighter-rouge">--provider openai --model gpt-image-2</code>, the CLI can fail with:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>OPENAI_API_KEY is required. Codex/ChatGPT desktop login does not automatically grant OpenAI Images API access to this script.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This is expected. The <code class="language-plaintext highlighter-rouge">openai</code> provider uses the public OpenAI Images API and needs <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code>. Codex / ChatGPT image2 entitlement is a separate runtime-native path.</p>
+
+<h2 id="practical-fallback-pattern">Practical fallback pattern</h2>
+
+<ol>
+  <li>Try <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code> when provider credentials are available.</li>
+  <li>If it fails only because <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code> is missing, do not leave the user waiting.</li>
+  <li>Prefer a Codex/native raster backend in this order:
+    <ul>
+      <li>Codex runtime native <code class="language-plaintext highlighter-rouge">imagegen</code> skill/tool, if available.</li>
+      <li>Repo-level <code class="language-plaintext highlighter-rouge">scripts/codex-imagegen.sh</code>, if <code class="language-plaintext highlighter-rouge">codex</code> CLI is installed/logged in and the calling skill supports the wrapper.</li>
+      <li>Hermes native <code class="language-plaintext highlighter-rouge">image_generate</code>, if available.</li>
+    </ul>
+  </li>
+  <li>Be transparent about reference-image behavior:
+    <ul>
+      <li>If the fallback backend accepts references, pass the reference images.</li>
+      <li>If it does not, derive a concise identity-preserving prompt from the references and state that it is a text-description fallback, not strict reference-image editing.</li>
+    </ul>
+  </li>
+  <li>Return the generated media path or structured backend error promptly.</li>
+</ol>
+
+<h2 id="user-facing-wording">User-facing wording</h2>
+
+<p>Use concise wording such as:</p>
+
+<blockquote>
+  <p>The OpenAI API path needs <code class="language-plaintext highlighter-rouge">OPENAI_API_KEY</code>; Codex login is a separate image2 backend. I used the available Codex/native image backend instead. Reference images were [passed directly / reconstructed from visual traits].</p>
+</blockquote>
+
+<p>Avoid implying that <code class="language-plaintext highlighter-rouge">baoyu-image-gen --provider openai</code> can use Codex OAuth without a dedicated provider implementation.</p>
