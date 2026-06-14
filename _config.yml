@@ -64,14 +64,15 @@ defaults:
 sass:
   style: compressed
 
-compress_html:
-  clippings: all
-  comments: all
-  endings: all
-  profile: false
-  blanklines: false
-  ignore:
-    envs: [development]
+# compress_html 临时禁用 — 会导致 inline JS 单行化 + mermaid 代码块被破坏
+# compress_html:
+#   clippings: all
+#   comments: all
+#   endings: all
+#   profile: false
+#   blanklines: false
+#   ignore:
+#     envs: [development]
 
 exclude:
   - "*.gem"
