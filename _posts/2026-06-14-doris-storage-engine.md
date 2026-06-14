@@ -12,23 +12,23 @@ Doris 存储引擎采用自研 **Segment v2** 格式，基于列式存储思想�
 
 ![Doris 存储引擎](/media/diagrams/02-storage-engine.svg)
 
-```
-Table
-└── Partition (Range 分区)
-    └── Bucket (Hash 分桶)
-        └── Tablet (最小数据分发单元)
-            ├── Rowset 0 (当前写入)
-            ├── Rowset 1 (已封存)
-            ├── ...
-            └── Rowset N
-                └── Segment(s) (列式数据文件)
-                    ├── Column 0: Data Pages
-                    ├── Column 1: Data Pages
-                    ├── ...
-                    ├── Short Key Index
-                    ├── ZoneMap Index (per Segment)
-                    ├── Bloom Filter (optional)
-                    └── Footer (元数据)
+```mermaid
+flowchart TD
+    Table --> Partition["Partition (Range partition)"]
+    Partition --> Bucket["Bucket (Hash bucket)"]
+    Bucket --> Tablet["Tablet (min data distribution unit)"]
+    Tablet --> RS0["Rowset 0 (current write)"]
+    Tablet --> RS1["Rowset 1 (sealed)"]
+    Tablet --> RSDOT["..."]
+    Tablet --> RSN["Rowset N"]
+    RSN --> Segment["Segment(s) (columnar data files)"]
+    Segment --> C0["Column 0: Data Pages"]
+    Segment --> C1["Column 1: Data Pages"]
+    Segment --> CDOT["..."]
+    Segment --> SKI["Short Key Index"]
+    Segment --> ZI["ZoneMap Index (per Segment)"]
+    Segment --> BF["Bloom Filter (optional)"]
+    Segment --> Footer["Footer (metadata)"]
 ```
 
 ### 2.3 Segment v2 存储格式
@@ -83,15 +83,16 @@ MoW 是 Doris 2.1+ 的核心创新，在写入时处理主键冲突：
 
 **写入 MoW Tablet 流程**：
 
-```
-1. Tablet Writer 接收数据 Batch
-2. 按 Sort Key 排序内存数据
-3. 逐 Key 查询 Tablet 内是否存在
-   ├── 不存在 → 写入 Segment 新数据行
-   └── 存在 → 在现有 Segment 中标记旧行 Delete Bitmap
-              → 写入 Segment 新数据行
-4. Segment 文件写满 (默认 256MB) 后封存
-5. Rowset 提交 (可见)
+```mermaid
+flowchart TD
+    A["1. Tablet Writer receives data Batch"] --> B["2. Sort in-memory data by Sort Key"]
+    B --> C{"3. Key exists in Tablet?"}
+    C -->|No| D["Write new row to Segment"]
+    C -->|Yes| E["Mark old row with Delete Bitmap"]
+    E --> F["Write new row to Segment"]
+    D --> G["4. Seal Segment when full (default 256MB)"]
+    F --> G
+    G --> H["5. Commit Rowset (visible)"]
 ```
 
 **DELETE_BITMAP**：
