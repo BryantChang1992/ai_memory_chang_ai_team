@@ -46,7 +46,7 @@ jobs:
       - name: Copy static HTML directories (excluded from Jekyll)
         run: |
           SITE="_site${{ steps.pages.outputs.base_path }}"
-          for dir in tech_research tech_designs; do
+          for dir in tech_research tech_designs blog; do
             if [ -d "$dir" ]; then
               cp -r "$dir" "$SITE/"
               echo "Copied $dir/ to _site/"
