@@ -112,15 +112,21 @@ DeMon 是 SL 的执行引擎，为每个操作维护两个"版本"：
 
 ### 3.2 执行流程（以拍卖为例）
 
-```
-1. Client A: new_bid("item1", 100) ──causal broadcast──► 各副本本地执行
-2. Client B: new_bid("item1", 150) ──causal broadcast──► 各副本本地执行
-3. Client A: close_auction("item1") 
-   ├── 发送给 Primary
-   ├── Primary 从 bag 中收集所有相关 new_bid
-   ├── 本地重排序确定最终 bid 序列
-   ├── 广播结果
-   └── 所有副本执行 close → 确定赢家 = Client B
+```mermaid
+sequenceDiagram
+    participant A as Client A
+    participant B as Client B
+    participant Rep as Replicas
+    participant Pri as Primary
+
+    A->>Rep: 1. new_bid(item1, 100) via causal broadcast
+    B->>Rep: 2. new_bid(item1, 150) via causal broadcast
+
+    A->>Pri: 3. close_auction(item1)
+    Pri->>Pri: Collect all related new_bids from bag
+    Pri->>Pri: Local reorder to determine final bid sequence
+    Pri->>Rep: Broadcast result
+    Rep->>Rep: Execute close -> winner = Client B
 ```
 
 关键：步骤 1 和 2 的 `new_bid` 之间无协调，它们之间的顺序由 `close_auction` 执行时的 local reordering 确定。
