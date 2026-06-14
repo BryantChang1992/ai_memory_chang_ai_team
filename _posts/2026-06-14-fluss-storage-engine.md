@@ -443,14 +443,15 @@ Fluss 定义了 3 种 Log Format：
 
 ### 2.6.2 Row/Aarrow 体系
 
-```
-InternalRow (行式抽象，类似 Flink RowData)
-├── 支持 projection（列投影）
-├── 支持 RowKind（INSERT/UPDATE/DELETE）
-└── ColumnRow (Arrow 列式实现)
-    ├── VectorSchemaRoot (Arrow 列式批量)
-    ├── 列裁剪：ProjectionPushdownCache
-    └── FlussVectorLoader → Arrow VectorLoader
+```mermaid
+flowchart TD
+    IR["InternalRow (row abstraction, like Flink RowData)"]
+    IR --> P["supports projection (column projection)"]
+    IR --> RK["supports RowKind (INSERT/UPDATE/DELETE)"]
+    IR --> CR["ColumnRow (Arrow columnar impl)"]
+    CR --> VSR["VectorSchemaRoot (Arrow columnar batch)"]
+    CR --> PPC["Column pruning: ProjectionPushdownCache"]
+    CR --> FVL["FlussVectorLoader -> Arrow VectorLoader"]
 ```
 
 ### 2.6.3 与 Kafka Record 格式对比

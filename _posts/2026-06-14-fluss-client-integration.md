@@ -270,14 +270,15 @@ sequenceDiagram
 
 ### 5.4.1 模块结构
 
-```
-fluss-flink (215 Java files)
-├── fluss-flink-1.18/     — Flink 1.18 适配
-├── fluss-flink-1.19/     — Flink 1.19 适配
-├── fluss-flink-1.20/     — Flink 1.20 适配（仅 DummyClass）
-├── fluss-flink-2.2/      — Flink 2.2 适配
-├── fluss-flink-common/   — 共享逻辑
-└── fluss-flink-tiering/  — Lake Tiering 独立入口
+```mermaid
+flowchart TD
+    FF["fluss-flink (215 Java files)"]
+    FF --> F118["fluss-flink-1.18/ - Flink 1.18 adapter"]
+    FF --> F119["fluss-flink-1.19/ - Flink 1.19 adapter"]
+    FF --> F120["fluss-flink-1.20/ - Flink 1.20 adapter (DummyClass only)"]
+    FF --> F22["fluss-flink-2.2/ - Flink 2.2 adapter"]
+    FF --> FCOM["fluss-flink-common/ - shared logic"]
+    FF --> FTIE["fluss-flink-tiering/ - Lake Tiering entrypoint"]
 ```
 
 ### 5.4.2 核心能力矩阵
@@ -415,17 +416,18 @@ interface LakeCatalog {
 
 ### 5.6.3 Iceberg Lake 集成
 
-```
-IcebergLakeStorage
-├── IcebergLakeCatalog (表管理)
-├── IcebergLakeWriter (Tiering 写入)
-│   ├── AppendOnlyTaskWriter (普通表)
-│   └── DeltaTaskWriter (PK 表，支持 delete/update)
-├── IcebergLakeCommitter (快照提交)
-├── IcebergLakeSource (读取)
-│   ├── IcebergSplitPlanner (分区规划)
-│   └── IcebergRecordReader (记录读取)
-└── IcebergRewriteDataFiles (数据文件压缩)
+```mermaid
+flowchart TD
+    ILS["IcebergLakeStorage"]
+    ILS --> ILC["IcebergLakeCatalog (table management)"]
+    ILS --> ILW["IcebergLakeWriter (Tiering write)"]
+    ILW --> AOTW["AppendOnlyTaskWriter (non-PK table)"]
+    ILW --> DTW["DeltaTaskWriter (PK table, delete/update)"]
+    ILS --> ILCM["IcebergLakeCommitter (snapshot commit)"]
+    ILS --> ILS2["IcebergLakeSource (read)"]
+    ILS2 --> ISP["IcebergSplitPlanner (partition planning)"]
+    ILS2 --> IRR["IcebergRecordReader (record read)"]
+    ILS --> IRDF["IcebergRewriteDataFiles (data file compaction)"]
 ```
 
 ---
