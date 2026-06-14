@@ -1,0 +1,84 @@
+---
+layout: page
+---
+
+{% assign cat_name = page.title %}
+
+{% comment %} Check if this category has subcategories {% endcomment %}
+{% assign has_subcats = false %}
+{% assign subcats = "" | split: "" %}
+{% for post in page.posts %}
+  {% if post.categories.size > 1 %}
+    {% assign last_cat = post.categories | last %}
+    {% unless last_cat == cat_name %}
+      {% assign has_subcats = true %}
+    {% endunless %}
+    {% unless subcats contains last_cat %}
+      {% assign subcats = subcats | push: last_cat %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+
+{% if has_subcats %}
+  {% for sc in subcats %}
+    {% assign sc_posts = "" | split: "" %}
+    {% for post in page.posts %}
+      {% if post.categories contains sc %}
+        {% assign sc_posts = sc_posts | push: post %}
+      {% endif %}
+    {% endfor %}
+    <h2><a href="/ai_memory_chang_ai_team/categories/{{ sc | uri_escape }}/">{{ sc }}</a> <span class="text-muted">（{{ sc_posts | size }} 篇）</span></h2>
+    <ul>
+    {% for post in sc_posts %}
+      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <small class="text-muted">{{ post.date | date: "%Y/%m/%d" }}</small>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endfor %}
+
+  {% comment %} Posts directly in this category (no subcategory) {% endcomment %}
+  {% assign direct_posts = "" | split: "" %}
+  {% for post in page.posts %}
+    {% if post.categories.size == 1 or post.categories.last == cat_name %}
+      {% assign direct_posts = direct_posts | push: post %}
+    {% endif %}
+  {% endfor %}
+  {% if direct_posts.size > 0 %}
+    <h2>其他 <span class="text-muted">（{{ direct_posts | size }} 篇）</span></h2>
+    <ul>
+    {% for post in direct_posts %}
+      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <small class="text-muted">{{ post.date | date: "%Y/%m/%d" }}</small>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+
+{% else %}
+  <div id="post-list" class="flex-grow-1 px-xl-1">
+    {% for post in page.posts %}
+      <article class="card-wrapper card">
+        <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
+          <div class="col-md-12">
+            <div class="card-body d-flex flex-column">
+              <h1 class="card-title my-2 mt-md-0">{{ post.title }}</h1>
+              <div class="card-text content mt-0 mb-3">
+                <p>{% include post-description.html %}</p>
+              </div>
+              <div class="post-meta flex-grow-1 d-flex align-items-end">
+                <div class="me-auto">
+                  <em class="small" data-ts="{{ post.date | date: '%s' }}">
+                    {{ post.date | date: '%Y/%m/%d' }}
+                  </em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+{% endif %}
