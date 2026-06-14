@@ -22,14 +22,19 @@ description: >-
 
 ### 1.1 按角色分层
 
-```
-                    CEO (Frank)
-                   /            \
-              CTO (我)          CFO
-           /     |     \
-    专家·Infra 专家·Perf 专家·SRE
-      /  \       |       /  \
-    RD1  RD2   RD3    SRE1 SRE2
+```mermaid
+flowchart TB
+    CEO["CEO (Frank)"]
+    CEO --> CTO["CTO (我)"]
+    CEO --> CFO["CFO"]
+    CTO --> INFRA["专家·Infra"]
+    CTO --> PERF["专家·Perf"]
+    CTO --> SRE["专家·SRE"]
+    INFRA --> RD1["RD1"]
+    INFRA --> RD2["RD2"]
+    PERF --> RD3["RD3"]
+    SRE --> SRE1["SRE1"]
+    SRE --> SRE2["SRE2"]
 ```
 
 | 角色 | 核心关切 | 观测频率 | 粒度 | 典型问题 |
@@ -90,29 +95,32 @@ description: >-
 
 ### 2.1 指标分层
 
-```
-L1: 健康指标（CEO 看）──────────────────────────
-    ├── 团队健康分 (0-100)
-    ├── 活跃 Agent 比例
-    └── P0 告警数量
-
-L2: 运营指标（CTO 看）──────────────────────────
-    ├── 任务吞吐量 & 成功率
-    ├── Token 消耗 & 归因
-    ├── Agent 利用率
-    └── 阻塞率 & 阻塞时长
-
-L3: 效能指标（CTO/专家看）──────────────────────
-    ├── 平均任务耗时
-    ├── 子任务发散度
-    ├── 知识引用效率
-    └── Token 效率比
-
-L4: 审计指标（排查用）──────────────────────────
-    ├── 工具调用详情
-    ├── 记忆操作记录
-    ├── 错误率 & 错误分布
-    └── 外部依赖延迟
+```mermaid
+flowchart TB
+    subgraph L1["L1: 健康指标（CEO 看）"]
+        L1A["团队健康分 (0-100)"]
+        L1B["活跃 Agent 比例"]
+        L1C["P0 告警数量"]
+    end
+    subgraph L2["L2: 运营指标（CTO 看）"]
+        L2A["任务吞吐量 & 成功率"]
+        L2B["Token 消耗 & 归因"]
+        L2C["Agent 利用率"]
+        L2D["阻塞率 & 阻塞时长"]
+    end
+    subgraph L3["L3: 效能指标（CTO/专家看）"]
+        L3A["平均任务耗时"]
+        L3B["子任务发散度"]
+        L3C["知识引用效率"]
+        L3D["Token 效率比"]
+    end
+    subgraph L4["L4: 审计指标（排查用）"]
+        L4A["工具调用详情"]
+        L4B["记忆操作记录"]
+        L4C["错误率 & 错误分布"]
+        L4D["外部依赖延迟"]
+    end
+    L1 --> L2 --> L3 --> L4
 ```
 
 ### 2.2 核心 KPI 精确定义
@@ -264,16 +272,18 @@ Dashboard 顶部大数字 + 仪表盘。
 
 ### 2.4 指标关联分析框架
 
-```
-任务吞吐量 ──正相关── Agent 利用率
-    │                    │
-    └──弱相关── Token 消耗 ──正相关──┘
+```mermaid
+flowchart LR
+    TP["任务吞吐量"] -->|"正相关"| UTIL["Agent 利用率"]
+    TP -.->|"弱相关"| TOKEN["Token 消耗"]
+    TOKEN -->|"正相关"| UTIL
 
-任务成功率 ──负相关── 阻塞率
-    │                    │
-    └──负相关── 工具调用错误率 ──正相关──┘
+    SR["任务成功率"] -->|"负相关"| BLOCK["阻塞率"]
+    SR -.->|"负相关"| ERR["工具调用错误率"]
+    ERR -->|"正相关"| BLOCK
 
-平均耗时 ──正相关── 子任务发散度 ─── Token 效率比
+    LAT["平均耗时"] -->|"正相关"| FANOUT["子任务发散度"]
+    FANOUT -->|"正相关"| EFF["Token 效率比"]
 ```
 
 > 关联分析的意义：当某个指标异常时，能沿着关联链快速定位根因。例如：
@@ -288,46 +298,38 @@ Dashboard 顶部大数字 + 仪表盘。
 
 ### 3.1 数据流全景
 
-```
-                    ┌─────────────────────────────────────────────┐
-                    │              OpenClaw Gateway                │
-                    │                                              │
-  User ──────────▶  │  ┌──────┐  ┌──────┐  ┌───────────┐        │
-  Message          │  │Agent │  │Hook  │  │Structured │        │
-                    │  │Runtime│  │System│  │Log Files  │        │
-                    │  └──┬───┘  └──┬───┘  └─────┬─────┘        │
-                    │     │         │             │               │
-                    └─────┼─────────┼─────────────┼───────────────┘
-                          │         │             │
-            ┌─────────────┼─────────┼─────────────┼───────────────┐
-            │             ▼         ▼             ▼               │
-            │    ┌────────────┐ ┌─────────┐ ┌───────────┐        │
-            │    │ taskboard  │ │Hook     │ │Log Parser │        │
-            │    │ CLI        │ │Handler  │ │Daemon     │        │
-            │    │(Agent 调用)│ │(实时事件)│ │(轮询日志) │        │
-            │    └─────┬──────┘ └────┬────┘ └─────┬─────┘        │
-            │          │             │            │               │
-            │          ▼             ▼            ▼               │
-            │    ┌─────────────────────────────────────┐         │
-            │    │           SQLite (WAL mode)          │         │
-            │    │  agents | tasks | sessions |         │         │
-            │    │  tool_calls | memory_ops |           │         │
-            │    │  wiki_access | alerts                │         │
-            │    └────────────────┬────────────────────┘         │
-            │                     │                              │
-            │    ┌────────────────▼────────────────────┐         │
-            │    │          FastAPI Server              │         │
-            │    │  /api/agents  /api/tasks  /api/tokens│         │
-            │    └────────────────┬────────────────────┘         │
-            │                     │                              │
-            │              ngrok tunnel / LAN                    │
-            │                     │                              │
-            │    ┌────────────────▼────────────────────┐         │
-            │    │     Dashboard (GitHub Pages)         │         │
-            │    │     HTML + Chart.js + fetch()        │         │
-            │    └─────────────────────────────────────┘         │
-            │                                                    │
-            └─── 数据采集层 ──────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Gateway["OpenClaw Gateway"]
+        AR["Agent<br/>Runtime"]
+        HS["Hook<br/>System"]
+        SL["Structured<br/>Log Files"]
+    end
+
+    User["User Message"] --> Gateway
+
+    subgraph Collection["数据采集层"]
+        TB["taskboard CLI<br/>(Agent 调用)"]
+        HH["Hook Handler<br/>(实时事件)"]
+        LP["Log Parser Daemon<br/>(轮询日志)"]
+
+        subgraph Storage
+            SQL["SQLite (WAL mode)<br/>agents | tasks | sessions<br/>tool_calls | memory_ops<br/>wiki_access | alerts"]
+        end
+
+        API["FastAPI Server<br/>/api/agents /api/tasks /api/tokens"]
+        DASH["Dashboard (GitHub Pages)<br/>HTML + Chart.js + fetch()"]
+
+        TB --> SQL
+        HH --> SQL
+        LP --> SQL
+        SQL --> API
+        API -->|"ngrok / LAN"| DASH
+    end
+
+    AR --> TB
+    HS --> HH
+    SL --> LP
 ```
 
 ### 3.2 每条数据的采集链路
@@ -349,50 +351,40 @@ Dashboard 顶部大数字 + 仪表盘。
 
 ### 3.3 采集方式选择决策树
 
-```
-数据需要语义理解吗？
-├── 是（例如"这个任务因用户等待被阻塞"）
-│   └── Agent 自主上报（taskboard CLI）
-│       理由：只有 Agent 自己知道为什么被阻塞
-│       风险：Agent 不稳定可能不上报
-│       缓解：Supervisor 对账兜底
-│
-└── 否（例如"Agent 调用了 web_search"）
-    ├── 是生命周期事件（session start/end）？
-    │   └── Log Parser
-    │       理由：Gateway 保证日志完整，外部解析可靠
-    │
-    ├── 需要实时性（< 2s）？
-    │   └── Hook
-    │       理由：事件驱动，不依赖轮询
-    │       限制：OpenClaw Hook 能力有限，不是所有事件都能 Hook
-    │
-    └── 不要求实时性
-        └── Log Parser（主力采集方式）
-            理由：最可靠，外部观察，不依赖 Agent 行为
-            成本：2s 延迟可接受
+```mermaid
+flowchart TB
+    Q1{"数据需要<br/>语义理解吗？"}
+    Q1 -->|"是"| AGENT["Agent 自主上报<br/>（taskboard CLI）"]
+    AGENT --> AG1["理由：只有 Agent 自己<br/>知道为什么被阻塞"]
+    AGENT --> AG2["风险：Agent 不稳定<br/>可能不上报"]
+    AGENT --> AG3["缓解：Supervisor 对账兜底"]
+
+    Q1 -->|"否"| Q2{"是生命周期事件<br/>(session start/end)？"}
+    Q2 -->|"是"| LP["Log Parser"]
+    LP --> LP1["理由：Gateway 保证日志<br/>完整，外部解析可靠"]
+
+    Q2 -->|"否"| Q3{"需要实时性<br/>(< 2s)？"}
+    Q3 -->|"是"| HOOK["Hook"]
+    HOOK --> HK1["理由：事件驱动<br/>不依赖轮询"]
+    HOOK --> HK2["限制：Hook 能力有限<br/>不是所有事件都能 Hook"]
+
+    Q3 -->|"否"| LP2["Log Parser<br/>（主力采集方式）"]
+    LP2 --> LP2A["理由：最可靠<br/>外部观察"]
+    LP2 --> LP2B["成本：2s 延迟可接受"]
 ```
 
 ### 3.4 Hybrid 采集机制的协同
 
 三种采集方式不是互斥的，而是**互补验证**：
 
-```
-┌─────────────────────────────────────────────────────┐
-│                 同一事件可能被多方采集                  │
-│                                                       │
-│  例：Task 完成                                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌─────────────┐│
-│  │ Agent 上报   │  │ Log Parser   │  │ Supervisor  ││
-│  │ "done"       │  │ 检测到       │  │ 对账验证    ││
-│  │ + summary    │  │ session 结束 │  │ 一致性      ││
-│  └──────┬───────┘  └──────┬───────┘  └──────┬──────┘│
-│         │                  │                  │       │
-│         ▼                  ▼                  ▼       │
-│  语义信息         客观事件               纠错        │
-│  (只有 Agent      (Log Parser            (解决冲突   │
-│   知道为什么)      保证不丢)             以客观为准) │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Event["同一事件可能被多方采集 — 例：Task 完成"]
+        direction LR
+        A["Agent 上报<br/>'done' + summary<br/>↓<br/><b>语义信息</b><br/>(只有 Agent 知道为什么)"]
+        B["Log Parser<br/>检测到 session 结束<br/>↓<br/><b>客观事件</b><br/>(Log Parser 保证不丢)"]
+        C["Supervisor<br/>对账验证一致性<br/>↓<br/><b>纠错</b><br/>(解决冲突，以客观为准)"]
+    end
 ```
 
 #### 对账规则
@@ -464,59 +456,73 @@ def reconcile():
 
 ### 4.1 四种视图，四种目的
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  View 1: 总览视图 (Overview)    │  View 2: 运营视图 (Ops)     │
-│  ─────────────────────────────  │  ─────────────────────────  │
-│  For: CEO, CTO 日常             │  For: CTO, VP 深度          │
-│  Goal: 3 秒判断有没有问题       │  Goal: 发现瓶颈、优化资源   │
-│  Content: 健康分 + 告警 + 简要  │  Content: 吞吐量趋势 +      │
-│           任务状态 + Token 汇总  │          成本归因 + 阻塞详情 │
-├─────────────────────────────────┼─────────────────────────────┤
-│  View 3: 排查视图 (Trace)       │  View 4: 历史分析 (History) │
-│  ─────────────────────────────  │  ─────────────────────────  │
-│  For: CTO, 专家 排查问题        │  For: 所有人 复盘            │
-│  Goal: 追踪一个任务的全链路     │  Goal: 趋势对比、异常发现    │
-│  Content: 时间线 + Tool Chain + │  Content: 对比图 + 排行榜 +  │
-│           Spawn Tree + 耗时分析  │          周期报告            │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph V1["View 1: 总览视图 (Overview)"]
+        direction LR
+        V1a["For: CEO, CTO 日常"]
+        V1b["Goal: 3秒判断有没有问题"]
+        V1c["Content: 健康分 + 告警 + 任务状态 + Token汇总"]
+    end
+    subgraph V2["View 2: 运营视图 (Ops)"]
+        direction LR
+        V2a["For: CTO, VP 深度"]
+        V2b["Goal: 发现瓶颈、优化资源"]
+        V2c["Content: 吞吐量趋势 + 成本归因 + 阻塞详情"]
+    end
+    subgraph V3["View 3: 排查视图 (Trace)"]
+        direction LR
+        V3a["For: CTO, 专家排查问题"]
+        V3b["Goal: 追踪任务全链路"]
+        V3c["Content: 时间线 + Tool Chain + Spawn Tree + 耗时分析"]
+    end
+    subgraph V4["View 4: 历史分析 (History)"]
+        direction LR
+        V4a["For: 所有人 复盘"]
+        V4b["Goal: 趋势对比、异常发现"]
+        V4c["Content: 对比图 + 排行榜 + 周期报告"]
+    end
+    V1 ~~~ V2
+    V3 ~~~ V4
 ```
 
 ### 4.2 View 1: 总览视图 (Overview)
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  🏠 CHANG_AI_TEAM Dashboard                   2026-06-06 14:30 │
-├──────────┬──────────┬──────────┬──────────┬──────────────────┤
-│  💚 87   │   5      │   12     │   -3%   │  ¥12.35          │
-│  健康分  │ 活跃Agent│ 今日任务 │ Token环比│  今日成本        │
-├──────────┴──────────┴──────────┴──────────┴──────────────────┤
-│                                                               │
-│  🚨 告警 (1)                                                  │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ ⚠️ P1 · expert-perf-agent · 45min 无响应 · 3 分钟前     │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  📊 任务概览                   📈 Token 消耗 (7 天)           │
-│  ┌────────────────────┐     ┌────────────────────────────┐   │
-│  │ done:  ████████ 12 │     │      ╱╲                     │   │
-│  │ active: ████    5  │     │  ╱──╱  ╲──╲     ╱╲        │   │
-│  │ blocked:██     1  │     │ ╱        ╲   ╲──╱  ╲──╲   │   │
-│  │ failed: █      1  │     │╱                   ╲──╱    │   │
-│  └────────────────────┘     └────────────────────────────┘   │
-│                                                               │
-│  👥 Agent 状态                                          [展开] │
-│  ┌──────────┬─────────┬───────┬──────────┬─────────────────┐ │
-│  │ Agent    │ 状态    │ 任务数 │ Token/日 │ 最后活动        │ │
-│  ├──────────┼─────────┼───────┼──────────┼─────────────────┤ │
-│  │ CTO      │ 🟢 idle │   3   │  45K     │ 2 分钟前        │ │
-│  │ Expert·Infra│ 🟡 busy│  2   │  32K     │ 12 分钟前       │ │
-│  │ RD-Kafka │ 🟢 idle │   0   │   8K     │ 1 小时前        │ │
-│  │ Expert·Perf│ 🔴 stuck│  1   │  28K     │ 45 分钟前       │ │
-│  └──────────┴─────────┴───────┴──────────┴─────────────────┘ │
-│                                                               │
-│  View: [● 总览] [ 运营 ] [ 排查 ] [ 历史 ]                    │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph HEADER["🏠 CHANG_AI_TEAM Dashboard — 2026-06-06 14:30"]
+        direction LR
+        H1["💚 87 健康分"]
+        H2["5 活跃Agent"]
+        H3["12 今日任务"]
+        H4["-3% Token环比"]
+        H5["¥12.35 今日成本"]
+    end
+
+    subgraph ALERT["🚨 告警 (1)"]
+        A1["⚠️ P1 · expert-perf-agent · 45min 无响应 · 3分钟前"]
+    end
+
+    subgraph CHART["📊 任务概览"]
+        C1["done: 12 | active: 5 | blocked: 1 | failed: 1"]
+    end
+
+    subgraph AGENTS["👥 Agent 状态"]
+        direction TB
+        AG1["CTO → 🟢 idle | 3任务 | 45K/日 | 2分钟前"]
+        AG2["Expert·Infra → 🟡 busy | 2任务 | 32K/日 | 12分钟前"]
+        AG3["RD-Kafka → 🟢 idle | 0任务 | 8K/日 | 1小时前"]
+        AG4["Expert·Perf → 🔴 stuck | 1任务 | 28K/日 | 45分钟前"]
+    end
+
+    HEADER --> ALERT
+    ALERT --> CHART
+    CHART --> AGENTS
+
+    style HEADER fill:#e3f2fd,stroke:#1565c0
+    style ALERT fill:#fce4ec,stroke:#c62828
+    style CHART fill:#e8f5e9,stroke:#2e7d32
+    style AGENTS fill:#fff3e0,stroke:#e65100
 ```
 
 **特点：**
@@ -527,39 +533,42 @@ def reconcile():
 
 ### 4.3 View 2: 运营视图 (Ops)
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  🔧 运营视图                                    时间范围 [7d ▼]│
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
-│  📊 任务吞吐量                            📊 任务成功率       │
-│  ┌────────────────────────────────┐  ┌─────────────────────┐ │
-│  │  12 ┤     ╭╮                   │  │ 100% ┤───●──●──●    │ │
-│  │  10 ┤   ╭─╯╰╮  ╭╮             │  │  80% ┤      ╲ ╱     │ │
-│  │   8 ┤ ╭─╯   ╰──╯╰╮            │  │  60% ┤       ●      │ │
-│  │   6 ┤─╯          ╰──╮         │  │        Mon Tue Wed… │ │
-│  │       M  T  W  T  F  S  S     │  └─────────────────────┘ │
-│  └────────────────────────────────┘                          │
-│                                                               │
-│  💰 Token 消耗归因                        💰 按项目成本       │
-│  ┌──────────────────────────────┐  ┌───────────────────────┐ │
-│  │ CTO:     ████████ 28%       │  │ Kafka调研:  ████ 35% │ │
-│  │ Infra:   ██████   22%       │  │ Agent基建: ███  25%  │ │
-│  │ Perf:    ████     16%       │  │ 技术周报:  ██   15%  │ │
-│  │ SRE:     ██        8%       │  │ 其他:      ███  25%  │ │
-│  │ Worker:  ██████   26%       │  └───────────────────────┘ │
-│  └──────────────────────────────┘                            │
-│                                                               │
-│  🚧 阻塞明细                                                │
-│  ┌──────────┬──────────────┬──────────┬───────────────────┐ │
-│  │ 任务     │ 阻塞原因     │ 阻塞时长  │ Agent             │ │
-│  ├──────────┼──────────────┼──────────┼───────────────────┤ │
-│  │ KIP调研  │ 等待用户确认  │ 2h 15m   │ expert-infra     │ │
-│  │ 部署方案 │ 等待PR review │ 45m      │ expert-sre       │ │
-│  └──────────┴──────────────┴──────────┴───────────────────┘ │
-│                                                               │
-│  View: [ 总览 ] [● 运营] [ 排查 ] [ 历史 ]                    │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph OPS["🔧 运营视图 · 时间范围 7d"]
+        direction TB
+
+        subgraph THROUGHPUT["📊 任务吞吐量 (7天)"]
+            T1["Mon:6 Tue:8 Wed:12 Thu:10 Fri:9 Sat:7 Sun:5"]
+        end
+
+        subgraph SUCCESS["📊 任务成功率"]
+            S1["Mon:85% Tue:92% Wed:95% Thu:88% Fri:90%"]
+        end
+
+        subgraph TOKEN_COST["💰 Token 成本归因"]
+            direction LR
+            TC1["CTO: 28% | Infra: 22% | Perf: 16% | SRE: 8% | Worker: 26%"]
+        end
+
+        subgraph PROJECT_COST["💰 按项目成本"]
+            direction LR
+            PC1["Kafka调研: 35% | Agent基建: 25% | 技术周报: 15% | 其他: 25%"]
+        end
+
+        subgraph BLOCKED["🚧 阻塞明细"]
+            B1["KIP调研 — 等待用户确认 — 2h15m — expert-infra"]
+            B2["部署方案 — 等待PR review — 45m — expert-sre"]
+        end
+    end
+
+    THROUGHPUT --> SUCCESS
+    SUCCESS --> TOKEN_COST
+    TOKEN_COST --> PROJECT_COST
+    PROJECT_COST --> BLOCKED
+
+    style OPS fill:#f3e5f5,stroke:#7b1fa2
+    style BLOCKED fill:#fce4ec,stroke:#c62828
 ```
 
 **特点：**
@@ -570,45 +579,55 @@ def reconcile():
 
 ### 4.4 View 3: 排查视图 (Trace)
 
+```mermaid
+sequenceDiagram
+    title 🔍 任务追踪: KIP-1279 集群镜像调研 (#a1b2c3)
+    participant Expert as expert-infra-agent
+    participant Web as 外部资源
+    participant Child as RD-Kafka (子任务)
+
+    Note over Expert: 09:00 任务创建 · 来自 CTO 指令
+    Expert->>Web: 09:01 web_search "KIP-1279" (0.8s) ✅
+    Expert->>Web: 09:02 web_fetch apache-kafka-kip (2.1s) ✅
+    Expert->>Expert: 09:05 read 本地Kafka文档 (0.1s) ✅
+    Expert->>Child: 09:10 sessions_spawn → 子任务 #bb2c3d (0.3s) ✅
+    Note over Child: 📤 翻译KIP原文
+    Expert->>Expert: 09:15 memory_search "Kafka" (0.4s) ✅ 3 hits
+    Expert->>Child: 10:30 sessions_spawn → 子任务 #cc3d4e (0.3s) ✅
+    Note over Child: 📤 对比KIP实现
+    Child-->>Expert: 11:00 子任务 #bb2c3d 完成 ✅
+    Child-->>Expert: 11:15 子任务 #cc3d4e 完成 ✅
+    Expert->>Expert: 11:15 read 子任务输出 (0.1s) ✅
+    Expert->>Expert: 11:15 taskboard update --status done
+    Note over Expert: ✅ Task Complete · 耗时: 2h15m · Token: 48,500
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  🔍 任务追踪                        [输入 task_id 或 agent 搜索]│
-├──────────────────────────────────────────────────────────────┤
-│  任务: KIP-1279 集群镜像调研 #task-a1b2c3                       │
-│  Agent: expert-infra-agent    状态: done    耗时: 2h 15m      │
-│  Token: 48,500    子任务: 2    创建: 06-06 09:00              │
-│                                                               │
-│  ⏱️ Timeline                                                  │
-│  ┌──────────────────────────────────────────────────────────┐ │
-│  │ 09:00 ● 任务创建 (expert-infra 收到 CTO 指令)             │ │
-│  │ 09:01 ● web_search "KIP-1279" ──────── 0.8s ── ✅        │ │
-│  │ 09:02 ● web_fetch apache-kafka-kip ─── 2.1s ── ✅        │ │
-│  │ 09:05 ● read 本地Kafka文档 ─────────── 0.1s ── ✅        │ │
-│  │ 09:10 ● sessions_spawn → RD-Kafka ─── 0.3s ── ✅         │ │
-│  │         └── 📤 子任务 #bb2c3d "翻译KIP原文"               │ │
-│  │ 09:15 ● memory_search "Kafka" ─────── 0.4s ── ✅ 3 hits  │ │
-│  │ 10:30 ● sessions_spawn → RD-Kafka ─── 0.3s ── ✅         │ │
-│  │         └── 📤 子任务 #cc3d4e "对比KIP实现"               │ │
-│  │ 11:00 ● 子任务 #bb2c3d 完成 ✅                             │ │
-│  │ 11:15 ● 子任务 #cc3d4e 完成 ✅                             │ │
-│  │ 11:15 ● read 子任务输出 ──────────── 0.1s ── ✅           │ │
-│  │ 11:15 ● taskboard update --status done                   │ │
-│  └──────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  🌳 Spawn 树                                                  │
-│  ┌──────────────────────────────────────────────────────────┐ │
-│  │ expert-infra-agent (task #a1b2c3, 48.5K tokens)          │ │
-│  │  ├── RD-Kafka (task #bb2c3d, 12.3K tokens) ✅            │ │
-│  │  └── RD-Kafka (task #cc3d4e, 18.7K tokens) ✅            │ │
-│  └──────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  📈 耗时分布                                                  │
-│  Tool Calls: ████████░░ 8.4s (3%)                            │
-│  等待子任务: ████████████████████████████████████ 1h45m (78%) │
-│  自身处理:   ██████░░ 26m (19%)                               │
-│                                                               │
-│  View: [ 总览 ] [ 运营 ] [● 排查] [ 历史 ]                     │
-└──────────────────────────────────────────────────────────────┘
+
+**Spawn 树与耗时分布:**
+
+```mermaid
+graph LR
+    subgraph SPAWN["🌳 Spawn 树"]
+        direction TB
+        ROOT["expert-infra-agent<br/>task #a1b2c3<br/>48.5K tokens"]
+        CHILD1["RD-Kafka<br/>task #bb2c3d<br/>12.3K tokens ✅"]
+        CHILD2["RD-Kafka<br/>task #cc3d4e<br/>18.7K tokens ✅"]
+        ROOT --> CHILD1
+        ROOT --> CHILD2
+    end
+
+    subgraph DIST["📈 耗时分布"]
+        direction TB
+        D1["Tool Calls: 8.4s (3%)"]
+        D2["等待子任务: 1h45m (78%)"]
+        D3["自身处理: 26m (19%)"]
+    end
+
+    SPAWN -- 总耗时 2h15m --> DIST
+
+    style ROOT fill:#e3f2fd,stroke:#1565c0
+    style CHILD1 fill:#e8f5e9,stroke:#2e7d32
+    style CHILD2 fill:#e8f5e9,stroke:#2e7d32
+    style DIST fill:#fff3e0,stroke:#e65100
 ```
 
 **特点：**
@@ -620,60 +639,50 @@ def reconcile():
 
 ### 4.5 View 4: 历史分析视图 (History)
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  📈 历史分析                                   周期 [本周 ▼]   │
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌─ 对比面板 ────────────────────────────────────────────┐   │
-│  │         本周        上周        环比                    │   │
-│  │ 任务数   12          9          +33% ▲                 │   │
-│  │ 成功率   91.7%       88.9%      +2.8% ▲                │   │
-│  │ Token   352K        298K        +18% ▲                 │   │
-│  │ 阻塞率   8.3%        22.2%      -13.9% ▼               │   │
-│  │ 健康分   87          72          +15 ▲                  │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                               │
-│  📊 任务吞吐量趋势 (30天)                                      │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │  15 ┤    ╭╮        ╭╮                                  │  │
-│  │  12 ┤ ╭──╯╰──╮  ╭──╯╰╮    ╭╮                          │  │
-│  │   9 ┤─╯      ╰──╯    ╰────╯╰────────                  │  │
-│  │   6 ┤                                                   │  │
-│  │      W1    W2    W3    W4    (虚线 = 7日均线)           │  │
-│  └────────────────────────────────────────────────────────┘  │
-│                                                               │
-│  🏆 Agent 排行榜 (本周)                                       │
-│  ┌──────┬───────────────┬────────┬────────┬──────────────┐  │
-│  │ 排名 │ Agent         │ 完成任务│ 成功率 │ Token 效率   │  │
-│  ├──────┼───────────────┼────────┼────────┼──────────────┤  │
-│  │ 🥇  │ RD-Kafka       │   5    │ 100%   │ 8.2K/task    │  │
-│  │ 🥈  │ expert-infra   │   4    │ 100%   │ 12.1K/task   │  │
-│  │ 🥉  │ expert-perf    │   2    │  67%   │ 28.4K/task   │  │
-│  │  4  │ RD-Web         │   1    │ 100%   │  5.6K/task   │  │
-│  └──────┴───────────────┴────────┴────────┴──────────────┘  │
-│                                                               │
-│  🔥 工具调用热点图 (本周)                                     │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ web_search     ████████████████████████ 45%            │  │
-│  │ web_fetch      ██████████████ 28%                      │  │
-│  │ read           ████████ 15%                            │  │
-│  │ exec           ████ 8%                                 │  │
-│  │ sessions_spawn ██ 4%                                   │  │
-│  └────────────────────────────────────────────────────────┘  │
-│                                                               │
-│  📋 异常检测日志 (异常任务/异常耗时/异常 Token)                │
-│  ┌──────────┬──────────────┬────────────────┬────────────┐  │
-│  │ 时间     │ 任务         │ 异常类型       │ 详情        │  │
-│  ├──────────┼──────────────┼────────────────┼────────────┤  │
-│  │ 06-05    │ 部署方案     │ P95 耗时超 3x  │ 2.5h vs    │  │
-│  │          │              │                │ 历史 45m   │  │
-│  │ 06-04    │ KIP调研      │ Token 超 P95   │ 48K vs     │  │
-│  │          │              │ 2x             │ 历史 22K   │  │
-│  └──────────┴──────────────┴────────────────┴────────────┘  │
-│                                                               │
-│  View: [ 总览 ] [ 运营 ] [ 排查 ] [● 历史]                    │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph COMPARE["📈 对比面板 · 本周 vs 上周"]
+        direction LR
+        C1["任务数: 12 vs 9 · +33% ▲"]
+        C2["成功率: 91.7% vs 88.9% · +2.8% ▲"]
+        C3["Token: 352K vs 298K · +18% ▲"]
+        C4["阻塞率: 8.3% vs 22.2% · -13.9% ▼"]
+        C5["健康分: 87 vs 72 · +15 ▲"]
+    end
+
+    subgraph TREND["📊 任务吞吐量趋势 (30天)"]
+        T1["W1: 6~12 W2: 8~15 W3: 6~12 W4: 5~10<br/>7日均线波动, 总体稳定"]
+    end
+
+    subgraph LEADER["🏆 Agent 排行榜 (本周)"]
+        direction TB
+        L1["🥇 RD-Kafka: 5任务 · 100% · 8.2K/task"]
+        L2["🥈 expert-infra: 4任务 · 100% · 12.1K/task"]
+        L3["🥉 expert-perf: 2任务 · 67% · 28.4K/task"]
+        L4["4. RD-Web: 1任务 · 100% · 5.6K/task"]
+    end
+
+    subgraph HOTSPOT["🔥 工具调用热点 (本周)"]
+        direction TB
+        H1["web_search: 45%"]
+        H2["web_fetch: 28%"]
+        H3["read: 15% | exec: 8% | sessions_spawn: 4%"]
+    end
+
+    subgraph ANOMALY["📋 异常检测日志"]
+        direction TB
+        AN1["06-05 · 部署方案 · P95耗时超3x · 2.5h vs 历史45m"]
+        AN2["06-04 · KIP调研 · Token超P95 2x · 48K vs 历史22K"]
+    end
+
+    COMPARE --> TREND
+    TREND --> LEADER
+    LEADER --> HOTSPOT
+    HOTSPOT --> ANOMALY
+
+    style COMPARE fill:#e3f2fd,stroke:#1565c0
+    style ANOMALY fill:#fce4ec,stroke:#c62828
+    style LEADER fill:#e8f5e9,stroke:#2e7d32
 ```
 
 **特点：**
@@ -752,41 +761,45 @@ def reconcile():
 
 ### 5.3 告警通知格式
 
+**P0 告警格式（飞书强通知）：**
+
+```mermaid
+graph TB
+    subgraph P0["🚨 P0 告警：Agent 全离线"]
+        T0["时间：2026-06-06 14:32:15"]
+        D0["详情：检测到 5 个 Agent 全部处于 offline 状态<br/>Gateway 可能已重启或异常"]
+        I0["影响：所有任务暂停执行"]
+        S0["建议：检查 OpenClaw Gateway 状态<br/>运行：openclaw gateway status"]
+        A0["[查看 Dashboard] [静默 30min] [确认处理]"]
+        T0 --> D0 --> I0 --> S0 --> A0
+    end
+    style P0 fill:#fce4ec,stroke:#c62828
 ```
-P0 告警格式（飞书强通知）：
-┌────────────────────────────────────────┐
-│ 🚨 P0 告警：Agent 全离线               │
-│                                         │
-│ 时间：2026-06-06 14:32:15               │
-│ 详情：检测到 5 个 Agent 全部处于 offline │
-│       状态，Gateway 可能已重启或异常。   │
-│ 影响：所有任务暂停执行                  │
-│ 建议：检查 OpenClaw Gateway 状态        │
-│       运行：openclaw gateway status     │
-│                                         │
-│ [查看 Dashboard] [静默 30min] [确认处理] │
-└────────────────────────────────────────┘
 
-P1 告警格式：
-┌────────────────────────────────────────┐
-│ ⚠️ P1：expert-perf-agent 可能卡住      │
-│                                         │
-│ 45 分钟无 tool call，状态仍为 in_progress│
-│ 任务：性能基准测试调研                   │
-│ [查看任务详情]                           │
-└────────────────────────────────────────┘
+**P1 告警格式：**
 
-P2 每日汇总格式（飞书卡片消息）：
-┌────────────────────────────────────────┐
-│ 📋 每日可观测性摘要 · 2026-06-06        │
-│                                         │
-│ ✅ 健康分：87（环比 +3）                 │
-│ ℹ️ P2 提示：                            │
-│   · KIP调研 task 消耗 48K（同类型P95 × 2）│
-│   · Token 成本本月累计 ¥156 / 预算 ¥200 │
-│                                         │
-│ [查看完整报告]                          │
-└────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph P1["⚠️ P1：expert-perf-agent 可能卡住"]
+        D1["45 分钟无 tool call，状态仍为 in_progress"]
+        T1["任务：性能基准测试调研"]
+        A1["[查看任务详情]"]
+        D1 --> T1 --> A1
+    end
+    style P1 fill:#fff3e0,stroke:#e65100
+```
+
+**P2 每日汇总格式（飞书卡片消息）：**
+
+```mermaid
+graph TB
+    subgraph P2["📋 每日可观测性摘要 · 2026-06-06"]
+        H2["✅ 健康分：87（环比 +3）"]
+        N2["ℹ️ P2 提示：<br/>KIP调研 task 消耗 48K（同类型P95 × 2）<br/>Token 成本本月累计 ¥156 / 预算 ¥200"]
+        A2["[查看完整报告]"]
+        H2 --> N2 --> A2
+    end
+    style P2 fill:#e8f5e9,stroke:#2e7d32
 ```
 
 ### 5.4 告警抑制规则
@@ -829,14 +842,30 @@ CREATE INDEX idx_alerts_created ON alerts(created_at);
 
 ### 6.1 与其他 Phase 的关系
 
-```
-Phase 4: 可观测性 MVP  ──本设计──▶ Phase 5: Dashboard 前端
-   │                                    │
-   ├── Log Parser 守护进程              ├── View 1: 总览
-   ├── SQLite Schema 建表               ├── View 2: 运营
-   ├── taskboard CLI                    ├── View 3: 排查
-   ├── Supervisor 对账                   ├── View 4: 历史
-   └── FastAPI 数据服务                  └── 告警集成
+```mermaid
+graph LR
+    subgraph P4["Phase 4: 可观测性 MVP"]
+        direction TB
+        P4A["Log Parser 守护进程"]
+        P4B["SQLite Schema 建表"]
+        P4C["taskboard CLI"]
+        P4D["Supervisor 对账"]
+        P4E["FastAPI 数据服务"]
+    end
+
+    P4 -->|"本设计"| P5
+
+    subgraph P5["Phase 5: Dashboard 前端"]
+        direction TB
+        P5A["View 1: 总览"]
+        P5B["View 2: 运营"]
+        P5C["View 3: 排查"]
+        P5D["View 4: 历史"]
+        P5E["告警集成"]
+    end
+
+    style P4 fill:#e3f2fd,stroke:#1565c0
+    style P5 fill:#e8f5e9,stroke:#2e7d32
 ```
 
 ### 6.2 MVP 分步交付
@@ -867,18 +896,23 @@ Phase 4: 可观测性 MVP  ──本设计──▶ Phase 5: Dashboard 前端
 
 ### 6.3 可观测性自身也要可观测
 
-```
-┌─────────────────────────────────┐
-│ 可观测性系统的可观测性          │
-│                                 │
-│ /api/health                     │
-│   ├── db_ok: true/false         │
-│   ├── log_parser_alive: true    │
-│   ├── last_event_at: timestamp  │
-│   └── events_24h: count         │
-│                                 │
-│ 如果采集器自己挂了 → P0-04 触发│
-└─────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph HEALTH["可观测性系统的可观测性"]
+        API["/api/health"]
+        DB["db_ok: true/false"]
+        LP["log_parser_alive: true"]
+        LE["last_event_at: timestamp"]
+        EC["events_24h: count"]
+        API --> DB
+        API --> LP
+        API --> LE
+        API --> EC
+    end
+    P0_04["如果采集器自己挂了 → P0-04 触发"]
+    HEALTH --> P0_04
+    style HEALTH fill:#e3f2fd,stroke:#1565c0
+    style P0_04 fill:#fce4ec,stroke:#c62828
 ```
 
 ---

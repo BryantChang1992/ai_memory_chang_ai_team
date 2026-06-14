@@ -297,21 +297,17 @@ LanceLakeStorage
 
 ### Fluss Lake 层的设计哲学
 
-```
-Fluss = Streaming Storage + Lakehouse Integration
-
-        实时写入 (ms 级)
-              ↓
-    ┌─────────────────────┐
-    │   Fluss Tablet      │  ← 本地 Log + KV，毫秒级读写
-    │  (oltp level)       │
-    └────────┬────────────┘
-             │ async tiering (minute-level)
-             ↓
-    ┌─────────────────────┐
-    │   Lakehouse         │  ← Parquet/Arrow，分钟级物化
-    │  (olap level)       │     支持批量查询 + 数据分析
-    └─────────────────────┘
+```mermaid
+flowchart TB
+    WRITE["实时写入 (ms 级)"]
+    WRITE --> FT
+    subgraph FT["Fluss Tablet (oltp level)"]
+        LOG["本地 Log + KV<br/>毫秒级读写"]
+    end
+    FT -->|"async tiering (minute-level)"| LH
+    subgraph LH["Lakehouse (olap level)"]
+        PQT["Parquet/Arrow<br/>分钟级物化<br/>支持批量查询 + 数据分析"]
+    end
 ```
 
 这不是简单的"存储分层"，而是 **"实时存储 + 数据湖"的融合架构**——与 Kafka 的"消息队列 + 外部 ETL" 是完全不同的范式。

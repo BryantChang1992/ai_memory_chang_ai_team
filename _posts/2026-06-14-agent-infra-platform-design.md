@@ -430,11 +430,23 @@ CREATE TABLE wiki_access (
 ### 6.2 Supervisor 对账机制
 
 ```
-每 30s 检查一次：
-├── Agent 上报 "done" 但 session 未结束 → 标记 stale
-├── Session 已结束但任务仍 "in_progress" → 自动标记 done/failed
-├── Agent 30min 无 tool call 且状态 "in_progress" → 标记 stuck
-└── 发现 stuck/stale → 飞书通知 CTO
+```mermaid
+graph TB
+    EVERY["⏱️ 每 30s 检查一次"]
+    C1["Agent 上报 'done' 但 session 未结束 → 标记 stale"]
+    C2["Session 已结束但任务仍 'in_progress' → 标记 done/failed"]
+    C3["Agent 30min 无 tool call 且状态 'in_progress' → 标记 stuck"]
+    C4["发现 stuck/stale → 飞书通知 CTO"]
+    EVERY --> C1
+    EVERY --> C2
+    EVERY --> C3
+    C1 --> C4
+    C2 --> C4
+    C3 --> C4
+
+    style EVERY fill:#fff3e0,stroke:#e65100
+    style C4 fill:#fce4ec,stroke:#c62828
+```
 ```
 
 ### 6.3 冷启动恢复流程
