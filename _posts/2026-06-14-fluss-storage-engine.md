@@ -414,22 +414,23 @@ Fluss 完全复用了 Kafka 的 `DelayedOperation` 框架：
 
 ### 2.6.1 Fluss Row 格式（Arrow 列式）
 
-```
-LogRecordBatch (interface)
-├── logFormat: ARROW | COMPACTED | INDEXED
-├── schemaId: short
-├── baseLogOffset: long
-├── lastLogOffset: long
-├── writerId: long
-├── batchSequence: int
-├── leaderEpoch: int
-├── commitTimestamp: long
-└── records(ReadContext) → CloseableIterator<LogRecord>
-     其中 ReferenceRecord 包含
-     ├── offset: long
-     ├── timestamp: long
-     ├── ChangeType (APPEND | UPDATE | DELETE)
-     └── RowKind (INSERT | UPDATE_BEFORE | UPDATE_AFTER | DELETE)
+```mermaid
+flowchart TD
+    LRB["LogRecordBatch (interface)"]
+    LRB --> LF["logFormat: ARROW / COMPACTED / INDEXED"]
+    LRB --> SI["schemaId: short"]
+    LRB --> BLO["baseLogOffset: long"]
+    LRB --> LLO["lastLogOffset: long"]
+    LRB --> WID["writerId: long"]
+    LRB --> BS["batchSequence: int"]
+    LRB --> LE["leaderEpoch: int"]
+    LRB --> CT["commitTimestamp: long"]
+    LRB --> REC["records(ReadContext) -> CloseableIterator of LogRecord"]
+    REC --> RR["ReferenceRecord includes:"]
+    RR --> OFF["offset: long"]
+    RR --> TS["timestamp: long"]
+    RR --> CTYPE["ChangeType: APPEND / UPDATE / DELETE"]
+    RR --> RK["RowKind: INSERT / UPDATE_BEFORE / UPDATE_AFTER / DELETE"]
 ```
 
 Fluss 定义了 3 种 Log Format：
