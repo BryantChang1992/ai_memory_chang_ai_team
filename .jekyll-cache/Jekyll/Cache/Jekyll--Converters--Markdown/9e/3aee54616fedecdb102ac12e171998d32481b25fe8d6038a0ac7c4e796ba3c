@@ -1,15 +1,31 @@
-I"Æ3<h1 id="preferences-schema">Preferences Schema</h1>
+I"÷5<h1 id="preferences-schema">Preferences Schema</h1>
 
 <h2 id="full-schema">Full Schema</h2>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
 <span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
 
-<span class="na">preferred_layout</span><span class="pi">:</span> <span class="no">null</span>    <span class="c1"># any of the 21 layouts (see Layout Gallery in SKILL.md) or null</span>
-<span class="na">preferred_style</span><span class="pi">:</span> <span class="no">null</span>     <span class="c1"># any of the 21 styles (see Style Gallery in SKILL.md) or null</span>
-<span class="na">preferred_aspect</span><span class="pi">:</span> <span class="no">null</span>    <span class="c1"># landscape|portrait|square|null  (custom W:H also accepted)</span>
+<span class="na">preferred_layout</span><span class="pi">:</span> <span class="kc">null</span>    <span class="c1"># any of the 21 layouts (see Layout Gallery in SKILL.md) or null</span>
+<span class="na">preferred_style</span><span class="pi">:</span> <span class="kc">null</span>     <span class="c1"># any of the 21 styles (see Style Gallery in SKILL.md) or null</span>
+<span class="na">preferred_aspect</span><span class="pi">:</span> <span class="kc">null</span>    <span class="c1"># landscape|portrait|square|null  (custom W:H also accepted)</span>
 
-<span class="na">language</span><span class="pi">:</span> <span class="no">null</span>            <span class="c1"># zh|en|ja|ko|null (null = auto-detect from source)</span>
+<span class="na">language</span><span class="pi">:</span> <span class="kc">null</span>            <span class="c1"># zh|en|ja|ko|null (null = auto-detect from source)</span>
 
 <span class="na">preferred_image_backend</span><span class="pi">:</span> <span class="s">auto</span>   <span class="c1"># auto|ask|&lt;backend-id&gt;</span>
 
@@ -18,7 +34,7 @@
     <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Short</span><span class="nv"> </span><span class="s">description</span><span class="nv"> </span><span class="s">shown</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">Step</span><span class="nv"> </span><span class="s">3</span><span class="nv"> </span><span class="s">recommendations"</span>
     <span class="na">prompt_fragment</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Style</span><span class="nv"> </span><span class="s">traits</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">inject</span><span class="nv"> </span><span class="s">into</span><span class="nv"> </span><span class="s">Step</span><span class="nv"> </span><span class="s">5</span><span class="nv"> </span><span class="s">prompt"</span>
 <span class="nn">---</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="field-reference">Field Reference</h2>
 
@@ -241,19 +257,41 @@
 
 <h2 id="example-minimal-preferences">Example: Minimal Preferences</h2>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
 <span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
 <span class="na">preferred_layout</span><span class="pi">:</span> <span class="s">bento-grid</span>
 <span class="na">preferred_style</span><span class="pi">:</span> <span class="s">craft-handmade</span>
 <span class="na">language</span><span class="pi">:</span> <span class="s">zh</span>
 <span class="nn">---</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><code class="language-plaintext highlighter-rouge">preferred_image_backend</code> is omitted above; absence is treated as <code class="language-plaintext highlighter-rouge">auto</code>.</p>
 
 <h2 id="example-full-preferences">Example: Full Preferences</h2>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
 <span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
 
 <span class="na">preferred_layout</span><span class="pi">:</span> <span class="s">dense-modules</span>
@@ -269,5 +307,5 @@
     <span class="na">description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Brand-aligned</span><span class="nv"> </span><span class="s">warm</span><span class="nv"> </span><span class="s">pastel</span><span class="nv"> </span><span class="s">infographic"</span>
     <span class="na">prompt_fragment</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Use</span><span class="nv"> </span><span class="s">brand</span><span class="nv"> </span><span class="s">pastel</span><span class="nv"> </span><span class="s">palette</span><span class="nv"> </span><span class="s">(#F2C7B6,</span><span class="nv"> </span><span class="s">#B6D7E8,</span><span class="nv"> </span><span class="s">#C8E0B4);</span><span class="nv"> </span><span class="s">rounded</span><span class="nv"> </span><span class="s">rectangles;</span><span class="nv"> </span><span class="s">warm</span><span class="nv"> </span><span class="s">hand-drawn</span><span class="nv"> </span><span class="s">outlines;</span><span class="nv"> </span><span class="s">ample</span><span class="nv"> </span><span class="s">whitespace."</span>
 <span class="nn">---</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 :ET

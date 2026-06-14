@@ -1,13 +1,18 @@
-I"[<h1 id="browser-automation-with-agent-browser">Browser Automation with agent-browser</h1>
+I"{m<h1 id="browser-automation-with-agent-browser">Browser Automation with agent-browser</h1>
 
 <h2 id="quick-start">Quick start</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser open &lt;url&gt;        <span class="c"># Navigate to page</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>agent-browser open &lt;url&gt;        <span class="c"># Navigate to page</span>
 agent-browser snapshot <span class="nt">-i</span>       <span class="c"># Get interactive elements with refs</span>
 agent-browser click @e1         <span class="c"># Click element by ref</span>
 agent-browser fill @e2 <span class="s2">"text"</span>   <span class="c"># Fill input by ref</span>
 agent-browser close             <span class="c"># Close browser</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="core-workflow">Core workflow</h2>
 
@@ -22,7 +27,15 @@ agent-browser close             <span class="c"># Close browser</span>
 
 <h3 id="navigation">Navigation</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser open &lt;url&gt;      <span class="c"># Navigate to URL (aliases: goto, navigate)</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>agent-browser open &lt;url&gt;      <span class="c"># Navigate to URL (aliases: goto, navigate)</span>
                               <span class="c"># Supports: https://, http://, file://, about:, data://</span>
                               <span class="c"># Auto-prepends https:// if no protocol given</span>
 agent-browser back            <span class="c"># Go back</span>
@@ -30,20 +43,43 @@ agent-browser forward         <span class="c"># Go forward</span>
 agent-browser reload          <span class="c"># Reload page</span>
 agent-browser close           <span class="c"># Close browser (aliases: quit, exit)</span>
 agent-browser connect 9222    <span class="c"># Connect to browser via CDP port</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="snapshot-page-analysis">Snapshot (page analysis)</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser snapshot            <span class="c"># Full accessibility tree</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>agent-browser snapshot            <span class="c"># Full accessibility tree</span>
 agent-browser snapshot <span class="nt">-i</span>         <span class="c"># Interactive elements only (recommended)</span>
 agent-browser snapshot <span class="nt">-c</span>         <span class="c"># Compact output</span>
 agent-browser snapshot <span class="nt">-d</span> 3       <span class="c"># Limit depth to 3</span>
 agent-browser snapshot <span class="nt">-s</span> <span class="s2">"#main"</span> <span class="c"># Scope to CSS selector</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="interactions-use-refs-from-snapshot">Interactions (use @refs from snapshot)</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser click @e1           <span class="c"># Click</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>agent-browser click @e1           <span class="c"># Click</span>
 agent-browser dblclick @e1        <span class="c"># Double-click</span>
 agent-browser focus @e1           <span class="c"># Focus element</span>
 agent-browser fill @e2 <span class="s2">"text"</span>     <span class="c"># Clear and type</span>
@@ -61,11 +97,20 @@ agent-browser scroll down 500     <span class="c"># Scroll page (default: down 3
 agent-browser scrollintoview @e1  <span class="c"># Scroll element into view (alias: scrollinto)</span>
 agent-browser drag @e1 @e2        <span class="c"># Drag and drop</span>
 agent-browser upload @e1 file.pdf <span class="c"># Upload files</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="get-information">Get information</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser get text @e1        <span class="c"># Get element text</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>agent-browser get text @e1        <span class="c"># Get element text</span>
 agent-browser get html @e1        <span class="c"># Get innerHTML</span>
 agent-browser get value @e1       <span class="c"># Get input value</span>
 agent-browser get attr @e1 href   <span class="c"># Get attribute</span>
@@ -74,55 +119,87 @@ agent-browser get url             <span class="c"># Get current URL</span>
 agent-browser get count <span class="s2">".item"</span>   <span class="c"># Count matching elements</span>
 agent-browser get box @e1         <span class="c"># Get bounding box</span>
 agent-browser get styles @e1      <span class="c"># Get computed styles (font, color, bg, etc.)</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="check-state">Check state</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser is visible @e1      <span class="c"># Check if visible</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>agent-browser is visible @e1      <span class="c"># Check if visible</span>
 agent-browser is enabled @e1      <span class="c"># Check if enabled</span>
 agent-browser is checked @e1      <span class="c"># Check if checked</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="screenshots--pdf">Screenshots &amp; PDF</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser screenshot          <span class="c"># Screenshot to stdout</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>agent-browser screenshot          <span class="c"># Screenshot to stdout</span>
 agent-browser screenshot path.png <span class="c"># Save to file</span>
 agent-browser screenshot <span class="nt">--full</span>   <span class="c"># Full page</span>
 agent-browser pdf output.pdf      <span class="c"># Save as PDF</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="video-recording">Video recording</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser record start ./demo.webm    <span class="c"># Start recording (uses current URL + state)</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>agent-browser record start ./demo.webm    <span class="c"># Start recording (uses current URL + state)</span>
 agent-browser click @e1                   <span class="c"># Perform actions</span>
 agent-browser record stop                 <span class="c"># Stop and save video</span>
 agent-browser record restart ./take2.webm <span class="c"># Stop current + start new recording</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>Recording creates a fresh context but preserves cookies/storage from your session. If no URL is provided, it
 automatically returns to your current page. For smooth demos, explore first, then start recording.</p>
 
 <h3 id="wait">Wait</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nb">wait</span> @e1                     <span class="c"># Wait for element</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nb">wait</span> @e1                     <span class="c"># Wait for element</span>
 agent-browser <span class="nb">wait </span>2000                    <span class="c"># Wait milliseconds</span>
 agent-browser <span class="nb">wait</span> <span class="nt">--text</span> <span class="s2">"Success"</span>        <span class="c"># Wait for text (or -t)</span>
 agent-browser <span class="nb">wait</span> <span class="nt">--url</span> <span class="s2">"**/dashboard"</span>    <span class="c"># Wait for URL pattern (or -u)</span>
 agent-browser <span class="nb">wait</span> <span class="nt">--load</span> networkidle      <span class="c"># Wait for network idle (or -l)</span>
 agent-browser <span class="nb">wait</span> <span class="nt">--fn</span> <span class="s2">"window.ready"</span>     <span class="c"># Wait for JS condition (or -f)</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="mouse-control">Mouse control</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser mouse move 100 200      <span class="c"># Move mouse</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>agent-browser mouse move 100 200      <span class="c"># Move mouse</span>
 agent-browser mouse down left         <span class="c"># Press button</span>
 agent-browser mouse up left           <span class="c"># Release button</span>
 agent-browser mouse wheel 100         <span class="c"># Scroll wheel</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="semantic-locators-alternative-to-refs">Semantic locators (alternative to refs)</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser find role button click <span class="nt">--name</span> <span class="s2">"Submit"</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>agent-browser find role button click <span class="nt">--name</span> <span class="s2">"Submit"</span>
 agent-browser find text <span class="s2">"Sign In"</span> click
 agent-browser find text <span class="s2">"Sign In"</span> click <span class="nt">--exact</span>      <span class="c"># Exact match only</span>
 agent-browser find label <span class="s2">"Email"</span> fill <span class="s2">"user@test.com"</span>
@@ -133,11 +210,19 @@ agent-browser find testid <span class="s2">"submit-btn"</span> click
 agent-browser find first <span class="s2">".item"</span> click
 agent-browser find last <span class="s2">".item"</span> click
 agent-browser find nth 2 <span class="s2">"a"</span> hover
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="browser-settings">Browser settings</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nb">set </span>viewport 1920 1080          <span class="c"># Set viewport size</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nb">set </span>viewport 1920 1080          <span class="c"># Set viewport size</span>
 agent-browser <span class="nb">set </span>device <span class="s2">"iPhone 14"</span>          <span class="c"># Emulate device</span>
 agent-browser <span class="nb">set </span>geo 37.7749 <span class="nt">-122</span>.4194       <span class="c"># Set geolocation (alias: geolocation)</span>
 agent-browser <span class="nb">set </span>offline on                  <span class="c"># Toggle offline mode</span>
@@ -145,59 +230,96 @@ agent-browser <span class="nb">set </span>headers <span class="s1">'{"X-Key":"v"
 agent-browser <span class="nb">set </span>credentials user pass       <span class="c"># HTTP basic auth (alias: auth)</span>
 agent-browser <span class="nb">set </span>media dark                  <span class="c"># Emulate color scheme</span>
 agent-browser <span class="nb">set </span>media light reduced-motion  <span class="c"># Light mode + reduced motion</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="cookies--storage">Cookies &amp; Storage</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser cookies                     <span class="c"># Get all cookies</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>agent-browser cookies                     <span class="c"># Get all cookies</span>
 agent-browser cookies <span class="nb">set </span>name value      <span class="c"># Set cookie</span>
 agent-browser cookies clear               <span class="c"># Clear cookies</span>
 agent-browser storage <span class="nb">local</span>               <span class="c"># Get all localStorage</span>
 agent-browser storage <span class="nb">local </span>key           <span class="c"># Get specific key</span>
 agent-browser storage <span class="nb">local set </span>k v       <span class="c"># Set value</span>
 agent-browser storage <span class="nb">local </span>clear         <span class="c"># Clear all</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="network">Network</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser network route &lt;url&gt;              <span class="c"># Intercept requests</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>agent-browser network route &lt;url&gt;              <span class="c"># Intercept requests</span>
 agent-browser network route &lt;url&gt; <span class="nt">--abort</span>      <span class="c"># Block requests</span>
 agent-browser network route &lt;url&gt; <span class="nt">--body</span> <span class="s1">'{}'</span>  <span class="c"># Mock response</span>
 agent-browser network unroute <span class="o">[</span>url]            <span class="c"># Remove routes</span>
 agent-browser network requests                 <span class="c"># View tracked requests</span>
 agent-browser network requests <span class="nt">--filter</span> api    <span class="c"># Filter requests</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="tabs--windows">Tabs &amp; Windows</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser tab                 <span class="c"># List tabs</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>agent-browser tab                 <span class="c"># List tabs</span>
 agent-browser tab new <span class="o">[</span>url]       <span class="c"># New tab</span>
 agent-browser tab 2               <span class="c"># Switch to tab by index</span>
 agent-browser tab close           <span class="c"># Close current tab</span>
 agent-browser tab close 2         <span class="c"># Close tab by index</span>
 agent-browser window new          <span class="c"># New window</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="frames">Frames</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser frame <span class="s2">"#iframe"</span>     <span class="c"># Switch to iframe</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>agent-browser frame <span class="s2">"#iframe"</span>     <span class="c"># Switch to iframe</span>
 agent-browser frame main          <span class="c"># Back to main frame</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="dialogs">Dialogs</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser dialog accept <span class="o">[</span>text]  <span class="c"># Accept dialog</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>agent-browser dialog accept <span class="o">[</span>text]  <span class="c"># Accept dialog</span>
 agent-browser dialog dismiss        <span class="c"># Dismiss dialog</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="javascript">JavaScript</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nb">eval</span> <span class="s2">"document.title"</span>   <span class="c"># Run JavaScript</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nb">eval</span> <span class="s2">"document.title"</span>   <span class="c"># Run JavaScript</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="global-options">Global options</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nt">--session</span> &lt;name&gt; ...    <span class="c"># Isolated browser session</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nt">--session</span> &lt;name&gt; ...    <span class="c"># Isolated browser session</span>
 agent-browser <span class="nt">--json</span> ...              <span class="c"># JSON output for parsing</span>
 agent-browser <span class="nt">--headed</span> ...            <span class="c"># Show browser window (not headless)</span>
 agent-browser <span class="nt">--full</span> ...              <span class="c"># Full page screenshot (-f)</span>
@@ -210,28 +332,46 @@ agent-browser <span class="nt">--extension</span> &lt;path&gt; ...  <span class=
 agent-browser <span class="nt">--help</span>                  <span class="c"># Show help (-h)</span>
 agent-browser <span class="nt">--version</span>               <span class="c"># Show version (-V)</span>
 agent-browser &lt;<span class="nb">command</span><span class="o">&gt;</span> <span class="nt">--help</span>        <span class="c"># Show detailed help for a command</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="proxy-support">Proxy support</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nt">--proxy</span> http://proxy.com:8080 open example.com
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nt">--proxy</span> http://proxy.com:8080 open example.com
 agent-browser <span class="nt">--proxy</span> http://user:pass@proxy.com:8080 open example.com
 agent-browser <span class="nt">--proxy</span> socks5://proxy.com:1080 open example.com
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="environment-variables">Environment variables</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">AGENT_BROWSER_SESSION</span><span class="o">=</span><span class="s2">"mysession"</span>            <span class="c"># Default session name</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nv">AGENT_BROWSER_SESSION</span><span class="o">=</span><span class="s2">"mysession"</span>            <span class="c"># Default session name</span>
 <span class="nv">AGENT_BROWSER_EXECUTABLE_PATH</span><span class="o">=</span><span class="s2">"/path/chrome"</span> <span class="c"># Custom browser path</span>
 <span class="nv">AGENT_BROWSER_EXTENSIONS</span><span class="o">=</span><span class="s2">"/ext1,/ext2"</span>       <span class="c"># Comma-separated extension paths</span>
 <span class="nv">AGENT_BROWSER_PROVIDER</span><span class="o">=</span><span class="s2">"browserbase"</span>         <span class="c"># Cloud browser provider</span>
 <span class="nv">AGENT_BROWSER_STREAM_PORT</span><span class="o">=</span><span class="s2">"9223"</span>             <span class="c"># WebSocket streaming port</span>
 <span class="nv">AGENT_BROWSER_HOME</span><span class="o">=</span><span class="s2">"/path/to/agent-browser"</span>  <span class="c"># Custom install location (for daemon.js)</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="example-form-submission">Example: Form submission</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser open https://example.com/form
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>agent-browser open https://example.com/form
 agent-browser snapshot <span class="nt">-i</span>
 <span class="c"># Output shows: textbox "Email" [ref=e1], textbox "Password" [ref=e2], button "Submit" [ref=e3]</span>
 
@@ -240,11 +380,23 @@ agent-browser fill @e2 <span class="s2">"password123"</span>
 agent-browser click @e3
 agent-browser <span class="nb">wait</span> <span class="nt">--load</span> networkidle
 agent-browser snapshot <span class="nt">-i</span>  <span class="c"># Check result</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="example-authentication-with-saved-state">Example: Authentication with saved state</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Login once</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="c"># Login once</span>
 agent-browser open https://app.example.com/login
 agent-browser snapshot <span class="nt">-i</span>
 agent-browser fill @e1 <span class="s2">"username"</span>
@@ -256,26 +408,43 @@ agent-browser state save auth.json
 <span class="c"># Later sessions: load saved state</span>
 agent-browser state load auth.json
 agent-browser open https://app.example.com/dashboard
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="sessions-parallel-browsers">Sessions (parallel browsers)</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nt">--session</span> test1 open site-a.com
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nt">--session</span> test1 open site-a.com
 agent-browser <span class="nt">--session</span> test2 open site-b.com
 agent-browser session list
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="json-output-for-parsing">JSON output (for parsing)</h2>
 
 <p>Add <code class="language-plaintext highlighter-rouge">--json</code> for machine-readable output:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser snapshot <span class="nt">-i</span> <span class="nt">--json</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>agent-browser snapshot <span class="nt">-i</span> <span class="nt">--json</span>
 agent-browser get text @e1 <span class="nt">--json</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="debugging">Debugging</h2>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>agent-browser <span class="nt">--headed</span> open example.com   <span class="c"># Show browser window</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>agent-browser <span class="nt">--headed</span> open example.com   <span class="c"># Show browser window</span>
 agent-browser <span class="nt">--cdp</span> 9222 snapshot         <span class="c"># Connect via CDP port</span>
 agent-browser connect 9222                <span class="c"># Alternative: connect command</span>
 agent-browser console                     <span class="c"># View console messages</span>
@@ -287,7 +456,7 @@ agent-browser trace start                 <span class="c"># Start recording trac
 agent-browser trace stop trace.zip        <span class="c"># Stop and save trace</span>
 agent-browser record start ./debug.webm   <span class="c"># Record video from current page</span>
 agent-browser record stop                 <span class="c"># Save recording</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="deep-dive-documentation">Deep-dive documentation</h2>
 
@@ -352,8 +521,11 @@ agent-browser record stop                 <span class="c"># Save recording</span
 </table>
 
 <p>Usage:</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./templates/form-automation.sh https://example.com/form
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>./templates/form-automation.sh https://example.com/form
 ./templates/authenticated-session.sh https://app.example.com/login
 ./templates/capture-workflow.sh https://example.com ./output
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 :ET

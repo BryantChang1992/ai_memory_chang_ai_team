@@ -1,4 +1,4 @@
-I"v<h1 id="find-skills">Find Skills</h1>
+I""<h1 id="find-skills">Find Skills</h1>
 
 <p>This skill helps you discover and install skills from the open agent skills ecosystem.</p>
 
@@ -56,8 +56,9 @@
 
 <p>If the leaderboard doesn’t cover the user’s need, run the find command:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx skills find <span class="o">[</span>query]
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>npx skills find <span class="o">[</span>query]
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>For example:</p>
 
@@ -90,7 +91,15 @@
 
 <p>Example response:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I found a skill that might help! The "react-best-practices" skill provides
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>I found a skill that might help! The "react-best-practices" skill provides
 React and Next.js performance optimization guidelines from Vercel Engineering.
 (185K installs)
 
@@ -98,14 +107,15 @@ To install it:
 npx skills add vercel-labs/agent-skills@react-best-practices
 
 Learn more: https://skills.sh/vercel-labs/agent-skills/react-best-practices
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="step-6-offer-to-install">Step 6: Offer to Install</h3>
 
 <p>If the user wants to proceed, you can install the skill for them:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx skills add &lt;owner/repo@skill&gt; <span class="nt">-g</span> <span class="nt">-y</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>npx skills add &lt;owner/repo@skill&gt; <span class="nt">-g</span> <span class="nt">-y</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>The <code class="language-plaintext highlighter-rouge">-g</code> flag installs globally (user-level) and <code class="language-plaintext highlighter-rouge">-y</code> skips confirmation prompts.</p>
 
@@ -172,10 +182,15 @@ Learn more: https://skills.sh/vercel-labs/agent-skills/react-best-practices
 
 <p>Example:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I searched for skills related to "xyz" but didn't find any matches.
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>I searched for skills related to "xyz" but didn't find any matches.
 I can still help you with this task directly! Would you like me to proceed?
 
 If this is something you do often, you could create your own skill:
 npx skills init my-xyz-skill
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 :ET

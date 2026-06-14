@@ -1,4 +1,4 @@
-I"`<h1 id="proactive-agent-">Proactive Agent 🦞</h1>
+I")d<h1 id="proactive-agent-">Proactive Agent 🦞</h1>
 
 <p><strong>By Hal Labs</strong> — Part of the Hal Stack</p>
 
@@ -97,7 +97,19 @@
 
 <h2 id="architecture-overview">Architecture Overview</h2>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>workspace/
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>workspace/
 ├── ONBOARDING.md      # First-run setup (tracks progress)
 ├── AGENTS.md          # Operating rules, learned lessons, workflows
 ├── SOUL.md            # Identity, principles, boundaries
@@ -109,7 +121,7 @@
 └── memory/
     ├── YYYY-MM-DD.md  # Daily raw capture
     └── working-buffer.md  # ⭐ Danger zone log
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <hr />
 
@@ -179,11 +191,15 @@
 <p><strong>The urge to respond is the enemy.</strong> The detail feels so clear in context that writing it down seems unnecessary. But context will vanish. Write first.</p>
 
 <p><strong>Example:</strong></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Human says: "Use the blue theme, not red"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Human says: "Use the blue theme, not red"
 
 WRONG: "Got it, blue!" (seems obvious, why write it down?)
 RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="why-this-works">Why This Works</h3>
 
@@ -206,7 +222,18 @@ RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
 
 <h3 id="buffer-format">Buffer Format</h3>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># Working Buffer (Danger Zone Log)</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="gh"># Working Buffer (Danger Zone Log)</span>
 <span class="gs">**Status:**</span> ACTIVE
 <span class="gs">**Started:**</span> [timestamp]
 <span class="p">
@@ -217,7 +244,7 @@ RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
 
 <span class="gu">## [timestamp] Agent (summary)</span>
 [1-2 sentence summary of your response + key details]
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="why-this-works-1">Why This Works</h3>
 
@@ -256,11 +283,15 @@ RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
 
 <p>When looking for past context, search ALL sources in order:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. memory_search("query") → daily notes, MEMORY.md
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>1. memory_search("query") → daily notes, MEMORY.md
 2. Session transcripts (if available)
 3. Meeting notes (if available)
 4. grep fallback → exact matches when semantic fails
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><strong>Don’t stop at the first miss.</strong> If one source doesn’t find it, try another.</p>
 
@@ -423,8 +454,9 @@ RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
 <h3 id="3-self-healing">3. Self-Healing</h3>
 
 <p><strong>Pattern:</strong></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Issue detected → Research the cause → Attempt fix → Test → Document
-</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Issue detected → Research the cause → Attempt fix → Test → Document
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>When something doesn’t work, try 10 approaches before asking for help. Spawn research agents. Check GitHub issues. Get creative.</p>
 
@@ -472,7 +504,26 @@ RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
 
 <h3 id="every-heartbeat-checklist">Every Heartbeat Checklist</h3>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## Proactive Behaviors</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="gu">## Proactive Behaviors</span>
 <span class="p">-</span> [ ] Check proactive-tracker.md — any overdue behaviors?
 <span class="p">-</span> [ ] Pattern check — any repeated requests to automate?
 <span class="p">-</span> [ ] Outcome check — any decisions &gt;7 days old to follow up?
@@ -491,7 +542,7 @@ RIGHT: Write to SESSION-STATE.md: "Theme: blue (not red)" → THEN respond
 
 <span class="gu">## Proactive Surprise</span>
 <span class="p">-</span> [ ] What could I build RIGHT NOW that would delight my human?
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <hr />
 

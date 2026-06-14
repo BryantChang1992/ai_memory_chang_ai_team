@@ -22,6 +22,7 @@ social:
 theme_mode: light
 toc: true
 paginate: 10
+paginate_path: /page:num/
 baseurl: "/ai_memory_chang_ai_team"
 
 kramdown:
@@ -83,7 +84,12 @@ exclude:
   - "*.config.js"
   - "package*.json"
   - assets/
-  - "*.html"
+  - "blog/*.html"
+  - "blog/**/*.html"
+  - "tech_research/*.html"
+  - "tech_research/**/*.html"
+  - "tech_designs/*.html"
+  - "tech_designs/**/*.html"
   - blog/
   - tech_research/
   - tech_designs/

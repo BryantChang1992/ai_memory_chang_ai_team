@@ -1,4 +1,4 @@
-I"�<h1 id="first-time-setup">First-Time Setup</h1>
+I"�"<h1 id="first-time-setup">First-Time Setup</h1>
 
 <h2 id="overview">Overview</h2>
 
@@ -15,7 +15,22 @@
 
 <h2 id="setup-flow">Setup Flow</h2>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>No EXTEND.md found
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>No EXTEND.md found
         │
         ▼
 ┌─────────────────────┐
@@ -30,7 +45,7 @@
         │
         ▼
     Continue to Step 1.2
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="questions">Questions</h2>
 
@@ -40,7 +55,18 @@
 
 <h3 id="question-1-preferred-layout">Question 1: Preferred Layout</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>header: "Layout"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>header: "Layout"
 question: "Default layout preference?"
 options:
   - label: "Auto-select (Recommended)"
@@ -51,11 +77,22 @@ options:
     description: "Timelines, processes, tutorials"
   - label: "dense-modules"
     description: "High-density modules, data-rich guides"
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="question-2-preferred-style">Question 2: Preferred Style</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>header: "Style"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>header: "Style"
 question: "Default visual style preference?"
 options:
   - label: "Auto-select (Recommended)"
@@ -66,11 +103,22 @@ options:
     description: "Flat vector, vibrant"
   - label: "morandi-journal"
     description: "Hand-drawn doodle, warm Morandi tones"
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="question-3-preferred-aspect">Question 3: Preferred Aspect</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>header: "Aspect"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>header: "Aspect"
 question: "Default aspect ratio?"
 options:
   - label: "Auto-select (Recommended)"
@@ -81,11 +129,20 @@ options:
     description: "9:16 (mobile, social, dense modules)"
   - label: "square"
     description: "1:1 (social, thumbnails)"
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="question-4-language">Question 4: Language</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>header: "Language"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>header: "Language"
 question: "Output language for infographic text?"
 options:
   - label: "Auto-detect (Recommended)"
@@ -94,18 +151,25 @@ options:
     description: "Chinese (中文)"
   - label: "en"
     description: "English"
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="question-5-save-location">Question 5: Save Location</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>header: "Save"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>header: "Save"
 question: "Where to save preferences?"
 options:
   - label: "Project"
     description: ".baoyu-skills/ (this project only)"
   - label: "User"
     description: "~/.baoyu-skills/ (all projects)"
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="save-locations">Save Locations</h2>
 
@@ -144,7 +208,16 @@ options:
 
 <h2 id="extendmd-template">EXTEND.md Template</h2>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nn">---</span>
 <span class="na">version</span><span class="pi">:</span> <span class="m">1</span>
 <span class="na">preferred_layout</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected layout or null</span><span class="pi">]</span>
 <span class="na">preferred_style</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">selected style or null</span><span class="pi">]</span>
@@ -153,7 +226,7 @@ options:
 <span class="na">preferred_image_backend</span><span class="pi">:</span> <span class="s">auto</span>
 <span class="na">custom_styles</span><span class="pi">:</span> <span class="pi">[]</span>
 <span class="nn">---</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><code class="language-plaintext highlighter-rouge">preferred_image_backend: auto</code> is the baked-in default — first-time setup never asks about it. The <code class="language-plaintext highlighter-rouge">## Image Generation Tools</code> rule in SKILL.md then picks the runtime-native tool (Codex <code class="language-plaintext highlighter-rouge">imagegen</code>, Hermes <code class="language-plaintext highlighter-rouge">image_generate</code>, etc.) when one is available, and falls back to installed backends like <code class="language-plaintext highlighter-rouge">baoyu-image-gen</code>.</p>
 

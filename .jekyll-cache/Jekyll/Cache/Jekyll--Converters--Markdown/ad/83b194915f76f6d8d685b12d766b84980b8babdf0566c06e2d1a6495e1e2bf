@@ -1,4 +1,4 @@
-I"�<h1 id="skill-vetter-">Skill Vetter 🔒</h1>
+I"h<h1 id="skill-vetter-">Skill Vetter 🔒</h1>
 
 <p>Security-first vetting protocol for AI agent skills. <strong>Never install a skill without vetting it first.</strong></p>
 
@@ -15,19 +15,42 @@
 
 <h3 id="step-1-source-check">Step 1: Source Check</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Questions to answer:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>Questions to answer:
 - [ ] Where did this skill come from?
 - [ ] Is the author known/reputable?
 - [ ] How many downloads/stars does it have?
 - [ ] When was it last updated?
 - [ ] Are there reviews from other agents?
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="step-2-code-review-mandatory">Step 2: Code Review (MANDATORY)</h3>
 
 <p>Read ALL files in the skill. Check for these <strong>RED FLAGS</strong>:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>🚨 REJECT IMMEDIATELY IF YOU SEE:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre>🚨 REJECT IMMEDIATELY IF YOU SEE:
 ─────────────────────────────────────────
 • curl/wget to unknown URLs
 • Sends data to external servers
@@ -44,17 +67,23 @@
 • Accesses browser cookies/sessions
 • Touches credential files
 ─────────────────────────────────────────
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="step-3-permission-scope">Step 3: Permission Scope</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Evaluate:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>Evaluate:
 - [ ] What files does it need to read?
 - [ ] What files does it need to write?
 - [ ] What commands does it run?
 - [ ] Does it need network access? To where?
 - [ ] Is the scope minimal for its stated purpose?
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="step-4-risk-classification">Step 4: Risk Classification</h3>
 
@@ -94,7 +123,32 @@
 
 <p>After vetting, produce this report:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SKILL VETTING REPORT
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre>SKILL VETTING REPORT
 ═══════════════════════════════════════
 Skill: [name]
 Source: [ClawdHub / GitHub / other]
@@ -119,12 +173,20 @@ VERDICT: [✅ SAFE TO INSTALL / ⚠️ INSTALL WITH CAUTION / ❌ DO NOT INSTALL
 
 NOTES: [Any observations]
 ═══════════════════════════════════════
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="quick-vet-commands">Quick Vet Commands</h2>
 
 <p>For GitHub-hosted skills:</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Check repo stats</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="c"># Check repo stats</span>
 curl <span class="nt">-s</span> <span class="s2">"https://api.github.com/repos/OWNER/REPO"</span> | jq <span class="s1">'{stars: .stargazers_count, forks: .forks_count, updated: .updated_at}'</span>
 
 <span class="c"># List skill files</span>
@@ -132,7 +194,7 @@ curl <span class="nt">-s</span> <span class="s2">"https://api.github.com/repos/O
 
 <span class="c"># Fetch and review SKILL.md</span>
 curl <span class="nt">-s</span> <span class="s2">"https://raw.githubusercontent.com/OWNER/REPO/main/skills/SKILL_NAME/SKILL.md"</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="trust-hierarchy">Trust Hierarchy</h2>
 

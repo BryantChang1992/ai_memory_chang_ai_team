@@ -1,4 +1,4 @@
-I"�<h1 id="self-improvement-skill">Self-Improvement Skill</h1>
+I"�<h1 id="self-improvement-skill">Self-Improvement Skill</h1>
 
 <p>Log learnings and errors to markdown files for continuous improvement. Coding agents can later process these into fixes, and important learnings get promoted to project memory.</p>
 
@@ -6,11 +6,15 @@
 
 <p>Before logging anything, ensure the <code class="language-plaintext highlighter-rouge">.learnings/</code> directory and files exist in the project or workspace root. If any are missing, create them:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> .learnings
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir</span> <span class="nt">-p</span> .learnings
 <span class="o">[</span> <span class="nt">-f</span> .learnings/LEARNINGS.md <span class="o">]</span> <span class="o">||</span> <span class="nb">printf</span> <span class="s2">"# Learnings</span><span class="se">\n\n</span><span class="s2">Corrections, insights, and knowledge gaps captured during development.</span><span class="se">\n\n</span><span class="s2">**Categories**: correction | insight | knowledge_gap | best_practice</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> .learnings/LEARNINGS.md
 <span class="o">[</span> <span class="nt">-f</span> .learnings/ERRORS.md <span class="o">]</span> <span class="o">||</span> <span class="nb">printf</span> <span class="s2">"# Errors</span><span class="se">\n\n</span><span class="s2">Command failures and integration errors.</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> .learnings/ERRORS.md
 <span class="o">[</span> <span class="nt">-f</span> .learnings/FEATURE_REQUESTS.md <span class="o">]</span> <span class="o">||</span> <span class="nb">printf</span> <span class="s2">"# Feature Requests</span><span class="se">\n\n</span><span class="s2">Capabilities requested by the user.</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;</span> .learnings/FEATURE_REQUESTS.md
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>Never overwrite existing files. This is a no-op if <code class="language-plaintext highlighter-rouge">.learnings/</code> is already initialised.</p>
 
@@ -86,12 +90,14 @@
 <h3 id="installation">Installation</h3>
 
 <p><strong>Via ClawdHub (recommended):</strong></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>clawdhub <span class="nb">install </span>self-improving-agent
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>clawdhub <span class="nb">install </span>self-improving-agent
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><strong>Manual:</strong></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/peterskoett/self-improving-agent.git ~/.openclaw/skills/self-improving-agent
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>git clone https://github.com/peterskoett/self-improving-agent.git ~/.openclaw/skills/self-improving-agent
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>Remade for openclaw from original repo : https://github.com/pskoett/pskoett-ai-skills - https://github.com/pskoett/pskoett-ai-skills/tree/main/skills/self-improvement</p>
 
@@ -99,7 +105,18 @@
 
 <p>OpenClaw injects these files into every session:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.openclaw/workspace/
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>~/.openclaw/workspace/
 ├── AGENTS.md          # Multi-agent workflows, delegation patterns
 ├── SOUL.md            # Behavioral guidelines, personality, principles
 ├── TOOLS.md           # Tool capabilities, integration gotchas
@@ -110,12 +127,13 @@
     ├── LEARNINGS.md
     ├── ERRORS.md
     └── FEATURE_REQUESTS.md
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="create-learning-files">Create Learning Files</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.openclaw/workspace/.learnings
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.openclaw/workspace/.learnings
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>Then create the log files (or copy from <code class="language-plaintext highlighter-rouge">assets/</code>):</p>
 <ul>
@@ -172,12 +190,17 @@
 
 <p>For automatic reminders at session start:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Copy hook to OpenClaw hooks directory</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c"># Copy hook to OpenClaw hooks directory</span>
 <span class="nb">cp</span> <span class="nt">-r</span> hooks/openclaw ~/.openclaw/hooks/self-improvement
 
 <span class="c"># Enable it</span>
 openclaw hooks <span class="nb">enable </span>self-improvement
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>See <code class="language-plaintext highlighter-rouge">references/openclaw-integration.md</code> for complete details.</p>
 
@@ -187,8 +210,9 @@ openclaw hooks <span class="nb">enable </span>self-improvement
 
 <p>For Claude Code, Codex, Copilot, or other agents, create <code class="language-plaintext highlighter-rouge">.learnings/</code> in the project or workspace root:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> .learnings
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir</span> <span class="nt">-p</span> .learnings
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>Create the files inline using the headers shown above. Avoid reading templates from the current repo or workspace unless you explicitly trust that path.</p>
 
@@ -214,7 +238,34 @@ openclaw hooks <span class="nb">enable </span>self-improvement
 
 <p>Append to <code class="language-plaintext highlighter-rouge">.learnings/LEARNINGS.md</code>:</p>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## [LRN-YYYYMMDD-XXX] category</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="gu">## [LRN-YYYYMMDD-XXX] category</span>
 
 <span class="gs">**Logged**</span>: ISO-8601 timestamp
 <span class="gs">**Priority**</span>: low | medium | high | critical
@@ -241,13 +292,24 @@ Specific fix or improvement to make
 <span class="p">-</span> Last-Seen: 2025-01-15 (optional)
 <span class="p">
 ---
-</span></code></pre></div></div>
+</span></pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="error-entry">Error Entry</h3>
 
 <p>Append to <code class="language-plaintext highlighter-rouge">.learnings/ERRORS.md</code>:</p>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## [ERR-YYYYMMDD-XXX] skill_or_command_name</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="gu">## [ERR-YYYYMMDD-XXX] skill_or_command_name</span>
 
 <span class="gs">**Logged**</span>: ISO-8601 timestamp
 <span class="gs">**Priority**</span>: high
@@ -258,9 +320,25 @@ Specific fix or improvement to make
 Brief description of what failed
 
 <span class="gu">### Error</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 <p>Actual error message or output</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>
 ### Context
 - Command/operation attempted
 - Input or parameters used
@@ -276,13 +354,37 @@ If identifiable, what might resolve this
 - See Also: ERR-20250110-001 (if recurring)
 
 ---
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="feature-request-entry">Feature Request Entry</h3>
 
 <p>Append to <code class="language-plaintext highlighter-rouge">.learnings/FEATURE_REQUESTS.md</code>:</p>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## [FEAT-YYYYMMDD-XXX] capability_name</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="gu">## [FEAT-YYYYMMDD-XXX] capability_name</span>
 
 <span class="gs">**Logged**</span>: ISO-8601 timestamp
 <span class="gs">**Priority**</span>: medium
@@ -306,7 +408,7 @@ How this could be built, what it might extend
 <span class="p">-</span> Related Features: existing_feature_name
 <span class="p">
 ---
-</span></code></pre></div></div>
+</span></pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="id-generation">ID Generation</h2>
 
@@ -328,11 +430,15 @@ How this could be built, what it might extend
   <li>Add resolution block after Metadata:</li>
 </ol>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">### Resolution</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="gu">### Resolution</span>
 <span class="p">-</span> <span class="gs">**Resolved**</span>: 2025-01-16T09:00:00Z
 <span class="p">-</span> <span class="gs">**Commit/PR**</span>: abc123 or #42
 <span class="p">-</span> <span class="gs">**Notes**</span>: Brief description of what was done
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>Other status values:</p>
 <ul>
@@ -409,9 +515,11 @@ Lock file is <code class="language-plaintext highlighter-rouge">pnpm-lock.yaml</
 </blockquote>
 
 <p><strong>In CLAUDE.md</strong> (concise):</p>
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## Build &amp; Dependencies</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="gu">## Build &amp; Dependencies</span>
 <span class="p">-</span> Package manager: pnpm (not npm) - use <span class="sb">`pnpm install`</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><strong>Learning</strong> (verbose):</p>
 <blockquote>
@@ -420,10 +528,13 @@ Forgetting this causes type mismatches at runtime.</p>
 </blockquote>
 
 <p><strong>In AGENTS.md</strong> (actionable):</p>
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## After API Changes</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="gu">## After API Changes</span>
 <span class="p">1.</span> Regenerate client: <span class="sb">`pnpm run generate:api`</span>
 <span class="p">2.</span> Check for type errors: <span class="sb">`pnpm tsc --noEmit`</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h2 id="recurring-pattern-detection">Recurring Pattern Detection</h2>
 
@@ -507,7 +618,15 @@ not long incident write-ups.</p>
 </ul>
 
 <h3 id="quick-status-check">Quick Status Check</h3>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Count pending items</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="c"># Count pending items</span>
 <span class="nb">grep</span> <span class="nt">-h</span> <span class="s2">"Status</span><span class="se">\*\*</span><span class="s2">: pending"</span> .learnings/<span class="k">*</span>.md | <span class="nb">wc</span> <span class="nt">-l</span>
 
 <span class="c"># List pending high-priority items</span>
@@ -515,7 +634,7 @@ not long incident write-ups.</p>
 
 <span class="c"># Find learnings for a specific area</span>
 <span class="nb">grep</span> <span class="nt">-l</span> <span class="s2">"Area</span><span class="se">\*\*</span><span class="s2">: backend"</span> .learnings/<span class="k">*</span>.md
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="review-actions">Review Actions</h3>
 <ul>
@@ -665,7 +784,18 @@ Don’t add to .gitignore - learnings become shared knowledge.</p>
 
 <p>Create <code class="language-plaintext highlighter-rouge">.claude/settings.json</code> in your project:</p>
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
   </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"UserPromptSubmit"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
       </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
@@ -676,13 +806,31 @@ Don’t add to .gitignore - learnings become shared knowledge.</p>
     </span><span class="p">}]</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div></div>
+</span></pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>This injects a learning evaluation reminder after each prompt (~50-100 tokens overhead).</p>
 
 <h3 id="advanced-setup-with-error-detection">Advanced Setup (With Error Detection)</h3>
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
   </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"UserPromptSubmit"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
       </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
@@ -700,7 +848,7 @@ Don’t add to .gitignore - learnings become shared knowledge.</p>
     </span><span class="p">}]</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre></div></div>
+</span></pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>This is optional. The recommended default is activator-only setup; enable <code class="language-plaintext highlighter-rouge">PostToolUse</code> only if you are comfortable with hook scripts inspecting command output for error patterns.</p>
 
@@ -774,9 +922,11 @@ Don’t add to .gitignore - learnings become shared knowledge.</p>
 <ol>
   <li><strong>Identify candidate</strong>: Learning meets extraction criteria</li>
   <li><strong>Run helper</strong> (or create manually):
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./skills/self-improvement/scripts/extract-skill.sh skill-name <span class="nt">--dry-run</span>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>./skills/self-improvement/scripts/extract-skill.sh skill-name <span class="nt">--dry-run</span>
 ./skills/self-improvement/scripts/extract-skill.sh skill-name
-</code></pre></div>    </div>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
   </li>
   <li><strong>Customize SKILL.md</strong>: Fill in template with learning content</li>
   <li><strong>Update learning</strong>: Set status to <code class="language-plaintext highlighter-rouge">promoted_to_skill</code>, add <code class="language-plaintext highlighter-rouge">Skill-Path</code></li>
@@ -852,7 +1002,15 @@ Don’t add to .gitignore - learnings become shared knowledge.</p>
 <p><strong>Activation</strong>: Manual (no hook support)
 <strong>Setup</strong>: Add to <code class="language-plaintext highlighter-rouge">.github/copilot-instructions.md</code>:</p>
 
-<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## Self-Improvement</span>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="gu">## Self-Improvement</span>
 
 After solving non-obvious issues, consider logging to <span class="sb">`.learnings/`</span>:
 <span class="p">1.</span> Use format from self-improvement skill
@@ -860,7 +1018,7 @@ After solving non-obvious issues, consider logging to <span class="sb">`.learnin
 <span class="p">3.</span> Promote high-value learnings to skills
 
 Ask in chat: "Should I log this as a learning?"
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><strong>Detection</strong>: Manual review at session end</p>
 
