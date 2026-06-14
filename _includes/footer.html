@@ -6,10 +6,10 @@
     var mermaidBlocks = document.querySelectorAll('code.language-mermaid');
     mermaidBlocks.forEach(function(block) {
       var pre = block.parentElement;
+      /* Replace the <code> wrapper with raw text so mermaid can parse it */
+      pre.innerHTML = block.textContent;
       pre.classList.add('mermaid');
       pre.removeAttribute('data-language');
-      block.removeAttribute('class');
-      block.innerHTML = block.textContent;
     });
 
     mermaid.initialize({
