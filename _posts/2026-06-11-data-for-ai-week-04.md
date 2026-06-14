@@ -1,7 +1,7 @@
 ---
 title: "🏗️ 面向 AI 的数据平台建设 · 周报 #4（2026-06-11）"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, 面向AI的数据平台]
 tags: [数据平台, Lakehouse]
 description: >-
   Apache Hudi 1.2 正式发布（VECTOR/BLOB/VARIANT + Lance）、Iceberg 1.11.0 v3 Spec 生产就绪 + 表级加密、Databricks Unity Catalog Iceberg 全面 GA、Gravitino 1.2.1、Lakehouse 从分析平台转型 AI 原生数据平台。

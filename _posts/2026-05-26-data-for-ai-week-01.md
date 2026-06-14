@@ -1,7 +1,7 @@
 ---
 title: "面向 AI 的数据平台建设 · 周报 #1（2026-05-26）"
 date: 2026-05-26 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, 面向AI的数据平台]
 tags: [数据平台, Lakehouse]
 description: >-
   Apache Iceberg 1.11.0 发布 V3 规范生产就绪、Delta Lake 4.2.0 完善 Catalog-Managed Table、Hudi RFC-100 首次提出非结构化数据存储方案、Snowflake Iceberg v3 GA。

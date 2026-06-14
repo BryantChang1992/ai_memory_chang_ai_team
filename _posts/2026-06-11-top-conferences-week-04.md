@@ -1,7 +1,7 @@
 ---
 title: "存储/数据库顶会趋势洞察 · Week 04"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 论文精读]
 tags: [顶会, 趋势洞察]
 description: "SIGMOD 2026 · FAST 2026 · CIDR 2026 四主题深度调研"
 ---

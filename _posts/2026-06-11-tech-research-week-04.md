@@ -1,7 +1,7 @@
 ---
 title: "技术调研周报 — Week 04 (2026-06-11)"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, 技术调研]
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-
   覆盖周期 2026-06-04 ~ 2026-06-11，Claude Fable 5 & Mythos 5 发布、OpenAI Assistants API 宣布退役、Apache Hudi 1.2 发布等重大动态。

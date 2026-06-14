@@ -1,7 +1,7 @@
 ---
 title: "AI Harness · Agent 基础设施进展 · 周报 #2"
 date: 2026-05-28 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, AI Harness]
 tags: [AI基础设施, Agent, 框架, 安全, GPT-5.5, Claude Opus]
 description: "GPT-5.5 Instant 上线、Claude Opus 4.7 发布、Agent 框架竞争格局、安全趋势洞察"
 ---

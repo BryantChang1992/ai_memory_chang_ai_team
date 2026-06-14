@@ -1,7 +1,7 @@
 ---
 title: "技术调研周报 — Week 03 (2026-06-04)"
 date: 2026-06-04 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, 技术调研]
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-
   覆盖周期 2026-05-28 ~ 2026-06-04，追踪 Anthropic NLAs 可解释性突破、Delta Lake 4.2.0、Kafka 4.2.1、AutoMQ 1.7.0 等动态。

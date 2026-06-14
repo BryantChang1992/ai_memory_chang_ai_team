@@ -1,7 +1,7 @@
 ---
 title: "Apache Doris 调研：概述与核心概念"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, Doris 调研]
 tags: [Doris, 存储引擎, OLAP]
 description: >-
   Apache Doris 是由百度开源、Apache 顶级项目的 MPP 架构实时分析数据库，专为 OLAP 场景设计，支持高并发低延迟的多维分析。

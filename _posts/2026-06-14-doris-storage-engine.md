@@ -1,7 +1,7 @@
 ---
 title: "Apache Doris 调研：存储引擎"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, Doris 调研]
 tags: [Doris, 存储引擎, OLAP]
 description: >-
   Doris 存储引擎采用自研 Segment v2 格式，基于列式存储思想，结合 LSM-tree 写入和高效 Compaction 策略，支持 Merge-on-Write 主键更新。

@@ -1,7 +1,7 @@
 ---
 title: "🏗️ 面向 AI 的数据平台建设 · 周报 #3（2026-06-04）"
 date: 2026-06-04 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, 面向AI的数据平台]
 tags: [数据平台, Lakehouse]
 description: >-
   Delta Lake 4.2.0 发布（Flink Connector + Geospatial/Variant GA）、Apache Hudi RFC-100 非结构化数据存储里程碑提案、Lakehouse 生态三大趋势：多模态 × 流批一体 × 安全优先。

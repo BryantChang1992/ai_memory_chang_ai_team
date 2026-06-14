@@ -1,7 +1,7 @@
 ---
 title: "🏗️ 面向 AI 的数据平台建设 · 周报 #2（2026-05-28）"
 date: 2026-05-28 08:00:00 +0800
-categories: [技术调研]
+categories: [技术调研, 周报, 面向AI的数据平台]
 tags: [数据平台, Lakehouse]
 description: >-
   Apache Iceberg 1.11.0 深度拆解、Lakehouse 格式格局 2026（三强混战终结）、统一 Catalog 演进、AI + 数据平台融合趋势与架构演进路线图。
