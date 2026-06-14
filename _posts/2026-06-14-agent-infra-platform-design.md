@@ -1,0 +1,382 @@
+---
+title: "Agent 基础设施平台设计文档"
+date: 2026-06-14 08:00:00 +0800
+categories: [技术方案设计]
+tags: [可观测性, 监控, 设计文档]
+description: >-
+  CHANG_AI_TEAM Agent 基础设施平台五维度框架设计：记忆管理、知识管理、工作流自动化、可观测性、可靠性。
+---
+
+
+> [!info] 设计文档 v0.2
+> v0.1 以"可观测性"单一维度切入。v0.2 结合讨论升级为五维度框架：**记忆管理、知识管理、工作流自动化、可观测性、可靠性**。
+
+---
+
+## 1. 问题框架：五个核心维度
+
+CHANG_AI_TEAM 从单 Agent 走向多 Agent 协作后，需要解决的根本问题可以归纳为五个维度：
+
+![[five-dimensions-framework.svg|Agent 基础设施五维度框架]]
+
+> [!note] 三类分组
+> - 前两者 = Agent 的"大脑"（记忆 + 知识）
+> - 中  者 = Agent 的"协作方式"（怎么一起干活）
+> - 后两者 = Agent 的"保障体系"（看得见 + 靠得住）
+
+### 维度间的关系
+
+1. **记忆管理** —— 每个 Agent 能记住什么、怎么检索。记忆质量决定工作质量，是一切的基础
+2. **知识管理** —— 团队共享知识如何组织、沉淀、召回。类比公司的制度库，Agent 执行任务的"参考手册"
+3. **工作流自动化** —— Agent 之间怎么协作、任务怎么流转。有了记忆和知识，才能谈协作
+4. **可观测性** —— 能看见所有 Agent 在干什么。前三个维度是否工作正常，靠可观测性来验证
+5. **可靠性** —— 出问题能兜底、能恢复。是前面所有维度的安全保障
+
+### 维度拆分：Agent 维度 vs 系统维度
+
+| 维度 | Agent 视角（内） | 系统视角（外） |
+|------|-----------------|---------------|
+| 记忆管理 | 我记住了什么？怎么回忆？ | 记忆如何存储、分层、共享？ |
+| 知识管理 | 我该参考什么？去哪查？ | Wiki 如何组织、索引、召回？ |
+| 工作流 | 我该听谁的？我能派活给谁？ | 权限矩阵、任务流转规则 |
+| 可观测性 | 我的任务状态是什么？ | 看板、统计、告警 |
+| 可靠性 | 我挂了怎么办？ | 持久化、对账、恢复 |
+
+---
+
+## 2. 记忆管理
+
+> 记忆质量决定 Agent 工作质量。当前 OpenClaw 的扁平记忆体系无法满足多 Agent 协作需求。
+
+### 2.1 三层记忆模型
+
+![[memory-three-tier.svg|Agent 三层记忆模型]]
+
+### 2.2 记忆与 Agent 的关系
+
+**核心问题：记忆应该共享还是隔离？**
+
+当前状态是全局共享——所有 Agent 读同一个 memory 索引。这在多 Agent 场景下有问题：
+
+| 场景 | 问题 | 策略 |
+|------|------|------|
+| CTO 战略决策 | 执行层不需要知道全部细节，但需要知道"有这个决策" | 分层可见性 |
+| 专家技术调研 | 其他专家不需要查看详情，但 CTO 需要汇总 | 层内共享 + 向上汇报 |
+| CFO 成本数据 | 只对管理层可见 | 私有记忆 |
+| 跨团队协作 | 两个专家协作同一任务 | 项目级共享 |
+
+**记忆分层可见性设计：**
+
+```json
+{
+  "memory_visibility": {
+    "global":     "所有 Agent 可见 — 团队规范、通用知识",
+    "layer":      "同层 Agent 共享 — 技术决策、调研结果",
+    "project":    "同项目 Agent 共享 — 项目上下文、任务依赖",
+    "private":    "仅 Agent 自身可见 — 执行细节、临时状态"
+  }
+}
+```
+
+### 2.3 高效检索与召回
+
+| 能力 | 现状 | 目标 |
+|------|------|------|
+| 语义检索 | `memory_search` 基于内置索引 | ✅ 已有，需优化分层 |
+| 全文搜索 | 无 | ⬜ 接入全文索引（如 ripgrep over Git） |
+| 关联召回 | 无 | ⬜ 基于任务/项目的关联记忆自动召回 |
+| 时间衰减 | 无 | ⬜ 越久远的记忆权重越低 |
+
+---
+
+## 3. 知识管理
+
+> Agent 的知识管理，类比的是公司的制度库——每个 Agent 入职时"该知道什么"、干活时"去哪查"。
+
+### 3.1 知识管理 vs 记忆管理的区别
+
+| | 记忆管理 | 知识管理 |
+|---|---------|---------|
+| **本质** | Agent "经历过什么" | Agent "应该知道什么" |
+| **内容** | 任务记录、对话、决策 | 规范、文档、技术设计、Wiki |
+| **来源** | Agent 自动记录 | 人工撰写 + Agent 沉淀 |
+| **类比人** | 个人日记/日报 | 教科书/制度手册 |
+| **类比公司** | 会议纪要/周报 | 规章制度/技术文档 |
+| **存储** | MEMORY.md + memory/*.md | Obsidian Vault (ai_wikis) |
+
+### 3.2 当前知识体系
+
+| 知识类别     | 位置                            | 内容                    |
+| -------- | ----------------------------- | --------------------- |
+| 团队规范     | `ai_wikis/团队规范/`              | 仓库分工、角色定义、流程规范        |
+| 技术文章     | `ai_wikis/技术文章/`              | 技术分析、调研               |
+| 知识库      | `ai_wikis/知识库/`               | 通用技术知识点               |
+| 项目文档     | `ai_wikis/项目文档/`              | 各项目设计文档               |
+| Agent 身份 | 各 Agent 的 AGENTS.md / SOUL.md | 角色定义、权限、行为规范          |
+| 对外发布     | `ai_memory_chang_ai_team/`    | 博客、设计文档（GitHub Pages） |
+
+### 3.3 知识管理待解决问题
+
+1. **检索效率** — Agent 需要快速找到"干活时该参考的文档"，当前靠 Agent 自己判断该搜哪些文件
+2. **知识新鲜度** — 文档过期了怎么标记？怎么让 Agent 知道"这条规范已经不适用了"？
+3. **主动推送** — Agent 启动时，不应该在空白状态下自己摸索，而是系统主动推送"你该知道的事"
+4. **知识沉淀闭环** — Agent 执行任务过程中产生的新知识，怎么自动回流到 Wiki？
+
+### 3.4 知识推送机制（冷启动）
+
+新 Agent 启动时应自动加载：
+1. 自身的 AGENTS.md + SOUL.md（角色定义）
+2. 团队通用规范（`ai_wikis/团队规范/`）
+3. 相关项目文档（根据任务类型自动匹配）
+4. 最近的短期记忆（近期发生了什么）
+
+---
+
+## 4. 工作流自动化
+
+> 有了记忆和知识，Agent 才能协作。工作流定义了"怎么一起干活"。
+
+### 4.1 组织架构
+
+```
+Bryant
+  └── CEO (Mike) ← 全局决策 + 对外发布
+        ├── CFO (Trinity) ← 财务/资源管理
+        ├── COO (Neo) ← 运营/流程管理
+        ├── CPO (Morpheus) ← 产品/技术方向
+        └── CTO (Stark) ← 技术域全权
+              └── Worker (临时, 按标签: rd/perf/qa/sre)
+```
+
+**CXO 平级，均直接向 CEO 汇报。** PMO/专家层通过 CXO 自由 `sessions_spawn` 按需创建，不再常驻。
+
+### 4.2 角色权限矩阵
+
+| 操作 | CEO | CFO | COO | CPO | CTO | Worker |
+|------|:---:|:---:|:---:|:---:|:---:|:---:|
+| 全局决策 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 对外发布 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 规范变更 | ✅ 全局 | 🔶 财务 | 🔶 运营 | 🔶 产品 | 🔶 技术 | ❌ |
+| 创建子 Agent | ✅ | ❌ | ❌ | ❌ | ✅ ✅ spawn | ❌ |
+| 直接操作 Git | ✅ | ✅ | ✅ | ✅ | ✅ | 🔶 受限 |
+| 领域最终决策 | — | ✅ 财务 | ✅ 运营 | ✅ 产品 | ✅ 技术 | ❌ |
+| 跨领域协作 | `sessions_send` | `sessions_send` | `sessions_send` | `sessions_send` | `sessions_send` | ❌ |
+| Wiki 管理 | ✅ | 🔶 财务 | 🔶 运营 | 🔶 产品 | ✅ 全权 | ❌ |
+
+### 4.3 通信协议
+
+| 场景 | 方式 | Context | 说明 |
+|------|------|---------|------|
+| CEO → CXO | `sessions_send` | — | 委派任务、下达决策 |
+| CXO → CEO | `sessions_send` | — | 汇报结果 / 提请审批 |
+| CXO 同级协作 | `sessions_send` | — | 跨领域协作，不创建新 session |
+| CTO → Worker | `sessions_spawn` | `isolated` | 按任务标签独立执行 |
+| 需要上游上下文 | `sessions_spawn` | `fork` | ⚠️ 谨慎使用，避免上下文污染 |
+| CEO → Bryant | 直接回复 | — | 飞书私聊 |
+
+### 4.4 任务流转模型
+
+```
+用户指令 → CEO 分析 → 按领域委派
+                        ├→ CFO (财务/成本任务)
+                        ├→ COO (运营/流程任务)
+                        ├→ CPO (产品/方向任务)
+                        │   └→ CTO (技术实现) [sessions_send]
+                        └→ CTO (技术任务)
+                              ├→ rd-worker [sessions_spawn]
+                              ├→ perf-worker [sessions_spawn]
+                              ├→ qa-worker [sessions_spawn]
+                              ├→ sre-worker [sessions_spawn]
+                              └→ CTO 汇总审查 → CEO 交付
+```
+
+### 4.5 任务状态机
+
+参考 [[设计文档 v0.1]]，保持不变：pending → in_progress → done/failed/blocked，stuck/stale 由 Supervisor 对账检测。
+
+---
+
+## 5. 可观测性
+
+> 能看见所有 Agent 在干什么。看不到就没法管，可观测性是其他四个维度的"眼睛"。
+
+> [!note] 深度设计
+> 本章仅保留概要。精密设计（指标体系、采集链路、4 种 Dashboard 视图、告警规则）见 [[observability-deep-design]]，v0.1 · 2026-06-06。
+
+### 5.1 需要观测什么
+
+| 观测对象 | 颗粒度 | 目的 |
+|----------|--------|------|
+| Agent 状态 | 每个 Agent | 知道谁在线、谁闲置、谁挂了 |
+| 任务状态 | 每个任务 | 知道任务到哪一步了、有没有卡住 |
+| Token 消耗 | 按 Agent/任务/日 | 成本追踪 |
+| 工具调用 | 每次 tool call | 审计 Agent 行为 |
+| 记忆操作 | memory_search/get 调用 | 了解 Agent 在"回忆"什么 |
+| 知识检索 | Obsidian 查询 | 了解 Agent 在"参考"什么 |
+
+### 5.2 数据模型
+
+保留 v0.1 的四张核心表，新增：
+
+#### memory_ops 表（新增）
+```sql
+CREATE TABLE memory_ops (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id    TEXT NOT NULL REFERENCES agents(id),
+    task_id     TEXT REFERENCES tasks(id),
+    op_type     TEXT NOT NULL,           -- 'search' | 'get'
+    query       TEXT,                    -- 搜索查询
+    path        TEXT,                    -- 读取的文件路径
+    result_count INTEGER,               -- 召回条数
+    created_at  TEXT DEFAULT (datetime('now'))
+);
+```
+
+#### wiki_access 表（新增）
+```sql
+CREATE TABLE wiki_access (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id    TEXT NOT NULL REFERENCES agents(id),
+    task_id     TEXT REFERENCES tasks(id),
+    doc_path    TEXT NOT NULL,           -- ai_wikis 中的文件路径
+    action      TEXT NOT NULL,           -- 'read' | 'write'
+    created_at  TEXT DEFAULT (datetime('now'))
+);
+```
+
+### 5.3 Dashboard 视图
+
+保留 v0.1 的视图设计，新增：
+
+| 视图 | 说明 |
+|------|------|
+| 记忆热力图 | 展示各 Agent 的 memory_search 频率和召回质量 |
+| 知识引用排行 | 哪些文档被 Agent 检索最多 |
+| 成本归因 | Token 消耗按组织层级（CXO/Worker）和项目拆分 |
+
+---
+
+## 6. 可靠性
+
+> 出问题能兜底。是前面四个维度的安全保障。
+
+### 6.1 核心问题
+
+| 问题 | 现状 | 方案 |
+|------|------|------|
+| 状态易失 | 一切在内存，Gateway 重启全丢 | SQLite + Git 备份 |
+| 冷启动脆弱 | 新 Agent 从零摸索 | 知识推送机制（见 §3.4） |
+| 无对账 | Agent 自报状态，无人验证 | Supervisor Agent 定期对账 |
+| 无恢复 | 任务失败了没人管 | 超时检测 + 自动重试策略 |
+
+### 6.2 Supervisor 对账机制
+
+```
+每 30s 检查一次：
+├── Agent 上报 "done" 但 session 未结束 → 标记 stale
+├── Session 已结束但任务仍 "in_progress" → 自动标记 done/failed
+├── Agent 30min 无 tool call 且状态 "in_progress" → 标记 stuck
+└── 发现 stuck/stale → 飞书通知 CTO
+```
+
+### 6.3 冷启动恢复流程
+
+```
+1. git pull (ai_wikis + ai_memory_chang_ai_team)
+2. 加载 AGENTS.md + SOUL.md（角色身份）
+3. 加载团队规范（ai_wikis/团队规范/）
+4. 加载短期记忆（memory/*.md，自动时间衰减）
+5. 推送相关项目文档（根据任务匹配）
+6. 从 SQLite 恢复未完成任务状态
+```
+
+---
+
+## 7. 实施路径
+
+### 整体优先级（修正后）
+
+> [!important] 决策：规范先行，再长脑子，最后装眼睛
+> 原来的"可观测性先行"方案已调整。Agents 没有规矩，采集到的数据也是乱的。
+> 先立规矩，再让 Agent 能记住东西、查到知识，最后可视化才有意义。
+
+```
+Phase 1: Agent 规范       ← 先立规矩（权限、通信、任务格式）
+Phase 2: 记忆 + 知识      ← 再长脑子（能记能查，干活有质量）
+Phase 3: 可观测性 + 可靠性 ← 最后装眼睛（看得见、靠得住）
+```
+
+### Phase 计划
+
+- [x] **Phase 0 · 设计文档** — 五维度框架定义、架构设计（本文档）
+- [x] **Phase 1 · Agent 规范落地**（2026-05-31 完成）
+  - 将角色权限矩阵、通信协议、任务格式写入各 Agent 的 AGENTS.md
+  - 明确 CEO/CXO/Worker 的职责边界和协作方式
+  - 定义 spawn/send/fork 的使用场景和规则
+  - 任务状态机规范 + Supervisor 对账机制设计
+  - 冷启动流程标准化（新 Agent 启动自动加载哪些内容）
+- [x] **Phase 2 · 记忆管理**（2026-06-05 完成）
+  - 四层记忆模型落地（L0 会话 → L1 日常 → L2 长期 → L3 共享）
+  - 可见性规则确立（默认隔离 + 显式共享，不搞复杂分权）
+  - 各 Agent MEMORY.md + memory/ 目录结构就位
+  - Dreaming 自动晋升依赖 OpenClaw 原生能力
+  - memory_ops 数据表设计完成（支线，Phase 4 实现采集）
+- [x] **Phase 3 · 知识管理第一阶段**（2026-06-05 完成）
+  - 知识检索规则写入所有 Agent AGENTS.md
+  - 知识沉淀规则 + 沉淀路径定义
+  - spawn 时知识传递规范（CTO AGENTS.md）
+  - 冷启动流程增强（按任务类型加载对应规范）
+  - 知识库初始目录结构就位
+  - 细化方案文档：`phase3-knowledge-management.md`
+- [ ] **Phase 3 · 知识管理第二阶段**（待运行验证）
+  - 规范唯一源试点（减少 AGENTS.md ↔ ai_wikis 双写）
+  - 端到端闭环试运行：任务执行 → 知识沉淀 → review
+  - 知识新鲜度标记机制
+  - wiki_access 数据表采集（Phase 4 实现）
+- [ ] **Phase 4 · 可观测性 MVP**（1 周）
+  - Log Parser 守护进程 + SQLite 初始化
+  - `taskboard` CLI
+  - Token 采集与统计
+  - Supervisor Agent 对账实现
+- [ ] **Phase 5 · Dashboard 前端**（1 周）
+  - 纯静态 HTML + Chart.js，部署到 GitHub Pages
+  - 视图：任务看板、Token 汇总、Agent 列表、记忆热力图、知识引用排行
+- [ ] **Phase 6 · 可靠性增强**（持续）
+  - SQLite + Git 冷备份自动化
+  - 异常告警（任务超时、Token 超限 → 飞书通知）
+  - 自动重试策略
+
+### 风险矩阵
+
+| 风险 | 概率 | 影响 | 缓解 |
+|------|------|------|------|
+| Log Parser 遗漏事件 | 中 | 高 | Supervisor 对账兜底 |
+| Agent prompt 不稳定 | 中 | 中 | taskboard CLI 幂等操作 |
+| ngrok 隧道不稳定 | 中 | 中 | 静态数据兜底 + Cloudflare Tunnel |
+| SQLite 并发写入冲突 | 低 | 高 | WAL 模式 + 单写入者设计 |
+| 记忆分层过于复杂 | 中 | 中 | 先做全局共享，逐步分层 |
+
+---
+
+## 8. 附录：类比对照表
+
+| 公司 | 人 | Agent | 对应基建维度 |
+|------|-----|-------|------------|
+| 组织架构、汇报关系 | 社交认知（知道跟谁说话） | AGENTS.md 层级定义 | 工作流自动化 |
+| 规章制度、流程文档 | 长期记忆（技能、知识） | Obsidian Wiki (ai_wikis) | 知识管理 |
+| 会议纪要、项目记录 | 短期记忆（最近发生的事） | MEMORY.md + memory/*.md | 记忆管理 |
+| 口口相传的经验 | 肌肉记忆、直觉 | AGENTS.md / SOUL.md prompt | 记忆管理 |
+| 员工入职手册 | 学习过程 | 冷启动流程 | 可靠性 |
+| 日报、周报 | 日记 | Task 记录 + Session 摘要 | 可观测性 |
+| HR 考勤系统 | — | Agent 状态监控 | 可观测性 |
+| 财务系统 | — | Token 成本追踪 | 可观测性 |
+| 备份/灾备 | — | SQLite + Git | 可靠性 |
+
+---
+
+## 相关链接
+
+- [[关于agent基建的一些思考]] — Frank 的思考笔记
+- [[设计文档 v0.1]] — 可观测性单维度设计文档
+- [[仓库分工说明]] — ai_wikis 与 ai_memory_chang_ai_team 关系
+- [[项目文档]] — 返回索引

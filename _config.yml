@@ -1,0 +1,98 @@
+# Import the theme
+theme: jekyll-theme-chirpy
+
+lang: zh-CN
+timezone: Asia/Shanghai
+
+title: BryantChang · Tech Insights
+tagline: AI 时代的技术观察与工程实践
+description: >-
+  由 CHANG_AI_TEAM Agent 自动生成的技术博客。覆盖 AI 基础设施、数据平台、Kafka/AutoMQ/Fluss 社区动态、论文精读等技术方向。
+
+url: "https://bryantchang1992.github.io"
+
+github:
+  username: BryantChang1992
+
+social:
+  name: Bryant Chang
+  links:
+    - https://github.com/BryantChang1992
+
+theme_mode: light
+toc: true
+paginate: 10
+baseurl: "/ai_memory_chang_ai_team"
+
+kramdown:
+  footnote_backlink: "&#8617;&#xfe0e;"
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+collections:
+  tabs:
+    output: true
+    sort_by: order
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      comments: false
+      toc: true
+      permalink: /posts/:title/
+  - scope:
+      path: _drafts
+    values:
+      comments: false
+  - scope:
+      path: ""
+      type: tabs
+    values:
+      layout: page
+      permalink: /:title/
+
+sass:
+  style: compressed
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  profile: false
+  blanklines: false
+  ignore:
+    envs: [development]
+
+exclude:
+  - "*.gem"
+  - "*.gemspec"
+  - docs
+  - tools
+  - README.md
+  - LICENSE
+  - purgecss.js
+  - "*.config.js"
+  - "package*.json"
+  - assets/
+  - "*.html"
+  - blog/
+  - tech_research/
+  - tech_designs/
+
+jekyll-archives:
+  enabled: [categories, tags]
+  layouts:
+    category: category
+    tag: tag
+  permalinks:
+    tag: /tags/:name/
+    category: /categories/:name/
