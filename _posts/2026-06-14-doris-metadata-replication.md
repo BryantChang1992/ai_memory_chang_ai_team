@@ -26,18 +26,19 @@ Doris 元数据采用 **三层存储模型**，渐进式加载以减少内存压
 
 #### 6.1.2 元数据核心对象关系
 
-```
-Catalog Root
-├── Internal Catalog (Doris 原生表)
-│   └── Database → Table
-│       ├── Column (类型/编码/压缩)
-│       ├── Index (前缀/Bloom/Bitmap/Inverted)
-│       └── Partition (Range/List/TTL)
-│           └── Tablet
-│               └── Replica (NORMAL/ALTER/DECOMMISSION/CLONE)
-├── Hive Catalog → ExternalTable (映射 Metastore)
-├── Iceberg Catalog → IcebergTable (映射 REST/HMS)
-└── ES/JDBC Catalog → ExternalTable
+```mermaid
+flowchart TD
+    Root["Catalog Root"]
+    Root --> IntCat["Internal Catalog (Doris native tables)"]
+    Root --> HiveCat["Hive Catalog -> ExternalTable (Metastore map)"]
+    Root --> IceCat["Iceberg Catalog -> IcebergTable (REST/HMS map)"]
+    Root --> ESCat["ES/JDBC Catalog -> ExternalTable"]
+    IntCat --> DB["Database -> Table"]
+    DB --> Col["Column (type/encoding/compression)"]
+    DB --> Idx["Index (prefix/Bloom/Bitmap/Inverted)"]
+    DB --> Part["Partition (Range/List/TTL)"]
+    Part --> Tablet["Tablet"]
+    Tablet --> Replica["Replica (NORMAL/ALTER/DECOMMISSION/CLONE)"]
 ```
 
 #### 6.1.3 BDB-JE 元数据存储 (v0.x~v2.x)
@@ -50,11 +51,13 @@ Doris 0.x~2.x 使用 **BDB-JE** 作为 FE 元数据持久化引擎：
 - **Checkpoint**：定期 Snapshot，减少 EditLog 回放开销
 
 FE 元数据文件布局：
-```
-fe/doris-meta/
-├── bdb/           # BDB-JE Journal + Data
-├── image/         # LFS 格式 Checkpoint (image.100, image.200)
-└── edit_log/      # 增量日志 (edit_log.100-200)
+
+```mermaid
+flowchart TD
+    root["fe/doris-meta/"]
+    root --> bdb["bdb/ -- BDB-JE Journal + Data"]
+    root --> image["image/ -- LFS Checkpoint (image.100, image.200)"]
+    root --> elog["edit_log/ -- incremental logs (edit_log.100-200)"]
 ```
 
 **Follower 回放流程：** BRPC 拉取最新 EditLog → 校验 CheckSum → 逐 Entry 回放到本地内存 → 更新版本号
@@ -142,12 +145,13 @@ FE ImageCache 采用 **LRU 链表 + 版本校验**：
 
 三层保证：**FE 2PC 事务协调 + BE 本地 WAL + TabletScheduler 修复**
 
-```
-1. BEGIN Txn → 生成事务 ID
-2. PREPARE → 所有 BE 写入本地 WAL（任一失败则 ABORT）
-3. COMMIT → 全部成功则提交
-4. PUBLISH → 版本号递增，查询可见
-5. TabletScheduler → 异步修复失败 Replica
+```mermaid
+flowchart TD
+    A["1. BEGIN Txn -> generate transaction ID"] --> B["2. PREPARE -> all BEs write local WAL (any fail = ABORT)"]
+    B -->|all success| C["3. COMMIT -> commit"]
+    B -->|any failure| ABORT["ABORT"]
+    C --> D["4. PUBLISH -> version increment, query visible"]
+    D --> E["5. TabletScheduler -> async repair failed Replicas"]
 ```
 
 **失败处理：**
@@ -160,10 +164,10 @@ FE ImageCache 采用 **LRU 链表 + 版本校验**：
 **A. 单 Tablet 事务**（Routine Load / Small Batch）：延迟最低，写入结束即提交
 
 **B. 2PC 分布式事务**（Broker Load / INSERT INTO SELECT）：
-```
-Phase 1: PREPARE  → 所有 BE 并行写入
-Phase 2: COMMIT   → 全部成功或全部回滚 (ABORT)
-Phase 3: PUBLISH  → 版本递增，查询可见
+```mermaid
+flowchart LR
+    P1["Phase 1: PREPARE (all BEs write in parallel)"] --> P2["Phase 2: COMMIT (all-or-nothing)"]
+    P2 --> P3["Phase 3: PUBLISH (version++, visible)"]
 ```
 
 **Label 幂等性：** 每个 Load Job 全局唯一 Label，FE 持久化 `Label → TxnId`，重试返回已存在 TxnId → Exactly-Once Write
