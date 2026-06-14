@@ -325,22 +325,23 @@ RpcRequest {
 
 `fluss-protogen` 模块负责 Protobuf → Java 代码生成：
 
-```
-fluss-protogen/src/main/proto/
-├── common.proto             (RpcResult, TableBucket, Schema)
-├── api_versions.proto       (ApiVersions request/response)
-├── database.proto           (Database CRUD request/response)
-├── table.proto              (Table CRUD request/response)
-├── produce_log.proto        (ProduceLog request/response)
-├── fetch_log.proto          (FetchLog request/response)
-├── put_kv.proto             (PutKv request/response)
-├── lookup.proto             (Lookup request/response)
-├── limit_scan.proto         (LimitScan request/response)
-├── list_offsets.proto       (ListOffsets request/response)
-├── coordinator.proto        (Coordinator 类请求)
-├── metadata.proto           (Metadata request/response)
-├── server.proto             (Server 类请求)
-└── ...
+```mermaid
+flowchart TD
+    root["fluss-protogen/src/main/proto/"]
+    root --> f1["common.proto (RpcResult, TableBucket, Schema)"]
+    root --> f2["api_versions.proto (ApiVersions req/resp)"]
+    root --> f3["database.proto (Database CRUD req/resp)"]
+    root --> f4["table.proto (Table CRUD req/resp)"]
+    root --> f5["produce_log.proto (ProduceLog req/resp)"]
+    root --> f6["fetch_log.proto (FetchLog req/resp)"]
+    root --> f7["put_kv.proto (PutKv req/resp)"]
+    root --> f8["lookup.proto (Lookup req/resp)"]
+    root --> f9["limit_scan.proto (LimitScan req/resp)"]
+    root --> f10["list_offsets.proto (ListOffsets req/resp)"]
+    root --> f11["coordinator.proto (Coordinator reqs)"]
+    root --> f12["metadata.proto (Metadata req/resp)"]
+    root --> f13["server.proto (Server reqs)"]
+    root --> f14["..."]
 ```
 
 ### 4.4.3 与 Kafka 请求模型对照
