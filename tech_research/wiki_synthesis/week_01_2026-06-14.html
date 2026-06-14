@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki Synthesize · 知识库领域提炼 — 周报 #1（2026-06-14）</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+<header>
+  <h1>🧠 Wiki Synthesize · 知识库领域提炼</h1>
+  <p class="subtitle">首轮 Synthesis — 2026年6月14日</p>
+  <div class="meta">
+    <span>📅 2026-06-14</span>
+    <span>📊 第25周（W25）</span>
+    <span>🏷️ 第1期</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== SUMMARY ===== -->
+<section class="section">
+<h2>📊 本轮概况</h2>
+
+<div class="stats-grid">
+  <div class="stat-card"><strong>31</strong> <small>概念卡片</small></div>
+  <div class="stat-card"><strong>3</strong> <small>综述产出</small></div>
+  <div class="stat-card"><strong>4</strong> <small>知识集群</small></div>
+  <div class="stat-card"><strong>1</strong> <small>Lint 报告</small></div>
+</div>
+
+<p>首轮 Wiki Synthesize 覆盖<strong>知识库中全部 31 张概念卡片</strong>，识别出 4 个达到临界质量的知识集群，生成 3 篇综述页 + 1 篇质量报告。</p>
+</section>
+
+<!-- ===== SYNTHESIS 1: LSM-Tree ===== -->
+<section class="section">
+<h2>🔍 综述一：LSM-Tree 存储引擎体系</h2>
+
+<h3>输入材料</h3>
+<p>7 张 wiki 卡片（基于 VLDB Journal 2019 Survey 精读），覆盖：写放大、合并优化、硬件适配、自动调参、二级索引、RUM 猜想。</p>
+
+<h3>核心洞察</h3>
+
+<div class="insight-box">
+<h4>Insight 1：写放大是所有优化的最终判据</h4>
+<p>RUM 猜想 (Read-Update-Memory) 定义了存储引擎的不可能三角，LSM-tree 生态的几乎所有优化本质上都是在 RUM 三角中寻找新的 Pareto 前沿。真正"无损"的改进极其稀缺。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 2：Dostoevsky 打破了"同质化合并策略"的假设</h4>
+<p>传统认知是 LSM-tree 所有层级统一使用 leveling 或 tiering 合并策略。Dostoevsky (2018) 证明低层用 tiering 省写放大、最底层用 leveling 省空间的混合策略可以在两者间提供连续的最优谱系——这是一个被长期忽视的低垂果实。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 3：硬件假设是存储引擎的"隐藏变量"</h4>
+<p>LSM-tree 最初为 HDD 设计，写入停顿问题已困扰工程界十年。WiscKey 的 KV 分离方案证明：当 SSD 的随机读足够快时，将 value 从 merge 循环中剥离可以大幅降低写放大。这揭示了一个方法论：<strong>存储引擎的"最优设计"是硬件假设的函数</strong>。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 4：写入停顿——最大的工程盲区</h4>
+<p>bLSM (2012) 之后近十年，写入停顿端到端延迟方差无人系统性解决。所有生产系统（RocksDB/HBase/Cassandra）实际受此困扰，学术界对延迟 SLO 保证仍缺乏形式化分析。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 5：LSM-tree 是现代存储引擎的"通用语言"</h4>
+<p>InfluxDB TSM 引擎是时序场景的 LSM 变体，Doris Compaction 策略全面借鉴 LSM 思想，Kafka 的 Log Compaction 也有 LSM 的影子。理解 LSM-tree → 理解现代存储引擎。</p>
+</div>
+
+<h3>待探索方向</h3>
+<ul>
+  <li>CXL 共享内存下的 LSM 架构重构</li>
+  <li>存算分离下 Compaction 的 I/O 范式转变</li>
+  <li>AI/ML 驱动的在线自动调参</li>
+</ul>
+</section>
+
+<!-- ===== SYNTHESIS 2: OLAP vs TSDB ===== -->
+<section class="section">
+<h2>🔍 综述二：OLAP 与时序数据库全景对比</h2>
+
+<h3>输入材料</h3>
+<p>17 张卡片（Doris 8 张 + InfluxDB 8 张 + 调研报告 1 篇），横跨两大赛道。</p>
+
+<h3>核心洞察</h3>
+
+<div class="insight-box">
+<h4>Insight 6：两个赛道在快速趋同</h4>
+<p>Doris 3.0 走向存算分离，InfluxDB 3.0 从 TSM 走向纯列式（Parquet + Arrow）——OLAP 和 TSDB 在基础架构上正在走向同一个方向。底层存储格式趋同（列式 Parquet），元数据管理都经历了"嵌入式 KV → 独立元数据服务"的演进。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 7：数据模型哲学决定工程复杂度</h4>
+<p>Doris 的宽表 + Aggregate Key 模型 vs InfluxDB 的窄表 + Tag/Field 模型，差异来源是查询模式（BI 报表 vs 实时监控）。OLAP 不存在基数爆炸问题，而 TSDB 的 Series Cardinality 是核心工程挑战——这是由场景决定的，不是谁的工程水平更高。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 8：湖仓一体化将同时侵蚀两个赛道</h4>
+<p>Doris 已支持 Iceberg/Hudi 联邦查询，InfluxDB 3.0 原生支持 Parquet 在对象存储。当所有数据都以开放格式存储在对象存储上，专门的分析数据库还有多少存在理由？</p>
+</div>
+</section>
+
+<!-- ===== SYNTHESIS 3: 一致性体系 ===== -->
+<section class="section">
+<h2>🔍 综述三：分布式数据系统一致性体系</h2>
+
+<h3>输入材料</h3>
+<p>事务模型深度调研 + Event Horizon + RaaS + 存算分离 3 张卡片 + Doris/InfluxDB 副本一致性卡片。</p>
+
+<h3>核心洞察</h3>
+
+<div class="insight-box">
+<h4>Insight 9：分布式一致性是三个层面的叠加</h4>
+<p>事务层（ACID → 2PC → Percolator/Spanner）→ 副本层（Paxos/Raft）→ 会话层（Linearizability → Semi-Linearizability），三层层层叠加，上层依赖下层。Event Horizon 的半线性化 (SL) 提供了一个突破性视角：<strong>很多场景不需要全线性化，非对称依赖可以在可用性和一致性之间找到新的平衡点</strong>。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 10：存算分离打破了一致性假设</h4>
+<p>RaaS (SIGMOD 2026) 揭示存算分离下，日志链长度差异 + CPU 争抢会在本地单副本系统上产生尾部延迟。传统认为副本同步是一致性瓶颈，但在存算分离架构中，<strong>本地日志编排的公平性本身就是一致性问题</strong>。</p>
+</div>
+
+<div class="insight-box">
+<h4>Insight 11：事务模型的演进是成本压缩史</h4>
+<p>从 2PC 的单点阻塞到 Spanner TrueTime 的"用原子钟买一致性"，整个分布式事务演进史就是在 <strong>协调代价 (Coordination Cost)</strong> 和 <strong>隔离保证 (Isolation Guarantee)</strong> 之间不断寻找更优 trade-off 的历史。</p>
+</div>
+</section>
+
+<!-- ===== LINT ===== -->
+<section class="section">
+<h2>🩺 质量 Lint 报告摘要</h2>
+
+<table>
+<thead><tr><th>类别</th><th>发现</th><th>严重程度</th></tr></thead>
+<tbody>
+<tr><td>孤儿页面</td><td>0（全部 ≥2 inbound）</td><td>🟢</td></tr>
+<tr><td>Wikilink 格式</td><td>Event-Horizon 页面有 1 处带 <code>wiki/</code> 前缀的错误引用</td><td>🟡</td></tr>
+<tr><td>概念矛盾</td><td>0（3 个疑似的交叉验证后均一致）</td><td>🟢</td></tr>
+<tr><td>概念缺口</td><td>Bloom Filter 被 15 页引用但无独立卡片</td><td>🟡</td></tr>
+<tr><td>页面状态</td><td>18/31 draft，需在 30 天内推进 final</td><td>🟡</td></tr>
+<tr><td>集群成熟度</td><td>存算分离集群（4 页）未达 synthesis 临界质量</td><td>🟡</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ===== METHODOLOGY ===== -->
+<section class="section">
+<h2>🛠️ 方法论：Wiki Synthesize 是怎么做的</h2>
+
+<p>这是 CTO Agent 的周期性综合操作（每周四 10:00 CST），流程如下：</p>
+
+<ol>
+  <li><strong>扫描</strong>：解析所有 wiki 页面的 frontmatter（type、tags、related）和 [[wikilink]] 关系</li>
+  <li><strong>集群识别</strong>：以 wikilink 为边、关联强度为权重，识别达到临界质量（≥5 页 + ≥2 type）的知识集群</li>
+  <li><strong>Synthesis 生成</strong>：对每个达标集群，生成领域综述页，包含概念关系图、子主题展开、跨页连接洞察、对外桥接、待探索方向</li>
+  <li><strong>Lint 检查</strong>：同步执行孤儿页检测、矛盾描述交叉验证、概念缺口识别、页面状态统计</li>
+  <li><strong>索引更新</strong>：更新 README.md 索引 + log.md 日志</li>
+  <li><strong>Git 同步</strong>：自动 commit + push 到 GitHub</li>
+</ol>
+</section>
+
+</main>
+
+<footer>
+  <p>🔬 <a href="../index.html">技术调研总目录</a> · 🐙 <a href="https://github.com/BryantChang1992/ai_wikis">知识库 GitHub</a></p>
+</footer>
+
+</body>
+</html>
