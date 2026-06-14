@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 800">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4ADE80"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#EF4444"/>
+    </marker>
+    <marker id="arrow-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#F59E0B"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6B7280"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    text {
+      font-family: 'JetBrains Mono', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <!-- Decorative outer ring -->
+  <circle cx="450" cy="420" r="280" fill="none" stroke="#1e293b" stroke-width="2" stroke-dasharray="6,12"/>
+
+  <!-- Title -->
+  <text x="450" y="48" fill="#e2e8f0" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="1">LogDir 目录状态机</text>
+  <text x="450" y="72" fill="#64748b" font-size="10" font-weight="400" text-anchor="middle">Kafka Broker LogDir State Machine — JBOD 磁盘管理</text>
+
+  <!-- ===== CONNECTION ARROWS ===== -->
+
+  <!-- Transition 1: ONLINE → OFFLINE (right arc, smoother cubic bezier) -->
+  <path d="M 550 240 C 680 240, 680 390, 640 390"
+        fill="none" stroke="#EF4444" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <text x="625" y="300" fill="#94a3b8" font-size="9" font-weight="500" text-anchor="middle">磁盘 I/O 错误</text>
+
+  <!-- Transition 2: OFFLINE → DISABLED (bottom arc) -->
+  <path d="M 640 470 C 640 560, 260 560, 260 470"
+        fill="none" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow-gray)"/>
+  <text x="450" y="550" fill="#94a3b8" font-size="9" font-weight="500" text-anchor="middle">Controller 处理故障事件</text>
+
+  <!-- Transition 3: DISABLED → ONLINE (left arc) -->
+  <path d="M 260 390 C 260 280, 350 280, 350 240"
+        fill="none" stroke="#4ADE80" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="300" y="310" fill="#94a3b8" font-size="9" font-weight="500" text-anchor="middle">恢复检测 (新磁盘插入)</text>
+
+  <!-- Transition 4: ONLINE → CORDONED (outer right long arc) -->
+  <path d="M 550 275 C 700 275, 700 565, 550 565"
+        fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrow-amber)"/>
+  <text x="650" y="420" fill="#94a3b8" font-size="9" font-weight="500" text-anchor="middle">cordon 命令</text>
+
+  <!-- Transition 5: CORDONED → ONLINE (outer left long arc) -->
+  <path d="M 350 565 C 200 565, 200 275, 350 275"
+        fill="none" stroke="#4ADE80" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="250" y="420" fill="#94a3b8" font-size="9" font-weight="500" text-anchor="middle">uncordon 命令</text>
+
+  <!-- ===== OPAQUE MASKING ===== -->
+
+  <rect x="350" y="215" width="200" height="70" rx="36" fill="#0f172a"/>
+  <rect x="540" y="390" width="200" height="70" rx="36" fill="#0f172a"/>
+  <rect x="350" y="565" width="200" height="70" rx="36" fill="#0f172a"/>
+  <rect x="160" y="390" width="200" height="70" rx="36" fill="#0f172a"/>
+
+  <!-- ===== STATE NODES ===== -->
+
+  <!-- ONLINE (Top) -->
+  <rect x="350" y="215" width="200" height="70" rx="36" fill="rgba(74,222,128,0.12)" stroke="#4ADE80" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="450" y="244" fill="#4ADE80" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="2">ONLINE</text>
+  <text x="450" y="268" fill="#94a3b8" font-size="9" font-weight="400" text-anchor="middle">正常运行，接受分区分配</text>
+
+  <!-- OFFLINE (Right) -->
+  <rect x="540" y="390" width="200" height="70" rx="36" fill="rgba(239,68,68,0.12)" stroke="#EF4444" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="640" y="419" fill="#EF4444" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="2">OFFLINE</text>
+  <text x="640" y="443" fill="#94a3b8" font-size="9" font-weight="400" text-anchor="middle">磁盘 I/O 故障，检测上报</text>
+
+  <!-- CORDONED (Bottom) -->
+  <rect x="350" y="565" width="200" height="70" rx="36" fill="rgba(245,158,11,0.12)" stroke="#F59E0B" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="450" y="594" fill="#F59E0B" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="2">CORDONED</text>
+  <text x="450" y="618" fill="#94a3b8" font-size="9" font-weight="400" text-anchor="middle">管理员手动隔离，不接受新分区</text>
+
+  <!-- DISABLED (Left) -->
+  <rect x="160" y="390" width="200" height="70" rx="36" fill="rgba(107,114,128,0.12)" stroke="#6B7280" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="260" y="419" fill="#6B7280" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="2">DISABLED</text>
+  <text x="260" y="443" fill="#94a3b8" font-size="9" font-weight="400" text-anchor="middle">Controller 确认故障，副本已迁移</text>
+
+  <!-- ===== LEGEND (bottom-right, outside transition paths) ===== -->
+  <rect x="630" y="640" width="260" height="130" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <text x="640" y="662" fill="#e2e8f0" font-size="10" font-weight="700">图例</text>
+
+  <circle cx="650" cy="680" r="6" fill="#4ADE80"/>
+  <text x="664" y="684" fill="#94a3b8" font-size="9">ONLINE — 正常运行</text>
+  <circle cx="650" cy="702" r="6" fill="#EF4444"/>
+  <text x="664" y="706" fill="#94a3b8" font-size="9">OFFLINE — I/O 故障</text>
+  <circle cx="650" cy="724" r="6" fill="#F59E0B"/>
+  <text x="664" y="728" fill="#94a3b8" font-size="9">CORDONED — 手动隔离</text>
+  <circle cx="650" cy="746" r="6" fill="#6B7280"/>
+  <text x="664" y="750" fill="#94a3b8" font-size="9">DISABLED — 故障确认</text>
+
+  <text x="640" y="766" fill="#64748b" font-size="7">实线箭头 = 状态转换　虚线圆 = 目录生命周期</text>
+</svg>

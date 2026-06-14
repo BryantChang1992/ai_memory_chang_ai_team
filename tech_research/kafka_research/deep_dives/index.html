@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深度调研 · KIP-1279 & KIP-1290 · CHANG_AI_TEAM</title>
+
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">DEEP DIVE · 2026-06-05</div>
+    <h1>KIP-1279 & KIP-1290 深度调研<br>动机 · 架构 · 落地方案</h1>
+    <p class="meta">调研人：CHANG_AI_TEAM CTO · 基于 2026-06-04 Kafka 社区 KIP 讨论</p>
+  </div>
+
+  <!-- ==================== KIP-1279 & KIP-1290 ==================== -->
+  <h2>KIP-1279 & KIP-1290 深度调研</h2>
+
+  <!-- ==================== TOC ==================== -->
+  <div class="toc">
+    <h3>📑 目录</h3>
+    <ol>
+      <li><a href="#overview">总览与核心判断</a></li>
+      <li>
+        <a href="#kip1279">KIP-1279：原生集群镜像（Cluster Mirroring）</a>
+        <ul>
+          <li><a href="#kip1279-motivation">2.1 动机：MirrorMaker 2 的五大痛点</a></li>
+          <li><a href="#kip1279-arch">2.2 核心架构设计</a></li>
+          <li><a href="#kip1279-pid">2.3 PID 映射：从状态变换到 Barrier 控制批</a></li>
+          <li><a href="#kip1279-ule">2.4 Unclean Leader Election 处理</a></li>
+          <li><a href="#kip1279-metadata">2.5 元数据同步与 Failover 流程</a></li>
+          <li><a href="#kip1279-backport">2.6 向 Kafka 2.7.2 移植评估</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#kip1290">KIP-1290：机架感知最小 ISR（Rack-Aware min.insync.replicas）</a>
+        <ul>
+          <li><a href="#kip1290-motivation">3.1 动机：min.insync.replicas 的困境</a></li>
+          <li><a href="#kip1290-design">3.2 核心设计与公共接口</a></li>
+          <li><a href="#kip1290-impl">3.3 实现细节与容错流程</a></li>
+          <li><a href="#kip1290-backport">3.4 向 Kafka 2.7.2 移植评估</a></li>
+        </ul>
+      </li>
+      <li><a href="#comparison">两个 KIP 对比与优先级建议</a></li>
+      <li><a href="#references">参考链接</a></li>
+    </ol>
+  </div>
+
+  <!-- ==================== OVERVIEW ==================== -->
+  <h2 id="overview">1. 总览与核心判断</h2>
+
+  <div class="section-intro">
+    <strong>概述：</strong>本周 Kafka 社区围绕两个议题展开了高质量讨论——<strong>KIP-1279（原生集群镜像）</strong>和 <strong>KIP-1290（机架感知最小 ISR）</strong>，分别解决跨集群容灾和多集群高可用的核心诉求。KIP-1279 由 Luke Chen、Federico Valeri 等 6 人联合提交，将跨集群复制直接集成到 Broker 中，从根本上颠覆 MirrorMaker 2 的部署范式；KIP-1290 由 Karl Sorensen 提出，通过在 Produce 确认路径上增加机架维度检查，为多 AZ 集群提供明确且确定性的跨机架持久性保证。
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:18%">维度</th><th style="width:41%">KIP-1279</th><th style="width:41%">KIP-1290</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>全称</strong></td>
+        <td>Cluster Mirroring（原生集群镜像）</td>
+        <td>Rack-Aware Minimum In-Sync Replicas（机架感知最小 ISR）</td>
+      </tr>
+      <tr>
+        <td><strong>状态</strong></td>
+        <td><span class="tag orange">Under Discussion</span></td>
+        <td><span class="tag orange">Discussion</span></td>
+      </tr>
+      <tr>
+        <td><strong>JIRA</strong></td>
+        <td><a href="https://issues.apache.org/jira/browse/KAFKA-20186" target="_blank">KAFKA-20186</a></td>
+        <td>KAFKA（JIRA 内联）</td>
+      </tr>
+      <tr>
+        <td><strong>作者</strong></td>
+        <td>Luke Chen, Federico Valeri, Omnia Ibrahim,<br>PoAn Yang, Kuan-Po Tseng, Jiunn-Yang Huang</td>
+        <td>Karl Sorensen</td>
+      </tr>
+      <tr>
+        <td><strong>复杂度</strong></td>
+        <td><span class="tag red">极高</span> 全栈：协议/存储/Admin/Metadata</td>
+        <td><span class="tag green">低</span> 局部：ISR 校验路径 + 配置</td>
+      </tr>
+      <tr>
+        <td><strong>影响面</strong></td>
+        <td>新增 Broker 角色（Mirror Leader/Follower）<br>新增 Network Protocol<br>新增内部控制批（Type 7）<br>新增 Admin API / CLI<br>新增 Metrics / Internal Topics</td>
+        <td>新增 1 个 Broker 配置 <code>min.insync.racks</code><br>新增 1 个 Error Code<br>新增 4 个 Metrics<br>修改 Produce ACK 路径（约 10 行逻辑）</td>
+      </tr>
+      <tr>
+        <td><strong>2.7.2 移植可行性</strong></td>
+        <td><span class="tag red">不推荐</span> 架构级变更</td>
+        <td><span class="tag green">可行</span> 局部修改，约 100 行代码</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <strong>💡 核心判断</strong>
+    <ul>
+      <li><strong>KIP-1290</strong> 是"低风险高回报"的改进——适合优先落地，改动小、收益明确、向后兼容。</li>
+      <li><strong>KIP-1279</strong> 是架构级变革——长期价值巨大（消除 MM2 运维成本、零损耗镜像），但复杂度极高，2.7.2 移植不可行，应作为升级到最新版本的推动力。</li>
+      <li><strong>对 AutoMQ 的影响</strong>：如果 KIP-1279 落地，社区版原生具备集群镜像，AutoMQ 的差异化需要转向更高层的自动化运维与智能路由方向。</li>
+    </ul>
+  </div>
+
+  <!-- ==================== KIP-1279 ==================== -->
+  <h2 id="kip1279">2. KIP-1279：原生集群镜像（Cluster Mirroring）</h2>
+
+  <p>
+    <strong>官方链接：</strong>
+    <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring" target="_blank">cwiki.apache.org/confluence/display/KAFKA/KIP-1279</a>
+    &nbsp;|&nbsp;
+    <a href="https://lists.apache.org/thread/vr3nj1smtjtl4qfn5opk7ozjc6jqjjsw" target="_blank">邮件列表讨论</a>
+  </p>
+
+  <!-- 2.1 Motivation -->
+  <h3 id="kip1279-motivation">2.1 动机：MirrorMaker 2 的五大痛点</h3>
+
+  <p>KIP-1279 解决了一个 Kafka 运维中反复出现的痛点——跨集群数据复制。当前方案 MirrorMaker 2（基于 Connect 框架）存在以下问题：</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:5%">#</th><th style="width:22%">痛点</th><th style="width:73%">详解</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>运维负担</strong></td>
+        <td>
+          MM2 作为独立 Connect Worker 运行在 Kafka Broker 之外，需要：
+          <ul>
+            <li>额外的主机采购与部署</li>
+            <li>独立的 Connect 配置管理</li>
+            <li>MM2 升级与 Broker 升级不同步，版本矩阵复杂</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>压缩低效</strong></td>
+        <td>
+          源集群的压缩消息在 MM2 中被<strong>解压再重压缩</strong>——这是完全冗余的 CPU 密集型操作，直接拖慢镜像吞吐并增加延迟。
+        </td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>有损 Offset 翻译</strong></td>
+        <td>
+          MM2 无法维护完整的源→目标 Offset 映射表（内存不足），当精确映射不可用时，返回的偏移量保证 <em>不晚于</em> 实际记录（即只会回退、不会跳过）。Failover 时消费端大量重复处理，高吞吐 Topic 尤其严重。
+        </td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>外部 Offset 复杂性</strong></td>
+        <td>
+          Flink/Spark Streaming、Kafka Connect Source、事务化应用场景中，消费端 Offset 存储在外部系统。Failover 时必须额外查询 MM2 的 <code>__consumer_offsets</code> 内嵌主题做 Offset 翻译。这增加了一个故障点和操作复杂度。
+        </td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>ULE 处理不当</strong></td>
+        <td>
+          MM2 无法优雅处理源集群的 Unclean Leader Election。源端发生 ULE 后数据丢失，目标端可能仍然保留已丢失的数据——导致<strong>两集群数据状态分歧</strong>，这是 DR 场景中不可接受的。
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>✅ KIP-1279 的解决思路</strong>
+    将跨集群复制逻辑直接集成到 Broker 内部，以原生协议进行镜像。核心价值：零外部依赖、零压缩损耗、精确 Offset 保持、元数据自动同步、快速 Failover 无 Offset 翻译。
+  </div>
+
+  <!-- 2.2 Architecture -->
+  <h3 id="kip1279-arch">2.2 核心架构设计</h3>
+
+  <h4>镜像角色模型</h4>
+  <p>KIP-1279 引入两个新的逻辑角色，直接在 Broker 内部实现跨集群复制协议：</p>
+
+  <table>
+    <thead>
+      <tr><th>角色</th><th>职责</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Mirror Leader</strong></td>
+        <td>源集群的 Partition Leader。向 Mirror Follower 提供数据，与普通 Follower Fetch 协议复用（基于 Leader Epoch）。</td>
+      </tr>
+      <tr>
+        <td><strong>Mirror Follower</strong></td>
+        <td>目标集群的消费者角色。像普通 Follower 一样从源集群 Mirror Leader Fetch 数据并写入本地日志，保持相同的 Offset 和 Producer ID。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <h4>🏗️ 核心设计原则</h4>
+    <ol>
+      <li>
+        <strong>异步复制，不影响源端延迟</strong>——Producer 在源集群等待 ISR ACK（如 acks=all），数据异步 Mirror 到目标集群。源端吞吐和延迟完全不受镜像影响。
+      </li>
+      <li>
+        <strong>Native Byte Copy</strong>——Mirror Follower 直接复制源集群的字节流写入本地日志，<strong>不解压不重压缩</strong>。这是相比 MM2 最关键的性能优势。
+      </li>
+      <li>
+        <strong>Offset 保持</strong>——源集群和目的集群的 Offset 完全一致。Failover 后 Consumer 无需任何 Offset 翻译——这就是精确映射（而非概率性回退）。
+      </li>
+      <li>
+        <strong>Delta Failback</strong>——目标集群的 Mirror Follower 实际上维护了与源集群的 Fetch 关系。Failback 时只需从上次 Fetch 位置继续，实现<strong>增量反向镜像</strong>。
+      </li>
+      <li>
+        <strong>版本兼容</strong>——源端支持 2.1+（DR/Migration 场景下，利用 4.0 引入的 Client/Broker Forward Compatibility）。目标端需要 4.1+。
+      </li>
+    </ol>
+  </div>
+
+  <div class="callout info">
+    <strong>🔧 新增组件一览</strong>
+    <ul>
+      <li><strong>Network Protocol</strong>：新的 Mirror Fetch API（类似 Fetch API，但携带额外 Mirror 元数据）</li>
+      <li><strong>Admin API / CLI</strong>：<code>kafka-mirrors.sh --create --bootstrap-server src:9092 --to-bootstrap-server dst:9092</code></li>
+      <li><strong>Internal Topic</strong>：<code>__cluster_metadata</code>（Topic 配置、Consumer Group Offsets、ACL 的同步载体）</li>
+      <li><strong>Control Batch Type 7</strong>：<code>MIRROR_PID_RESET</code>——在镜像停止时清理 Producer State</li>
+      <li><strong>Mirror State Machine</strong>：每个 Partition 的 Mirror 生命周期（STARTED → STOPPING → STOPPED）</li>
+    </ul>
+  </div>
+
+  <!-- 2.3 PID Mapping -->
+  <h3 id="kip1279-pid">2.3 PID 映射：状态变换 → Barrier 控制批</h3>
+
+  <p>这是 KIP-1279 最精巧的设计之一。两个独立集群可能给不同 Producer 分配相同的 PID（64 位长整型），直接复制会导致 <code>ProducerStateManager</code> 混淆。</p>
+
+  <h4>旧方案：状态性 PID 变换</h4>
+  <pre>transform(pid) = -(pid + 2)
+
+# 问题：链式镜像中变换不可逆
+A: pid=5   →   B: pid=-7   →   C: -((-7)+2) = 5  ❌ 碰撞!</pre>
+
+  <p>链式镜像（A→B→C）中，PID 在 C 端恢复成原始值，与本地 Producer 产生碰撞，导致：</p>
+  <ul>
+    <li>同 Epoch 批量被静默覆盖——<strong>无声数据损坏</strong></li>
+    <li>不同 Epoch 不触发 Fencing 异常——仅一条 WARN 日志</li>
+    <li>事务交织——一个 Producer 的 Commit Marker 关闭了另一个 Producer 的事务</li>
+  </ul>
+
+  <h4>新方案：MIRROR_PID_RESET 控制批（Type 7）</h4>
+  <p>核心洞察：镜像期间目标分区<strong>只读</strong>，所有 ProducerState 条目都来自镜像数据。Failover 时所有条目都已失效——可以安全地全部过期。</p>
+
+  <pre># Mirror Partition 状态机
+MIRRORING (read-only) → STOPPING → STOPPED (writable)
+
+# STOPPING 阶段写入 Barrier
+┌─────────────────────────────────────┐
+│ MIRROR_PID_RESET 控制批 (Type: 7)    │
+│ Version: 0                          │
+│ SourceClusterId: "uuid-of-source"    │
+└─────────────────────────────────────┘
+
+# 效果
+A: pid=5(A来源) → B: pid=5(A来源)  # 保持原始 PID
+                  Barrier → 清空所有 PSM 条目
+  
+B writable: pid=5(B新Producer) → C: pid=5(B来源)  # 无碰撞!</pre>
+
+  <p>控制批对 Consumer 透明（通过 <code>isControlBatch</code> 过滤，类似事务 Marker），可以在任何镜像拓扑下正确工作：Active-Passive、Failback、Fan-out、Fan-in、Chain。</p>
+
+  <h4>Record Schema</h4>
+  <pre>{
+  "type": "data",
+  "name": "MirrorPidResetRecord",
+  "validVersions": "0",
+  "fields": [
+    { "name": "Version", "type": "int16" },
+    { "name": "SourceClusterId", "type": "string",
+      "about": "源集群 UUID，用于数据溯源与验证" }
+  ]
+}</pre>
+
+  <!-- 2.4 ULE -->
+  <h3 id="kip1279-ule">2.4 Unclean Leader Election 处理</h3>
+
+  <p>这是 KIP-1279 的第二个深度子问题。ULE 会导致源端数据丢失，但 Mirror Follower 本地仍保留旧数据——两集群数据<strong>不可收敛</strong>。</p>
+
+  <h4>核心机制：Last Mirrored Leader Epoch (LMLE)</h4>
+
+  <p>LMLE 是源集群识别的"两个集群在 Leader Epoch 视角下已同步"的最新 Leader Epoch。每次反向镜像（Failback）时：</p>
+
+  <ol>
+    <li>旧 Source 首先查询目标集群的 LMLE</li>
+    <li>截断本地 Log 中所有 Leader Epoch &gt; LMLE 的记录</li>
+    <li>然后从目标集群 Fetch 数据，实现日志收敛</li>
+  </ol>
+
+  <h4>新增 Topic-Level 配置：<code>mirror.support.unclean.leader.election</code></h4>
+
+  <table>
+    <thead>
+      <tr><th>配置</th><th>默认值</th><th>行为</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>mirror.support.unclean.leader.election</code></td>
+        <td><code>false</code></td>
+        <td>
+          当 <code>true</code> 时，LMLE 截断会等待 <strong>All Replicas</strong>（非仅 ISR）完成截断。确保即使在之后的 ULE 中，非 ISR 副本成为 Leader 也不会导致数据不一致。
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>⚠️ 注意事项</strong>
+    启用此配置后，如果有副本因网络/磁盘问题无法追上 Leader，镜像会处于 PENDING 或 FAILED 状态。运维需手动处理或重分配副本。
+  </div>
+
+  <!-- 2.5 Metadata -->
+  <h3 id="kip1279-metadata">2.5 元数据同步与 Failover 流程</h3>
+
+  <h4>自动同步范围</h4>
+  <ul>
+    <li><strong>Topic 配置</strong>（partition count、retention、compaction 等）</li>
+    <li><strong>Consumer Group Offsets</strong>——Failover 后 Consumer 直接恢复，无需 Offset 翻译</li>
+    <li><strong>ACL</strong>——安全策略自动同步</li>
+  </ul>
+
+  <h4>Failover 流程</h4>
+  <ol>
+    <li>停止源集群的 Mirror，进入 STOPPING 状态</li>
+    <li>写入 MIRROR_PID_RESET Barrier</li>
+    <li>目标分区变为 Writable（STOPPED 状态）</li>
+    <li>Consumer 直接使用已同步的 Group Offset 恢复消费</li>
+    <li>（可选）源恢复后，从目标增量反向镜像（Delta Failback）</li>
+  </ol>
+
+  <h4>监控</h4>
+  <p>所有 Mirror 指标通过标准 Kafka Broker JMX 暴露：Mirror Lag、Replication Rate、Partition State、ULE Detection 等，与现有 Replication Metrics 统一。</p>
+
+  <!-- 2.6 Backport -->
+  <h3 id="kip1279-backport">2.6 向 Kafka 2.7.2 移植评估</h3>
+
+  <div class="callout danger">
+    <strong>❌ 结论：不可行，不推荐尝试</strong>
+    KIP-1279 是一个全栈架构级变更，涉及 Network Protocol、Storage Format、KRaft Metadata、Admin API、Consumer Group Protocol 等多个层面，<strong>不能</strong>被合理 Backport 到 2.7.2。
+  </div>
+
+  <h4>根本原因</h4>
+
+  <table>
+    <thead>
+      <tr><th>依赖项</th><th>2.7.2 状态</th><th>KIP-1279 要求</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>KRaft (KIP-500)</strong></td>
+        <td>Early Access（不推荐生产）</td>
+        <td><span class="tag red">必须</span>——Mirror Metadata 存储在 KRaft 中，ZooKeeper 元数据模型不支持集群镜像语义</td>
+      </tr>
+      <tr>
+        <td><strong>Leader Epoch 协议 (KIP-101)</strong></td>
+        <td>✅ 已支持</td>
+        <td>✅ 已支持（但 LMLE 概念不存在）</td>
+      </tr>
+      <tr>
+        <td><strong>Topic ID (KIP-516)</strong></td>
+        <td>❌ 不存在</td>
+        <td><span class="tag red">必须</span>——Topic ID 是跨集群唯一标识的关键</td>
+      </tr>
+      <tr>
+        <td><strong>Control Batches (KIP-360)</strong></td>
+        <td>Support Transaction Marker (Type 0-5)</td>
+        <td>需新增 Type 7 (<code>MIRROR_PID_RESET</code>)</td>
+      </tr>
+      <tr>
+        <td><strong>Mirror Protocol</strong></td>
+        <td>Fetch API (无 Mirror 语义)</td>
+        <td><span class="tag red">必须</span>——需要新增 Mirror Fetch API，携带 Source Cluster ID、LMLE 等元数据</td>
+      </tr>
+      <tr>
+        <td><strong>KRaft Metadata Topic</strong></td>
+        <td>❌ ZK-based Metadata</td>
+        <td><span class="tag red">必须</span>——Mirror 状态、LMLE 数据需要强一致存储</td>
+      </tr>
+      <tr>
+        <td><strong>Admin API / CLI</strong></td>
+        <td>AdminClient 基础 API</td>
+        <td>需新增 Mirror Admin API（`kafka-mirrors.sh`）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <strong>📋 2.7.2 用户的替代路径</strong>
+    <p>如果必须在 2.7.2 上实现集群镜像，建议：</p>
+    <ol>
+      <li><strong>短期</strong>：优化现有 MM2 部署（增加 MM2 Worker 资源、启用压缩选项、定期重建 Offset 同步表）</li>
+      <li><strong>中期</strong>：使用 MM2 的 <code>emit.heartbeats.enabled=true</code> + <code>sync.group.offsets.enabled=true</code> 减少 Offset 翻译的损耗</li>
+      <li><strong>长期</strong>：规划升级到 4.1+（KIP-1279 目标版本），将集群镜像作为升级的推动力</li>
+    </ol>
+  </div>
+
+  <!-- ==================== KIP-1290 ==================== -->
+  <h2 id="kip1290">3. KIP-1290：机架感知最小 ISR</h2>
+
+  <p>
+    <strong>官方链接：</strong>
+    <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas" target="_blank">cwiki.apache.org/confluence/display/KAFKA/KIP-1290</a>
+    &nbsp;|&nbsp;
+    <strong>作者：</strong>Karl Sorensen
+  </p>
+
+  <!-- 3.1 Motivation -->
+  <h3 id="kip1290-motivation">3.1 动机：min.insync.replicas 的困境</h3>
+
+  <p>Kafka 已支持机架感知（<code>broker.rack</code>，KIP-36）和机架感知 Consumer Fetch（KIP-392），但在 <strong>Produce 确认路径</strong>上仍缺少机架维度的保障。</p>
+
+  <div class="card">
+    <h4>🎯 问题场景</h4>
+    <p>一个 3-AZ 集群（AZ = A, B, C），RF=5：</p>
+    <ul>
+      <li>操作者想要保证每条写入消息至少跨 <strong>2 个 AZ</strong> 持久化</li>
+      <li>但目前只能设置 <code>min.insync.replicas</code>——这是一个<strong>数量</strong>概念，而非<strong>分布</strong>概念</li>
+      <li><code>min.insync.replicas=3</code> 只能概率性地保证跨 AZ（有可能 3 个副本全在 AZ-A）</li>
+      <li><code>min.insync.replicas=4</code> 可能不够（取决于分布），而且每个多余 ISR 都增加 Producer 延迟</li>
+    </ul>
+    <p><strong>核心矛盾</strong>：<code>min.insync.replicas</code> 混淆了两个正交维度：</p>
+    <ul>
+      <li><strong>耐久性</strong>（几个副本有数据）</li>
+      <li><strong>故障域覆盖</strong>（副本跨几个 AZ）</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <strong>🔎 现有替代方案对比</strong>
+    <ul>
+      <li><strong>Confluent Observer Replicas</strong>：提供异步跨 DC 复制，但属于私有功能、不可在 Apache Kafka 中获取，且引入新的 Replica 类型和复制语义</li>
+      <li><strong>KIP-1290</strong>：仅在 ISR 校验路径增加机架检查——<strong>最小化侵入性</strong>，不改变 Replication Protocol</li>
+    </ul>
+  </div>
+
+  <!-- 3.2 Design -->
+  <h3 id="kip1290-design">3.2 核心设计与公共接口</h3>
+
+  <h4>新 Broker 配置</h4>
+  <table>
+    <thead>
+      <tr><th>配置</th><th>类型</th><th>默认</th><th>描述</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>min.insync.racks</code></td>
+        <td>int</td>
+        <td>1</td>
+        <td>
+          acks=all 时，Produce 请求被确认前必须有多少不同 rack 包含 ISR。<br>
+          <strong>1=关闭（默认）</strong>；&ge;2 启用机架感知检查。<br>
+          需要 <code>broker.rack</code> 在所有 Broker 上配置。
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>新 Error Code</h4>
+  <table>
+    <thead>
+      <tr><th>Error Code</th><th>描述</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>NOT_ENOUGH_RACKS</code></td>
+        <td>
+          ISR 跨的 rack 数量少于 <code>min.insync.racks</code>。Produce 请求被拒绝，直到更多 rack 上的副本加入 ISR。<br>
+          此错误继承自 <code>InvalidMetadataException</code>（与 <code>NotEnoughReplicasException</code> 相同父类），保证现有 Client 的兼容性。
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>新 Metrics</h4>
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>Scope</th><th>描述</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>UnderMinRackIsr</code></td><td>Partition</td><td>1=该分区 ISR 跨越的 rack 数 &lt; min.insync.racks</td></tr>
+      <tr><td><code>AtMinRackIsr</code></td><td>Partition</td><td>1=该分区 ISR rack 数 == min.insync.racks</td></tr>
+      <tr><td><code>UnderMinRackIsrPartitionCount</code></td><td>Broker</td><td>UnderMinRackIsr=1 的 Leader Partition 数量</td></tr>
+      <tr><td><code>AtMinRackIsrPartitionCount</code></td><td>Broker</td><td>AtMinRackIsr=1 的 Leader Partition 数量</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 3.3 Implementation -->
+  <h3 id="kip1290-impl">3.3 实现细节</h3>
+
+  <h4>ISR Rack 计数（无额外网络开销）</h4>
+  <p>Broker 已通过 <code>broker.rack</code> 知晓每个副本的 Rack 信息。Rack 检查仅在 Produce ACK 路径上做一次本地 O(n) 计算：</p>
+
+  <pre>def countDistinctRacks(isr: Set[BrokerEndpoint]): Int = {
+  isr.map(_.rack).filterNot(_.isEmpty).size
+}
+// 复杂度: O(n), n = ISR size (通常 3-5)
+// 无线程新增、无网络调用、无协议变更
+// 仅当 min.insync.racks > 1 时执行</pre>
+
+  <h4>Produce 确认路径变更</h4>
+
+  <pre>// 2.7.2 现有逻辑 (ReplicaManager.checkEnoughReplicasReachOffset)
+if (minIsr <= curMaximalIsr.size)
+  (true, Errors.NONE)
+else
+  (true, Errors.NOT_ENOUGH_REPLICAS_AFTER_APPEND)
+
+// KIP-1290 扩展后逻辑
+if (minIsr <= curMaximalIsr.size) {
+  if (min.insync.racks > 1) {
+    val rackCount = countDistinctRacks(curMaximalIsr)
+    if (rackCount >= min.insync.racks)
+      (true, Errors.NONE)
+    else
+      (true, Errors.NOT_ENOUGH_RACKS)
+  } else {
+    (true, Errors.NONE)
+  }
+} else {
+  (true, Errors.NOT_ENOUGH_REPLICAS_AFTER_APPEND)
+}</pre>
+
+  <div class="callout info">
+    <strong>💡 设计要点</strong>
+    <ul>
+      <li><code>min.insync.replicas</code> 和 <code>min.insync.racks</code> 同时满足才确认——两个阈值互补</li>
+      <li><code>NotEnoughReplicasException</code> 和 <code>NotEnoughRacksException</code> 两个 Error Code 分开——运维可立即区分故障类型</li>
+      <li>未配置 <code>broker.rack</code> 的 Broker 被视为属于同一个无名 Rack（空字符串）</li>
+    </ul>
+  </div>
+
+  <h4>Rack 故障处理流程</h4>
+
+  <div class="backport-section">
+    <div class="step">
+      <strong>监控告警</strong>：通过 <code>UnderMinRackIsrPartitionCount</code> Metric 检测到机架多样性不足
+    </div>
+    <div class="step">
+      <strong>评估</strong>：操作者判断故障时长。短暂故障（分钟级）不需要动作；长时故障进入步骤 3
+    </div>
+    <div class="step">
+      <strong>动态降级</strong>：<code>kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic my-topic --add-config min.insync.racks=1</code>
+    </div>
+    <div class="step">
+      <strong>恢复</strong>：Rack 恢复、ISR 扩容后，恢复原始 <code>min.insync.racks</code> 值
+    </div>
+  </div>
+
+  <p>该设计遵循了 <code>min.insync.replicas</code> 的现有操作模型——不自动降级，运维显式调整。</p>
+
+  <h4>验证规则（启动时 + 动态配置变更时）</h4>
+  <ul>
+    <li>若 <code>min.insync.racks > 1</code> 但本地 Broker 未配置 <code>broker.rack</code> → <strong>拒绝启动</strong>（或拒绝动态变更）</li>
+    <li><code>min.insync.racks</code> 必须 &ge; 1</li>
+    <li>若 <code>min.insync.racks</code> 超过集群中已知的 Rack 数量 → WARN（不拒绝——Rack 可能后续新增）</li>
+  </ul>
+
+  <!-- 3.4 Backport -->
+  <h3 id="kip1290-backport">3.4 向 Kafka 2.7.2 移植评估</h3>
+
+  <div class="callout success">
+    <strong>✅ 结论：可行，改动小，风险可控</strong>
+    KIP-1290 是局部修改——仅在 Produc ACK 路径上增加 Rack 计数检查。不涉及网络协议变更、不修改存储格式、不改变 ISR 协议。
+  </div>
+
+  <h4>具体移植路径</h4>
+
+  <div class="backport-section">
+    <div class="step"><strong>新增 <code>min.insync.racks</code> 配置</strong>
+      <p>在 <code>kafka/server/KafkaConfig.scala</code>（2.7.2 为 Scala 代码库）中添加新配置项，默认值为 1。匹配 <code>TopicConfigs</code> 中的 per-topic override 路径。</p>
+      <pre>// kafka/server/KafkaConfig.scala
+val MinInSyncRacksProp = "min.insync.racks"
+val MinInSyncRacksDoc = "When acks=all, min number of distinct racks..."
+
+// kafka/log/LogConfig.scala  
+val MinInSyncRacksProp = "min.insync.racks"
+val DEFAULT_MIN_IN_SYNC_RACKS = 1
+var minInSyncRacks: Int = DEFAULT_MIN_IN_SYNC_RACKS
+// 添加到 LogConfig 验证和 TopicConfigs 映射</pre>
+    </div>
+
+    <div class="step"><strong>新增 <code>NOT_ENOUGH_RACKS</code> Error Code</strong>
+      <p>在 <code>org.apache.kafka.common.errors</code> 包中新增 <code>NotEnoughRacksException</code>，继承 <code>InvalidMetadataException</code>。</p>
+      <pre>// clients/src/main/java/org/apache/kafka/common/errors/
+public class NotEnoughRacksException extends InvalidMetadataException {
+    public NotEnoughRacksException(String message) {
+        super(message);
+    }
+}
+
+// 在 Errors.java 中注册新 Error Code:
+NOT_ENOUGH_RACKS(XX, "There are not enough racks...",
+    NotEnoughRacksException::new),</pre>
+    </div>
+
+    <div class="step"><strong>修改 <code>ReplicaManager.checkEnoughReplicasReachOffset</code></strong>
+      <p>在 <code>kafka/cluster/Partition.scala</code> 的 <code>checkEnoughReplicasReachOffset</code> 方法中增加 Rack 计数逻辑。</p>
+      <pre>// 2.7.2 中此方法在 Partition.scala:826
+def checkEnoughReplicasReachOffset(requiredOffset: Long): (Boolean, Errors) = {
+  leaderLogIfLocal match {
+    case Some(leaderLog) =>
+      val curMaximalIsr = isrState.maximalIsr
+      val minIsr = leaderLog.config.minInSyncReplicas
+      
+      // === KIP-1290 新增逻辑 ===
+      val minRacks = leaderLog.config.minInSyncRacks // 从 LogConfig 获取
+      // ... 现有的 minIsr 检查 ...
+
+      if (leaderLog.highWatermark >= requiredOffset) {
+        val hasEnoughReplicas = minIsr <= curMaximalIsr.size
+        val hasEnoughRacks = if (minRacks > 1) {
+          val distinctRacks = curMaximalIsr.flatMap { brokerId =>
+            metadataCache.getAliveBroker(brokerId).flatMap(_.rack)
+          }.size
+          distinctRacks >= minRacks
+        } else true
+
+        if (!hasEnoughReplicas)
+          (true, Errors.NOT_ENOUGH_REPLICAS_AFTER_APPEND)
+        else if (!hasEnoughRacks)
+          (true, Errors.NOT_ENOUGH_RACKS)
+        else
+          (true, Errors.NONE)
+      } else
+        (false, Errors.NONE)
+    case None =>
+      (false, Errors.NOT_LEADER_OR_FOLLOWER)
+  }
+}</pre>
+    </div>
+
+    <div class="step"><strong>新增 Metrics</strong>
+      <p>注册 4 个新 Yammer Metrics（2.7.2 使用 Yammer Metrics 库）：<code>UnderMinRackIsr</code>、<code>AtMinRackIsr</code>、<code>UnderMinRackIsrPartitionCount</code>、<code>AtMinRackIsrPartitionCount</code>。</p>
+    </div>
+
+    <div class="step"><strong>添加验证逻辑</strong>
+      <p>在 Broker 启动和 Topic 配置变更时增加 rack 配置验证：如果 <code>min.insync.racks > 1</code> 但 <code>broker.rack</code> 未设置，log ERROR 并拒绝。</p>
+    </div>
+
+    <div class="step"><strong>测试</strong>
+      <p>参考 KIP 中的 Test Plan（多 Rack 集群、Rack 故障场景、动态降级/恢复）。</p>
+    </div>
+  </div>
+
+  <h4>移植风险评估</h4>
+
+  <table>
+    <thead>
+      <tr><th>风险项</th><th>等级</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>向后兼容</td>
+        <td><span class="tag green">零风险</span></td>
+        <td>默认 <code>min.insync.racks=1</code>，现有集群零行为变化</td>
+      </tr>
+      <tr>
+        <td>Client 兼容</td>
+        <td><span class="tag green">低风险</span></td>
+        <td>新 Error Code 继承 <code>InvalidMetadataException</code>，现有 Client 能处理</td>
+      </tr>
+      <tr>
+        <td>性能影响</td>
+        <td><span class="tag green">零开销</span></td>
+        <td>Rack 计数仅在 Produce ACK 路径上一个 O(n) 操作（n &le; ISR size），ISR 通常 3-5 个成员；默认关闭时完全跳过</td>
+      </tr>
+      <tr>
+        <td>代码复杂度</td>
+        <td><span class="tag green">低</span></td>
+        <td>总代码量约 100 行（含配置、Error、逻辑、Metrics）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>2.7.2 移植总工作量估算</h4>
+  <table>
+    <thead>
+      <tr><th>工作项</th><th>文件数</th><th>代码行数（估计）</th><th>工时（人天）</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>新增配置 + 验证</td><td>3</td><td>~30</td><td>0.5</td></tr>
+      <tr><td>新增 Error Code</td><td>2</td><td>~15</td><td>0.5</td></tr>
+      <tr><td>Rack 计数逻辑</td><td>1</td><td>~25</td><td>1</td></tr>
+      <tr><td>Metrics 注册</td><td>1</td><td>~25</td><td>0.5</td></tr>
+      <tr><td>单元测试</td><td>2</td><td>~80</td><td>1</td></tr>
+      <tr><td>集成测试</td><td>1</td><td>~50</td><td>1</td></tr>
+      <tr><td><strong>总计</strong></td><td><strong>~10</strong></td><td><strong>~225</strong></td><td><strong>~4.5</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>✅ 推荐先做 KIP-1290 移植</strong>
+    <p>如果团队需要将新特性 backport 到 2.7.2，KIP-1290 是最理想的候选——4.5 人天即可完成全部移植 + 测试。生产风险极低（默认关闭），且解决了多 AZ 集群跨机架持久化的真实痛点。</p>
+  </div>
+
+  <!-- ==================== COMPARISON ==================== -->
+  <h2 id="comparison">4. 两个 KIP 对比与优先级建议</h2>
+
+  <table>
+    <thead>
+      <tr><th>维度</th><th>KIP-1279</th><th>KIP-1290</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>解决的问题</strong></td>
+        <td>跨集群 DR、迁移、Active-Active</td>
+        <td>多 AZ 集群内的跨机架持久化</td>
+      </tr>
+      <tr>
+        <td><strong>当前替代方案</strong></td>
+        <td>MirrorMaker 2（运维成本高、有损 Offset）</td>
+        <td>手动调高 <code>min.insync.replicas</code>（概率性、不精准）</td>
+      </tr>
+      <tr>
+        <td><strong>2.7.2 移植可行性</strong></td>
+        <td><span class="tag red">不可行</span></td>
+        <td><span class="tag green">可行</span>（4.5 人天）</td>
+      </tr>
+      <tr>
+        <td><strong>升级到最新版本的价值</strong></td>
+        <td><span class="tag blue">极高</span>——KIP-1279 可能是 Kafka 4.1+ 最大的卖点</td>
+        <td><span class="tag green">通过 Backport 解决</span></td>
+      </tr>
+      <tr>
+        <td><strong>AutoMQ 影响</strong></td>
+        <td>社区原生镜像可能削弱 AutoMQ 的差异化优势</td>
+        <td>无直接影响</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>推荐路线图</h3>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>阶段</th><th>时间线</th><th>行动</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag blue">P0</span></td>
+          <td>本周</td>
+          <td><strong>KIP-1290 Backport</strong>：完成 2.7.2 移植，4.5 人天投入，立即可用</td>
+        </tr>
+        <tr>
+          <td><span class="tag orange">P1</span></td>
+          <td>Q3 2026</td>
+          <td><strong>KIP-1279 社区跟踪</strong>：在 4.1 发布后评估生产就绪度，制定升级计划</td>
+        </tr>
+        <tr>
+          <td><span class="tag purple">P2</span></td>
+          <td>Q4 2026</td>
+          <td><strong>升级评估</strong>：如果 KIP-1279 在 4.1 中稳定，将 Kafka 升级纳入 Q4 Roadmap，淘汰 MM2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== REFERENCES ==================== -->
+  <h2 id="references">5. 参考链接</h2>
+
+  <ul>
+    <li>
+      <strong>KIP-1279: Cluster Mirroring</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring</a>
+    </li>
+    <li>
+      <strong>KIP-1279: PID Mapping in Cluster Mirroring</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/PID+Mapping+in+Cluster+Mirroring" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/PID+Mapping+in+Cluster+Mirroring</a>
+    </li>
+    <li>
+      <strong>KIP-1279: Unclean Leader Election in Cluster Mirroring</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/Unclean+Leader+Election+in+Cluster+Mirroring" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/Unclean+Leader+Election+in+Cluster+Mirroring</a>
+    </li>
+    <li>
+      <strong>KIP-1290: Rack-Aware Minimum In-Sync Replicas</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas</a>
+    </li>
+    <li>
+      <strong>KIP-1279 邮件列表讨论</strong><br>
+      <a href="https://lists.apache.org/thread/vr3nj1smtjtl4qfn5opk7ozjc6jqjjsw" target="_blank">https://lists.apache.org/thread/vr3nj1smtjtl4qfn5opk7ozjc6jqjjsw</a>
+    </li>
+    <li>
+      <strong>JIRA: KAFKA-20186</strong><br>
+      <a href="https://issues.apache.org/jira/browse/KAFKA-20186" target="_blank">https://issues.apache.org/jira/browse/KAFKA-20186</a>
+    </li>
+    <li>
+      <strong>KIP-36: Rack Aware Replica Assignment</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-36%3A+Rack+aware+replica+assignment" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/KIP-36</a>
+    </li>
+    <li>
+      <strong>KIP-392: Allow consumers to fetch from closest replica</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-392%3A+Allow+consumers+to+fetch+from+closest+replica" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/KIP-392</a>
+    </li>
+    <li>
+      <strong>KIP-500: Replace ZooKeeper with KRaft</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-500%3A+Replace+ZooKeeper+with+a+Self-Managed+Metadata+Quorum" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/KIP-500</a>
+    </li>
+    <li>
+      <strong>KIP-516: Topic IDs</strong><br>
+      <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-516%3A+Topic+Identifiers" target="_blank">https://cwiki.apache.org/confluence/display/KAFKA/KIP-516</a>
+    </li>
+  </ul>
+
+  <footer>
+    <p>由 <strong>CHANG_AI_TEAM</strong> CTO 深度调研 · 2026 年 6 月 5 日</p>
+    <p>仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

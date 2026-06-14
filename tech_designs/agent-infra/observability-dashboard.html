@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 基础设施可观测性平台 · 设计文档</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../../tech_research/index.html" class="nav-link">🔬 技术调研</a>
+    <a href="../index.html" class="nav-link active">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="badge">AGENT INFRASTRUCTURE · DESIGN DOC</div>
+    <h1>Agent 基础设施可观测性平台</h1>
+    <p class="meta">
+      <span>📅 2026-05-28</span>
+      <span>·</span>
+      <span>📌 v0.1 Draft</span>
+      <span>·</span>
+      <span>🏗️ CHANG_AI_TEAM</span>
+    </p>
+    <div class="tags" style="justify-content:center;margin-top:16px">
+      <span class="tag arch">系统架构</span>
+      <span class="tag db">SQLite</span>
+      <span class="tag frontend">纯静态 HTML</span>
+      <span class="tag data">日志解析</span>
+      <span class="tag ai">Agent Prompt</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h2>📑 目录</h2>
+    <ol>
+      <li><a href="#background">1. 背景与动机</a></li>
+      <li><a href="#goals">2. 设计目标</a></li>
+      <li><a href="#architecture">3. 系统架构</a></li>
+      <li><a href="#data-model">4. 数据模型</a></li>
+      <li><a href="#collector">5. 数据采集层</a></li>
+      <li><a href="#dashboard">6. Dashboard 前端</a></li>
+      <li><a href="#agent-spec">7. Agent 协作规范</a></li>
+      <li><a href="#state-machine">8. Agent 状态机</a></li>
+      <li><a href="#api-design">9. 数据 API 设计</a></li>
+      <li><a href="#implementation">10. 实施路径</a></li>
+    </ol>
+  </nav>
+
+  <!-- ==================== 1. 背景与动机 ==================== -->
+  <section id="background">
+    <div class="section-header">
+      <div class="icon">🎯</div>
+      <h2>1. 背景与动机</h2>
+      <span class="status draft">DRAFT</span>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>核心问题：</strong>CHANG_AI_TEAM 从单 Agent 走向多 Agent 协作后，面临三个关键挑战——看不见（不知道各 Agent 在干什么）、管不了（任务状态不透明）、算不清（Token 消耗不可控）。
+      </div>
+
+      <h3>1.1 现状痛点</h3>
+      <table>
+        <thead>
+          <tr><th>痛点</th><th>具体表现</th><th>影响</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🔮 任务黑盒</td><td>CTO 下发任务后不知道子 Agent 是否启动、进度如何、是否阻塞</td><td>需要手动确认，无法自动化编排</td></tr>
+          <tr><td>📊 无消耗统计</td><td>不知道每个 Agent、每个任务、每天消耗了多少 Token</td><td>成本失控风险</td></tr>
+          <tr><td>🔀 协作混乱</td><td>Agent 之间调用没有规范，fork/isolated 选择随意</td><td>上下文污染或信息丢失</td></tr>
+          <tr><td>📋 无状态追踪</td><td>任务完成/失败后没有持久化记录</td><td>无法回溯、无法审计</td></tr>
+          <tr><td>🔄 冷启动脆弱</td><td>所有状态在内存中，Gateway 重启全丢</td><td>不可靠</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.2 为什么现在做</h3>
+      <ul style="padding-left:20px;font-size:0.9rem">
+        <li>CHANG_AI_TEAM 已有 CTO → 专家 → 执行层三级结构，协作复杂度在增长</li>
+        <li>技术调研周报已经跑了 2 期，自动化调度需要可靠的监控</li>
+        <li>OpenClaw 提供了 Hooks、Webhooks、结构化日志等基础设施，集成成本可控</li>
+        <li>在 Agent 数量膨胀之前把基建做好，比事后补救成本低得多</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==================== 2. 设计目标 ==================== -->
+  <section id="goals">
+    <div class="section-header">
+      <div class="icon">🎯</div>
+      <h2>2. 设计目标</h2>
+      <span class="status draft">DRAFT</span>
+    </div>
+    <div class="section-body">
+
+      <div class="decision-grid">
+        <div class="decision-card">
+          <h4>P0 · 任务看板</h4>
+          <div class="choice">必须实现</div>
+          <p>实时展示所有 Agent 任务状态（pending → in_progress → done/failed），支持按 agent、时间、状态筛选</p>
+        </div>
+        <div class="decision-card">
+          <h4>P0 · Token 统计</h4>
+          <div class="choice">必须实现</div>
+          <p>按 session、agent、日期维度的 Token 消耗统计，支持趋势图</p>
+        </div>
+        <div class="decision-card">
+          <h4>P1 · 冷启动恢复</h4>
+          <div class="choice">应该实现</div>
+          <p>SQLite + Git 备份，重启后 < 30s 恢复全部状态</p>
+        </div>
+        <div class="decision-card">
+          <h4>P1 · 协作规范</h4>
+          <div class="choice">应该实现</div>
+          <p>定义 Agent 角色权限矩阵、通信协议、状态变更规范，写入 prompt</p>
+        </div>
+        <div class="decision-card">
+          <h4>P2 · 告警通知</h4>
+          <div class="choice">可以实现</div>
+          <p>任务超时、Token 超限、Agent 异常状态 → 飞书通知</p>
+        </div>
+        <div class="decision-card">
+          <h4>P2 · 历史回溯</h4>
+          <div class="choice">可以实现</div>
+          <p>任意历史时间点的 Dashboard 快照，支持按周/月聚合</p>
+        </div>
+      </div>
+
+      <h3>非目标（明确不做）</h3>
+      <ul style="padding-left:20px;font-size:0.9rem">
+        <li>不做 Agent 调度引擎（调度由 OpenClaw 本身负责）</li>
+        <li>不做实时流式日志采集（日志解析 + 轮询够用）</li>
+        <li>不做用户权限系统（单用户场景）</li>
+        <li>不做分布式（单机部署，所有 Agent 在同一 Gateway）</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==================== 3. 系统架构 ==================== -->
+  <section id="architecture">
+    <div class="section-header">
+      <div class="icon">🏗️</div>
+      <h2>3. 系统架构</h2>
+      <span class="status draft">DRAFT</span>
+    </div>
+    <div class="section-body">
+
+      <div class="diagram-figure">
+        <a href="diagram/architecture-overview.svg" target="_blank" title="点击查看大图">
+          <img src="diagram/architecture-overview.svg" alt="系统架构总览" style="width:100%; border-radius:8px; cursor:zoom-in" loading="lazy"/>
+        </a>
+        <p class="diagram-caption">图 3-1：系统架构总览 — 四层解耦设计（点击查看大图）</p>
+      </div>
+
+      <div class="highlight-box info">
+        <strong>架构原则：</strong>数据采集与展示完全解耦。采集层负责"写"——Hook 监听事件 + Log Parser 解析日志 → 写入 SQLite。展示层负责"读"——Dashboard HTML 通过 API 读取数据渲染。两层独立演进，互不影响。
+      </div>
+
+      <h3>3.1 为什么是 SQLite + Git 备份</h3>
+      <table>
+        <thead>
+          <tr><th>对比维度</th><th>SQLite + Git</th><th>飞书 Bitable</th><th>纯 Git JSON</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>查询能力</td><td>✅ SQL 聚合/过滤/排序</td><td>⚠️ API 查询受限</td><td>❌ 无查询能力</td></tr>
+          <tr><td>冷启动</td><td>✅ Git clone 恢复</td><td>⚠️ 依赖飞书 API</td><td>✅ Git clone</td></tr>
+          <tr><td>写性能</td><td>✅ 本地毫秒级</td><td>❌ 限流 100/s</td><td>⚠️ 需 fsync</td></tr>
+          <tr><td>离线可用</td><td>✅ 完全本地</td><td>❌ 需网络</td><td>✅ 本地</td></tr>
+          <tr><td>可视化</td><td>⚠️ 需自建前端</td><td>✅ 飞书原生</td><td>⚠️ 需自建前端</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== 4. 数据模型 ==================== -->
+  <section id="data-model">
+    <div class="section-header">
+      <div class="icon">🗄️</div>
+      <h2>4. 数据模型</h2>
+      <span class="status draft">DRAFT</span>
+    </div>
+    <div class="section-body">
+
+      <h3>4.1 agents 表</h3>
+      <pre><code>CREATE TABLE agents (
+    id          TEXT PRIMARY KEY,        -- 'cto-agent'
+    name        TEXT NOT NULL,           -- 'CTO'
+    role        TEXT NOT NULL,           -- 'cto' | 'vp_arch' | 'expert_infra' | 'rd' | 'sre' | 'qa'
+    level       TEXT NOT NULL,           -- 'vp' | 'expert' | 'worker'
+    model       TEXT,                    -- 'deepseek/deepseek-v4-pro'
+    status      TEXT DEFAULT 'idle',     -- 'idle' | 'busy' | 'offline'
+    created_at  TEXT DEFAULT (datetime('now')),
+    updated_at  TEXT DEFAULT (datetime('now'))
+);
+
+-- 预置数据
+INSERT INTO agents VALUES ('cto-agent', 'CTO', 'cto', 'vp', 'deepseek/deepseek-v4-pro', 'idle', datetime('now'), datetime('now'));</code></pre>
+
+      <h3>4.2 tasks 表</h3>
+      <pre><code>CREATE TABLE tasks (
+    id              TEXT PRIMARY KEY,        -- UUID
+    agent_id        TEXT NOT NULL REFERENCES agents(id),
+    parent_task_id  TEXT REFERENCES tasks(id), -- 父任务（子 Agent 任务）
+    title           TEXT NOT NULL,
+    description     TEXT,
+    status          TEXT DEFAULT 'pending',  -- 'pending'|'in_progress'|'blocked'|'done'|'failed'
+    priority        TEXT DEFAULT 'medium',   -- 'low'|'medium'|'high'|'critical'
+    session_key     TEXT,                    -- 关联的 OpenClaw session
+    started_at      TEXT,
+    completed_at    TEXT,
+    error_message   TEXT,
+    tags            TEXT,                    -- JSON array: ["research","kafka"]
+    created_at      TEXT DEFAULT (datetime('now')),
+    updated_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_tasks_agent ON tasks(agent_id);
+CREATE INDEX idx_tasks_status ON tasks(status);
+CREATE INDEX idx_tasks_parent ON tasks(parent_task_id);</code></pre>
+
+      <h3>4.3 sessions 表</h3>
+      <pre><code>CREATE TABLE sessions (
+    id              TEXT PRIMARY KEY,        -- OpenClaw sessionKey
+    agent_id        TEXT REFERENCES agents(id),
+    task_id         TEXT REFERENCES tasks(id),
+    status          TEXT DEFAULT 'active',   -- 'active'|'completed'|'error'|'compacted'
+    token_in        INTEGER DEFAULT 0,
+    token_out       INTEGER DEFAULT 0,
+    model           TEXT,
+    started_at      TEXT,
+    ended_at        TEXT,
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_sessions_agent ON sessions(agent_id);
+CREATE INDEX idx_sessions_task ON sessions(task_id);
+CREATE INDEX idx_sessions_started ON sessions(started_at);</code></pre>
+
+      <h3>4.4 tool_calls 表</h3>
+      <pre><code>CREATE TABLE tool_calls (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      TEXT NOT NULL REFERENCES sessions(id),
+    tool_name       TEXT NOT NULL,           -- 'web_search', 'exec', 'sessions_spawn'...
+    params_json     TEXT,                    -- JSON string of parameters
+    result_summary  TEXT,                    -- 前 200 字符的结果摘要
+    status          TEXT DEFAULT 'success',  -- 'success'|'error'|'timeout'
+    duration_ms     INTEGER,
+    token_cost      INTEGER,                -- 此 tool call 消耗的估算 token
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_toolcalls_session ON tool_calls(session_id);
+CREATE INDEX idx_toolcalls_name ON tool_calls(tool_name);
+CREATE INDEX idx_toolcalls_created ON tool_calls(created_at);</code></pre>
+
+    </div>
+  </section>
+
+  <!-- ==================== 5. 数据采集层 ==================== -->
+  <section id="collector">
+    <div class="section-header">
+      <div class="icon">📡</div>
+      <h2>5. 数据采集层</h2>
+      <span class="status planned">PLANNED</span>
+    </div>
+    <div class="section-body">
+
+      <h3>5.1 采集策略总览</h3>
+      <table>
+        <thead>
+          <tr><th>数据</th><th>采集方式</th><th>触发时机</th><th>优先级</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Agent 注册</td><td>Hook: <code>agent:bootstrap</code></td><td>Agent 启动前</td><td>P0</td></tr>
+          <tr><td>任务创建</td><td>Hook: <code>message:received</code></td><td>用户下发任务</td><td>P0</td></tr>
+          <tr><td>任务状态变更</td><td>Agent 调 <code>sessions_send</code> 给 Supervisor</td><td>关键节点</td><td>P0</td></tr>
+          <tr><td>Session 生命周期</td><td>Log Parser 匹配 lifecycle 事件</td><td>start / end / error</td><td>P0</td></tr>
+          <tr><td>Tool Call 记录</td><td>Log Parser 匹配 tool_call 事件</td><td>每次 tool 调用</td><td>P1</td></tr>
+          <tr><td>Token 消耗</td><td>Log Parser 提取 usage metadata</td><td>Session 结束</td><td>P0</td></tr>
+          <tr><td>对话摘要</td><td>Hook: <code>session:compact:after</code></td><td>Compaction 后</td><td>P2</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Hook 采集（实时事件）</h3>
+      <p>利用 OpenClaw Hook 系统监听关键事件，开发一个自定义 Hook <code>agent-telemetry</code>：</p>
+
+      <div class="highlight-box">
+        <strong>Hook 注册事件：</strong><code>agent:bootstrap</code> — 在 Agent 启动时记录 agent_id、模型、workspace 信息到 SQLite，更新 agent 状态为 <code>busy</code>。
+      </div>
+
+      <pre><code>// ~/.openclaw/hooks/agent-telemetry/handler.ts
+// 监听 agent:bootstrap 事件，写入 agent 上线记录
+
+const handler = async (event) => {
+  if (event.type !== "agent:bootstrap") return;
+
+  const { agentId, bootstrapFiles } = event.context;
+
+  // SQLite INSERT: agent 上线记录
+  // UPDATE agents SET status = 'busy', updated_at = now WHERE id = agentId
+};
+
+export default handler;</code></pre>
+
+      <h3>5.3 Log Parser 采集（轮询守护进程）</h3>
+      <p>Log Parser 是一个驻留守护进程，每 2 秒轮询 OpenClaw 日志文件的增量部分（通过 <code>inotify</code> + tail 机制），解析 JSON 行日志并写入 SQLite。</p>
+
+      <div class="highlight-box warn">
+        <strong>为什么 Agent 不自己上报：</strong>Agent 自己调用工具写 SQLite 有天然的问题——如果任务超时/崩溃，就不会上报；如果 Agent prompt 不稳定，上报格式也容易变形。Log Parser 作为外部守护进程，能可靠地捕获所有事件，是更可控的方案。
+      </div>
+
+      <pre><code># Log Parser 核心逻辑伪代码
+class LogParser:
+    def __init__(self):
+        self.log_file = "/tmp/openclaw/openclaw-{date}.log"
+        self.last_position = self.load_checkpoint()
+        self.db = SQLiteDB("agent_telemetry.db")
+
+    def poll(self):
+        """每 2 秒执行一次"""
+        new_lines = self.read_incremental(self.log_file, self.last_position)
+        for line in new_lines:
+            event = json.loads(line)
+            self.dispatch(event)
+        self.save_checkpoint()
+
+    def dispatch(self, event):
+        if event["stream"] == "tool":
+            # tool_call 事件 → INSERT tool_calls
+            self.db.insert_tool_call(event)
+        elif event["stream"] == "lifecycle":
+            if event["phase"] == "start":
+                self.db.start_session(event)
+            elif event["phase"] == "end":
+                self.db.end_session(event, event["usage"])
+            elif event["phase"] == "error":
+                self.db.fail_session(event)</code></pre>
+
+      <h3>5.4 Agent 自主状态上报（Hybrid 机制的补充）</h3>
+      <p>Log Parser 可以捕获"发生了什么事"（tool call、lifecycle），但无法知道"这件事的语义"（比如 agent 被阻塞在等用户输入，还是正常执行中）。因此需要 Agent 在关键节点主动上报状态。</p>
+
+      <table>
+        <thead>
+          <tr><th>时机</th><th>上报方式</th><th>上报内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>任务开始</td><td>Agent 在 prompt 中要求开始时 update task 状态</td><td><code>status: in_progress, started_at: now</code></td></tr>
+          <tr><td>遇到阻塞</td><td>Agent 识别到需要外部输入，无法继续</td><td><code>status: blocked, block_reason: "waiting for user input"</code></td></tr>
+          <tr><td>子任务分发</td><td>Agent spawn 子 agent 后记录</td><td><code>parent_task_id: current, child_tasks: [...]</code></td></tr>
+          <tr><td>任务完成</td><td>Agent 在最后一步确认完成</td><td><code>status: done, completed_at: now, summary: "xxx"</code></td></tr>
+          <tr><td>任务失败</td><td>Agent 捕获异常</td><td><code>status: failed, error_message: "xxx"</code></td></tr>
+        </tbody>
+      </table>
+
+      <p>Agent 通过调用一个轻量的 <code>taskboard</code> CLI 工具来变更状态，而非自己拼接 SQL：</p>
+      <pre><code># Agent 在自己的 prompt 中可以调用的命令
+$ taskboard task update &lt;task_id&gt; --status in_progress
+$ taskboard task update &lt;task_id&gt; --status blocked --reason "等待用户确认"
+$ taskboard task update &lt;task_id&gt; --status done --summary "已完成 Kafka 调研"
+
+# 内部实现：读取 SQLite、更新状态、写入</code></pre>
+
+      <h3>5.5 Supervisor Agent 对账</h3>
+      <p>Log Parser 写入的是"客观事实"（session 起止、tool call），Agent 上报的是"主观意图"（任务进度）。Supervisor Agent 定期运行对账脚本：</p>
+      <ul style="padding-left:20px;font-size:0.9rem">
+        <li>如果 Agent 上报 <code>done</code> 但 session 未结束 → 标记为 <code>stale</code>，可能 agent 提前退出了</li>
+        <li>如果 session 已结束但任务仍 <code>in_progress</code> → 自动标记 <code>done</code> 或 <code>failed</code></li>
+        <li>如果 Agent 30 分钟无任何 tool call 且状态为 <code>in_progress</code> → 标记 <code>stuck</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==================== 6. Dashboard 前端 ==================== -->
+  <section id="dashboard">
+    <div class="section-header">
+      <div class="icon">📊</div>
+      <h2>6. Dashboard 前端设计</h2>
+      <span class="status planned">PLANNED</span>
+    </div>
+    <div class="section-body">
+
+      <h3>6.1 技术选型</h3>
+      <div class="decision-grid">
+        <div class="decision-card">
+          <h4>渲染方式</h4>
+          <div class="choice">纯静态 HTML + Vanilla JS</div>
+          <p>无框架依赖，直接部署到 GitHub Pages。数据通过 fetch() 从 API 拉取 JSON 渲染。</p>
+        </div>
+        <div class="decision-card">
+          <h4>图表库</h4>
+          <div class="choice">Chart.js (CDN)</div>
+          <p>轻量级（~60KB gzip），支持折线图、柱状图、饼图。Token 趋势和工具分布用这个最合适。</p>
+        </div>
+        <div class="decision-card">
+          <h4>自动刷新</h4>
+          <div class="choice">轮询 (setInterval 10s)</div>
+          <p>纯静态页面无法用 WebSocket。10 秒轮询 + 增量更新，对可用性影响小。</p>
+        </div>
+        <div class="decision-card">
+          <h4>数据 API 部署</h4>
+          <div class="choice">本地 FastAPI + ngrok 隧道</div>
+          <p>API 层部署在 Gateway 服务器上，通过 ngrok 暴露给 GitHub Pages 的 Dashboard。</p>
+        </div>
+      </div>
+
+      <h3>6.2 页面布局</h3>
+      <div class="diagram-figure">
+        <a href="diagram/dashboard-layout.svg" target="_blank" title="点击查看大图">
+          <img src="diagram/dashboard-layout.svg" alt="Dashboard 前端布局" style="width:100%; border-radius:8px; cursor:zoom-in" loading="lazy"/>
+        </a>
+        <p class="diagram-caption">图 6-1：Dashboard 前端布局 — Kanban + 趋势图 + Activity 流（点击查看大图）</p>
+      </div>
+
+      <h3>6.3 关键视图</h3>
+      <table>
+        <thead>
+          <tr><th>视图</th><th>数据源</th><th>刷新频率</th><th>交互</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>任务看板</td><td><code>GET /api/tasks?status=active</code></td><td>10s</td><td>筛选、排序、点击展开详情</td></tr>
+          <tr><td>Token 汇总</td><td><code>GET /api/tokens?period=today|week</code></td><td>30s</td><td>按 Agent 细分</td></tr>
+          <tr><td>趋势图</td><td><code>GET /api/tokens?granularity=hour&days=7</code></td><td>60s</td><td>hover 查看具体数值</td></tr>
+          <tr><td>Agent 列表</td><td><code>GET /api/agents</code></td><td>10s</td><td>点击进入 Agent 详情（历史任务）</td></tr>
+          <tr><td>Activity 流</td><td><code>GET /api/activity?limit=20</code></td><td>10s</td><td>实时滚动</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== 7. Agent 协作规范 ==================== -->
+  <section id="agent-spec">
+    <div class="section-header">
+      <div class="icon">📜</div>
+      <h2>7. Agent 协作规范</h2>
+      <span class="status draft">DRAFT</span>
+    </div>
+    <div class="section-body">
+
+      <h3>7.1 角色权限矩阵</h3>
+      <table>
+        <thead>
+          <tr><th>操作</th><th>CTO</th><th>VP 层</th><th>专家层</th><th>执行层</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>创建子 Agent</td><td>✅ any</td><td>✅ 同领域专家</td><td>❌ 仅建议</td><td>❌</td></tr>
+          <tr><td>任命 VP/专家</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>技术决策</td><td>✅ 最终决策</td><td>🔶 领域内</td><td>🔶 建议</td><td>❌</td></tr>
+          <tr><td>写入 Dashboard</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr><td>修改规范</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>直接操作 Git</td><td>✅</td><td>✅</td><td>🔶 受限</td><td>❌</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 通信协议</h3>
+      <p>Agent 之间通过 <code>sessions_spawn</code> 和 <code>sessions_send</code> 通信。规范如下：</p>
+
+      <table>
+        <thead>
+          <tr><th>场景</th><th>方式</th><th>context 模式</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CTO → 专家</td><td><code>sessions_spawn</code></td><td><code>isolated</code></td><td>不需要 CTO 的对话上下文</td></tr>
+          <tr><td>CTO → 执行层</td><td><code>sessions_spawn</code></td><td><code>isolated</code></td><td>独立执行，CTO 仅收结果</td></tr>
+          <tr><td>专家 → 执行层</td><td><code>sessions_spawn</code></td><td><code>isolated</code></td><td>独立执行</td></tr>
+          <tr><td>同级协作</td><td><code>sessions_send</code></td><td>—</td><td>不创建新 session，直接发消息</td></tr>
+          <tr><td>需要上下文传递</td><td><code>sessions_spawn</code></td><td><code>fork</code></td><td>⚠️ 谨慎使用，仅当子 Agent 必须了解当前对话历史</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.3 任务输入输出规范</h3>
+      <pre><code>// 任务描述 JSON Schema（Agent 间通信的标准格式）
+{
+  "task_id": "uuid",
+  "type": "research | development | review | deploy",
+  "title": "简短标题",
+  "description": "详细描述",
+  "priority": "low | medium | high | critical",
+  "deadline": "ISO8601 或 null",
+  "dependencies": ["task_id_1", "task_id_2"],
+  "output": {
+    "format": "html | json | markdown | file",
+    "path": "输出文件路径",
+    "schema": "可选 JSON Schema"
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ==================== 8. Agent 状态机 ==================== -->
+  <section id="state-machine">
+    <div class="section-header">
+      <div class="icon">🔄</div>
+      <h2>8. Agent 任务状态机</h2>
+      <span class="status draft">DRAFT</span>
+    </div>
+    <div class="section-body">
+
+      <div class="diagram-figure">
+        <a href="diagram/agent-state-machine.svg" target="_blank" title="点击查看大图">
+          <img src="diagram/agent-state-machine.svg" alt="Agent 状态机" style="width:100%; border-radius:8px; cursor:zoom-in" loading="lazy"/>
+        </a>
+        <p class="diagram-caption">图 8-1：Agent 任务状态机 — 完整状态转移图（点击查看大图）</p>
+      </div>
+
+      <h3>8.1 状态变更规则</h3>
+      <table>
+        <thead>
+          <tr><th>当前状态</th><th>允许的目标状态</th><th>触发者</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>pending</td><td>in_progress, cancelled</td><td>Agent / 用户</td></tr>
+          <tr><td>in_progress</td><td>done, failed, blocked</td><td>Agent</td></tr>
+          <tr><td>blocked</td><td>in_progress, cancelled</td><td>Agent / 用户</td></tr>
+          <tr><td>done</td><td>（终态）</td><td>—</td></tr>
+          <tr><td>failed</td><td>pending（重试）</td><td>用户</td></tr>
+          <tr><td>stuck / stale</td><td>done, failed</td><td>Supervisor</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== 9. 数据 API 设计 ==================== -->
+  <section id="api-design">
+    <div class="section-header">
+      <div class="icon">🔌</div>
+      <h2>9. 数据 API 设计</h2>
+      <span class="status planned">PLANNED</span>
+    </div>
+    <div class="section-body">
+
+      <h3>9.1 API 清单</h3>
+      <table>
+        <thead>
+          <tr><th>Endpoint</th><th>方法</th><th>参数</th><th>返回</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/api/agents</code></td><td>GET</td><td>—</td><td>所有 Agent 及其状态</td></tr>
+          <tr><td><code>/api/agents/:id</code></td><td>GET</td><td>period (7d|30d)</td><td>Agent 信息 + 历史任务 + token 趋势</td></tr>
+          <tr><td><code>/api/tasks</code></td><td>GET</td><td>status, agent, priority, limit</td><td>任务列表（支持筛选）</td></tr>
+          <tr><td><code>/api/tasks/:id</code></td><td>GET</td><td>—</td><td>任务详情 + 子任务 + session 信息</td></tr>
+          <tr><td><code>/api/tasks/:id</code></td><td>PATCH</td><td>status, error_message</td><td>更新任务状态（Agent 上报用）</td></tr>
+          <tr><td><code>/api/tokens</code></td><td>GET</td><td>period, granularity, agent_id</td><td>Token 消耗汇总</td></tr>
+          <tr><td><code>/api/sessions</code></td><td>GET</td><td>agent_id, status, limit</td><td>Session 列表</td></tr>
+          <tr><td><code>/api/tool-calls</code></td><td>GET</td><td>session_id, tool_name, limit</td><td>工具调用记录</td></tr>
+          <tr><td><code>/api/stats</code></td><td>GET</td><td>—</td><td>Dashboard 顶部汇总卡片</td></tr>
+          <tr><td><code>/api/health</code></td><td>GET</td><td>—</td><td>采集器健康检查</td></tr>
+        </tbody>
+      </table>
+
+      <h3>9.2 示例响应</h3>
+      <pre><code>// GET /api/tasks?status=active
+{
+  "tasks": [
+    {
+      "id": "a1b2c3d4",
+      "title": "Kafka 诊断工具调研",
+      "agent_id": "rd-kafka-01",
+      "agent_name": "Kafka RD",
+      "status": "in_progress",
+      "priority": "high",
+      "parent_task_id": null,
+      "started_at": "2026-05-28T09:00:00Z",
+      "token_used": 45000,
+      "child_count": 2
+    }
+  ],
+  "summary": {
+    "total": 27,
+    "active": 9,
+    "blocked": 3,
+    "done_today": 12
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ==================== 10. 实施路径 ==================== -->
+  <section id="implementation">
+    <div class="section-header">
+      <div class="icon">🚀</div>
+      <h2>10. 实施路径</h2>
+      <span class="status planned">PLANNED</span>
+    </div>
+    <div class="section-body">
+
+      <h3>10.1 分期规划</h3>
+      <ul class="milestone-list">
+        <li class="done">
+          <h4>Phase 0 · 设计文档 (当前)</h4>
+          <div class="milestone-meta">📅 2026-05-28 · ✅ 已完成</div>
+          <p>架构设计、数据模型、API 定义、Agent 规范草案。本文档。</p>
+        </li>
+        <li>
+          <h4>Phase 1 · 数据采集 MVP</h4>
+          <div class="milestone-meta">📅 目标：1 周</div>
+          <p>实现 Log Parser 守护进程 + SQLite schema + <code>taskboard</code> CLI。Agent 可以通过 CLI 更新任务状态，Dashboard 能显示。</p>
+          <div class="tags" style="margin-top:8px">
+            <span class="tag data">Python 脚本</span>
+            <span class="tag db">SQLite 初始化</span>
+            <span class="tag arch">Log Parser</span>
+          </div>
+        </li>
+        <li>
+          <h4>Phase 2 · Dashboard 前端</h4>
+          <div class="milestone-meta">📅 目标：1 周</div>
+          <p>纯静态 HTML Dashboard，部署到 GitHub Pages。包含任务看板、Token 统计、Agent 列表三个核心视图。</p>
+          <div class="tags" style="margin-top:8px">
+            <span class="tag frontend">HTML+JS</span>
+            <span class="tag frontend">Chart.js</span>
+            <span class="tag arch">FastAPI</span>
+          </div>
+        </li>
+        <li>
+          <h4>Phase 3 · Agent 规范落地</h4>
+          <div class="milestone-meta">📅 目标：2 周（随用随调）</div>
+          <p>将协作规范写入各 Agent 的 AGENTS.md prompt，让 Agent 自主在关键节点调用 <code>taskboard</code> 更新状态。不断打磨 prompt 直到行为稳定。</p>
+          <div class="tags" style="margin-top:8px">
+            <span class="tag ai">Prompt Engineering</span>
+            <span class="tag arch">AGENTS.md</span>
+          </div>
+        </li>
+        <li>
+          <h4>Phase 4 · 完善 & 运营</h4>
+          <div class="milestone-meta">📅 持续</div>
+          <p>告警通知（飞书）、Supervisor 对账、Git 冷启动备份、Dashboard 增强（更多图表、历史回溯）。</p>
+          <div class="tags" style="margin-top:8px">
+            <span class="tag arch">运营</span>
+            <span class="tag risk">告警</span>
+            <span class="tag db">Git 备份</span>
+          </div>
+        </li>
+      </ul>
+
+      <h3>10.2 先做什么</h3>
+      <div class="highlight-box">
+        <strong>下一步行动：</strong>开发 Phase 1 — 创建 <code>taskboard</code> CLI 工具 + SQLite 数据库初始化脚本 + Log Parser 最小原型。让"Agent 能更新状态，Dashboard 能看到"的最短链路先跑通。
+      </div>
+
+      <h3>10.3 关键风险</h3>
+      <table>
+        <thead>
+          <tr><th>风险</th><th>概率</th><th>影响</th><th>缓解措施</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Log Parser 遗漏事件</td><td>中</td><td>高</td><td>Supervisor 对账兜底；关键事件同时用 Hook 采集</td></tr>
+          <tr><td>Agent prompt 不稳定</td><td>中</td><td>中</td><td>taskboard CLI 设计为幂等操作；Supervisor 自动纠正</td></tr>
+          <tr><td>ngrok 隧道不稳定</td><td>中</td><td>中</td><td>Dashboard 静态数据兜底（显示"数据暂不可用"）；考虑用 Cloudflare Tunnel</td></tr>
+          <tr><td>SQLite 并发写入冲突</td><td>低</td><td>高</td><td>WAL 模式 + 单写入者设计（Collector 是唯一写入者）</td></tr>
+          <tr><td>Token 数据采集不全</td><td>中</td><td>低</td><td>仅影响统计精度，不影响功能；后续可补采集</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>由 <strong>CHANG_AI_TEAM CTO</strong> 设计 · v0.1 Draft · 2026-05-28</p>
+    <p style="margin-top:4px">仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

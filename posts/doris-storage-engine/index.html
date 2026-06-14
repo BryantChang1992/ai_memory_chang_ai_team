@@ -661,7 +661,7 @@
   class="readtime"
   data-bs-toggle="tooltip"
   data-bs-placement="bottom"
-  title="862 字"
+  title="805 字"
 >
   <em>4 分钟</em>阅读</span>
 
@@ -701,41 +701,23 @@
 
 <p><a href="/ai_memory_chang_ai_team/media/diagrams/02-storage-engine.svg" class="popup img-link shimmer"><img src="/ai_memory_chang_ai_team/media/diagrams/02-storage-engine.svg" alt="Doris 存储引擎" loading="lazy"></a></p>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-</pre></td><td class="rouge-code"><pre>Table
-└── Partition (Range 分区)
-    └── Bucket (Hash 分桶)
-        └── Tablet (最小数据分发单元)
-            ├── Rowset 0 (当前写入)
-            ├── Rowset 1 (已封存)
-            ├── ...
-            └── Rowset N
-                └── Segment(s) (列式数据文件)
-                    ├── Column 0: Data Pages
-                    ├── Column 1: Data Pages
-                    ├── ...
-                    ├── Short Key Index
-                    ├── ZoneMap Index (per Segment)
-                    ├── Bloom Filter (optional)
-                    └── Footer (元数据)
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    Table --&gt; Partition["Partition (Range partition)"]
+    Partition --&gt; Bucket["Bucket (Hash bucket)"]
+    Bucket --&gt; Tablet["Tablet (min data distribution unit)"]
+    Tablet --&gt; RS0["Rowset 0 (current write)"]
+    Tablet --&gt; RS1["Rowset 1 (sealed)"]
+    Tablet --&gt; RSDOT["..."]
+    Tablet --&gt; RSN["Rowset N"]
+    RSN --&gt; Segment["Segment(s) (columnar data files)"]
+    Segment --&gt; C0["Column 0: Data Pages"]
+    Segment --&gt; C1["Column 1: Data Pages"]
+    Segment --&gt; CDOT["..."]
+    Segment --&gt; SKI["Short Key Index"]
+    Segment --&gt; ZI["ZoneMap Index (per Segment)"]
+    Segment --&gt; BF["Bloom Filter (optional)"]
+    Segment --&gt; Footer["Footer (metadata)"]
+</code></pre>
 
 <h3 id="23-segment-v2-存储格式"><span class="me-2">2.3 Segment v2 存储格式</span><a href="#23-segment-v2-存储格式" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
@@ -853,25 +835,16 @@
 
 <p><strong>写入 MoW Tablet 流程</strong>：</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-</pre></td><td class="rouge-code"><pre>1. Tablet Writer 接收数据 Batch
-2. 按 Sort Key 排序内存数据
-3. 逐 Key 查询 Tablet 内是否存在
-   ├── 不存在 → 写入 Segment 新数据行
-   └── 存在 → 在现有 Segment 中标记旧行 Delete Bitmap
-              → 写入 Segment 新数据行
-4. Segment 文件写满 (默认 256MB) 后封存
-5. Rowset 提交 (可见)
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    A["1. Tablet Writer receives data Batch"] --&gt; B["2. Sort in-memory data by Sort Key"]
+    B --&gt; C{"3. Key exists in Tablet?"}
+    C --&gt;|No| D["Write new row to Segment"]
+    C --&gt;|Yes| E["Mark old row with Delete Bitmap"]
+    E --&gt; F["Write new row to Segment"]
+    D --&gt; G["4. Seal Segment when full (default 256MB)"]
+    F --&gt; G
+    G --&gt; H["5. Commit Rowset (visible)"]
+</code></pre>
 
 <p><strong>DELETE_BITMAP</strong>：</p>
 <ul>

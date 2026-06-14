@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluss 源码分析 · Apache Fluss vs Apache Kafka 2.7.2 · CHANG_AI_TEAM</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · SOURCE CODE ANALYSIS</div>
+  <h1>Apache Fluss (Incubating) 源码分析<br>与 Apache Kafka 2.7.2 架构对照</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2 (37a1cc3) · 7 个模块</p>
+</div>
+
+<div class="key-findings">
+  <h3>🔑 核心发现</h3>
+  
+  <ol>
+    <li><strong>Fluss 约 30% 代码复用 Kafka</strong>（Log Segment 管理 + Replica 复制框架），<strong>70% 自研</strong>（KV 存储、Arrow 列式、Lake 集成、RPC 框架）</li>
+    <li><strong>最大差异化</strong>：KV 存储（RocksDB）、Arrow 列式记录格式、原生 Lakehouse 集成（Iceberg/Paimon/Hudi/Lance）</li>
+    <li><strong>Kafka 兼容层处于骨架阶段</strong>：KafkaRequestHandler 中绝大部分 API 处理器为空方法 <code>{}</code>，仅 <code>API_VERSIONS</code> 完整</li>
+    <li><strong>存算分离架构</strong>：CoordinatorServer 独立进程 vs Kafka Controller 内嵌 Broker，可独立高可用</li>
+    <li><strong>Lake Tiering</strong>：原生 Flink 作业将实时数据持续写入 Lakehouse，实现 Streaming ↔ Lakehouse 一体化</li>
+  </ol>
+
+</div>
+
+<h2>📑 模块索引</h2>
+
+<div class="module-grid">
+  <a href="01-整体架构对比.html" class="module-card">
+    <span class="num">01</span>
+    <div class="info">
+      <h4>01 - 整体架构对比：Fluss vs Kafka 2.7.2</h4>
+      <p>本文分析 Fluss trunk 与 Apache Kafka 2.7.2 的整体架构差异和模块映射关系。</p>
+    </div>
+  </a>
+  <a href="02-存储引擎模块.html" class="module-card">
+    <span class="num">02</span>
+    <div class="info">
+      <h4>02 - 存储引擎模块分析</h4>
+      <p>LM</p>
+    </div>
+  </a>
+  <a href="03-分布式协调.html" class="module-card">
+    <span class="num">03</span>
+    <div class="info">
+      <h4>03 - 分布式协调层分析</h4>
+      <p>事件处理器线程]</p>
+    </div>
+  </a>
+  <a href="04-数据面-网络与RPC.html" class="module-card">
+    <span class="num">04</span>
+    <div class="info">
+      <h4>04 - 数据面：网络与 RPC</h4>
+      <p>动态代理]</p>
+    </div>
+  </a>
+  <a href="05-客户端与计算集成.html" class="module-card">
+    <span class="num">05</span>
+    <div class="info">
+      <h4>05 - 客户端与计算集成</h4>
+      <p>表/DB/分区管理]</p>
+    </div>
+  </a>
+  <a href="06-Lake层与湖仓融合.html" class="module-card">
+    <span class="num">06</span>
+    <div class="info">
+      <h4>06 - Lake 层与湖仓融合</h4>
+      <p>TS</p>
+    </div>
+  </a>
+  <a href="07-模块对应关系总表.html" class="module-card">
+    <span class="num">07</span>
+    <div class="info">
+      <h4>07 - 模块对应关系总表</h4>
+      <p>` | `KafkaProducer<byte[], T>` | 类型化写入器 |</p>
+    </div>
+  </a>
+</div>
+
+<div class="end-marker">
+  <p>CHANG_AI_TEAM · CTO Analysis · 2026-06-10</p>
+  <p>Based on Apache Fluss trunk source &amp; Apache Kafka 2.7.2 source (tag 37a1cc3)</p>
+  <p style="margin-top:8px;"><a href="index.html">← Back to Deep Dives</a></p>
+</div>
+
+</div>
+</body>
+</html>

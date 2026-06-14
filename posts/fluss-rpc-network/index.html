@@ -826,7 +826,7 @@
   class="readtime"
   data-bs-toggle="tooltip"
   data-bs-placement="bottom"
-  title="2331 字"
+  title="2326 字"
 >
   <em>12 分钟</em>阅读</span>
 
@@ -1581,39 +1581,23 @@
 
 <p><code class="language-plaintext highlighter-rouge">fluss-protogen</code> 模块负责 Protobuf → Java 代码生成：</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-</pre></td><td class="rouge-code"><pre>fluss-protogen/src/main/proto/
-├── common.proto             (RpcResult, TableBucket, Schema)
-├── api_versions.proto       (ApiVersions request/response)
-├── database.proto           (Database CRUD request/response)
-├── table.proto              (Table CRUD request/response)
-├── produce_log.proto        (ProduceLog request/response)
-├── fetch_log.proto          (FetchLog request/response)
-├── put_kv.proto             (PutKv request/response)
-├── lookup.proto             (Lookup request/response)
-├── limit_scan.proto         (LimitScan request/response)
-├── list_offsets.proto       (ListOffsets request/response)
-├── coordinator.proto        (Coordinator 类请求)
-├── metadata.proto           (Metadata request/response)
-├── server.proto             (Server 类请求)
-└── ...
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    root["fluss-protogen/src/main/proto/"]
+    root --&gt; f1["common.proto (RpcResult, TableBucket, Schema)"]
+    root --&gt; f2["api_versions.proto (ApiVersions req/resp)"]
+    root --&gt; f3["database.proto (Database CRUD req/resp)"]
+    root --&gt; f4["table.proto (Table CRUD req/resp)"]
+    root --&gt; f5["produce_log.proto (ProduceLog req/resp)"]
+    root --&gt; f6["fetch_log.proto (FetchLog req/resp)"]
+    root --&gt; f7["put_kv.proto (PutKv req/resp)"]
+    root --&gt; f8["lookup.proto (Lookup req/resp)"]
+    root --&gt; f9["limit_scan.proto (LimitScan req/resp)"]
+    root --&gt; f10["list_offsets.proto (ListOffsets req/resp)"]
+    root --&gt; f11["coordinator.proto (Coordinator reqs)"]
+    root --&gt; f12["metadata.proto (Metadata req/resp)"]
+    root --&gt; f13["server.proto (Server reqs)"]
+    root --&gt; f14["..."]
+</code></pre>
 
 <h3 id="443-与-kafka-请求模型对照"><span class="me-2">4.4.3 与 Kafka 请求模型对照</span><a href="#443-与-kafka-请求模型对照" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 

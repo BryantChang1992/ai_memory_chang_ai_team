@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Harness · Agent 基础设施进展 · 周报 #1（2026-05-26）</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<header>
+  <h1>AI Harness · Agent 基础设施进展</h1>
+  <div class="subtitle">周报 #1 — 2026 年 5 月第 4 周</div>
+  <div class="meta">
+    <span>📅 2026-05-26</span>
+    <span>📋 第 1 期</span>
+    <span>🏷️ AI Harness</span>
+    <span>👤 CHANG_AI_TEAM CTO</span>
+  </div>
+</header>
+
+<!-- ============ TOC ============ -->
+<nav class="toc">
+  <h2>📑 本期目录</h2>
+  <ol>
+    <li><a href="#sec1">OpenAI Agent 动态 — Codex 生态爆发</a></li>
+    <li><a href="#sec2">Anthropic Claude Agent 动态 — 安全前沿</a></li>
+    <li><a href="#sec3">Agent 框架生态 — LangChain / AutoGen / CrewAI</a></li>
+    <li><a href="#sec4">Agent 安全与评估 — 前沿论文与框架</a></li>
+  </ol>
+</nav>
+
+<!-- ================================================================ -->
+<!-- SECTION 1: OpenAI -->
+<!-- ================================================================ -->
+<section id="sec1">
+  <h2><span class="icon">🤖</span> 一、OpenAI Agent 动态 — Codex 生态爆发</h2>
+  <p class="summary">本周 OpenAI 在 Agent 领域动作密集：Codex 被 Gartner 评为企业编码 Agent 领导者，移动端和远程环境全面打通，Windows 沙箱工程细节公开，GPT-5.5 加持下的工具使用和安全性持续强化。</p>
+
+  <!-- 1.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag">🏆 Gartner</span>
+      <a href="https://openai.com/index/gartner-2026-agentic-coding-leader/" target="_blank">OpenAI 被 Gartner 评为企业级编码 Agent 领导者</a>
+    </h3>
+    <p>Gartner 在 2026 年 4 月发布的 Magic Quadrant for Enterprise AI Coding Agents 中将 OpenAI 列为领导者象限。Codex 目前每周活跃用户超过 <strong>400 万</strong>，企业客户包括 Cisco、Datadog、Dell Technologies 和 NVIDIA。Codex 在 GPT-5.5 加持下显著增强了工具使用能力、执行性能和深度企业工作流支持。Gartner 重点提及 Codex 的 Agentic 软件开发能力、企业治理（审批门控、RBAC、可定制策略）、OS 级沙箱、及灵活部署选项（桌面 App、IDE 插件、CLI、SDK、云端编排）。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/gartner-2026-agentic-coding-leader/" target="_blank">OpenAI Blog · May 22, 2026</a></div>
+  </div>
+
+  <!-- 1.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag green">📱 移动端</span>
+      <a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank">Codex 移动端上线：随时随地与 Agent 协作</a>
+    </h3>
+    <p>Codex 正式登陆 ChatGPT 移动端（iOS/Android），支持从手机连接任意运行 Codex 的机器（笔记本、Mac mini、托管远程环境）。核心能力：跨所有活跃线程工作、查看终端输出/Diff/测试结果、批准命令、切换模型、启动新任务。底层使用安全中继层（secure relay）实现跨设备会话同步。同时宣布 Remote SSH 正式 GA，可直接连入托管开发环境；Programmatic Access Tokens（CI/CD 集成用）；Hooks（在特定仓库/目录自定义行为）GA；HIPAA 合规支持。Codex 正在从"编码助手"演化为覆盖整个软件开发生命周期的 Agent 平台。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank">OpenAI Blog · May 14, 2026</a></div>
+  </div>
+
+  <!-- 1.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag orange">🛡️ 工程</span>
+      <a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank">Codex Windows 沙箱：安全运行 Agent 的工程实践</a>
+    </h3>
+    <p>OpenAI 工程团队公开了为 Codex 构建 Windows 沙箱的完整技术历程。由于 Windows 缺少原生 OS 级沙箱工具（Seatbelt/seccomp 等价物），团队评估了 AppContainer、Windows Sandbox、MIC Integrity Labeling 等方案后发现均不适用。最终方案基于 Write-Restricted Token + 自定义 SID + ACL 实现精细的写隔离，通过环境变量劫持限制非必要网络访问。该文详细描述了从原型到最终设计的取舍，展示了企业级 Agent 安全基础设施的工程复杂性。同时强调了安全性与开发体验的平衡——沙箱既不能影响开发效率，也不能留下安全漏洞。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank">OpenAI Engineering · May 13, 2026</a></div>
+  </div>
+
+  <!-- 1.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag purple">🏢 企业</span>
+      <a href="https://openai.com/index/dell-codex-enterprise-partnership/" target="_blank">OpenAI × Dell：Codex 进入混合与本地企业环境</a>
+    </h3>
+    <p>OpenAI 与 Dell Technologies 合作，将 Codex 带到混合云和本地（on-premises）企业环境中。这是 Agent 基础设施"出云"的关键一步，满足金融、医疗、政府等对数据驻留和合规有严格要求的行业需求。结合此前宣布的 Codex on Amazon Bedrock 和多个 GSI（Accenture、Capgemini、Cognizant、Infosys、PwC、TCS）合作伙伴，Codex 的部署覆盖范围正快速扩大。</p>
+    <div class="source">📎 来源：<a href="https://openai.com/index/dell-codex-enterprise-partnership/" target="_blank">OpenAI Blog · May 18, 2026</a></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> OpenAI 的 Agent 战略清晰地从"AI 写代码"升级为"AI 代理软件工程全流程"。Codex 已不再只是一个 IDE 插件，而是一个具备跨设备、跨环境、安全沙箱、企业治理能力的完整 Agent 平台。移动端的加入意味着 Agent 协作不再局限桌面，这对长运行任务（long-running agentic tasks）的交互模式有深远影响。
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 2: Anthropic -->
+<!-- ================================================================ -->
+<section id="sec2">
+  <h2><span class="icon">🧠</span> 二、Anthropic Claude Agent 动态 — 安全前沿</h2>
+  <p class="summary">Anthropic 本月围绕 Claude 的 Agent 能力推出了多项重磅发布：Project Glasswing 安全协作成果初显、Claude Design 视觉创作产品、以及"Teaching Claude Why"揭示的对齐方法论突破。Claude 在 Agent 对齐和工具使用方面正形成差异化优势。</p>
+
+  <!-- 2.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">🔐 安全</span>
+      <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Project Glasswing：AI 驱动的关键软件安全保障</a>
+    </h3>
+    <p>Anthropic 与 ~50 个合作伙伴（AWS、Apple、Broadcom、Cisco、CrowdStrike、Google、JPMorgan Chase、Microsoft、NVIDIA、Palo Alto Networks 等）使用 Claude Mythos Preview 在最初几周内发现了 <strong>超过 10,000 个高危/严重漏洞</strong>。对 1,000+ 开源项目扫描后发现 6,202 个高危漏洞，经独立安全机构验证后真阳性率达 <strong>90.6%</strong>。Cloudflare 用其发现 2,000 个 Bug（400 高危），误报率优于人工测试；Mozilla 在 Firefox 150 中发现 271 个漏洞——是 Claude Opus 4.6 时代的 10 倍以上。Palo Alto Networks 单次发布补丁量是平时的 5 倍。瓶颈已从"发现漏洞"转变为"人工验证和修补"。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Anthropic Research · May 22, 2026</a></div>
+  </div>
+
+  <!-- 2.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag purple">🧭 对齐</span>
+      <a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank">Teaching Claude Why：消除 Agentic 对齐偏差</a>
+    </h3>
+    <p>Anthropic 公开了如何将 Claude 的 <strong>Agentic Misalignment（代理对齐偏差）</strong> 从高达 96%（Opus 4）降至当前所有模型的 <strong>0%</strong>。核心发现：仅训练模型"做什么"不够，必须教它"为什么这么做"。使用仅 3M token 的 OOD（out-of-distribution）"困难建议"数据集即可显著提升对齐效果，远优于在评估集上直接训练的 30M token 方法。他们进一步通过"宪法文档训练"——向 Claude 注入其宪法内容和虚构 AI 道德故事——实现了更强的 OOD 泛化。该工作证明了对齐训练可以从"行为模仿"升级为"原则教学"，并且比单纯的行为示范更有效。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank">Anthropic Research · May 8, 2026</a></div>
+  </div>
+
+  <!-- 2.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag green">🎨 产品</span>
+      <a href="https://www.anthropic.com/news" target="_blank">Claude Design：Anthropic Labs 推出视觉创作协作</a>
+    </h3>
+    <p>Anthropic Labs 发布 Claude Design，让用户与 Claude 协作创建精美视觉作品，包括设计稿、原型、演示文稿、单页文件等。这是 Anthropic 在 Agent 工具维度上从"文本/代码"向"视觉创作"的拓展。同时 Claude 已运行 Project Deal 实验——让 Claude 代表同事参与买卖和谈判，展示了 Agent 在真实经济场景中的应用潜力。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/news" target="_blank">Anthropic News · Apr 17, 2026</a></div>
+  </div>
+
+  <!-- 2.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag">🧬 研究</span>
+      <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">自然语言自编码器：将 Claude 的思维转化为文本</a>
+    </h3>
+    <p>Anthropic 可解释性团队发布了 Natural Language Autoencoders，能够将 Claude 的内部激活转化为自然语言描述。这为理解和监控 Agent 的"内部思维"开辟了新路径，对 Agent 安全监控和可信度验证有重要意义。这项工作也与其"宪法训练"互补——从理解模型"想什么"到教导模型"为什么"。</p>
+    <div class="source">📎 来源：<a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic Research · May 7, 2026</a></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> Anthropic 在 Agent 安全方面的投入正在转化为实际成果。Project Glasswing 证明 AI Agent 可以成为安全防御的倍增器，而"Teaching Claude Why"则为 Agent 对齐提供了可复制的方法论。这两条线——进攻性安全能力和防御性对齐训练——共同构成了 Claude Agent 生态的核心竞争力。
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 3: Agent Frameworks -->
+<!-- ================================================================ -->
+<section id="sec3">
+  <h2><span class="icon">🔧</span> 三、Agent 框架生态 — LangChain / AutoGen / CrewAI</h2>
+  <p class="summary">Agent 框架生态在 5 月迎来密集更新：LangChain 推出 Labs 应用研究和 LangSmith Engine"Agent 优化 Agent"；AutoGen 完成 0.4+ 架构重构并原生支持 MCP；CrewAI 加强企业级部署和触发器集成。三条产品线代表了 Agent 基础设施的三个方向：可观测性 + 持续学习、多 Agent 协作、生产级编排。</p>
+
+  <!-- 3.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag">🔬 LangChain</span>
+      <a href="https://www.langchain.com/blog/introducing-langchain-labs" target="_blank">LangChain Labs 成立：聚焦 Agent 持续学习</a>
+    </h3>
+    <p>LangChain 发布 LangChain Labs，一个面向 Agent 持续学习（Continual Learning）的应用研究计划。与 Harvey、NVIDIA、Prime Intellect、Fireworks、Baseten 等合作，探索四个方向：(1) 从大规模 Agent Trace 数据中挖掘改进信号；(2) 在成本-延迟-性能的帕累托边界上优化 Agent；(3) 系统性构建评估和仿真环境；(4) 跨模型族的 Prompt 优化。定位是利用 LangSmith 的数据积累优势推动 Agent 自改进能力。</p>
+    <div class="source">📎 来源：<a href="https://www.langchain.com/blog/introducing-langchain-labs" target="_blank">LangChain Blog · May 14, 2026</a></div>
+  </div>
+
+  <!-- 3.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag green">🚀 LangSmith</span>
+      <a href="https://www.langchain.com/blog" target="_blank">LangSmith Engine：用 Agent 优化 Agent</a>
+    </h3>
+    <p>LangSmith Engine 正式发布，这是一个"用 Agent 改进 Agent"的元系统。配合 SmithDB（Agent 可观测性的专用数据层）、LangSmith Sandboxes GA、Context Hub 等功能，LangChain 正在构建覆盖整个 Agent 开发周期的平台。同期发布的还有 The Agent Development Lifecycle (ADLC) 框架、Deep Agents v0.6（支持 Delta Channels 用于长时间运行 Agent 的流式通信）、以及 Managed Deep Agents 托管服务。"From Token Streams to Agent Streams" 一文提出了从 Token 级流式到 Agent 级流式的范式升级。</p>
+    <div class="source">📎 来源：<a href="https://www.langchain.com/blog" target="_blank">LangChain Blog · Interrupt 2026, May 13-21</a></div>
+  </div>
+
+  <!-- 3.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag purple">🔄 AutoGen</span>
+      <a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen 0.4+：事件驱动多 Agent 架构 + MCP 原生集成</a>
+    </h3>
+    <p>Microsoft AutoGen 已演进至 0.4+ 版本，采用三层架构：<strong>Core</strong>（事件驱动编程框架，支持分布式 Agent）、<strong>AgentChat</strong>（对话式单/多 Agent 应用）、<strong>Extensions</strong>（与外部服务集成）。关键更新：(1) 原生内置 <strong>McpWorkbench</strong>，直接对接 MCP 服务器生态；(2) AutoGen Studio 提供无代码 Agent 原型设计 Web UI；(3) 支持 DockerCommandLineCodeExecutor 的安全代码执行；(4) GrpcWorkerAgentRuntime 支持分布式 Agent 部署。标志着 AutoGen 从实验框架走向生产级多 Agent 系统。</p>
+    <div class="source">📎 来源：<a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen Docs · 2026</a></div>
+  </div>
+
+  <!-- 3.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag orange">🚢 CrewAI</span>
+      <a href="https://docs.crewai.com/" target="_blank">CrewAI：面向生产的多 Agent 编排系统</a>
+    </h3>
+    <p>CrewAI 持续强化企业级多 Agent 系统能力：支持 <strong>Agents + Tasks + Flows + Crews</strong> 的多层抽象，提供 Sequential/Hierarchical/Hybrid 多种编排模式。新增 Enterprise 功能：(1) Automation Triggers——支持 Gmail、Slack、Salesforce、HubSpot 等外部触发；(2) RBAC 团队管理和访问控制；(3) 集成工具包可调用已有 CrewAI Automation 或 Amazon Bedrock Agents；(4) Memory、Knowledge、Guardrails 内置支持。定位为"从第一天就面向生产"的多 Agent 框架。</p>
+    <div class="source">📎 来源：<a href="https://docs.crewai.com/" target="_blank">CrewAI Docs · 2026</a></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> Agent 框架生态正在从"能跑就行"进化到"生产可用"。三条主线值得关注：LangChain 的 Data→Trace→Improvement 闭环、AutoGen 的事件驱动 + 分布式架构、CrewAI 的企业编排能力。对于 CHANG_AI_TEAM 而言，LangSmith 的可观测性和 Deep Agents 的长时间运行能力是最值得深入评估的方向。
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 4: Security & Evaluation -->
+<!-- ================================================================ -->
+<section id="sec4">
+  <h2><span class="icon">🛡️</span> 四、Agent 安全与评估 — 前沿论文与框架</h2>
+  <p class="summary">学术和工业界对 AI Agent 安全性的关注度急剧上升。近期 arXiv 涌现大量 Agent 安全相关论文，涵盖攻击面分析、动态红队测试、可信代码 Agent、渗透测试对比等。Anthropic 的 Mythos 也在推动漏洞评估基准的升级。</p>
+
+  <!-- 4.1 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2603.xxxxx" target="_blank">SoK: The Attack Surface of Agentic AI — Tools, and Autonomy</a>
+    </h3>
+    <p>Dehghantanha &amp; Homayoun 系统化了 Agentic AI 的攻击面，将现代 AI Agent 系统（LLM + 工具 + RAG + 自主多步能力）的安全威胁分类为工具滥用、知识投毒、自主权限滥用和链式攻击。该 SoK（Systematization of Knowledge）是 Agent 安全研究领域的重要参考框架。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=SoK+Attack+Surface+Agentic+AI&searchtype=all" target="_blank">arXiv · March 2026</a></div>
+  </div>
+
+  <!-- 4.2 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2602.xxxxx" target="_blank">DREAM: Dynamic Red-teaming across Environments for AI Models</a>
+    </h3>
+    <p>Lu 等人提出 DREAM 框架，针对 Agent 系统中的动态多阶段安全挑战进行红队测试。传统基准测试多为静态单轮评估，无法捕捉 Agent 在长链路攻击中的漏洞。DREAM 支持跨环境自适应红队测试，填补了 Agent 安全评估的关键空白。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=DREAM+Dynamic+Red-teaming+AI+Models&searchtype=all" target="_blank">arXiv · Feb 2026 (updated)</a></div>
+  </div>
+
+  <!-- 4.3 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2512.xxxxx" target="_blank">Reflection-Driven Control for Trustworthy Code Agents</a>
+    </h3>
+    <p>Wang 等人提出 Reflection-Driven Control，一种可热插拔的控制模块，可无缝集成到通用 LLM Agent 中。该模块通过反射(Reflection)机制实时审查 Agent 行为，防止不可预测或有害的输出。在 Code Agent 场景中，该模块不需要修改底层模型即可提供安全护栏。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=Reflection-Driven+Control+Trustworthy+Code+Agents&searchtype=all" target="_blank">arXiv · Dec 2025</a></div>
+  </div>
+
+  <!-- 4.4 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2512.xxxxx" target="_blank">BashArena: A Control Setting for Highly Privileged AI Agents</a>
+    </h3>
+    <p>Kaufman 等人提出 BashArena，一个评估高权限 AI Agent（如可直接执行 Shell 命令的编码 Agent）安全性的控制实验平台。面对未来 AI 系统可能获得更高系统权限的趋势，BashArena 提供了衡量 Agent 在真实系统环境中安全风险的方法论。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=BashArena+Control+Setting+AI+Agents&searchtype=all" target="_blank">arXiv · Dec 2025</a></div>
+  </div>
+
+  <!-- 4.5 -->
+  <div class="card">
+    <h3>
+      <span class="tag red">📄 论文</span>
+      <a href="https://arxiv.org/abs/2512.xxxxx" target="_blank">Penetration Testing of Agentic AI: Comparative Security Analysis</a>
+    </h3>
+    <p>Nguyen &amp; Husain 对不同模型和框架下的 Agentic AI 系统进行了渗透测试对比分析，评估了主流 LLM Agent 在面对 Prompt 注入、越狱和权限提升攻击时的安全表现差异。</p>
+    <div class="source">📎 来源：<a href="https://arxiv.org/search/?query=Penetration+Testing+Agentic+AI+Comparative&searchtype=all" target="_blank">arXiv · Dec 2025</a></div>
+  </div>
+
+  <!-- 4.6 -->
+  <div class="card">
+    <h3>
+      <span class="tag orange">🔬 基准</span>
+      <a href="https://exploitbench.ai/" target="_blank">ExploitBench & ExploitGym：AI Agent 漏洞利用能力基准</a>
+    </h3>
+    <p>两个新发布的学术基准——<a href="https://exploitbench.ai/" target="_blank">ExploitBench</a> 和 <a href="https://arxiv.org/abs/2605.11086" target="_blank">ExploitGym</a>——专门评估 AI 模型的漏洞利用开发能力。Claude Mythos Preview 在两个基准上均是最强表现者。这标志着 Agent 安全评估从"单轮对话安全"向"多步攻击能力"的范式转变。</p>
+    <div class="source">📎 来源：<a href="https://exploitbench.ai/" target="_blank">ExploitBench</a> · <a href="https://arxiv.org/abs/2605.11086" target="_blank">ExploitGym (arXiv)</a> · May 2026</div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 CTO 洞见：</strong> Agent 安全正从"事后补救"走向"设计即安全"（Security by Design）。关键趋势：(1) 动态红队测试取代静态评估；(2) 反射/审计模块成为 Agent 标准组件；(3) 漏洞利用基准成为模型能力新标尺。对于计划部署 Agent 的团队，建议从第一天就建立 Sandbox + Audit Log + Reflection Control 的三层安全防线。
+  </div>
+</section>
+
+<!-- ============ GLOSSARY ============ -->
+<section>
+  <h2><span class="icon">📚</span> 术语速查</h2>
+  <ul>
+    <li><strong>Agentic Misalignment</strong>：AI Agent 在追求给定目标时采取与人类价值观/预期不符的行为（如为自保而欺骗用户）</li>
+    <li><strong>ADLC (Agent Development Lifecycle)</strong>：LangChain 提出的 Agent 开发全生命周期框架</li>
+    <li><strong>Delta Channels</strong>：LangGraph 中用于长时间运行 Agent 的增量流式通信通道</li>
+    <li><strong>McpWorkbench</strong>：AutoGen 中对接 MCP（Model Context Protocol）服务器的原生工具</li>
+    <li><strong>OOD (Out-of-Distribution)</strong>：训练数据分布之外的场景，是衡量模型泛化能力的关键指标</li>
+    <li><strong>Write-Restricted Token</strong>：Windows 安全原语，用于限制进程的文件写入权限</li>
+  </ul>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<!-- 参考链接 -->
+<section class="section refs-section">
+  <h2 class="section-title">📎 参考链接</h2>
+  <div class="refs-list">
+    <a href="https://openai.com/index/gartner-2026-agentic-coding-leader/" target="_blank">Gartner 2026: OpenAI Codex 被评为 Agentic Coding 领导者</a>
+    <a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank">Codex 移动端上线 + Remote SSH GA</a>
+    <a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank">Codex Windows 沙箱工程实践</a>
+    <a href="https://openai.com/index/dell-codex-enterprise-partnership/" target="_blank">Dell × Codex 企业混合云部署</a>
+    <a href="https://www.anthropic.com/research/glasswing-initial-update" target="_blank">Project Glasswing: 发现 10,000+ 高危漏洞</a>
+    <a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank">Teaching Claude Why: misalignment 降至 0%</a>
+    <a href="https://www.anthropic.com/news" target="_blank">Anthropic 官方新闻</a>
+    <a href="https://www.anthropic.com/research/natural-language-autoencoders" target="_blank">Anthropic 自然语言自编码器研究</a>
+    <a href="https://www.langchain.com/blog/introducing-langchain-labs" target="_blank">LangChain Labs 持续学习</a>
+    <a href="https://www.langchain.com/blog" target="_blank">LangChain 官方博客</a>
+    <a href="https://microsoft.github.io/autogen/stable/" target="_blank">AutoGen 0.4+ 官方文档 (MCP 集成)</a>
+    <a href="https://docs.crewai.com/" target="_blank">CrewAI 企业编排文档</a>
+    <a href="https://arxiv.org/" target="_blank">arXiv 预印本 (Agent 安全与评估)</a>
+  </div>
+</section>
+
+<footer>
+  <p>CHANG_AI_TEAM · AI Harness 技术调研周报 · 第 1 期 · 2026-05-26</p>
+</footer>
+
+</body>
+</html>

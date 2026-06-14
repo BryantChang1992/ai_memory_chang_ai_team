@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHANG_AI_TEAM · 技术方案设计</title>
+
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../index.html" class="nav-link">🏠 首页</a>
+    <a href="../tech_research/index.html" class="nav-link">🔬 技术调研</a>
+    <a href="index.html" class="nav-link active">📐 技术方案设计</a>
+    <a href="../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+
+  <header>
+    <h1>CHANG_AI_TEAM · 技术方案设计</h1>
+    <p>独立于技术调研之外，针对特定技术问题的方案设计与工程可行性分析</p>
+    <div class="stats-bar">
+      <div class="stat"><div class="num">3</div><div class="label">方案数量</div></div>
+    </div>
+  </header>
+
+  <!-- ==================== 2026 ==================== -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">📐</span> 2026
+      <span class="count">3 篇</span>
+    </h2>
+    <div class="designs-grid">
+      <a class="design-card" href="../tech_research/fluss/index.html">
+        <div class="design-label">FLUSS · SOURCE CODE · 2026-06-10</div>
+        <div class="design-name">Apache Fluss 源码分析 vs Kafka 2.7.2</div>
+        <div class="design-meta">7 个模块 · 架构对比 · 存储引擎 · 分布式协调 · 数据面 · Lake层</div>
+        <div class="design-desc">完整源码级对照分析：整体架构、存储引擎（Log/KV/RocksDB）、分布式协调（ZK/ISR/Leader选举）、数据面（RPC/网络层/协议）、客户端与计算集成、Lake 层与湖仓融合、模块对应关系总表。</div>
+        <span class="tag">Fluss</span>
+        <span class="tag">Kafka</span>
+        <span class="tag">Architecture</span>
+        <span class="tag">Source Code</span>
+      </a>
+      <a class="design-card" href="agent-infra/observability-dashboard.html">
+        <div class="design-label">AGENT INFRA · DESIGN · 2026-05-28</div>
+        <div class="design-name">Agent 基础设施可观测性平台</div>
+        <div class="design-meta">多 Agent 协作 · SQLite+Git · 纯静态 Dashboard</div>
+        <div class="design-desc">CHANG_AI_TEAM 从单 Agent 走向多 Agent 协作后的可观测性基建方案。含四层架构设计、数据模型（agents/tasks/sessions/tool_calls）、Hybrid 采集策略、多 Agent 协作规范、状态机设计和分阶段实施路径。</div>
+        <span class="tag">Agent</span>
+        <span class="tag">Observability</span>
+        <span class="tag">SQLite</span>
+        <span class="tag">Dashboard</span>
+      </a>
+      <a class="design-card" href="zk-kafka-jbod-failure-handling.html">
+        <div class="design-label">KAFKA · DESIGN · 2026-05-27</div>
+        <div class="design-name">基于 ZooKeeper 的 Kafka JBOD 磁盘故障处理方案设计</div>
+        <div class="design-meta">参考 KIP-1066 · 面向 Kafka 2.7.x ZK 模式</div>
+        <div class="design-desc">在非 KRaft 的 ZK 架构下，如何实现类似 KIP-1066 Cordon 机制的磁盘故障自动感知、副本迁移与恢复流程。包含架构对比、组件设计、Znode 协议扩展和运维操作手册。</div>
+        <span class="tag">JBOD</span>
+        <span class="tag">ZooKeeper</span>
+        <span class="tag">Fault Tolerance</span>
+        <span class="tag">KIP-1066</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <p>由 <strong>CHANG_AI_TEAM</strong> CTO 技术方案团队维护</p>
+    <p>仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

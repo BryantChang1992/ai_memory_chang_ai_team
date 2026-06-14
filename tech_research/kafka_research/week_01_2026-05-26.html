@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka / AutoMQ / Fluss 社区动态 · 周报 #1（2026-05-26）</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="badge">开源社区动态追踪</div>
+    <h1>Kafka / AutoMQ / Fluss 社区动态<br>周报 #1</h1>
+    <div class="meta">
+      <span>📅 2026年5月26日</span>
+      <span>·</span>
+      <span>📊 第22周（W22）</span>
+      <span>·</span>
+      <span>🏷️ 第1期</span>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#kafka">Apache Kafka 4.3.0 — 25 个 KIP，600+ commits</a></li>
+      <li><a href="#automq">AutoMQ 1.6.5 — 平台化演进与企业特性</a></li>
+      <li><a href="#fluss">Apache Fluss 0.9.1 — 多语言 SDK 与 AI 基础设施定位</a></li>
+    </ol>
+  </nav>
+
+  <!-- ==================== KAFKA ==================== -->
+  <article class="section" id="kafka">
+    <div class="section-header">
+      <div class="icon">🐘</div>
+      <div class="info">
+        <h2>Apache Kafka</h2>
+        <div class="ver">v4.3.0 正式发布 · 2026-05-22</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🔥 本周重磅：</strong>Apache Kafka 4.3.0 正式发布，包含 <strong>25 个 KIP</strong>、600+ commits、147 位贡献者，是 4.x 系列又一次大规模功能更新。
+      </div>
+
+      <h3>📦 版本发布</h3>
+
+      <p>2026 年 5 月 22 日，Apache Kafka 社区正式发布了 <strong>Kafka 4.3.0</strong>。这是继 2 月 4.2.0 之后的又一个大版本，涵盖 Broker、Controller、Producer、Consumer、Streams、Connect 等多个组件的全面改进。</p>
+
+      <div class="tags">
+        <span class="tag hot">新版本发布</span>
+        <span class="tag">4.3.0</span>
+        <span class="tag">25 KIPs</span>
+        <span class="tag">147 贡献者</span>
+      </div>
+
+      <p>同期，社区还维护着 4.1.x 和 4.0.x 长期支持线：<strong>Kafka 4.1.2</strong>（3月17日）和 <strong>Kafka 4.0.2</strong>（3月16日）分别作为 bugfix 版本发布，以及 <strong>Kafka 3.9.2</strong>（2月21日）包含 KIP-1252 修复 ZooKeeper/KRaft 行为不一致问题。</p>
+
+      <h3>🔑 关键 KIP 解读</h3>
+
+      <p>4.3.0 的 25 个 KIP 覆盖了以下重点方向：</p>
+
+      <ul class="kip-list">
+        <li>
+          <a href="https://cwiki.apache.org/confluence/x/8op3EQ" target="_blank">KIP-1023 · Follower Fetch from Tiered Offset</a><br>
+          新增 <code>follower.fetch.last.tiered.offset.enable</code> 配置。启用后，新加入的 follower 从分层存储的最后一个 offset 开始拉取，大幅减少 bootstrap 时的网络传输量，提升集群弹性扩缩容效率。
+        </li>
+        <li>
+          <a href="https://cwiki.apache.org/confluence/x/Lg_TEg" target="_blank">KIP-1066 · Cordon Brokers &amp; Log Directories</a><br>
+          引入 <code>cordoned.log.dirs</code> 配置，允许管理员将特定的 log 目录标记为"隔离"状态，新分区不会分配到这些目录上。这是安全下线 broker 或磁盘的关键操作原语。
+        </li>
+        <li>
+          <a href="https://cwiki.apache.org/confluence/x/hA5JFg" target="_blank">KIP-1196 · Group Coordinator Append Buffer</a><br>
+          新增 <code>group.coordinator.append.max.buffer.size</code> 和 <code>share.coordinator.append.max.buffer.size</code> 配置，控制 coordinator 最大 buffer 使用量，并配套暴露相应的 metrics，提升大规模消费者组场景的可观测性。
+        </li>
+        <li>
+          <a href="https://cwiki.apache.org/confluence/x/dwEXG" target="_blank">KIP-1258 · OAuth Client Assertion</a><br>
+          为 <code>client_credentials</code> grant type 增加 client assertion 认证支持，提升与身份提供商的互操作性和安全性。
+        </li>
+        <li>
+          <a href="https://cwiki.apache.org/confluence/x/8ITMFw" target="_blank">KIP-1251 · Assignment Epochs for Consumer Groups</a><br>
+          改进 member epoch 校验逻辑，避免不必要的 member fencing，减少 rebalance 抖动，提升大规模消费者组的稳定性。
+        </li>
+        <li>
+          <a href="https://cwiki.apache.org/confluence/x/PoY8G" target="_blank">KIP-1274 · Deprecate Classic Rebalance Protocol (Phase 1)</a><br>
+          启动经典 rebalance 协议的废弃流程——使用旧协议启动 consumer 时将收到警告日志。社区明确方向：向新的 <code>consumer</code> rebalance protocol 全面迁移。
+        </li>
+      </ul>
+
+      <h3>🚀 Kafka Streams &amp; Connect 更新</h3>
+
+      <ul class="feature-list">
+        <li><a href="https://cwiki.apache.org/confluence/x/QIM8G" target="_blank">KIP-1271</a> / <a href="https://cwiki.apache.org/confluence/x/4ow8G" target="_blank">KIP-1285</a>：State Stores 支持 record headers 存储，并暴露到 DSL API，为需要元数据传递的流处理场景（如 trace context 传播）提供原生支持。</li>
+        <li><a href="https://cwiki.apache.org/confluence/x/XgIXG" target="_blank">KIP-1259</a>：新增 <code>state.cleanup.dir.max.age.ms</code> 配置，Streams 启动时自动清理超过指定时长的旧状态目录，降低运维负担。</li>
+        <li><a href="https://cwiki.apache.org/confluence/x/qIE8G" target="_blank">KIP-1270</a>：将 ProcessingExceptionHandler 扩展到 GlobalThread，GlobalKTable 消费更有保障。</li>
+        <li><a href="https://cwiki.apache.org/confluence/x/h4HMFw" target="_blank">KIP-1239</a>：Connect RemoteClusterUtils 支持批量 offset 翻译，MirrorMaker 跨集群迁移场景大幅提速。</li>
+        <li><a href="https://cwiki.apache.org/confluence/x/a4s8G" target="_blank">KIP-1280</a>：MirrorMaker 迁移到 KIP-877 新版 metrics 体系，旧 metrics 将在 5.0 移除。</li>
+      </ul>
+
+      <h3>⚠️ 废弃公告</h3>
+
+      <p>以下组件/配置在 4.3 中被标记为废弃，计划在 Kafka 5.0 中移除：</p>
+      <ul class="feature-list">
+        <li><code>streams-scala</code> 模块（<a href="https://cwiki.apache.org/confluence/x/r4LMFw" target="_blank">KIP-1244</a>）</li>
+        <li><code>group.coordinator.rebalance.protocols</code> 配置（<a href="https://cwiki.apache.org/confluence/x/jIqmFw" target="_blank">KIP-1237</a>）</li>
+        <li>MirrorMaker 旧版 metrics 名称（<a href="https://cwiki.apache.org/confluence/x/a4s8G" target="_blank">KIP-1280</a>）</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://kafka.apache.org/blog/2026/05/22/apache-kafka-4.3.0-release-announcement/" target="_blank">Kafka 4.3.0 Release Announcement</a></li>
+          <li><a href="https://kafka.apache.org/blog/2026/03/17/apache-kafka-4.1.2-release-announcement/" target="_blank">Kafka 4.1.2 Release</a></li>
+          <li><a href="https://kafka.apache.org/blog/2026/03/16/apache-kafka-4.0.2-release-announcement/" target="_blank">Kafka 4.0.2 Release</a></li>
+          <li><a href="https://kafka.apache.org/blog/2026/02/21/apache-kafka-3.9.2-release-announcement/" target="_blank">Kafka 3.9.2 Release</a></li>
+          <li><a href="https://downloads.apache.org/kafka/4.3.0/RELEASE_NOTES.html" target="_blank">Kafka 4.3.0 Release Notes</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== AUTOMQ ==================== -->
+  <article class="section" id="automq">
+    <div class="section-header">
+      <div class="icon">⚡</div>
+      <div class="info">
+        <h2>AutoMQ</h2>
+        <div class="ver">v1.6.5 · 2026-05-12 &nbsp;|&nbsp; 基于 Kafka 3.9.1</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📌 最新动态：</strong>AutoMQ 1.6.5 于 5 月 12 日正式发布，合并 Apache Kafka 3.9.1，引入 License 支持、多 Metrics 实例、SPI 企业扩展路由等新特性。
+      </div>
+
+      <h3>📦 最近版本发布</h3>
+
+      <table style="width:100%; border-collapse: collapse; margin:12px 0; font-size:14px;">
+        <thead>
+          <tr style="text-align:left;">
+            <th style="padding:8px 12px; border-bottom:2px solid #e5e7eb;">版本</th>
+            <th style="padding:8px 12px; border-bottom:2px solid #e5e7eb;">发布日期</th>
+            <th style="padding:8px 12px; border-bottom:2px solid #e5e7eb;">Kafka 基线</th>
+            <th style="padding:8px 12px; border-bottom:2px solid #e5e7eb;">关键主题</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;"><strong>v1.6.5</strong></td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">2026-05-12</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">3.9.1</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">License、多 Metrics、DevKit</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;"><strong>v1.6.4</strong></td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">2026-03-10</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">3.x</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">ZeroZone 增强、S3 凭证隔离</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;"><strong>v1.6.3</strong></td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">2026-01-29</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">3.x</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">ZeroZone Dual Mapping、Coordinator 事件</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🔑 1.6.5 核心更新</h3>
+
+      <ul class="feature-list">
+        <li><strong>Kafka 3.9.1 合并：</strong>将上游 Apache Kafka 3.9.1 的所有修复和改进合并到 AutoMQ 分支。AutoMQ 始终保持与社区 Kafka 的基线同步，确保用户可以获得上游的 bugfix 和安全更新。</li>
+        <li><strong>License 支持（<a href="https://github.com/AutoMQ/automq/pull/3136" target="_blank">#3136</a>）：</strong>新增 License 机制，为商业化部署提供授权管理能力，标志着 AutoMQ 在企业级商业化方向上的重要一步。</li>
+        <li><strong>多 Metrics 实例（<a href="https://github.com/AutoMQ/automq/pull/3205" target="_blank">#3205</a>）：</strong>支持多个 Metrics 实例并存，便于不同监控系统（如 Prometheus + 内部系统）并行采集指标数据。</li>
+        <li><strong>SPI 企业扩展路由（<a href="https://github.com/AutoMQ/automq/pull/3246" target="_blank">#3246</a>）：</strong>引入基于 SPI 的企业级 API 路由机制，允许在扩展层灵活定制 API 行为，提升企业级集成能力。</li>
+        <li><strong>DevKit 本地开发环境（<a href="https://github.com/AutoMQ/automq/pull/3262" target="_blank">#3262</a>, <a href="https://github.com/AutoMQ/automq/pull/3270" target="_blank">#3270</a>, <a href="https://github.com/AutoMQ/automq/pull/3273" target="_blank">#3273</a>）：</strong>全新的本地开发工具链 <code>devkit</code>（原 devbox），一键启动本地 AutoMQ 集群用于开发和测试。支持 HOST listener（<a href="https://github.com/AutoMQ/automq/pull/3280" target="_blank">#3280</a>）以允许宿主机客户端直连。</li>
+        <li><strong>Consumer Group Offset 在线重置（<a href="https://github.com/AutoMQ/automq/pull/3267" target="_blank">#3267</a>）：</strong>支持不中断在线 consumer 的情况下重置消费组 offset，大幅简化运维流程。</li>
+      </ul>
+
+      <h3>🐛 重要修复</h3>
+
+      <ul class="feature-list">
+        <li>修复 KVImage 内存泄漏问题（<a href="https://github.com/AutoMQ/automq/pull/3255" target="_blank">#3255</a>）</li>
+        <li>修复 S3 WAL 恢复时 503 SlowDown 导致的恢复失败（<a href="https://github.com/AutoMQ/automq/pull/3198" target="_blank">#3198</a>/<a href="https://github.com/AutoMQ/automq/pull/3245" target="_blank">#3245</a>）</li>
+        <li>修复 <code>truncateFullyAndStartAt</code> 的罕见边界 bug（<a href="https://github.com/AutoMQ/automq/pull/3242" target="_blank">#3242</a>）</li>
+        <li>改进 Active Segment 管理的错误处理和日志（<a href="https://github.com/AutoMQ/automq/pull/3251" target="_blank">#3251</a>）</li>
+        <li>Connect 模块：修复 KAFKA-17719，避免将未变更的 connector 配置重复写入 config topic（<a href="https://github.com/AutoMQ/automq/pull/3292" target="_blank">#3292</a>）</li>
+      </ul>
+
+      <h3>🏗️ ZeroZone 持续演进</h3>
+
+      <p>ZeroZone（零可用区流量）是 AutoMQ 的核心差异化特性，允许跨 AZ 的数据复制零流量开销。1.6.5 之前的几个版本持续对此方向投入：</p>
+      <ul class="feature-list">
+        <li><strong>ZeroZone 验证测试：</strong>新增零流量传输验证测试框架（<a href="https://github.com/AutoMQ/automq/pull/3201" target="_blank">#3201</a>）</li>
+        <li><strong>Dual Mapping（1.6.3）：</strong>优化 ZeroZone 的数据路由映射机制（<a href="https://github.com/AutoMQ/automq/pull/3149" target="_blank">#3149</a>）</li>
+        <li><strong>Network Transfer Optimization（1.6.2/1.6.3）：</strong>通过 WAL 网络传输优化加速 ZeroZone 重放（<a href="https://github.com/AutoMQ/automq/pull/3100" target="_blank">#3100</a>）</li>
+        <li><strong>S3 凭证隔离（1.6.4）：</strong>默认凭证隔离机制，增强多租户安全性（<a href="https://github.com/AutoMQ/automq/pull/3199" target="_blank">#3199</a>）</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/AutoMQ/automq/releases" target="_blank">GitHub Releases</a></li>
+          <li><a href="https://github.com/AutoMQ/automq" target="_blank">AutoMQ GitHub</a></li>
+          <li><a href="https://www.automq.com/" target="_blank">AutoMQ 官网</a></li>
+          <li><a href="https://docs.automq.com/" target="_blank">AutoMQ 文档</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== FLUSS ==================== -->
+  <article class="section" id="fluss">
+    <div class="section-header">
+      <div class="icon">🌊</div>
+      <div class="info">
+        <h2>Apache Fluss (Incubating)</h2>
+        <div class="ver">v0.9.1-incubating · 2026-05-04 &nbsp;|&nbsp; 多语言 SDK 0.1.0 · 2026-04-06</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📌 重大里程碑：</strong>Fluss 社区 5 月继续高歌猛进——v0.9.1 修复发布、多语言 SDK 正式面世、技术博客密集输出。Fluss 正从"实时分析流存储"向"实时分析与 AI 的数据基础设施"进化。
+      </div>
+
+      <h3>📦 版本发布：v0.9.1-incubating</h3>
+
+      <p>5 月 4 日，Apache Fluss 发布 <strong>v0.9.1-incubating</strong>，这是 0.9 线的第一个补丁版本，完全向后兼容 0.9.0。</p>
+
+      <div class="tags">
+        <span class="tag new">补丁发布</span>
+        <span class="tag">0.9.1</span>
+        <span class="tag">Bug Fixes</span>
+        <span class="tag">Helm Chart</span>
+        <span class="tag">依赖升级</span>
+      </div>
+
+      <h4>🐛 关键 Bug 修复</h4>
+      <ul class="feature-list">
+        <li><strong>Paimon IOManager 泄漏（<a href="https://github.com/apache/fluss/pull/3193" target="_blank">#3193</a>）：</strong>修复 MergeTreeWriter 中的 IOManager 未释放问题，避免 /tmp 磁盘耗尽。</li>
+        <li><strong>SortMergeReader 早期终止（<a href="https://github.com/apache/fluss/pull/3137" target="_blank">#3137</a>）：</strong>修复 changelog delete 场景下的读取终止问题。</li>
+        <li><strong>Partial Update NULL 处理（<a href="https://github.com/apache/fluss/pull/3157" target="_blank">#3157</a>/<a href="https://github.com/apache/fluss/pull/3090" target="_blank">#3090</a>）：</strong>修复首次插入时非目标列未置 NULL、ADD COLUMN 后 partial update/delete 的 OutOfBoundsException。</li>
+        <li><strong>S3 Path-Style-Access 传播（<a href="https://github.com/apache/fluss/pull/3165" target="_blank">#3165</a>）：</strong>修复 S3 path-style-access 配置从 server 到 client 的传递问题。</li>
+      </ul>
+
+      <h4>⛵ Helm Chart 大幅改进</h4>
+      <ul class="feature-list">
+        <li>支持 SASL 凭证的 <code>existingSecret</code> 注入</li>
+        <li>支持环境变量和外部 Secret 注入</li>
+        <li>新增 Pod annotations/labels + PodDisruptionBudget</li>
+        <li>新增调度原语：nodeSelector / tolerations / affinity</li>
+        <li>重新引入 Quickstart 镜像</li>
+      </ul>
+
+      <h4>📦 依赖升级</h4>
+      <ul class="feature-list">
+        <li>protobuf-java: 2.5.0 → 3.25.5（大幅安全升级）</li>
+        <li>kafka-clients: 3.9.1 → 3.9.2</li>
+        <li>log4j-1.2-api: 2.17.1 → 2.25.4</li>
+      </ul>
+
+      <h3>🌍 多语言 SDK 正式发布（2026-04-06）</h3>
+
+      <p>Fluss 社区发布了 <a href="https://fluss.apache.org/blog/fluss_rust_client_release/" target="_blank">Rust/Python/C++ 客户端的 <strong>0.1.0 正式版</strong></a>，210+ commits 打磨。核心架构创新：三方客户端共享一个 Rust 核心引擎，负责协议协商、批处理、重试和 Apache Arrow 数据交换，外层仅做轻量语言绑定。这确保了跨语言的性能一致性和功能同步。</p>
+
+      <div class="tags">
+        <span class="tag hot">架构创新</span>
+        <span class="tag">Rust</span>
+        <span class="tag">Python</span>
+        <span class="tag">C++</span>
+        <span class="tag">Arrow</span>
+      </div>
+
+      <h3>📝 技术博客密集输出</h3>
+
+      <p>Fluss 社区在 4-5 月期间技术博客产出极高，涵盖以下重要主题：</p>
+
+      <ul class="feature-list">
+        <li><strong>《<a href="https://fluss.apache.org/blog/column-pruning-streaming-storage/" target="_blank">Column Pruning in Streaming Storage</a>》</strong>（4月22日）—— 揭示 Kafka "列裁剪"实为伪裁剪（数据仍在网络传输），Fluss 通过 Arrow IPC 列存、服务端零拷贝裁剪、客户端预 shuffle 批处理实现真正的列裁剪，裁剪 90% 列时可获 10x 读吞吐提升。</li>
+        <li><strong>《<a href="https://fluss.apache.org/blog/taobao-instant-commerce-real-time-decision/" target="_blank">Taobao Instant Commerce: Real-Time Decisions at Scale</a>》</strong>（4月20日）—— 淘宝即时零售的实战案例：如何处理爆炸式流量下数百亿 SKU 的实时决策，Fluss 的 Delta Join、Partial Update、Streamhouse 统一架构等能力打破了她"不可能三角"。</li>
+        <li><strong>《<a href="https://fluss.apache.org/blog/roaringbitmap-uv-deduplication/" target="_blank">RoaringBitmap UV Deduplication</a>》</strong>（4月16日）—— 多维 UV 去重的技术实践，结合 Dictionary Table + 聚合引擎实现高效基数计算。</li>
+        <li><strong>《<a href="https://fluss.apache.org/blog/why-fluss-chose-rust-for-multi-language-sdk/" target="_blank">Why Fluss Chose Rust for Multi-Language SDK</a>》</strong>（4月9日）—— 深入阐述为何选择"单一 Rust 核心 + 多语言绑定"的 SDK 架构策略。</li>
+        <li><strong>《<a href="https://fluss.apache.org/blog/fluss-for-ai/" target="_blank">Fluss in the Context of AI</a>》</strong>（3月5日）—— 明确 Fluss 的新定位："streaming storage for real-time analytics and AI"，强调其在特征存储、实时上下文、向量嵌入等 AI 工作负载中的基础设施角色。</li>
+      </ul>
+
+      <h3>🔭 社区趋势观察</h3>
+
+      <p>从 0.8 → 0.9 → 0.9.1 的演进路径以及近期的博客输出，Fluss 社区的战略方向愈发清晰：</p>
+
+      <ul class="feature-list">
+        <li><strong>AI 基础设施化：</strong>不再仅仅是"流存储"，而是定位为实时智能系统的数据底座。Lance 格式支持向量嵌入存储、多语言 SDK 降低 AI 工程师接入门槛。</li>
+        <li><strong>Streamhouse 架构：</strong>Fluss × Iceberg / Paimon 的 Streamhouse 方案日渐成熟，淘宝 3 PB 级生产部署（40 GB/s）验证了可行性。</li>
+        <li><strong>存储计算分离深化：</strong>Aggregation Merge Engine 将聚合状态外部化到 Fluss，Flink 作业近乎无状态——这是"Zero-State Streaming"理念的落地。</li>
+        <li><strong>生态扩展：</strong>Spark 集成、Azure 支持、Helm Chart 完善——Fluss 正在构建更完整的云原生生态。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/apache/fluss/releases" target="_blank">GitHub Releases</a></li>
+          <li><a href="https://fluss.apache.org/blog/" target="_blank">Fluss 官方博客</a></li>
+          <li><a href="https://fluss.apache.org/blog/releases/0.9/" target="_blank">Fluss 0.9 发布公告</a></li>
+          <li><a href="https://fluss.apache.org/blog/column-pruning-streaming-storage/" target="_blank">列裁剪技术博客</a></li>
+          <li><a href="https://fluss.apache.org/blog/why-fluss-chose-rust-for-multi-language-sdk/" target="_blank">Rust SDK 选型博客</a></li>
+          <li><a href="https://fluss.apache.org/downloads/" target="_blank">Fluss 下载</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== Summary ==================== -->
+  <article class="section">
+    <div class="section-header" style="border-bottom-">
+      <div class="icon">📊</div>
+      <div class="info">
+        <h2>本期总结</h2>
+      </div>
+    </div>
+    <div class="section-body">
+      <p>2026 年 W22 是流存储/消息队列生态的活跃一周：</p>
+
+      <table style="width:100%; border-collapse: collapse; margin:16px 0; font-size:14px;">
+        <thead>
+          <tr style="text-align:left;">
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">项目</th>
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">关键事件</th>
+            <th style="padding:10px 14px; border-bottom:2px solid #e5e7eb;">信号强度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;"><strong>🐘 Kafka</strong></td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">4.3.0 正式发布，25 KIPs</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">
+              <span style="display:inline-block;width:80px;height:8px;border-radius:4px;">
+                <span style="display:block;width:100%;height:100%;border-radius:4px;"></span>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;"><strong>⚡ AutoMQ</strong></td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">1.6.5 发布，License 机制、DevKit</td>
+            <td style="padding:10px 14px; border-bottom:1px solid #f0f0f0;">
+              <span style="display:inline-block;width:80px;height:8px;border-radius:4px;">
+                <span style="display:block;width:73%;height:100%;border-radius:4px;"></span>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;"><strong>🌊 Fluss</strong></td>
+            <td style="padding:10px 14px;">0.9.1 补丁 + 多语言 SDK + 密集技术博客</td>
+            <td style="padding:10px 14px;">
+              <span style="display:inline-block;width:80px;height:8px;border-radius:4px;">
+                <span style="display:block;width:87%;height:100%;border-radius:4px;"></span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:14px; margin-top:16px;">
+        💡 <strong>投资关注点：</strong>Kafka 4.3 引入的诸多运维增强（Cordon、Follower Tiered Fetch）标志着 Kafka 在云原生运维能力上的持续投入。AutoMQ 的 License 机制值得关注——可能预示商业化策略调整。Fluss 的技术博客密度和质量是三个项目中最高的，AI 基础设施定位的差异化战略清晰，值得持续跟踪。
+      </p>
+    </div>
+  </article>
+
+  <!-- 参考链接 -->
+  <article class="section">
+    <h2 class="section-title">📎 参考链接</h2>
+    <h3 style="font-size:0.9rem; margin:12px 0 8px;">📦 版本发布</h3>
+    <div class="refs-list">
+      <a href="https://kafka.apache.org/blog/2026/05/22/apache-kafka-4.3.0-release-announcement/" target="_blank">Apache Kafka 4.3.0 发布公告</a>
+      <a href="https://downloads.apache.org/kafka/4.3.0/RELEASE_NOTES.html" target="_blank">Kafka 4.3.0 Release Notes</a>
+      <a href="https://kafka.apache.org/blog/2026/03/17/apache-kafka-4.1.2-release-announcement/" target="_blank">Kafka 4.1.2 发布公告</a>
+      <a href="https://kafka.apache.org/blog/2026/03/16/apache-kafka-4.0.2-release-announcement/" target="_blank">Kafka 4.0.2 发布公告</a>
+      <a href="https://kafka.apache.org/blog/2026/02/21/apache-kafka-3.9.2-release-announcement/" target="_blank">Kafka 3.9.2 发布公告</a>
+    </div>
+
+    <h3 style="font-size:0.9rem; margin:16px 0 8px;">🔑 关键 KIP（Apache Kafka 4.3.0）</h3>
+    <div class="refs-list">
+      <a href="https://cwiki.apache.org/confluence/x/8op3EQ" target="_blank">KIP-1023 · Follower Fetch from Tiered Offset</a>
+      <a href="https://cwiki.apache.org/confluence/x/Lg_TEg" target="_blank">KIP-1066 · Cordon Brokers &amp; Log Directories</a>
+      <a href="https://cwiki.apache.org/confluence/x/hA5JFg" target="_blank">KIP-1196 · Group Coordinator Append Buffer</a>
+      <a href="https://cwiki.apache.org/confluence/x/dwEXG" target="_blank">KIP-1258 · OAuth Client Assertion</a>
+      <a href="https://cwiki.apache.org/confluence/x/8ITMFw" target="_blank">KIP-1251 · Assignment Epochs for Consumer Groups</a>
+      <a href="https://cwiki.apache.org/confluence/x/PoY8G" target="_blank">KIP-1274 · Deprecate Classic Rebalance Protocol</a>
+      <a href="https://cwiki.apache.org/confluence/x/QIM8G" target="_blank">KIP-1271 · Store Headers in State Stores</a>
+      <a href="https://cwiki.apache.org/confluence/x/4ow8G" target="_blank">KIP-1285 · DSL Headers-Aware State Stores</a>
+      <a href="https://cwiki.apache.org/confluence/x/XgIXG" target="_blank">KIP-1259 · State Cleanup on Startup</a>
+      <a href="https://cwiki.apache.org/confluence/x/qIE8G" target="_blank">KIP-1270 · ProcessingExceptionHandler for GlobalThread</a>
+      <a href="https://cwiki.apache.org/confluence/x/h4HMFw" target="_blank">KIP-1239 · Batch Offset Translation (Connect)</a>
+      <a href="https://cwiki.apache.org/confluence/x/a4s8G" target="_blank">KIP-1280 · MirrorMaker KIP-877 Metrics</a>
+    </div>
+
+    <h3 style="font-size:0.9rem; margin:16px 0 8px;">⚡ AutoMQ</h3>
+    <div class="refs-list">
+      <a href="https://github.com/AutoMQ/automq/releases" target="_blank">AutoMQ GitHub Releases</a>
+      <a href="https://github.com/AutoMQ/automq/releases/tag/1.6.5" target="_blank">AutoMQ 1.6.5 Release Notes</a>
+      <a href="https://github.com/AutoMQ/automq" target="_blank">AutoMQ GitHub 主页</a>
+      <a href="https://www.automq.com/" target="_blank">AutoMQ 官方网站</a>
+      <a href="https://docs.automq.com/" target="_blank">AutoMQ 官方文档</a>
+    </div>
+
+    <h3 style="font-size:0.9rem; margin:16px 0 8px;">🌊 Apache Fluss</h3>
+    <div class="refs-list">
+      <a href="https://github.com/apache/fluss/releases" target="_blank">Fluss GitHub Releases</a>
+      <a href="https://github.com/apache/fluss" target="_blank">Fluss GitHub 主页</a>
+      <a href="https://fluss.apache.org/blog/" target="_blank">Fluss 官方博客</a>
+      <a href="https://fluss.apache.org/blog/releases/0.9/" target="_blank">Fluss 0.9.x 版本总览</a>
+      <a href="https://fluss.apache.org/blog/fluss_rust_client_release/" target="_blank">多语言 SDK 0.1.0 发布公告</a>
+      <a href="https://fluss.apache.org/blog/column-pruning-streaming-storage/" target="_blank">列裁剪技术博客</a>
+      <a href="https://fluss.apache.org/blog/taobao-instant-commerce-real-time-decision/" target="_blank">淘宝即时零售实战博客</a>
+      <a href="https://fluss.apache.org/blog/roaringbitmap-uv-deduplication/" target="_blank">RoaringBitmap UV 去重博客</a>
+      <a href="https://fluss.apache.org/blog/why-fluss-chose-rust-for-multi-language-sdk/" target="_blank">Rust 多语言 SDK 选型博客</a>
+      <a href="https://fluss.apache.org/blog/fluss-for-ai/" target="_blank">Fluss 在 AI 上下文中的定位</a>
+      <a href="https://fluss.apache.org/downloads/" target="_blank">Fluss 下载页面</a>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="team">CHANG_AI_TEAM · 技术调研</div>
+    <div>调研周期：2026-05-19 ~ 2026-05-25（第 22 周）</div>
+    <div style="margin-top:4px;">© 2026 CHANG_AI_TEAM — 仅供内部参考</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Horizon：非对称依赖与半线性化 · 面向快速地理分布式操作的弱协调模型 · CHANG_AI_TEAM</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+
+  <div class="paper-header">
+    <h1>Event Horizon：非对称依赖与半线性化——面向快速地理分布式操作的弱协调模型</h1>
+    <div class="meta">
+      <strong>作者：</strong>Jonathan Arns (KTH), Harald Ng (KTH), Kyriakos Psarakis (Ververica / TU Delft), Asterios Katsifodimos (TU Delft), Paris Carbone (KTH)<br>
+      <strong>会议：</strong>CIDR 2026 · January 18-21, Chaminade, USA<br>
+      <strong>代码：</strong>DeMon 在 Ververica 开源<br>
+      <strong>PDF：</strong><a href="https://www.vldb.org/cidrdb/papers/2026/p20-arns.pdf" target="_blank">vldb.org/cidrdb/papers/2026/p20-arns.pdf</a>
+    </div>
+    <div class="tags">
+      <span class="tag">分布式系统</span>
+      <span class="tag">一致性模型</span>
+      <span class="tag">半线性化</span>
+      <span class="tag">非对称依赖</span>
+      <span class="tag green">CIDR 2026</span>
+      <span class="tag orange">Ververica</span>
+      <span class="tag purple">Event Horizon</span>
+    </div>
+  </div>
+
+  <div class="toc">
+    <h3>📑 目录</h3>
+    <ol>
+      <li><a href="#问题背景">问题背景 — 地理分布式应用的核心矛盾</a></li>
+      <li><a href="#核心创新">核心创新 — 半线性化（Semi-Linearizability, SL）</a></li>
+      <li><a href="#demon实现">DeMon 系统实现</a></li>
+      <li><a href="#实验评估">实验评估</a></li>
+      <li><a href="#kafka关联">与 Kafka / 流存储系统的关联分析</a></li>
+      <li><a href="#论文评价">论文评价</a></li>
+    </ol>
+  </div>
+
+<h1>Event Horizon：非对称依赖与半线性化</h1>
+
+<blockquote><strong>论文</strong>：Event Horizon: Asymmetric Dependencies for Fast Geo-Distributed Operations</blockquote>
+<blockquote><strong>作者</strong>：Jonathan Arns (KTH), Harald Ng (KTH), Kyriakos Psarakis (Ververica / TU Delft), Asterios Katsifodimos (TU Delft), Paris Carbone (KTH)</blockquote>
+<blockquote><strong>会议</strong>：CIDR 2026 (16th Annual Conference on Innovative Data Systems Research)</blockquote>
+<blockquote><strong>许可</strong>：CC-BY 4.0</blockquote>
+
+<hr>
+
+<h2 id="问题背景">一、问题背景</h2>
+
+<h3>1.1 地理分布式应用面临的核心矛盾</h3>
+
+<p>扩展现实（XR）、沉浸式游戏、实时竞拍等地理分布式应用对<strong>低延迟</strong>和<strong>强一致状态</strong>有双重需求：</p>
+
+<ul>
+  <li>一端：Spanner 等严格可串行化数据库通过共识（Paxos、2PC）强制全序 → <strong>延迟根本意义上无法突破</strong>（跨地域 replica 通信）</li>
+  <li>另一端：CALM、CRDT 等弱一致性模型避免协调 → <strong>无法保证常见不变量</strong>（如唯一性、拍卖最终结果确定性）</li>
+</ul>
+
+<h3>1.2 现有混合一致性模型的问题：过度协调</h3>
+
+<p>RedBlue 一致性、PoR（Proof of Replication）、ECROs 等混合模型按操作划分：</p>
+<ul>
+  <li><strong>强操作</strong>（red/conflict）→ 全序、需要协调</li>
+  <li><strong>弱操作</strong>（blue/commutative）→ 无协调、可并发</li>
+</ul>
+
+<div class="key-insight">
+  <strong>核心洞察</strong>：这套二分法存在根本缺陷——二分法假设冲突关系是对称的，忽略了大量真实应用语义中冲突是单向的。
+</div>
+
+<h3>1.3 拍卖案例：暴露过度协调</h3>
+
+<p>分布式拍卖系统有两个操作：</p>
+
+<table>
+<thead><tr><th>操作</th><th>语义</th><th>关系</th></tr></thead>
+<tbody>
+<tr><td><code>new_bid</code></td><td>插入一个新出价</td><td>与其他 <code>new_bid</code> 可交换（commutative）</td></tr>
+<tr><td><code>close_auction</code></td><td>结束拍卖、确定赢家</td><td>必须<strong>观察到</strong>所有前置 <code>new_bid</code></td></tr>
+</tbody>
+</table>
+
+<p>现有模型的困境：</p>
+
+<table>
+<thead><tr><th>模型</th><th>建模的依赖</th><th>问题</th></tr></thead>
+<tbody>
+<tr><td>RedBlue</td><td><code>new_bid ↔ new_bid</code> + <code>close_auction ↔ new_bid</code></td><td><strong>过度协调</strong>：对所有操作执行全序</td></tr>
+<tr><td>PoR</td><td>同 RedBlue</td><td><strong>过度协调</strong></td></tr>
+<tr><td>ECROs</td><td><code>close_auction ↔ new_bid</code></td><td><strong>违反不变量</strong>：close 可能遗漏并发 bid</td></tr>
+</tbody>
+</table>
+
+<div class="key-insight">
+  <strong>真实需求</strong>：<code>close_auction → new_bid</code>（单向）——close 需要观察所有 bid 的历史，但 bid 不需要观察 close。这种<strong>非对称依赖</strong>正是突破过度协调的关键。
+</div>
+
+<hr>
+
+<h2 id="核心创新">二、核心创新：半线性化（Semi-Linearizability, SL）</h2>
+
+<h3>2.1 SL 的形式化定义</h3>
+
+<p>SL 是一种新的混合一致性模型，其核心概念用一句话概括：</p>
+
+<div class="key-insight">
+  <strong>事件视界（Event Horizon）</strong>：可交换（弱）操作可以相互并发执行，自由流动；直到一个更强的操作形成"事件视界"，将之前所有松散的操作强制塌缩为一个全局一致的历史顺序。
+</div>
+
+<p>类比：天体物理学中，事件视界是黑洞的边界，一切物质和信息一旦越过此边界就不可逆地内落。对应到分布式系统——大量并发事件路径可以随意发散，直到被一次"关键操作"收束。</p>
+
+<h3>2.2 操作依赖的三个层次</h3>
+
+<p>论文将操作间的依赖关系细化为三个层级：</p>
+
+<table>
+<thead><tr><th>层级</th><th>语义</th><th>协调代价</th></tr></thead>
+<tbody>
+<tr><td><strong>strictly ordered</strong>（严格有序）</td><td><code>OP1 → OP2</code>：OP1 必须在 OP2 之前全局可见</td><td>最高（需共识）</td></tr>
+<tr><td><strong>commutative</strong>（可交换）</td><td><code>OP1 ∥ OP2</code>：两个操作可以以任意顺序执行</td><td>无协调</td></tr>
+<tr><td><strong>eventually ordered</strong>（最终有序）</td><td><code>OP1 ⇝ OP2</code>：OP2 最终需要"知道"OP1，但在 OP2 执行前可暂不建立全序</td><td><strong>少量协调</strong></td></tr>
+</tbody>
+</table>
+
+<p><code>⇝</code>（eventually ordered）是 SL 的关键创新——<strong>比严格有序更轻量，但比完全无约束更有保证</strong>。</p>
+
+<h3>2.3 DeMon 依赖模型（非对称依赖模型）</h3>
+
+<p>DeMon（论文实现的参考系统）用一个<strong>有向依赖图</strong>来描述操作间关系：</p>
+
+<pre><code>new_bid ──(eventually ordered)──► close_auction
+new_bid ──(commutative)─────────► new_bid
+close_auction ──(no dep)────────► new_bid   ← 非对称！</code></pre>
+
+<p>关键特征：</p>
+<ul>
+  <li><code>close_auction</code> 不依赖未来的 <code>new_bid</code>（消息方向 ≠ 依赖方向）</li>
+  <li><code>close_auction</code> 执行后，新的 <code>new_bid</code> 可以被拒绝——不违反正确性</li>
+  <li><strong>这消除了 <code>close_auction</code> 与并发 <code>new_bid</code> 间的协调需求</strong></li>
+</ul>
+
+<hr>
+
+<h2 id="demon实现">三、DeMon 系统实现</h2>
+
+<h3>3.1 架构概览</h3>
+
+<p>DeMon 是 SL 的执行引擎，为每个操作维护两个"版本"：</p>
+
+<table>
+<thead><tr><th>版本</th><th>语义</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><strong>Weak Guard</strong></td><td>可交换的轻量执行</td><td>弱操作（如 <code>new_bid</code>）的快速路径</td></tr>
+<tr><td><strong>Strong Guard</strong></td><td>线性化执行</td><td>强操作的持久化保证</td></tr>
+</tbody>
+</table>
+
+<p>核心机制：</p>
+<ol>
+  <li>弱操作通过<strong>因果广播</strong>（Causal Broadcast）快速传播，使用<strong>袋子（Bag）</strong>数据结构在全局日志中记录而不强制全序</li>
+  <li>强操作向<strong>主副本（Primary）</strong>发送请求，由 Primary 执行并广播</li>
+  <li>当强操作执行时，通过 bag 中的弱操作依赖关系进行<strong>本地重排序</strong>——确保看到所有因果相关的弱操作</li>
+</ol>
+
+<h3>3.2 执行流程（以拍卖为例）</h3>
+
+<pre><code>1. Client A: new_bid("item1", 100) ──causal broadcast──► 各副本本地执行
+2. Client B: new_bid("item1", 150) ──causal broadcast──► 各副本本地执行
+3. Client A: close_auction("item1") 
+   ├── 发送给 Primary
+   ├── Primary 从 bag 中收集所有相关 new_bid
+   ├── 本地重排序确定最终 bid 序列
+   ├── 广播结果
+   └── 所有副本执行 close → 确定赢家 = Client B</code></pre>
+
+<p>关键：步骤 1 和 2 的 <code>new_bid</code> 之间无协调，它们之间的顺序由 <code>close_auction</code> 执行时的 local reordering 确定。</p>
+
+<h3>3.3 与现有系统的差异</h3>
+
+<table>
+<thead><tr><th>特性</th><th>RedBlue</th><th>PoR</th><th>ECROs</th><th><strong>DeMon (SL)</strong></th></tr></thead>
+<tbody>
+<tr><td>依赖建模</td><td>对称冲突</td><td>对称冲突</td><td>对称冲突</td><td><strong>非对称</strong></td></tr>
+<tr><td>弱操作协调</td><td>无</td><td>无</td><td>无</td><td>无</td></tr>
+<tr><td>强操作协调</td><td>Paxos 全序全部</td><td>同 RedBlue</td><td>同 RedBlue</td><td><strong>仅 consensus 强操作本身</strong></td></tr>
+<tr><td><code>new_bid</code> 延迟</td><td>毫秒级</td><td>毫秒级</td><td>毫秒级</td><td><strong>微秒级</strong></td></tr>
+<tr><td><code>close_auction</code> 延迟</td><td>全序相关</td><td>全序相关</td><td>全序相关</td><td><strong>仅 consensus round-trip</strong></td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="实验评估">四、实验评估</h2>
+
+<h3>4.1 实验设置</h3>
+
+<ul>
+  <li><strong>基准</strong>：RUBiS（经典分布式拍卖/电商 benchmark）</li>
+  <li><strong>对比系统</strong>：OmniPaxos、Gemini+、UniStore、No Guarantees（下界）</li>
+  <li><strong>协议分类</strong>：
+    <ul>
+      <li>容错协议：DeMon、Gemini+、UniStore（使用 consensus 复制）</li>
+      <li>无容错：Gemini（无一致性保障）</li>
+      <li>全序：OmniPaxos</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>4.2 吞吐量</h3>
+
+<p>DeMon 在<strong>所有容错协议中达到最高吞吐量</strong>（仅略微低于无协调的 Gemini）。原因：DeMon 对大部分操作（<code>Bid</code> 类）使用因果广播，只有强操作走 consensus → 减少了共识瓶颈。</p>
+
+<h3>4.3 延迟（最关键的发现）</h3>
+
+<table>
+<thead><tr><th>操作类型</th><th>DeMon</th><th>Gemini+</th><th>UniStore</th><th>OmniPaxos</th><th>No Guarantees</th></tr></thead>
+<tbody>
+<tr><td><code>Bid</code>（最常见操作）</td><td><strong>亚毫秒</strong></td><td>毫秒级</td><td>毫秒级</td><td>245ms</td><td>亚毫秒</td></tr>
+<tr><td><code>CloseAuction</code></td><td>~245ms</td><td>371ms</td><td>391ms</td><td>245ms</td><td>N/A</td></tr>
+</tbody>
+</table>
+
+<div class="key-insight">
+  <strong>核心数据</strong>：<code>Bid</code> 操作上，DeMon 比次优的 Gemini+ 快 4 个数量级（微秒 vs 毫秒）。
+</div>
+
+<p>原因：DeMon 的弱操作只需 causal broadcast → 单跳通信 + 本地执行；而 RedBlue/PoR 风格的协议要求强操作执行前等待所有 causally related 弱操作写完 = 额外 round-trip。</p>
+
+<h3>4.4 协调开销微基准</h3>
+
+<p>用计数器数据类型（含 <code>not-less-than-zero</code> 不变量），控制强操作（<code>subtract</code>）比例：</p>
+
+<table>
+<thead><tr><th>强操作比例</th><th>DeMon 表现</th></tr></thead>
+<tbody>
+<tr><td>0%</td><td>与 No Guarantees 一致（亚毫秒）</td></tr>
+<tr><td>10-50%</td><td>延迟逐步接近 OmniPaxos 下界</td></tr>
+<tr><td>50%+</td><td>所有混合模型趋同——强操作主导了延迟</td></tr>
+</tbody>
+</table>
+
+<div class="key-insight">
+  <strong>核心结论</strong>：SL 的价值在强操作比例较低时最大化——而这恰恰是大多数交互式应用的典型模式。
+</div>
+
+<hr>
+
+<h2 id="kafka关联">五、与 Kafka / 流存储系统的关联分析</h2>
+
+<h3>5.1 流系统中的一致性问题</h3>
+
+<p>Kafka / Flink / Pulsar 等流系统同样面临地理分布式一致性问题：</p>
+
+<table>
+<thead><tr><th>场景</th><th>类比</th><th>当前做法</th></tr></thead>
+<tbody>
+<tr><td>多 DC 的 Consumer Offset 一致性</td><td><code>new_bid</code> + <code>close_auction</code></td><td>全序 offset commit（Kafka consumer group coordinator 单主）</td></tr>
+<tr><td>Exactly-once 语义下的事务协调</td><td>强状态操作 vs 弱状态操作</td><td>Kafka transactions → 全序 + 2PC</td></tr>
+<tr><td>多主复制下的 causal consistency</td><td>Bag-based 弱操作传播</td><td>无成熟方案</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 SL 对流系统的启示</h3>
+
+<ol>
+  <li><strong>Consumer Group Offset 的"事件视界"优化</strong>：大多数 offset commit 是弱操作（可交换），只有 rebalance 时才是强操作。SL 可以将日常 offset commit 降为因果广播，仅 rebalance 时触发全序。</li>
+  <li><strong>Kafka Tiered Storage 的 Compaction</strong>：类比 RaaS——compaction 与 SL 的强操作语义类似：大多数 segment 对象间无依赖，但 <code>delete_records</code> 或 <code>truncate</code> 形成事件视界。</li>
+  <li><strong>Flink Checkpoint 的地理分布</strong>：Flink checkpoint barrier 本质上是事件视界——它要求 barrier 之前所有算子状态在全流图内达成一致。SL 的形式化可能为更轻量的 checkpoint 变体提供理论支撑。</li>
+</ol>
+
+<h3>5.3 关键启示</h3>
+
+<ul>
+  <li><strong>不要让二分法（strong/weak）限制想象力</strong>——真实操作依赖是<strong>有向图</strong>而非无向图</li>
+  <li><strong>不对称性是实际系统优化的核心方向</strong>——<code>read-after-write</code> 就是最经典的非对称依赖</li>
+  <li><strong>Bag + Reordering = 比全序更灵活的正确性保证</strong>——对 Kafka 多 DC 复制有直接参考价值</li>
+</ul>
+
+<hr>
+
+<h2 id="论文评价">六、论文评价</h2>
+
+<h3>亮点</h3>
+
+<div class="key-findings">
+  <h3>🌟 评价要点</h3>
+  <ol>
+    <li><strong>贡献维度完整</strong>：形式化（SL）+ 系统实现（DeMon）+ 实验验证 + 前瞻（§6-7），CIDR 风格恰到好处</li>
+    <li><strong>理论动机漂亮</strong>：事件视界的类比不仅好听，而且准确捕捉了弱操作的"塌缩"机制</li>
+    <li><strong>代码实现公开</strong>：DeMon 在 Ververica 开源，可直接复现</li>
+    <li><strong>洞察尖锐</strong>：精准指出混合一致性模型"对称冲突"的盲区；拍卖案例贯穿全文，论证连贯</li>
+    <li><strong>前瞻价值高</strong>：§7 "A Future Outlook" 从自然语言规范 → 形式化 → 代码生成 → verified lifting 的画布极具野心，为后续研究者提供了明确路线图</li>
+  </ol>
+</div>
+
+<h3>局限与待验证</h3>
+
+<ul>
+  <li><strong>RUBiS 基准的局限性</strong>：拍卖场景是最适合 SL 的典型——但 SL 在更复杂的业务逻辑（如带有条件依赖的多步事务）中是否仍有效，有待验证</li>
+  <li><strong>强操作延迟不优于基线</strong>：<code>close_auction</code> 延迟与 OmniPaxos 持平（~245ms）——SL 的价值<strong>完全集中在弱操作的加速上</strong>，对强操作本身无帮助</li>
+  <li><strong>弱操作"惊喜"的用户可见性</strong>：SL 下弱操作可能被重排（如 bid 被后到的 close 覆盖），论文承认需要 UI 层处理来避免"surprises"，这是一个工程挑战</li>
+  <li><strong>单主写入瓶颈</strong>：DeMon 依赖主副本处理强操作，吞吐量受限于单水平——对强操作比例较高的场景可能成为瓶颈</li>
+  <li><strong>Byzantine 容错未兑现</strong>：论文讨论了 BFT 方向（§7），但未给出具体实现或评估</li>
+</ul>
+
+<h3>对团队的启示</h3>
+
+<ol>
+  <li><strong>方向性依赖建模</strong>是未来分布式系统的核心范式——我们内部系统的状态机设计应该从"哪些操作冲突"升级为"哪些操作需要观察哪些操作"</li>
+  <li><strong>Bag + Local Reordering</strong> 是比 CRDT 更灵活的正确性工具——CRDT 需要操作本身是单调的，SL 则更通用</li>
+  <li>论文 §7 的"非专家通过自然语言定义一致性"路线值得关注——对 AI Agent 时代的系统设计有前瞻意义</li>
+</ol>
+
+<hr>
+
+<p><em>精读完成于 2026-06-11 · CHANG_AI_TEAM CTO</em></p>
+
+  <footer>
+    <p>CHANG_AI_TEAM CTO 论文精读 · 2026-06-11</p>
+    <p>仓库：<a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">github.com/BryantChang1992/ai_memory_chang_ai_team</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

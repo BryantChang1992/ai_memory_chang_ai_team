@@ -849,7 +849,7 @@
   class="readtime"
   data-bs-toggle="tooltip"
   data-bs-placement="bottom"
-  title="2516 字"
+  title="2503 字"
 >
   <em>13 分钟</em>阅读</span>
 
@@ -1520,39 +1520,23 @@
 
 <h3 id="261-fluss-row-格式arrow-列式"><span class="me-2">2.6.1 Fluss Row 格式（Arrow 列式）</span><a href="#261-fluss-row-格式arrow-列式" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-</pre></td><td class="rouge-code"><pre>LogRecordBatch (interface)
-├── logFormat: ARROW | COMPACTED | INDEXED
-├── schemaId: short
-├── baseLogOffset: long
-├── lastLogOffset: long
-├── writerId: long
-├── batchSequence: int
-├── leaderEpoch: int
-├── commitTimestamp: long
-└── records(ReadContext) → CloseableIterator&lt;LogRecord&gt;
-     其中 ReferenceRecord 包含
-     ├── offset: long
-     ├── timestamp: long
-     ├── ChangeType (APPEND | UPDATE | DELETE)
-     └── RowKind (INSERT | UPDATE_BEFORE | UPDATE_AFTER | DELETE)
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    LRB["LogRecordBatch (interface)"]
+    LRB --&gt; LF["logFormat: ARROW / COMPACTED / INDEXED"]
+    LRB --&gt; SI["schemaId: short"]
+    LRB --&gt; BLO["baseLogOffset: long"]
+    LRB --&gt; LLO["lastLogOffset: long"]
+    LRB --&gt; WID["writerId: long"]
+    LRB --&gt; BS["batchSequence: int"]
+    LRB --&gt; LE["leaderEpoch: int"]
+    LRB --&gt; CT["commitTimestamp: long"]
+    LRB --&gt; REC["records(ReadContext) -&gt; CloseableIterator of LogRecord"]
+    REC --&gt; RR["ReferenceRecord includes:"]
+    RR --&gt; OFF["offset: long"]
+    RR --&gt; TS["timestamp: long"]
+    RR --&gt; CTYPE["ChangeType: APPEND / UPDATE / DELETE"]
+    RR --&gt; RK["RowKind: INSERT / UPDATE_BEFORE / UPDATE_AFTER / DELETE"]
+</code></pre>
 
 <p>Fluss 定义了 3 种 Log Format：</p>
 
@@ -1585,23 +1569,15 @@
 
 <h3 id="262-rowaarrow-体系"><span class="me-2">2.6.2 Row/Aarrow 体系</span><a href="#262-rowaarrow-体系" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-</pre></td><td class="rouge-code"><pre>InternalRow (行式抽象，类似 Flink RowData)
-├── 支持 projection（列投影）
-├── 支持 RowKind（INSERT/UPDATE/DELETE）
-└── ColumnRow (Arrow 列式实现)
-    ├── VectorSchemaRoot (Arrow 列式批量)
-    ├── 列裁剪：ProjectionPushdownCache
-    └── FlussVectorLoader → Arrow VectorLoader
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    IR["InternalRow (row abstraction, like Flink RowData)"]
+    IR --&gt; P["supports projection (column projection)"]
+    IR --&gt; RK["supports RowKind (INSERT/UPDATE/DELETE)"]
+    IR --&gt; CR["ColumnRow (Arrow columnar impl)"]
+    CR --&gt; VSR["VectorSchemaRoot (Arrow columnar batch)"]
+    CR --&gt; PPC["Column pruning: ProjectionPushdownCache"]
+    CR --&gt; FVL["FlussVectorLoader -&gt; Arrow VectorLoader"]
+</code></pre>
 
 <h3 id="263-与-kafka-record-格式对比"><span class="me-2">2.6.3 与 Kafka Record 格式对比</span><a href="#263-与-kafka-record-格式对比" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 

@@ -661,9 +661,9 @@
   class="readtime"
   data-bs-toggle="tooltip"
   data-bs-placement="bottom"
-  title="972 字"
+  title="848 字"
 >
-  <em>5 分钟</em>阅读</span>
+  <em>4 分钟</em>阅读</span>
 
         </div>
       </div>
@@ -701,81 +701,49 @@
 
 <p><a href="/ai_memory_chang_ai_team/media/diagrams/04-query-execution.svg" class="popup img-link shimmer"><img src="/ai_memory_chang_ai_team/media/diagrams/04-query-execution.svg" alt="Doris 查询执行" loading="lazy"></a></p>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-</pre></td><td class="rouge-code"><pre>Client (MySQL Protocol / HTTP / Arrow Flight)
-    ↓
-FE (Frontend) — Java
-├── SQL Parser (ANSI SQL 兼容)
-├── Analyzer (语义分析，Catalog 元数据校验)
-├── Optimizer
-│   ├── RBO (Rule-Based Optimizer, v1.x~v2.x)
-│   └── Nereids (CBO, v2.1+ 实验，v3.0 稳定)
-│       ├── 统计信息收集
-│       ├── Cost Model (CBO 选 Best Plan)
-│       └── Plan Rewrite (列裁剪、谓词下推、常量折叠)
-├── Coordinator
-│   ├── Plan Fragment 生成 (MPP 分布式计划)
-│   ├── Parallelism 计算
-│   └── Schedule to BEs
-└── Result Merger (结果合并 → Client)
-    ↓
-BE (Backend) — C++
-├── Plan Fragment Executor
-│   ├── Scan Node → Segment Reader
-│   │   ├── ZoneMap 剪枝
-│   │   ├── Bloom Filter 过滤
-│   │   └── Page 级 IO
-│   ├── Join Node
-│   │   ├── Hash Join (Build/Probe)
-│   │   ├── Broadcast Join (小表广播)
-│   │   └── Shuffle Join (大表重分布)
-│   ├── Agg Node (预聚合)
-│   └── Sort / Limit / Exchange
-├── 向量化引擎
-│   ├── Columnar Batch (4096行/Batch)
-│   ├── SIMD 指令集加速 (SSE/AVX2)
-│   └── 内存池管理 (避免碎片)
-└── Runtime Filter
-    ├── Bloom Filter 生成 (Join Build 侧)
-    └── 广播到 Scan Node (提前过滤)
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    Client["Client (MySQL Protocol / HTTP / Arrow Flight)"]
+    Client --&gt; FE["FE (Frontend) - Java"]
+
+    subgraph FE_["FE (Frontend)"]
+        FE --&gt; Parser["SQL Parser (ANSI SQL compat)"]
+        FE --&gt; Analyzer["Analyzer (semantic check, Catalog metadata)"]
+        FE --&gt; Opt["Optimizer"]
+        Opt --&gt; RBO["RBO (Rule-Based, v1.x-2.x)"]
+        Opt --&gt; Nereids["Nereids (CBO, v2.1+ exp., v3.0 stable)"]
+        Nereids --&gt; Stats["Statistics collection"]
+        Nereids --&gt; Cost["Cost Model (CBO best plan)"]
+        Nereids --&gt; Rewrite["Plan Rewrite (prune/pushdown/fold)"]
+        FE --&gt; Coord["Coordinator"]
+        Coord --&gt; Frag["Plan Fragment gen (MPP distributed plan)"]
+        Coord --&gt; Par["Parallelism calc"]
+        Coord --&gt; Sched["Schedule to BEs"]
+        FE --&gt; RM["Result Merger (merge results -&gt; Client)"]
+    end
+
+    FE --&gt; BE["BE (Backend) - C++"]
+
+    subgraph BE_["BE (Backend)"]
+        BE --&gt; PFE["Plan Fragment Executor"]
+        PFE --&gt; Scan["Scan Node -&gt; Segment Reader"]
+        Scan --&gt; ZM["ZoneMap pruning"]
+        Scan --&gt; Blm["Bloom Filter"]
+        Scan --&gt; PIO["Page-level IO"]
+        PFE --&gt; Join["Join Node"]
+        Join --&gt; HJ["Hash Join (Build/Probe)"]
+        Join --&gt; BCJ["Broadcast Join (small table)"]
+        Join --&gt; SJ["Shuffle Join (large table)"]
+        PFE --&gt; Agg["Agg Node (pre-agg)"]
+        PFE --&gt; SL["Sort / Limit / Exchange"]
+        BE --&gt; VE["Vectorized Engine"]
+        VE --&gt; CB["Columnar Batch (4096 rows/batch)"]
+        VE --&gt; SIMD["SIMD accel (SSE/AVX2)"]
+        VE --&gt; MP["Memory pool (anti-frag)"]
+        BE --&gt; RF["Runtime Filter"]
+        RF --&gt; BFG["Bloom Filter gen (Join Build side)"]
+        RF --&gt; BCF["Broadcast to Scan Node (early filter)"]
+    end
+</code></pre>
 
 <h3 id="33-分布式执行模型"><span class="me-2">3.3 分布式执行模型</span><a href="#33-分布式执行模型" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
@@ -785,15 +753,10 @@ BE (Backend) — C++
 
 <p>FE 将 SQL Plan 拆分为多个 Fragment，每个 Fragment 由 BE 上的一个 Instance 执行：</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-</pre></td><td class="rouge-code"><pre>Fragment 0 (Coordinator): Result Sink → Merge → Client
-Fragment 1 (Agg BE):       Final Agg ← EXCHANGE ←
-Fragment 2 (Scan BE):      Pre Agg → EXCHANGE →
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart LR
+    F0["Fragment 0 (Coordinator): Result Sink"] --&gt; F0M["Merge"] --&gt; F0C["Client"]
+    F2["Fragment 2 (Scan BE): Pre Agg"] --&gt; EX["EXCHANGE"] --&gt; F1["Fragment 1 (Agg BE): Final Agg"]
+</code></pre>
 
 <p><strong>Phase 2：Data Shuffle</strong></p>
 
@@ -890,17 +853,11 @@ Fragment 2 (Scan BE):      Pre Agg → EXCHANGE →
 
 <p>Doris Runtime Filter 是查询加速的核心技术：</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-</pre></td><td class="rouge-code"><pre>1. Small Table (右表) Join Key → Build Bloom Filter
-2. Broadcast Bloom Filter to Scan Node (左表)
-3. Scan Node 利用 Bloom Filter 过滤不需要的行
-4. 大幅减少 Shuffle &amp; Join 数据量
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart LR
+    A["1. Small Table (right) Build Bloom Filter"] --&gt; B["2. Broadcast Bloom Filter to Scan Node (left)"]
+    B --&gt; C["3. Scan Node filters unneeded rows"]
+    C --&gt; D["4. Greatly reduce Shuffle &amp; Join data"]
+</code></pre>
 
 <p><strong>典型收益</strong>：大表 Join 小表，Runtime Filter 可过滤 50%~99% 的无效数据。</p>
 

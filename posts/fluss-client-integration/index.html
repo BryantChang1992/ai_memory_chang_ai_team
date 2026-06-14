@@ -860,9 +860,9 @@
   class="readtime"
   data-bs-toggle="tooltip"
   data-bs-placement="bottom"
-  title="2252 字"
+  title="2101 字"
 >
-  <em>12 分钟</em>阅读</span>
+  <em>11 分钟</em>阅读</span>
 
         </div>
       </div>
@@ -1011,25 +1011,16 @@
 
 <h3 id="521-writer-api"><span class="me-2">5.2.1 Writer API</span><a href="#521-writer-api" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-</pre></td><td class="rouge-code"><pre>Table.newWriter()              // 简单写入器
-  ├── AppendWriter             // 追加写入（仅 APPEND 语义）
-  │   └── ~ KafkaProducer.send()
-  ├── UpsertWriter             // 写入/更新（UPSERT 语义，PK 表）
-  │   └── ~ KafkaProducer + 服务端 Merge
-  └── TableWriter&lt;T&gt;           // 类型化写入器
+<pre><code class="language-mermaid">flowchart TD
+    NW["Table.newWriter() (simple writer)"]
+    NW --&gt; AW["AppendWriter (APPEND only)"]
+    AW --&gt; KP1["~ KafkaProducer.send()"]
+    NW --&gt; UW["UpsertWriter (UPSERT, PK table)"]
+    UW --&gt; KP2["~ KafkaProducer + server-side Merge"]
+    NW --&gt; TW["TableWriter (typed writer)"]
+</code></pre>
 
-TypedAppendWriterImpl / TypedUpsertWriterImpl  // 类型安全包装
-</pre></td></tr></tbody></table></code></div></div>
+<p>TypedAppendWriterImpl / TypedUpsertWriterImpl  // 类型安全包装</p>
 
 <h3 id="522-写入批次类型"><span class="me-2">5.2.2 写入批次类型</span><a href="#522-写入批次类型" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
@@ -1236,37 +1227,22 @@ TypedAppendWriterImpl / TypedUpsertWriterImpl  // 类型安全包装
 
 <h3 id="531-scanner-api"><span class="me-2">5.3.1 Scanner API</span><a href="#531-scanner-api" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-</pre></td><td class="rouge-code"><pre>Table.newScan()                   // 扫描器
-  ├── LogScanner                  // 日志扫描（顺序读）
-  │   ├── 从指定的 offset 开始
-  │   ├── 支持 bucketed / unbounded 模式
-  │   └── 远程日志透明下载
-  ├── BatchScanner                // 批量扫描（快照 + 日志合并）
-  │   ├── KvBatchScanner          // 基于 KV 快照的过滤扫描
-  │   ├── KvSnapshotBatchScanner  // 纯快照扫描（无日志）
-  │   ├── SnapshotReaders         // 从远程下载快照并读取
-  │   ├── LimitBatchScanner       // limit 扫描
-  │   └── CompositeBatchScanner   // 多源组合扫描
-  └── Lookuper                    // 点查
-      ├── PrimaryKeyLookuper      // 按 PK 精确查找
-      └── PrefixKeyLookuper       // 按前缀查找
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    NS["Table.newScan() (scanner)"]
+    NS --&gt; LS["LogScanner (sequential read)"]
+    LS --&gt; L1["Start from given offset"]
+    LS --&gt; L2["Bucked / unbounded modes"]
+    LS --&gt; L3["Transparent remote log download"]
+    NS --&gt; BS["BatchScanner (snapshot + log merge)"]
+    BS --&gt; B1["KvBatchScanner (KV snapshot filter scan)"]
+    BS --&gt; B2["KvSnapshotBatchScanner (snapshot only)"]
+    BS --&gt; B3["SnapshotReaders (download + read from remote)"]
+    BS --&gt; B4["LimitBatchScanner (limit scan)"]
+    BS --&gt; B5["CompositeBatchScanner (multi-source merge)"]
+    NS --&gt; LK["Lookuper (point lookup)"]
+    LK --&gt; LK1["PrimaryKeyLookuper (exact PK lookup)"]
+    LK --&gt; LK2["PrefixKeyLookuper (prefix lookup)"]
+</code></pre>
 
 <h3 id="532-batchscanner-读取模式"><span class="me-2">5.3.2 BatchScanner 读取模式</span><a href="#532-batchscanner-读取模式" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
@@ -1428,23 +1404,15 @@ LakeSnapshotAndLogSplitScanner:
 
 <h3 id="541-模块结构"><span class="me-2">5.4.1 模块结构</span><a href="#541-模块结构" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-</pre></td><td class="rouge-code"><pre>fluss-flink (215 Java files)
-├── fluss-flink-1.18/     — Flink 1.18 适配
-├── fluss-flink-1.19/     — Flink 1.19 适配
-├── fluss-flink-1.20/     — Flink 1.20 适配（仅 DummyClass）
-├── fluss-flink-2.2/      — Flink 2.2 适配
-├── fluss-flink-common/   — 共享逻辑
-└── fluss-flink-tiering/  — Lake Tiering 独立入口
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    FF["fluss-flink (215 Java files)"]
+    FF --&gt; F118["fluss-flink-1.18/ - Flink 1.18 adapter"]
+    FF --&gt; F119["fluss-flink-1.19/ - Flink 1.19 adapter"]
+    FF --&gt; F120["fluss-flink-1.20/ - Flink 1.20 adapter (DummyClass only)"]
+    FF --&gt; F22["fluss-flink-2.2/ - Flink 2.2 adapter"]
+    FF --&gt; FCOM["fluss-flink-common/ - shared logic"]
+    FF --&gt; FTIE["fluss-flink-tiering/ - Lake Tiering entrypoint"]
+</code></pre>
 
 <h3 id="542-核心能力矩阵"><span class="me-2">5.4.2 核心能力矩阵</span><a href="#542-核心能力矩阵" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
@@ -1774,29 +1742,18 @@ LakeSnapshotAndLogSplitScanner:
 
 <h3 id="563-iceberg-lake-集成"><span class="me-2">5.6.3 Iceberg Lake 集成</span><a href="#563-iceberg-lake-集成" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="code-header">
-        <span data-label-text="Plaintext"><i class="fas fa-code fa-fw small"></i></span>
-      <button aria-label="copy" data-title-succeed="已复制！"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td><td class="rouge-code"><pre>IcebergLakeStorage
-├── IcebergLakeCatalog (表管理)
-├── IcebergLakeWriter (Tiering 写入)
-│   ├── AppendOnlyTaskWriter (普通表)
-│   └── DeltaTaskWriter (PK 表，支持 delete/update)
-├── IcebergLakeCommitter (快照提交)
-├── IcebergLakeSource (读取)
-│   ├── IcebergSplitPlanner (分区规划)
-│   └── IcebergRecordReader (记录读取)
-└── IcebergRewriteDataFiles (数据文件压缩)
-</pre></td></tr></tbody></table></code></div></div>
+<pre><code class="language-mermaid">flowchart TD
+    ILS["IcebergLakeStorage"]
+    ILS --&gt; ILC["IcebergLakeCatalog (table management)"]
+    ILS --&gt; ILW["IcebergLakeWriter (Tiering write)"]
+    ILW --&gt; AOTW["AppendOnlyTaskWriter (non-PK table)"]
+    ILW --&gt; DTW["DeltaTaskWriter (PK table, delete/update)"]
+    ILS --&gt; ILCM["IcebergLakeCommitter (snapshot commit)"]
+    ILS --&gt; ILS2["IcebergLakeSource (read)"]
+    ILS2 --&gt; ISP["IcebergSplitPlanner (partition planning)"]
+    ILS2 --&gt; IRR["IcebergRecordReader (record read)"]
+    ILS --&gt; IRDF["IcebergRewriteDataFiles (data file compaction)"]
+</code></pre>
 
 <hr />
 

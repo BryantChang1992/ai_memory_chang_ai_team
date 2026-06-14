@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Harness · Agent 基础设施 — 周报 #4（2026-06-11）</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+  <header>
+    <h1>🤖 AI Harness · Agent 基础设施</h1>
+    <p class="subtitle">周报 #4 — 2026年6月11日</p>
+    <div class="meta">
+      <span>📅 2026-06-11</span>
+      <span>📊 第24周（W24）</span>
+      <span>🏷️ 第4期</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>📑 目录</h2>
+    <ol>
+      <li><a href="#highlights">🔥 本周亮点</a></li>
+      <li><a href="#fable-5">🧠 Claude Fable 5 & Mythos 5 — Anthropic 发布最强模型</a></li>
+      <li><a href="#advanced-tools">🔧 Anthropic 高级 Tool Use 平台</a></li>
+      <li><a href="#openai-deprecation">🚨 OpenAI Assistants API 将于2026年8月退役</a></li>
+      <li><a href="#containment">🛡️ Anthropic · Agent 容器化安全工程</a></li>
+      <li><a href="#frameworks">🔗 Agent 框架生态更新</a></li>
+      <li><a href="#security">🔒 Agent 安全态势更新</a></li>
+      <li><a href="#mcp-ecosystem">📋 MCP 生态 & 托管 Agent 更新</a></li>
+      <li><a href="#trends">📈 趋势观察</a></li>
+      <li><a href="#sources">🔗 参考链接</a></li>
+    </ol>
+  </nav>
+
+  <!-- SECTION 1: 本周亮点 -->
+  <section id="highlights">
+    <h2>🔥 本周亮点</h2>
+    <div class="highlight-box">
+      <strong>Anthropic 发布 Claude Fable 5 / Mythos 5（6月9日）：</strong>Fable 5 是 Anthropic 迄今最强大的广泛发布模型，Mythos 5 面向 Glasswing 安全合作伙伴。两大模型标配 1M token 上下文窗口、128K 最大输出、always-on 自适应思考——这是 Anthropic 首次不再支持传统 extended thinking 模式，标志着"自适应思考"成为唯一推理范式。<br><br>
+      <strong>OpenAI Assistants API 正式宣布退役（2026年8月26日）：</strong>一个时代的终结。开发者必须迁移至 Agents SDK + Responses API。整个 Agent 基础设施栈的重心正在从"API-first 托管"转向"SDK-first 自主构建"。<br><br>
+      <strong>Anthropic 发布 Tool Search Tool / Programmatic Tool Calling / Tool Use Examples：</strong>三项功能将 Agent 工具调用带入新范式——按需发现工具、用代码替代自然语言循环、用示例替代 Schema 描述。在内部评测中，Opus 4 的 MCP 评测准确率从 49% 跃升至 74%。<br><br>
+      <strong>Anthropic 发布 Agent 容器化安全工程指南：</strong>详细披露了 Claude 三大产品（claude.ai、Claude Code、Cowork）的容器化安全架构、三层防御体系及实战经验——blast radius 的工程化约束已成为 Agent 部署的关键课题。
+    </div>
+  </section>
+
+  <!-- SECTION 2: Claude Fable 5 & Mythos 5 -->
+  <section id="fable-5">
+    <h2>🧠 Claude Fable 5 & Mythos 5</h2>
+    <p class="summary">2026年6月9日，Anthropic 发布 Fable 5（广泛可用）和 Mythos 5（Glasswing 合作伙伴限定），这是自 Opus 4.8 以来的最大模型升级。</p>
+
+    <div class="card">
+      <h3><a href="https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5" target="_blank">Claude Fable 5 (claude-fable-5)</a> <span class="tag red">BREAKTHROUGH</span> <span class="tag green">NEW MODEL</span></h3>
+      <p>Anthropic 史上最强大的广泛发布模型，与 Opus 4.7 共享 tokenizer（同一文本多约 30% token），关键规格：</p>
+      <table class="model-table">
+        <tr><th>特性</th><th>Fable 5 / Mythos 5</th></tr>
+        <tr><td>上下文窗口</td><td>1M tokens（默认）</td></tr>
+        <tr><td>最大输出</td><td>128K tokens</td></tr>
+        <tr><td>推理模式</td><td>Adaptive Thinking only（always-on）</td></tr>
+        <tr><td>Extended Thinking</td><td>❌ 不支持（返回 400）</td></tr>
+        <tr><td>Temperature/top_p/top_k</td><td>❌ 不可修改（Opus 4.7 同策略）</td></tr>
+        <tr><td>安全分类器</td><td>✓ 新增 reasoning_extraction 类别</td></tr>
+        <tr><td>数据留存</td><td>强制 30 天（不支持 ZDR）</td></tr>
+        <tr><td>计费</td><td>Refusal 无输出时不收费</td></tr>
+      </table>
+      <p>核心变化：Adaptive Thinking 成为唯一推理模式——Anthropic 首次完全移除传统 extended thinking，模型自主决定何时需要深度思考。thinking.display 默认 "omitted"，安全思考链不暴露给用户。</p>
+      <div class="source">
+        来源：<a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank">Claude Platform Release Notes (June 9)</a> · <a href="https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5" target="_blank">Model Introduction</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Claude Opus 4.1 退役公告（6月5日） <span class="tag orange">DEPRECATION</span></h3>
+      <p>Anthropic 宣布 Claude Opus 4.1 (claude-opus-4-1-20250805) 将于 <strong>2026年8月5日</strong> 退役。推荐迁移到 Claude Opus 4.8。加上 OpenAI Assistants API 8月退役，今年夏天将是 Agent 基础设施的大规模迁移窗口。</p>
+      <div class="source">
+        来源：<a href="https://platform.claude.com/docs/en/about-claude/model-deprecations" target="_blank">Anthropic · Model Deprecations</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: Anthropic Advanced Tool Use -->
+  <section id="advanced-tools">
+    <h2>🔧 Anthropic 高级 Tool Use 平台</h2>
+    <p class="summary">Tool Search Tool（按需发现）、Programmatic Tool Calling（代码级调用）、Tool Use Examples（示例驱动）——三项功能重新定义了 Agent 工具调用范式。</p>
+
+    <div class="card">
+      <h3><a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank">Tool Search Tool — 85% Token 节省，准确率大幅提升</a> <span class="tag green">FEATURE</span> <span class="tag purple">MCP</span></h3>
+      <p>当 Agent 连接数十个 MCP 服务器时，工具定义本身消耗大量上下文（GitHub 35 tools ~26K tokens, Slack 11 tools ~21K tokens, Jira ~17K tokens, 合计可达 55K-134K tokens）。Tool Search Tool 通过 <code>defer_loading: true</code> 标记延迟加载工具，Agent 按需搜索并动态加载——仅需 ~8.7K tokens（vs 传统 77K tokens），节省 85%+ 上下文开销。</p>
+      <p>关键数据：</p>
+      <ul>
+        <li>Opus 4 在 MCP 评测中准确率从 <strong>49% → 74%</strong></li>
+        <li>Opus 4.5 从 <strong>79.5% → 88.1%</strong></li>
+        <li>支持 Regex / BM25 / 自定义 embedding 策略</li>
+        <li>与 Prompt Caching 完全兼容——延迟加载的工具不影响缓存命中</li>
+      </ul>
+      <div class="source">
+        来源：<a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank">Anthropic Engineering · Advanced Tool Use</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank">Programmatic Tool Calling — 用代码替代自然语言循环</a> <span class="tag green">FEATURE</span></h3>
+      <p>传统 tool use 中每次工具调用都经过一次完整推理推理 pass，中间结果堆积在上下文中。Programmatic Tool Calling 允许 Claude 在代码执行环境中调用工具——用代码处理循环、条件判断和数据转换，仅在必要时进行推理。已应用于 <a href="https://www.claude.com/claude-for-excel" target="_blank">Claude for Excel</a> 产品中，用于在不超载上下文的情况下读写数千行的电子表格。</p>
+      <div class="source">
+        来源：<a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank">Anthropic Engineering · Advanced Tool Use</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Tool Use Examples — Schema 不是文档 <span class="tag purple">BEST PRACTICE</span></h3>
+      <p>JSON Schema 只能描述什么是结构合法的，无法表达"何时包含可选参数"、"哪些组合有意义"、"API 的使用惯例是什么"。Tool Use Examples 提供了统一的工具使用示范标准，让 Agent 从示例中学习正确用法，而非仅依赖 Schema。</p>
+      <div class="source">
+        来源：<a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank">Anthropic Engineering · Advanced Tool Use</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: OpenAI Assistants API Deprecation -->
+  <section id="openai-deprecation">
+    <h2>🚨 OpenAI Assistants API 即将退役</h2>
+    <p class="summary">OpenAI 宣布 Assistants API 将于 2026年8月26日退役——Agent 基础设施从"托管 API"到"自主 SDK"的历史转折。</p>
+
+    <div class="card">
+      <h3><a href="https://learn.microsoft.com/en-us/answers/questions/5571874/openai-assistants-api-will-be-deprecated-in-august" target="_blank">Assistants API Deprecation — 2026年8月26日</a> <span class="tag red">BREAKING</span> <span class="tag orange">MIGRATION</span></h3>
+      <p>OpenAI Assistants API 自 2023 年推出以来，为开发者提供了托管式 Agent 构建能力（memory、tools、file handling）。但 OpenAI 明确将战略转向 <strong>Agents SDK + Responses API</strong>：</p>
+      <ul>
+        <li>Agents SDK 支持多模型（100+ LLMs provider-agnostic）</li>
+        <li>更强的自主性（multi-step planning、tool orchestration、state management）</li>
+        <li>生产级安全特性（guardrails、sandbox、execution tracing）</li>
+        <li>内置 Realtime Agents（语音 Agent，基于 gpt-realtime-2）</li>
+      </ul>
+      <p>迁移关键事项：Assistants API 的 threads/messages/runs 模型需要重新映射到 SDK 的 agent/runner/session 模型。开发者有约 2.5 个月迁移时间。</p>
+      <div class="source">
+        来源：<a href="https://learn.microsoft.com/en-us/answers/questions/5571874/openai-assistants-api-will-be-deprecated-in-august" target="_blank">Microsoft Learn · Assistants API Deprecation</a> · <a href="https://openai.github.io/openai-agents-python/" target="_blank">OpenAI Agents SDK</a> · <a href="https://callsphere.ai/blog/openai-agents-sdk-vs-assistants-api-migration-2026" target="_blank">Callsphere · Migration Guide</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ChatGPT Memory Dreaming V3 发布 <span class="tag green">NEW</span></h3>
+      <p>OpenAI 同时推出了全新 Memory 架构 Dreaming V3，从"用户主动要求记住"升级为"后台自动综合对话历史"。新增"跟随偏好与约束"和"随时间自动更新"（如从"你即将去新加坡"更新为"你曾去新加坡"），解决了传统 saved memories 的过时问题。Plus/Pro 用户已在美国上线。</p>
+      <div class="source">
+        来源：<a href="https://releasebot.io/updates/openai" target="_blank">OpenAI Release Notes · June 2026</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: Anthropic Containment Engineering -->
+  <section id="containment">
+    <h2>🛡️ Anthropic · Agent 容器化安全工程</h2>
+    <p class="summary">Anthropic 发布深度工程博客，全面披露 Claude 三大产品的容器化安全架构——blast radius 约束成为 Agent 部署的核心课题。</p>
+
+    <div class="card">
+      <h3><a href="https://www.anthropic.com/engineering/how-we-contain-claude" target="_blank">How We Contain Claude Across Products</a> <span class="tag red">SECURITY</span> <span class="tag purple">ENGINEERING</span></h3>
+      <p>Anthropic 系统性地披露了 agent 安全的三层防御体系和三个产品（claude.ai、Claude Code、Cowork）的容器化实践：</p>
+      <ul>
+        <li><strong>环境层（Environment）：</strong>Process sandboxes、VMs、filesystem boundaries、egress controls——设置硬边界，防止 credential 泄露。Claude Code 的 <a href="https://code.claude.com/docs/en/devcontainer" target="_blank">reference devcontainer</a> 让 Agent 无需逐次审批即可在隔离环境中自主运行。</li>
+        <li><strong>模型层（Model）：</strong>System prompts、classifiers、probes、training modifications。Claude Opus 4.7 在 Gray Swan Agent Red Teaming 基准上保持 ~0.1% 单次攻击成功率（100 次自适应尝试后 ~5-6%）。Claude Code auto mode 拦截约 83% 过度激进行为。</li>
+        <li><strong>外部内容层（External Content）：</strong>MCP servers、第三方插件、web search tools——粒度化权限限制（如只读 DB 权限）使 Agent 可广泛部署。</li>
+      </ul>
+      <p>关键洞察：三种风险来源（用户误用、模型误行为、外部攻击者）需要三层防御重叠覆盖——环境层提供硬边界，模型层提供概率防护，外部内容层限制攻击面。Claude Mythos Preview 因 blast radius 过高而未在四月广泛发布——"随着防御者加固关键系统和安全措施成熟，能力类似的模型将逐步广泛发布"。</p>
+      <div class="source">
+        来源：<a href="https://www.anthropic.com/engineering/how-we-contain-claude" target="_blank">Anthropic Engineering · How We Contain Claude</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: Agent 框架生态 -->
+  <section id="frameworks">
+    <h2>🔗 Agent 框架生态更新</h2>
+    <p class="summary">Google ADK 重大版本升级、LangGraph v3 流式传输进入落地期、CrewAI 密集迭代。</p>
+
+    <div class="card">
+      <h3><a href="https://github.com/google/adk-python/releases/tag/v2.2.0" target="_blank">Google ADK 2.2.0</a> <span class="tag green">UPDATED</span> <span class="tag purple">BREAKING</span></h3>
+      <p>2026年6月4日发布，包含重要的 Breaking Changes：</p>
+      <ul>
+        <li><strong>默认模型迁移：</strong>LlmAgent 默认从 gemini-2.5-flash → gemini-3-flash-preview（gemini-2.5-flash 将于 2026-10-16 关闭）。需显式设置 model="gemini-2.5-flash" 保持兼容。</li>
+        <li><strong>GenAI SDK v2.0.0 升级：</strong>"turns" 术语改为 "steps"，如 convert_contents_to_turns → convert_contents_to_steps。</li>
+        <li><strong>OpenTelemetry 自动插桩：</strong>新增 AutoTracingPlugin，原生 emit OTel gen_ai.client.* 指标。</li>
+        <li><strong>RubricBasedMultiTurnTrajectoryEvaluator：</strong>新的评测组件，支持多轮轨迹评估。</li>
+        <li><strong>上下文压缩增强：</strong>compaction summaries 现在包含思考链和工具调用。</li>
+        <li><strong>A2A 协议改进：</strong>区分 input-required vs auth-required 状态，保留 A2A message metadata。</li>
+      </ul>
+      <div class="source">
+        来源：<a href="https://github.com/google/adk-python/releases/tag/v2.2.0" target="_blank">GitHub · google/adk-python v2.2.0</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph v3 流式传输生态落地</a> <span class="tag purple">ECOSYSTEM</span></h3>
+      <p>继上周（第3期）报道的 LangGraph 1.2.3/1.2.4 引入 v3 流式传输（SSE + WebSocket），本周生态正在快速吸收这些能力。SDK Python 0.4.2 的流解码器提取、interleave_projections、WebSocket 传输等能力为 Agent 间实时通信提供了坚实基础。CLI 0.4.27 增强了安全部署（pinning deploy images by digest）。</p>
+      <div class="source">
+        来源：<a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph Releases</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><a href="https://github.com/crewAIInc/crewAI/releases" target="_blank">CrewAI v1.14.7 alpha 系列密集迭代</a> <span class="tag orange">PRE-RELEASE</span></h3>
+      <p>CrewAI 本周（6/3-6/9）密集发布三个 alpha 版本（a1 → a3），重点方向：</p>
+      <ul>
+        <li><strong>Flow DSL 重构：</strong>从单一 flow.py 拆分为 DSL、Definition、Runtime 三层，Route-aware 装饰器类型化。</li>
+        <li><strong>Conversational Flows：</strong>新增对话流追踪、handle_turn 文档、Chat API 实现。</li>
+        <li><strong>可插拔后端：</strong>Memory、Knowledge、RAG、Flow 支持 default backend 切换。</li>
+        <li><strong>Provider 扩展：</strong>新增 Snowflake Cortex LLM、Databricks 集成、NVIDIA Nemotron 指南。</li>
+        <li><strong>Crew Trained Agents：</strong>支持 crew 级训练的 Agent 文件支持。</li>
+      </ul>
+      <div class="source">
+        来源：<a href="https://github.com/crewAIInc/crewAI/releases" target="_blank">GitHub · crewAI Releases</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: Agent 安全 -->
+  <section id="security">
+    <h2>🔒 Agent 安全态势</h2>
+    <p class="summary">Prompt Injection 攻击激增 340%、OWASP Agentic Top 10 落地、Dual-LLM 防御模式成为共识。</p>
+
+    <div class="card">
+      <h3><a href="https://genai.owasp.org/resources/" target="_blank">OWASP Top 10 for LLM & Agentic Applications 2026</a> <span class="tag red">CRITICAL</span> <span class="tag purple">STANDARD</span></h3>
+      <p>2026 年 Agent 安全领域的关键标准化进展：</p>
+      <ul>
+        <li><strong>OWASP Top 10 for LLM Applications 2025</strong>（2024年11月发布）：Prompt Injection 连续第三年位列 LLM01。</li>
+        <li><strong>OWASP Top 10 for Agentic Applications 2026</strong>（2025年12月发布）：针对自主 Agent 的新型攻击面——tool poisoning、credential theft via MCP、agent privilege escalation。</li>
+        <li>NIST 将 Prompt Injection 定性为 "生成式 AI 最大的安全缺陷"。</li>
+        <li>超过 30 个 CVE 被披露影响主流 Coding Agent。</li>
+      </ul>
+      <div class="source">
+        来源：<a href="https://genai.owasp.org/resources/" target="_blank">OWASP Gen AI Security Project</a> · <a href="https://github.com/requie/LLMSecurityGuide" target="_blank">LLM Security Guide 2026</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><a href="https://www.aimagicx.com/blog/prompt-injection-attacks-ai-agent-security-guide-2026" target="_blank">Prompt Injection 攻击激增 340%</a> <span class="tag red">ALERT</span></h3>
+      <p>2026年 Prompt Injection 攻击较前一年激增 340%。业界共识的防御模式包括：</p>
+      <ul>
+        <li><strong>Dual-LLM 模式：</strong>一个 LLM 处理用户输入自动净化，另一个 LLM 执行实际任务——防止 memory poisoning。</li>
+        <li><strong>Canary Tokens：</strong>在 system prompt 中嵌入隐秘密令，通过检测泄露来发现注入攻击。</li>
+        <li><strong>Sandboxing + Human-in-the-Loop：</strong>将高危操作隔离在沙箱中 + 人工审批关键动作。</li>
+        <li><strong>RAG Poisoning 防御：</strong>研究发现 5 份精心构造的文档即可在 90% 情况下操纵 AI 响应。</li>
+      </ul>
+      <div class="source">
+        来源：<a href="https://www.aimagicx.com/blog/prompt-injection-attacks-ai-agent-security-guide-2026" target="_blank">AIMagicX · Prompt Injection 2026</a> · <a href="https://lushbinary.com/blog/ai-agent-prompt-injection-defense-production-playbook/" target="_blank">Lushbinary · Production Playbook</a> · <a href="https://www.getmaxim.ai/articles/prompt-injection-defense-for-production-ai-agents-a-complete-2026-guide/" target="_blank">GetMaxim · Complete Guide</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: MCP Ecosystem -->
+  <section id="mcp-ecosystem">
+    <h2>📋 MCP 生态 & 托管 Agent 更新</h2>
+    <p class="summary">MCP Tunnels 内网连接、Self-hosted Sandboxes、Managed Agents 定时部署——Claude 平台基础设施持续丰富。</p>
+
+    <div class="card">
+      <h3><a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank">Claude Managed Agents 关键更新</a> <span class="tag green">FEATURE</span></h3>
+      <p>6月9日 Claude 平台同步推出多项 Managed Agents 能力：</p>
+      <ul>
+        <li><strong>Scheduled Deployments：</strong>支持 Cron 定时调度 Agent 会话，无需自建调度器。</li>
+        <li><strong>Vault Environment Variables：</strong>将密钥安全注入 Agent 沙箱，支持 CLI/SDK 认证。</li>
+        <li><strong>Webhook session_thread_id：</strong>多 Agent 线程事件现在包含 session_thread_id 字段。</li>
+        <li><strong>MCP Tunnels（Research Preview）：</strong>连接私有网络中的 MCP 服务器。</li>
+        <li><strong>Self-hosted Sandboxes：</strong>在自有基础设施中运行 tool execution，替代 Anthropic 托管沙箱。</li>
+      </ul>
+      <div class="source">
+        来源：<a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank">Claude Platform Release Notes</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank">Advisor Tool 更新 & Claude Code 扩展</a> <span class="tag purple">TOOLING</span></h3>
+      <p>6月2日 Advisor Tool 新增 <code>max_tokens</code> 参数，可限制 advisor 模型的单次输出——减少延迟和输出 token 成本。同日起，被 refusal 的请求（未生成任何输出）不再收费。</p>
+      <p>Claude Code 方面：Auto mode 扩展至更多用户、Max plan 用户默认 fast mode on Opus 4.8、Workflows（research preview）支持定义多步 agentic plans。</p>
+      <div class="source">
+        来源：<a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank">Claude Platform Release Notes (June 2)</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 9: 趋势观察 -->
+  <section id="trends">
+    <h2>📈 趋势观察</h2>
+    <p class="summary">从本周 AI 基础设施动态中提炼的关键趋势线。</p>
+
+    <div class="card">
+      <h3>趋势一：Agent 基础设施从"堆料"走向"提效" <span class="tag green">PARADIGM</span></h3>
+      <p>Tool Search Tool（85% token 节省）、Programmatic Tool Calling（用代码替代推理循环）、自适应思考（仅在需要时触发推理）——这三项功能指向同一方向：<strong>Agent 基础设施不再追求"塞更多东西进上下文"，而是追求"按需加载、按需推理、按需调用"</strong>。这对成本控制和生产环境部署至关重要。从 Anthropic 的内部数据（Opus 4 从 49%→74%）来看，提效和准确率并非矛盾——恰恰相反，减少噪音可以提升准确率。</p>
+    </div>
+
+    <div class="card">
+      <h3>趋势二：Agent 运行时基础设施从"模型能力"到"平台能力" <span class="tag purple">TREND</span></h3>
+      <p>Claude Managed Agents 的 Scheduled Deployments、Vault、Webhooks、MCP Tunnels、Self-hosted Sandboxes——这些不是模型能力，而是<strong>Agent 运行时基础设施</strong>。类比云计算的发展：早期竞争在"谁的虚拟机快"，后来竞争在"谁的管理平台好"。Agent 领域正在经历同样的转变——模型的差异化在缩小，运行时的差异化在扩大。</p>
+    </div>
+
+    <div class="card">
+      <h3>趋势三："自适应"成为推理基础设施的默认范式 <span class="tag green">SHIFT</span></h3>
+      <p>Fable 5 不再支持传统 extended thinking（返回 400 错误），Adaptive Thinking 成为唯一推理模式。Claude Opus 4.8 也引入了自适应思考。这意味着 Anthropic 正在将"模型自主决定何时深度思考"作为唯一范式——开发者不能再手动控制思考预算。这对 Agent 行为的影响深远：同一 Agent 面对简单和复杂任务时的延迟和成本将呈现更大差异。</p>
+    </div>
+
+    <div class="card">
+      <h3>趋势四：Agent 安全从"可选"到"强制" <span class="tag red">CRITICAL</span></h3>
+      <p>Claude Mythos Preview 因 blast radius 过高而未广泛发布、Prompt Injection 攻击 340% 激增、OWASP Agentic Top 10 落地、Assistants API 退役后开发者需自行实现安全防护——这一切指向：<strong>Agent 安全正在成为基础设施的强制性要求，而非可选增强。</strong>Anthropic 的三层防御模型（环境 + 模型 + 外部内容）是目前最系统的工程实践范例。"安全不是附加功能，而是架构决策"——这一点将被更多 Agent 产品验证或教训。</p>
+    </div>
+
+    <div class="card">
+      <h3>趋势五：OpenAI Assistants API 退役标志 Agent 基础设施进入"SDK-first"时代 <span class="tag orange">INSIGHT</span></h3>
+      <p>从"托管式"到"SDK 自主构建"的转变并非 OpenAI 独有。Anthropic 的 Agent SDK、LangGraph v3、Google ADK 2.2.0、CrewAI Flow DSL——所有框架都在提供更强、更灵活、更可观测的 Agent 构建原语。托管 API 适合快速原型，但生产级 Agent 需要开发者对运行时拥有深度控制权。这解释了为何 Anthropic 在 Advanced Tool Use 中强调"代码是编排的自然选择"。</p>
+    </div>
+  </section>
+
+  <!-- SECTION 10: 信息来源 -->
+  <section id="sources">
+    <h2>🔗 参考链接</h2>
+    <p class="summary">本周报告所有信息均来自公开来源，每条均有直接链接可查证。</p>
+
+    <div class="card">
+      <h3>Anthropic · 模型 & 平台</h3>
+      <ul>
+        <li><a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank">Claude Platform Release Notes (June 2-9)</a></li>
+        <li><a href="https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5" target="_blank">Introducing Claude Fable 5 and Claude Mythos 5</a></li>
+        <li><a href="https://platform.claude.com/docs/en/about-claude/model-deprecations" target="_blank">Claude Opus 4.1 Deprecation (Aug 5, 2026)</a></li>
+        <li><a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank">Introducing Advanced Tool Use on the Claude Developer Platform</a></li>
+        <li><a href="https://www.anthropic.com/engineering/how-we-contain-claude" target="_blank">How We Contain Claude Across Products</a></li>
+        <li><a href="https://www.anthropic.com/engineering" target="_blank">Anthropic Engineering Blog</a></li>
+        <li><a href="https://code.claude.com/docs/en/agent-sdk/overview" target="_blank">Claude Agent SDK · Billing Change (June 15)</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>OpenAI</h3>
+      <ul>
+        <li><a href="https://learn.microsoft.com/en-us/answers/questions/5571874/openai-assistants-api-will-be-deprecated-in-august" target="_blank">Assistants API Deprecation (Aug 26, 2026)</a></li>
+        <li><a href="https://openai.github.io/openai-agents-python/" target="_blank">OpenAI Agents SDK</a></li>
+        <li><a href="https://callsphere.ai/blog/openai-agents-sdk-vs-assistants-api-migration-2026" target="_blank">Agents SDK vs Assistants API Migration Guide</a></li>
+        <li><a href="https://releasebot.io/updates/openai" target="_blank">OpenAI · ChatGPT Memory Dreaming V3</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/agents" target="_blank">OpenAI · Agents API Guide</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Agent 框架</h3>
+      <ul>
+        <li><a href="https://github.com/google/adk-python/releases/tag/v2.2.0" target="_blank">Google ADK v2.2.0</a></li>
+        <li><a href="https://github.com/langchain-ai/langgraph/releases" target="_blank">LangGraph Releases</a></li>
+        <li><a href="https://github.com/crewAIInc/crewAI/releases" target="_blank">CrewAI Releases (v1.14.7 alpha)</a></li>
+        <li><a href="https://github.com/openai/openai-agents-python" target="_blank">OpenAI Agents SDK (GitHub)</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Agent 安全</h3>
+      <ul>
+        <li><a href="https://genai.owasp.org/resources/" target="_blank">OWASP Gen AI Security Project</a></li>
+        <li><a href="https://github.com/requie/LLMSecurityGuide" target="_blank">LLM Security Guide 2026</a></li>
+        <li><a href="https://www.aimagicx.com/blog/prompt-injection-attacks-ai-agent-security-guide-2026" target="_blank">Prompt Injection Attacks 2026</a></li>
+        <li><a href="https://lushbinary.com/blog/ai-agent-prompt-injection-defense-production-playbook/" target="_blank">10-Layer Prompt Injection Defense</a></li>
+        <li><a href="https://www.getmaxim.ai/articles/prompt-injection-defense-for-production-ai-agents-a-complete-2026-guide/" target="_blank">Complete Production Defense Guide</a></li>
+        <li><a href="https://arxiv.org/html/2601.17548v1" target="_blank">ArXiv · Prompt Injection on Coding Assistants</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>MCP & 协议</h3>
+      <ul>
+        <li><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/releases" target="_blank">MCP RC 2026-07-28</a></li>
+        <li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview" target="_blank">Claude · Tool Use Overview</a></li>
+        <li><a href="https://dev.to/x4nent/complete-guide-to-mcp-model-context-protocol-in-2026-architecture-implementation-and-4a11" target="_blank">MCP Complete Guide 2026</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>CHANG_AI_TEAM · AI Harness 周报 #4 · 2026年6月11日</p>
+    <p style="margin-top: .5rem;"><a href="week_03_2026-06-04.html">← 第3期</a> · <a href="../index.html">技术调研</a> · <a href="../../index.html">首页</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面向 AI 的数据平台建设 · 周报 #2（2026-05-28）</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+  <header>
+    <h1>🏗️ 面向 AI 的数据平台建设</h1>
+    <p class="subtitle">周报 #2 — 2026年5月28日</p>
+    <div class="meta">
+      <span>📅 2026-05-28</span>
+      <span>📊 第22周（W22）</span>
+      <span>🏷️ 第2期</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#sec-hot">🔥 本周重磅：Iceberg 1.11.0 正式发布</a></li>
+      <li><a href="#sec-iceberg">🧊 Apache Iceberg 1.11.0 发布细节</a></li>
+      <li><a href="#sec-format-wars">🏛️ Lakehouse 格式格局 2026</a></li>
+      <li><a href="#sec-catalog">📋 统一 Catalog 演进</a></li>
+      <li><a href="#sec-ai-converge">🤖 AI + 数据平台融合趋势</a></li>
+      <li><a href="#sec-sources">🔗 信息来源</a></li>
+    </ol>
+  </nav>
+
+  <!-- 🔥 本周重磅 -->
+  <section id="sec-hot">
+    <div class="section-header">
+      <div class="icon">🔥</div>
+      <h2>本周重磅：Iceberg 1.11.0 正式发布</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag hot">BREAKING</span><span class="tag new">NEW</span></p>
+      <p>2026年5月19日-20日，<strong>Apache Iceberg 1.11.0</strong> 正式发布。这是 Iceberg 项目在 2026 年的第一个大版本，也是确立其 Lakehouse 格式领导地位的重要更新。本次发布涉及多平台适配、Spark 4.0/4.1 支持、多项特性废除以及 REST 协议扩展，标志着 Iceberg 进入全面成熟期。</p>
+
+      <h3>核心变更速览</h3>
+      <table>
+        <thead>
+          <tr><th>类别</th><th>变更项</th><th>影响范围</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag hot">BREAKING</span></td>
+            <td>终止支持 Position Delete Files with Row Data（#14045）</td>
+            <td>所有使用 v1 delete file 的用户</td>
+          </tr>
+          <tr>
+            <td><span class="tag amber">DEPRECATED</span></td>
+            <td>移除 Java 11 支持（#14400）</td>
+            <td>仍运行在 Java 11 的集群</td>
+          </tr>
+          <tr>
+            <td><span class="tag amber">DEPRECATED</span></td>
+            <td>废弃 Spark 3.4 支持（#14099）</td>
+            <td>Spark 3.4 集群（建议升级至 3.5+）</td>
+          </tr>
+          <tr>
+            <td><span class="tag amber">DEPRECATED</span></td>
+            <td>移除 Flink 1.19 支持（#13714）</td>
+            <td>Flink 1.19 集群（建议升级至 1.20+）</td>
+          </tr>
+          <tr>
+            <td><span class="tag new">NEW</span></td>
+            <td>扩展 REST Client Header 支持（#12194）</td>
+            <td>所有使用 REST Catalog 的部署</td>
+          </tr>
+          <tr>
+            <td><span class="tag new">NEW</span></td>
+            <td>Spark 4.0 PartitionStatistic 支持</td>
+            <td>Spark 4.0 用户</td>
+          </tr>
+          <tr>
+            <td><span class="tag new">NEW</span></td>
+            <td>新增 Spark 4.1 Runtime Jar</td>
+            <td>Spark 4.1 用户</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>支持的平台版本</h3>
+      <table>
+        <thead>
+          <tr><th>平台</th><th>支持版本</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Spark</strong></td><td>4.1、4.0、3.5（Scala 2.12 + 2.13）</td></tr>
+          <tr><td><strong>Flink</strong></td><td>2.1、2.0、1.20</td></tr>
+          <tr><td><strong>Cloud Bundles</strong></td><td>AWS、GCP、Azure</td></tr>
+        </tbody>
+      </table>
+
+      <p>值得注意的是，Java 11 被彻底移除、Flink 1.19 和 Spark 3.4 被废弃的背后，反映的是社区对<strong>"向前看"策略的坚定执行</strong>——不再为过时的运行时背负技术债务，集中资源在新一代计算引擎上。</p>
+
+      <div class="highlight-box">
+        <strong>💡 关键洞察：</strong> Iceberg 1.11.0 的版本策略传递了明确信号——Java 17 是最低基线，Spark 3.5+ 和 Flink 1.20+ 是推荐配置。如果你的数据平台还跑在更老的版本上，现在是升级的黄金窗口期。
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://iceberg.apache.org/releases/" target="_blank" rel="noopener">Apache Iceberg 官方发布页</a></li>
+          <li><a href="https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.11.0" target="_blank" rel="noopener">GitHub Release Notes (1.11.0)</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🧊 Iceberg 1.11.0 详细分析 -->
+  <section id="sec-iceberg">
+    <div class="section-header">
+      <div class="icon">🧊</div>
+      <h2>Apache Iceberg 1.11.0 深度拆解</h2>
+    </div>
+    <div class="section-body">
+      <p>上一节给出了全貌，本节从<strong>工程决策</strong>和<strong>架构演进</strong>的视角深入拆解每个关键变更。</p>
+
+      <h3>1. 废止 Position Delete Files with Row Data（#14045）</h3>
+      <p>Position Delete Files 允许在文件级别记录需要删除的行，而 "with Row Data" 变体在 delete 文件中同时存储了实际行数据。这种双负载设计在工程实践中增加了 I/O 路径的复杂度和存储开销。<strong>社区决定转向更纯粹的 delete 文件语义</strong>，将行数据回填的需求交给上层应用逻辑处理。这本质上是一次「职责分离」重构——delete 文件只负责标记删除，不再承担数据承载的角色。</p>
+
+      <h3>2. Java 运行时基线提升（Java 11 → Java 17+）</h3>
+      <p>移除 Java 11 支持（#14400）是一个必然但痛苦的决定。Java 17（LTS）已经发布了 5 年，提供了显著的性能改进（包括 ZGC 的成熟、密封类、Pattern Matching 等语法优化）。Iceberg 社区引用了一个常见的工程权衡：<strong>维护过时的运行时兼容性，其成本已经超过了仍在使用 Java 11 的用户的迁移成本</strong>。对于数据平台团队而言，这意味着需要在升级 Iceberg 前先完成 Java 运行时的升级。</p>
+
+      <h3>3. REST Catalog 协议增强（#12194）</h3>
+      <p>扩展 REST Client Header 支持是一个看似微小但意义重大的改动。它允许在 REST Catalog 的 HTTP 通信中传递自定义 Header，这解决了几个关键场景：</p>
+      <ul>
+        <li><strong>认证链传递</strong>：在微服务/多租户架构中透传鉴权信息</li>
+        <li><strong>链路追踪</strong>：注入分布式追踪的 trace-id 等上下文</li>
+        <li><strong>流量标识</strong>：标记请求来源（batch / interactive / AI workload）</li>
+      </ul>
+      <p>这标志着 <strong>REST Catalog API 正在从"能通"走向"可运维"</strong>，对构建企业级数据平台至关重要。</p>
+
+      <h3>4. Spark 版本矩阵重整</h3>
+      <p>本次发布对 Spark 的支持形成了清晰的三个梯队：<strong>尖端（4.1）、主流（4.0）、稳定（3.5）</strong>。与 2023-2024 年混乱的 Spark 2.x/3.x 双线维护相比，当前策略更加聚焦。Spark 4.1 Runtime Jar 的加入表明 Iceberg 社区正在与 Spark 社区保持紧密的发布对齐，确保格式不成为引擎升级的瓶颈。</p>
+
+      <div class="highlight-box">
+        <strong>🏗️ 架构影响评估：</strong>对于典型的四层数据架构（Ingestion → Storage → Compute → Serving），Iceberg 1.11.0 的影响主要集中在 <em>Compute</em> 和 <em>Serving</em> 层。REST Catalog 的增强将推动 Catalog 层向标准化方向发展，而 Spark/Flink 支持矩阵的简化则降低了引擎选型的决策成本。
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.11.0" target="_blank" rel="noopener">GitHub Release Notes</a></li>
+          <li><a href="https://iceberg.apache.org/releases/" target="_blank" rel="noopener">Apache Iceberg Releases</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🏛️ Lakehouse 格式格局 -->
+  <section id="sec-format-wars">
+    <div class="section-header">
+      <div class="icon">🏛️</div>
+      <h2>Lakehouse 格式格局 2026：战争终结</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag purple">趋势</span><span class="tag info">分析</span></p>
+      <p>持续多年的 "Table Format Wars"——Apache Iceberg vs. Delta Lake vs. Apache Hudi——在 2026 年被多位分析师认定为<strong>实质上已见分晓</strong>。但这并非简单的「赢家通吃」，而是进入了<strong>差异化分工</strong>的新阶段。</p>
+
+      <div class="format-cards">
+        <div class="format-card">
+          <h4>🥇 Apache Iceberg</h4>
+          <p>已成为开放表格式的<strong>事实标准</strong>。跨引擎互操作性最强，REST Catalog 生态最活跃。被 Snowflake、AWS、Google Cloud 等多云厂商采用为原生格式。Snowflake 的 Polaris、AWS 的 S3 Tables、Dremio 的 Nessie 均以 Iceberg 为核心。</p>
+          <p style="margin-top:8px;"><span class="tag new">领导者</span><span class="tag info">开放标准</span></p>
+        </div>
+        <div class="format-card">
+          <h4>🥈 Delta Lake</h4>
+          <p>在 <strong>Databricks 生态内保持强势</strong>。Unity Catalog 提供了端到端治理体验。Delta 3.0+ 逐步向开源靠拢（Delta Kernel 等），但社区多元性仍不及 Iceberg。适合深度绑定 Databricks 的组织。</p>
+          <p style="margin-top:8px;"><span class="tag purple">生态绑定</span><span class="tag info">全栈体验</span></p>
+        </div>
+        <div class="format-card">
+          <h4>🥉 Apache Hudi</h4>
+          <p>在<strong>流式处理和 CDC 场景</strong>中找到差异化定位。Hudi 的增量查询和 Upsert 能力在实时数仓场景中仍有独特价值。社区规模较小但聚焦，主要被 Uber（原创者）、Amazon 等用于实时数据同步。</p>
+          <p style="margin-top:8px;"><span class="tag amber">利基市场</span><span class="tag info">流式/CDC</span></p>
+        </div>
+      </div>
+
+      <div class="verdict">
+        <p><strong>🏆 结论：</strong>格式战争已从「三强混战」演变为一个清晰的格局——<strong>Iceberg 作为通用开放标准</strong>，Delta Lake 作为 Databricks 生态的深度整合方案，Hudi 作为流式场景的专业选手。对于建设面向 AI 的数据平台，<strong>Iceberg 是最安全、最具未来兼容性的选择</strong>。</p>
+      </div>
+
+      <h3>对数据平台选型的启示</h3>
+      <ul>
+        <li><strong>不绑定单一厂商</strong>：选择 Iceberg 意味着你可以自由切换计算引擎（Spark / Flink / Trino / Snowflake / BigQuery）</li>
+        <li><strong>REST Catalog 是关键</strong>：Iceberg 的开放 Catalog API 使得元数据治理可以实现跨引擎统一</li>
+        <li><strong>Delta Lake 不是"错误"选择</strong>：如果你的组织已经是 Databricks Heavy User，继续使用 Delta Lake 是完全合理的</li>
+        <li><strong>Hudi 关注但不必须</strong>：除非有大规模 CDC 入湖场景，否则 Hudi 不是选型的首要考量</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://jamesm.blog/data-engineering/iceberg-vs-delta-vs-hudi-2026/" target="_blank" rel="noopener">James M Blog: Iceberg vs Delta vs Hudi 2026</a></li>
+          <li><a href="https://algoscale.com/go/blog/iceberg-vs-delta-vs-hudi-2026/" target="_blank" rel="noopener">Algoscale: Lakehouse Format Comparison 2026</a></li>
+          <li><a href="https://reintech.io/blog/apache-iceberg-vs-delta-lake-vs-apache-hudi-2026-table-format-comparison" target="_blank" rel="noopener">Reintech: Table Format Comparison 2026</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 📋 统一 Catalog 演进 -->
+  <section id="sec-catalog">
+    <div class="section-header">
+      <div class="icon">📋</div>
+      <h2>统一 Catalog 演进：Polaris、Unity 与开放 API</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag new">NEW</span><span class="tag purple">趋势</span></p>
+      <p>如果说 Table Format 决定了数据如何存储，那么 <strong>Catalog 决定了数据如何被发现、治理和共享</strong>。2026年5月，Catalog 层面的演进同样精彩。</p>
+
+      <h3>Polaris "Generic Tables" — 打破格式壁垒</h3>
+      <p>Snowflake 开源的 <a href="https://github.com/apache/polaris" target="_blank" rel="noopener">Apache Polaris</a>（Incubating）在最近的更新中引入了 "Generic Tables" 概念——这是一个<strong>关键信号</strong>：Polaris 不再只是 Iceberg 的 Catalog，而开始管理非 Iceberg 格式的表。这意味着：</p>
+      <ul>
+        <li>一个 Catalog 可以同时管理 Delta Lake 表、Iceberg 表、甚至传统 Hive 表</li>
+        <li>企业可以在统一治理层下逐步迁移格式，避免「大爆炸式」迁移</li>
+        <li>Data Lakehouse Weekly（5月13-20日）提到，下一版本中 Generic Tables 将获得更多打磨</li>
+      </ul>
+
+      <h3>三大 Catalog 体系对比</h3>
+      <table>
+        <thead>
+          <tr><th>Catalog</th><th>维护方</th><th>核心格式</th><th>开放性</th><th>关键特性</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Apache Polaris</strong></td>
+            <td>Snowflake / Apache</td>
+            <td>Iceberg（主）→ Generic Tables</td>
+            <td>⭐ ⭐ ⭐ ⭐ ⭐</td>
+            <td>Apache Incubating，100% 开源，REST API</td>
+          </tr>
+          <tr>
+            <td><strong>Unity Catalog</strong></td>
+            <td>Databricks</td>
+            <td>Delta Lake（原生）</td>
+            <td>⭐ ⭐ ⭐</td>
+            <td>开源版功能受限，商业版全功能</td>
+          </tr>
+          <tr>
+            <td><strong>AWS Glue Catalog</strong></td>
+            <td>AWS</td>
+            <td>S3 Tables (Iceberg-native)</td>
+            <td>⭐ ⭐</td>
+            <td>AWS 生态深度集成，跨云能力弱</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <strong>🔮 展望：</strong>Catalog 层正在成为数据平台的<strong>新控制面（Control Plane）</strong>。在 AI 时代，模型训练管线需要访问分散在多个系统中的数据，统一 Catalog 将决定数据发现效率的下限。Polaris 的 Generic Tables 方向值得持续跟踪——它可能成为打破格式锁定的关键拼图。
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://dev.to/alexmercedcoder/apache-data-lakehouse-weekly-may-13-20-2026-17a4" target="_blank" rel="noopener">Data Lakehouse Weekly (May 13-20, 2026)</a></li>
+          <li><a href="https://github.com/apache/polaris" target="_blank" rel="noopener">Apache Polaris GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🤖 AI + 数据平台融合 -->
+  <section id="sec-ai-converge">
+    <div class="section-header">
+      <div class="icon">🤖</div>
+      <h2>AI + 数据平台融合趋势</h2>
+    </div>
+    <div class="section-body">
+      <p><span class="tag hot">热点</span><span class="tag purple">融合</span></p>
+      <p>随着 LLM/ML 工作负载在数据平台中的占比不断提升，2026 年 5 月的讨论焦点已从「能否在数据平台上跑 AI」转向「<strong>如何让数据平台原生支持 AI 工作负载</strong>」。以下是几个关键融合方向：</p>
+
+      <h3>1. Iceberg — AI 数据访问的通用接口</h3>
+      <p>传统 ML 训练的数据访问链路通常涉及多个阶段的数据复制（Data Lake → Feature Store → Training Storage），每个环节都引入延迟和一致性风险。Iceberg 的<strong>快照隔离（Snapshot Isolation）</strong>和<strong>时间旅行（Time Travel）</strong>能力，使得训练流程可以直接在 Lakehouse 中访问一致的数据快照，无需额外的数据拷贝。</p>
+      <ul>
+        <li><strong>模型可复现性</strong>：通过 Iceberg Snapshot ID 精确锁定训练所用的数据版本</li>
+        <li><strong>增量训练</strong>：基于 Snapshot Diff 获取增量数据，避免全量重读</li>
+        <li><strong>特征工程统一</strong>：特征计算可以下沉到 Iceberg 表，使用 Spark/Flink 等引擎统一处理</li>
+      </ul>
+
+      <h3>2. 向量数据库 × Lakehouse — RAG 的新基础设施</h3>
+      <p>RAG（Retrieval-Augmented Generation）架构正在推动<strong>向量数据库与 Lakehouse 的融合</strong>：</p>
+      <table>
+        <thead>
+          <tr><th>向量数据库</th><th>与 Lakehouse 的集成方式</th><th>适用场景</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Milvus</strong></td>
+            <td>Bulk Insert 直接读取 Parquet/Iceberg 文件</td>
+            <td>大规模向量检索（亿级+）</td>
+          </tr>
+          <tr>
+            <td><strong>Qdrant</strong></td>
+            <td>通过 Spark Connector 从 Lakehouse 同步</td>
+            <td>轻量级 RAG、边缘部署</td>
+          </tr>
+          <tr>
+            <td><strong>Weaviate</strong></td>
+            <td>原生 S3/Iceberg Backend 支持（实验性）</td>
+            <td>多模态 RAG、混合搜索</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>核心逻辑是：<strong>Lakehouse 作为「唯一真相源」（Source of Truth）</strong>，向量数据库作为面向低延迟检索的「读优化视图」。embedding 生成和索引构建在 Lakehouse 侧完成，检索服务由向量数据库提供。</p>
+
+      <h3>3. 数据平台架构演进路线图</h3>
+      <p>结合本周的行业动态，我们描绘了面向 AI 的数据平台架构的演进路径：</p>
+      <table>
+        <thead>
+          <tr><th>阶段</th><th>关键词</th><th>核心能力</th><th>当前状态</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>L1：基础 Lakehouse</strong></td>
+            <td>Iceberg + Catalog</td>
+            <td>ACID 事务、时间旅行、Schema 演化、多引擎访问</td>
+            <td>✅ 已成熟（Iceberg 1.11.0 标志进入稳定期）</td>
+          </tr>
+          <tr>
+            <td><strong>L2：AI-Ready 数据层</strong></td>
+            <td>Snapshot + 特征工程</td>
+            <td>训练数据版本化、增量数据发现、特征计算下沉</td>
+            <td>🔄 推进中（Snapshot Diff 已可用，工具链仍需完善）</td>
+          </tr>
+          <tr>
+            <td><strong>L3：Lakehouse-Native RAG</strong></td>
+            <td>向量索引 + 检索</td>
+            <td>Lakehouse 原生向量索引、混合搜索（全文+向量+元数据）</td>
+            <td>🔬 探索中（向量 DB 集成已有 Demo，原生支持仍早期）</td>
+          </tr>
+          <tr>
+            <td><strong>L4：自主学习数据平台</strong></td>
+            <td>Agentic Data Ops</td>
+            <td>AI Agent 自主治理/优化数据管道、智能物化视图</td>
+            <td>💡 概念阶段</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <strong>🎯 对 CHANG_AI_TEAM 的建议：</strong>当前应聚焦 L1→L2 的过渡——基于 Iceberg 建立 AI-Ready 数据层，特别是训练数据版本化和增量数据发现能力。RAG 集成可以先从 Milvus + Iceberg Bulk Insert 的方案起步，避免过早引入复杂的原生向量索引。
+      </div>
+
+      <div class="source-links">
+        <h4>📎 来源</h4>
+        <ul>
+          <li><a href="https://iceberg.apache.org/releases/" target="_blank" rel="noopener">Apache Iceberg 官方（快照/时间旅行文档）</a></li>
+          <li><a href="https://milvus.io/docs/bulk_load.md" target="_blank" rel="noopener">Milvus Bulk Insert 文档</a></li>
+          <li><a href="https://dev.to/alexmercedcoder/apache-data-lakehouse-weekly-may-13-20-2026-17a4" target="_blank" rel="noopener">Data Lakehouse Weekly</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🔗 信息来源 -->
+  <section id="sec-sources">
+    <div class="section-header">
+      <div class="icon">🔗</div>
+      <h2>信息来源</h2>
+    </div>
+    <div class="section-body">
+      <p>本期报告所有论断均来自公开可验证的线上资源。以下是完整的信息来源清单：</p>
+
+      <h3>官方发布</h3>
+      <ul>
+        <li><a href="https://iceberg.apache.org/releases/" target="_blank" rel="noopener">Apache Iceberg Official Releases</a> — Iceberg 版本发布官方页</li>
+        <li><a href="https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.11.0" target="_blank" rel="noopener">Apache Iceberg 1.11.0 GitHub Release</a> — 完整 Release Notes</li>
+        <li><a href="https://github.com/apache/polaris" target="_blank" rel="noopener">Apache Polaris GitHub</a> — Polaris Catalog 项目主页</li>
+      </ul>
+
+      <h3>行业分析</h3>
+      <ul>
+        <li><a href="https://jamesm.blog/data-engineering/iceberg-vs-delta-vs-hudi-2026/" target="_blank" rel="noopener">James M Blog: Iceberg vs Delta vs Hudi 2026</a> — 三格式对比分析</li>
+        <li><a href="https://algoscale.com/go/blog/iceberg-vs-delta-vs-hudi-2026/" target="_blank" rel="noopener">Algoscale: Lakehouse Format Comparison 2026</a> — 格式对比评测</li>
+        <li><a href="https://reintech.io/blog/apache-iceberg-vs-delta-lake-vs-apache-hudi-2026-table-format-comparison" target="_blank" rel="noopener">Reintech: Table Format Comparison 2026</a> — 技术对比</li>
+        <li><a href="https://dev.to/alexmercedcoder/apache-data-lakehouse-weekly-may-13-20-2026-17a4" target="_blank" rel="noopener">Data Lakehouse Weekly (May 13-20, 2026)</a> — 本周 Lakehouse 动态汇总</li>
+      </ul>
+
+      <h3>技术参考</h3>
+      <ul>
+        <li><a href="https://milvus.io/docs/bulk_load.md" target="_blank" rel="noopener">Milvus Bulk Insert Documentation</a> — 向量数据库与数据湖集成参考</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>🏗️ 面向 AI 的数据平台建设 · 周报 #2 · 2026-05-28</p>
+    <p style="margin-top:6px;">CHANG_AI_TEAM CTO Research · 数据来源截至 2026年5月28日</p>
+    <p style="margin-top:4px;font-size:.75rem;">本报告内容基于公开可验证信息编写，观点仅代表技术分析立场。</p>
+  </footer>
+</body>
+</html>

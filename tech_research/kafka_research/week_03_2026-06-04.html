@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka / AutoMQ / Fluss 社区动态 · 周报 #3（2026-06-04）</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<div class="container">
+
+  <header class="header">
+    <div class="badge">开源社区动态追踪</div>
+    <h1>Kafka / AutoMQ / Fluss 社区动态<br>周报 #3</h1>
+    <div class="meta">
+      <span>📅 2026年6月4日</span>
+      <span>·</span>
+      <span>📊 第23周（W23）</span>
+      <span>·</span>
+      <span>🏷️ 第3期</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>📑 本期目录</h2>
+    <ol>
+      <li><a href="#summary">🔥 本周综述</a></li>
+      <li><a href="#kafka">🐘 Kafka — 4.2.1 发布 &amp; 新一轮 KIP 提案</a></li>
+      <li><a href="#automq">⚡ AutoMQ 1.7.0 — 重大版本发布</a></li>
+      <li><a href="#fluss">🌊 Fluss — 社区最活跃的一周</a></li>
+      <li><a href="#trends">📊 趋势观察</a></li>
+      <li><a href="#refs">🔗 参考链接</a></li>
+    </ol>
+  </nav>
+
+  <!-- ==================== 本周综述 ==================== -->
+  <article class="section" id="summary">
+    <div class="section-header" style="border-bottom-">
+      <div class="icon">🔥</div>
+      <div class="info">
+        <h2>本周综述</h2>
+        <div class="ver">2026-05-28 ~ 2026-06-04</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="highlight-box">
+        <strong>📌 本期定位：</strong>持续追踪 Kafka / AutoMQ / Fluss 三大流存储社区的动态。本期是数据最丰富的一期——AutoMQ 1.7.0 发布、Fluss 63 个活跃 PR、Kafka 9 个新 KIP 提案进入讨论。
+      </div>
+      <p>本周是开源流存储领域极其活跃的一周。AutoMQ 在今日（6月4日）发布了里程碑式的 1.7.0 版本，带来命名空间隔离、集群事件框架、Maven 发布等核心特性；Fluss 社区以 63 个活跃 PR 和 2 篇深度技术博客创下近期单周活跃度新高，Hudi LakeCatalog 成功合并、FIP-40 多语言 SDK 合仓也在推进中；Kafka 社区在 4.3.0 发布后进入了新一轮 KIP 讨论热潮，包括原生集群镜像（KIP-1279）、延迟消息（KIP-1277）、机架感知 min ISR（KIP-1290）等重磅提案。</p>
+      <p>核心看点：</p>
+      <ul class="feature-list">
+        <li><strong>AutoMQ 1.7.0 发布</strong>——30 个 PR 合并，命名空间隔离、集群事件框架、Maven 发布、ZeroZone 优化</li>
+        <li><strong>Kafka 4.2.1 bugfix 发布</strong>——45 位贡献者，多个关键稳定性修复</li>
+        <li><strong>9 个新 KIP 进入讨论</strong>——KIP-1279 原生集群镜像、KIP-1277 延迟消息、KIP-1290 机架感知 min ISR</li>
+        <li><strong>Fluss 本周 63 个活跃 PR</strong>——Hudi LakeCatalog 合并、Paimon Arrow 列存写入、FIP-40 Rust SDK 合仓推进中</li>
+        <li><strong>Fluss 两篇深度技术博客</strong>——Tiering Service 深度剖析系列开篇 & Storage Hierarchy 三层存储架构详解</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ==================== Kafka ==================== -->
+  <article class="section" id="kafka">
+    <div class="section-header">
+      <div class="icon">🐘</div>
+      <div class="info">
+        <h2>Apache Kafka — 4.2.1 发布 &amp; 新一轮 KIP 提案</h2>
+        <div class="ver">4.2.1 · 5月30日 &nbsp;|&nbsp; 9 个新 KIP 进入讨论</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🔥 本周要点：</strong>Kafka 4.2.1 本周发布；4.3.0 社区反应持续发酵；9 个新 KIP 提案进入讨论，其中 KIP-1279（原生集群镜像）和 KIP-1277（延迟消息）是最重磅的两个。
+      </div>
+
+      <h3>📦 Kafka 4.2.1 Bugfix 发布（5月30日）</h3>
+      <p>Apache Kafka 4.2.1 于 5 月 30 日正式发布，这是一个 bugfix 版本，包含若干关键修复。由 <strong>45 位贡献者</strong>参与开发，涵盖 Consumer、Streams、Connect 等多个组件的稳定性修复。建议所有 4.2.x 用户尽快升级。</p>
+      <div class="tags">
+        <span class="tag new">Bugfix Release</span>
+        <span class="tag">5月30日</span>
+        <span class="tag">45 Contributors</span>
+      </div>
+
+      <h3>🔥 新一轮 KIP 提案（讨论中）</h3>
+      <p>在 4.3.0 发布（5月22日，含 25 个 KIP）之后，Kafka 社区迅速启动了新一轮 KIP 提案讨论。以下 9 个提案中，多个涉及 Kafka 的核心运维和功能模型：</p>
+
+      <ul class="kip-list">
+        <li>
+          <strong>⭐ <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring" target="_blank">KIP-1279 · 原生集群镜像（Cluster Mirroring）</a></strong><br>
+          将跨集群复制能力原生集成到 Broker 中，替代 MirrorMaker 2。免除独立 Connect Worker 的运维负担和冗余压缩/解压开销。这是目前讨论中影响面最广的提案——如果落地，将彻底改变 Kafka 多集群架构的运维模式。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1277%3A+Support+Delayed+Message+in+Kafka" target="_blank">KIP-1277 · 原生延迟消息</a></strong><br>
+          Producer 可设置未来投递时间戳，Broker 在指定时间后才对 Consumer 可见。解决了"定时消息"这类常见业务需求（如订单超时取消）的优雅实现问题。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas" target="_blank">KIP-1290 · 机架感知 min.insync.replicas</a></strong><br>
+          在 Produce 时引入机架感知的 min ISR 校验，确保 ISR 确认跨越足够数量的不同可用区（AZ），提供真正的跨 AZ 持久性保证。对多 AZ 部署的企业关键特性。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1297%3A+Role-Aware+Metric+Tags" target="_blank">KIP-1297 · Role-Aware Metric Tags（KRaft）</a></strong><br>
+          为 KRaft 模式的指标添加 role 标签（broker/controller/combined），解决 controller-only 节点上 broker-id 无意义导致重复/误导性指标的问题。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1289+Support+Transactional+Acknowledgments+for+Share+Groups" target="_blank">KIP-1289 · Share Group 事务性确认</a></strong><br>
+          为 Share Group 消费者添加事务性确认支持，确保处理副作用写入和确认操作原子提交，避免双重处理。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1288%3A+SSL+Hot+Reload+for+Kafka+Clients" target="_blank">KIP-1288 · 客户端 SSL 热加载</a></strong><br>
+          客户端监听 keystore/truststore 文件变更并自动重载 SSLContext，无需重启。解决短期证书轮转场景的运维痛点。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1282%3A+Prevent+data+loss+during+partition+expansion" target="_blank">KIP-1282 · 分区扩展防数据丢失</a></strong><br>
+          引入新的 auto.offset.reset 策略 <code>partition-start</code>，仅对新发现的分区从起始读取，已有的从 committed offset 消费，防止丢数据。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1272%3A+Support+compacted+topic+in+tiered+storage" target="_blank">KIP-1272 · Compacted Topic 分层存储</a></strong><br>
+          将 KIP-405 的分层存储能力扩展到 compacted topic，支持远程层上的 compacted segment 上传和 offset 查找。
+        </li>
+        <li>
+          <strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1266%3A+Bounding+The+Number+Of+RemoteLogMetadata+Messages" target="_blank">KIP-1266 · RemoteLogMetadata Topic 改为 Compacted</a></strong><br>
+          将内部 topic <code>__remote_log_metadata</code> 改为 compacted，避免无界增长和慢启动问题。
+        </li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://kafka.apache.org/blog/2026/05/30/apache-kafka-4.2.1-release-announcement/" target="_blank">Kafka 4.2.1 Release Announcement</a></li>
+          <li><a href="https://downloads.apache.org/kafka/4.2.1/RELEASE_NOTES.html" target="_blank">Kafka 4.2.1 Release Notes</a></li>
+          <li><a href="https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Improvement+Proposals" target="_blank">KIP 索引</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== AutoMQ ==================== -->
+  <article class="section" id="automq">
+    <div class="section-header">
+      <div class="icon">⚡</div>
+      <div class="info">
+        <h2>AutoMQ 1.7.0 — 重大版本发布</h2>
+        <div class="ver">v1.7.0 · 2026-06-04 正式发布 &nbsp;|&nbsp; 30 个 PR 合并</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>🚀 版本亮点：</strong>AutoMQ 1.7.0 合并了 Apache Kafka 3.9.1 作为上游基线，引入命名空间隔离、集群事件框架、Maven Snapshot 包发布、Broker 自伸缩指标等核心特性。同时修复了 DataBlockIndex int 溢出导致的数据丢失风险和多个 S3 存储层的竞态条件。
+      </div>
+
+      <div class="tags">
+        <span class="tag hot">Major Release</span>
+        <span class="tag new">6月4日发布</span>
+        <span class="tag">30 PRs</span>
+        <span class="tag">Kafka 3.9.1 基线</span>
+      </div>
+
+      <h3>🏗️ 架构与核心特性</h3>
+      <ul class="feature-list">
+        <li><strong>集群事件框架（<a href="https://github.com/AutoMQ/automq/pull/3312" target="_blank">#3312</a>）：</strong>引入基于 Protobuf 的集群事件发布框架，为集群状态变更通知打下基础，也是未来 Operator 自动运维的关键组件。</li>
+        <li><strong>命名空间隔离（<a href="https://github.com/AutoMQ/automq/pull/3298" target="_blank">#3298</a>, <a href="https://github.com/AutoMQ/automq/pull/3306" target="_blank">#3306</a>）：</strong>DevKit 和 KV 存储均增加命名空间支持，实现多实例/多租户隔离。</li>
+        <li><strong>Broker 自伸缩指标（<a href="https://github.com/AutoMQ/automq/pull/3367" target="_blank">#3367</a>）：</strong>暴露 Broker 资源使用统计指标，为自动扩缩容提供数据支撑。</li>
+        <li><strong>ZeroZone 异步分区快照（<a href="https://github.com/AutoMQ/automq/pull/3344" target="_blank">#3344</a>）：</strong>新增异步分区快照长轮询机制，优化分区快照获取效率。</li>
+        <li><strong>QuorumController 扩展钩子（<a href="https://github.com/AutoMQ/automq/pull/3337" target="_blank">#3337</a>）：</strong>为 QuorumController 插件增加激活/停用生命周期钩子。</li>
+        <li><strong>RouterChannel 纪元查询（<a href="https://github.com/AutoMQ/automq/pull/3342" target="_blank">#3342</a>）：</strong>新增 RouterChannel 纪元查询 API，便于诊断路由通道状态。</li>
+      </ul>
+
+      <h3>📦 构建与发布</h3>
+      <ul class="feature-list">
+        <li><strong>Maven Snapshot 包发布（<a href="https://github.com/AutoMQ/automq/pull/3330" target="_blank">#3330</a>）：</strong>首次支持 Maven Snapshot 包发布，方便开发者以依赖方式集成 AutoMQ。</li>
+        <li><strong>开源依赖版本统一（<a href="https://github.com/AutoMQ/automq/pull/3275" target="_blank">#3275</a>）：</strong>统一开源依赖版本，提升构建一致性。</li>
+        <li><strong>Strimzi 兼容性提升（<a href="https://github.com/AutoMQ/automq/pull/3309" target="_blank">#3309</a>）：</strong>用 gRPC ManagedChannel 替换 OkHttp 发送器，提升与 Strimzi（Kafka on Kubernetes Operator）的兼容性。</li>
+      </ul>
+
+      <h3>🐛 关键 Bug 修复</h3>
+      <ul class="feature-list">
+        <li><strong>🔴 DataBlockIndex int 溢出修复（<a href="https://github.com/AutoMQ/automq/pull/3336" target="_blank">#3336</a>）：</strong>DataBlockIndex 的 endOffsetDelta 在 compaction 过程中 int 溢出可能导致数据丢失，已紧急修复。<strong>所有 1.6.x 用户应尽快升级。</strong></li>
+        <li><strong>LogCache tryMerge 双重释放（<a href="https://github.com/AutoMQ/automq/pull/3307" target="_blank">#3307</a>）：</strong>修复 LogCache tryMerge 中的双重释放竞态条件。</li>
+        <li><strong>OCI S3 并发写入异常（<a href="https://github.com/AutoMQ/automq/pull/3314" target="_blank">#3314</a>）：</strong>修复 Oracle Cloud Infrastructure S3 并发写入异常。</li>
+        <li><strong>S3 对象删除重试（<a href="https://github.com/AutoMQ/automq/pull/3392" target="_blank">#3392</a>）：</strong>S3 对象删除增加逐 key 重试机制，提升操作鲁棒性。</li>
+      </ul>
+
+      <h3>⚡ 性能优化</h3>
+      <ul class="feature-list">
+        <li><strong>带宽限制器 CPU 优化（<a href="https://github.com/AutoMQ/automq/pull/3377" target="_blank">#3377</a>）：</strong>大幅降低 AsyncNetworkBandwidthLimiter 在网络流量达上限时的 CPU 开销，解决了自 2024 年 10 月开放的历史性能问题（<a href="https://github.com/AutoMQ/automq/issues/2052" target="_blank">#2052</a>）。</li>
+        <li><strong>S3 元数据去重（<a href="https://github.com/AutoMQ/automq/pull/3378" target="_blank">#3378</a>）：</strong>修复 Snapshot 回放后 S3 元数据重复问题。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://github.com/AutoMQ/automq/releases/tag/1.7.0" target="_blank">AutoMQ 1.7.0 Release Notes</a></li>
+          <li><a href="https://github.com/AutoMQ/automq/compare/1.6.5...1.7.0" target="_blank">1.6.5 → 1.7.0 Full Changelog</a></li>
+          <li><a href="https://github.com/AutoMQ/automq" target="_blank">AutoMQ GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== Fluss ==================== -->
+  <article class="section" id="fluss">
+    <div class="section-header">
+      <div class="icon">🌊</div>
+      <div class="info">
+        <h2>Apache Fluss — 社区最活跃的一周</h2>
+        <div class="ver">63 活跃 PR · 8 合并 · 2 篇技术博客 · FIP-40 · Hudi 合并</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="highlight-box">
+        <strong>📊 本周数据：</strong>63 个 PR 在本周范围内有活动，8 个成功合并。Fluss 本周是观察期内最活跃的一周——Lakehouse Tiering 的 Arrow 列存优化、Hudi LakeCatalog 合并、多语言 SDK 合仓三大方向齐头并进。
+      </div>
+
+      <h3>📝 两篇重磅技术博客</h3>
+
+      <ul class="feature-list">
+        <li>
+          <strong><a href="https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/" target="_blank">Tiering Service Deep Dive Part 1: The Mental Model</a></strong>（6月4日）<br>
+          polyzos（PPMC）撰写的三篇系列开篇，从零构建 Lake Tiering 的心智模型。通过一个完整 Tiering Round 示例讲解计时器触发→分配→Split 生成→数据写出→Lake Snapshot 提交的完整生命周期，以及 Coordinator、Flink Tiering Job、Tablet Server、Lakehouse 四个角色的职责划分。
+        </li>
+        <li>
+          <strong><a href="https://fluss.apache.org/blog/fluss-storage-hierarchy/" target="_blank">The Storage Hierarchy: Hot, Remote, and Lake</a></strong>（6月2日）<br>
+          深度剖析 Fluss 三层存储架构：Tier 1（本地 RocksDB 热数据）、Tier 2（S3 远程对象存储）、Tier 3（Lakehouse/Iceberg/Paimon/Lance）。重点讲解了 Remote Log Tiering 与 Lakehouse Tiering 的区别、Primary-Key Table 的三种内部结构，以及 Tablet Server 故障恢复的两阶段流程。
+        </li>
+      </ul>
+
+      <div class="tags">
+        <span class="tag hot">63 Active PRs</span>
+        <span class="tag new">8 Merged</span>
+        <span class="tag">2 Tech Blogs</span>
+        <span class="tag">Lakehouse Tiering</span>
+      </div>
+
+      <h3>🏷️ 里程碑级 PR</h3>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>标题</th><th>作者</th><th>状态</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3401" target="_blank">#3401</a></td>
+            <td>🔥 <strong>FIP-40: merge fluss-rust</strong></td>
+            <td>fresh-borzoni</td>
+            <td>Open</td>
+            <td>将 fluss-rust 仓库合并入主仓库，含 Rust/Python/C++/Elixir 多语言 SDK，210+ commits</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3395" target="_blank">#3395</a></td>
+            <td>🎉 <strong>Hudi LakeCatalog 引入</strong></td>
+            <td>fhan688</td>
+            <td>✅ Merged</td>
+            <td>FIP-24 Hudi 支持的里程碑——Hudi LakeCatalog 建表能力已合并</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3257" target="_blank">#3257</a></td>
+            <td>Standby Replica ALTER TABLE 支持</td>
+            <td>swuferhong</td>
+            <td>✅ Merged</td>
+            <td>🔴 blocker：Standby 副本的表级配置及 ALTER TABLE 支持</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3400" target="_blank">#3400</a></td>
+            <td>Cluster Health API</td>
+            <td>swuferhong</td>
+            <td>Open</td>
+            <td>🔴 blocker：集群健康检查 API，用于运维监控</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3430" target="_blank">#3430</a></td>
+            <td>TieringSourceReader scan arrow + write to lake</td>
+            <td>luoyuxia</td>
+            <td>Open</td>
+            <td>替代 #3418，支持 Arrow 列存格式直接写入 Paimon，大幅提升 Lakehouse Tiering 写入效率</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/apache/fluss/pull/3390" target="_blank">#3390</a></td>
+            <td>Fix stale metadata via RetryableGatewayClientProxy</td>
+            <td>loserwang1024</td>
+            <td>✅ Merged</td>
+            <td>🔴 blocker：修复只读网关上的过期元数据问题</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🔗 Flink 集成增强</h3>
+      <ul class="feature-list">
+        <li><strong>Union Read 支持（<a href="https://github.com/apache/fluss/pull/3432" target="_blank">#3432</a>）：</strong>为 DataStream 添加 union read 支持，允许同时从多个表读取数据。</li>
+        <li><strong>KVScan Flink 集成（<a href="https://github.com/apache/fluss/pull/3383" target="_blank">#3383</a>）：</strong>新增 KVScan Flink 集成，支持主键点查场景。</li>
+        <li><strong>Log-Only Source 恢复模式（<a href="https://github.com/apache/fluss/pull/3355" target="_blank">#3355</a>）：</strong>Preserve log-only source restore mode，已合并。</li>
+        <li><strong>Batch Virtual Log Table 快速失败（<a href="https://github.com/apache/fluss/pull/3402" target="_blank">#3402</a>）：</strong>对 batch virtual log table 读取进行快速失败检测。</li>
+      </ul>
+
+      <h3>🛠️ 运维与稳定性</h3>
+      <ul class="feature-list">
+        <li><strong>RebalanceManager 超时保护（<a href="https://github.com/apache/fluss/pull/3429" target="_blank">#3429</a>）：</strong>为 RebalanceManager 添加 per-task 超时机制。</li>
+        <li><strong>FlushedLogOffset 单调性修复（<a href="https://github.com/apache/fluss/pull/3427" target="_blank">#3427</a>）：</strong>修复 failover 后行数计数错误。</li>
+        <li><strong>S3 孤文件清理（<a href="https://github.com/apache/fluss/pull/3404" target="_blank">#3404</a>）：</strong>为远程存储添加孤文件清理动作，🔴 blocker。</li>
+      </ul>
+
+      <h3>🔐 安全</h3>
+      <ul class="feature-list">
+        <li><strong>SASL JAAS 限制（<a href="https://github.com/apache/fluss/pull/3425" target="_blank">#3425</a>）：</strong>将 SASL JAAS 配置限制为 PlainLoginModule。</li>
+        <li><strong>安全更新页面（<a href="https://github.com/apache/fluss/pull/3408" target="_blank">#3408</a>）：</strong>网站新增 Security Updates 页面，已合并。</li>
+        <li><strong>S3 Token 日志脱敏（<a href="https://github.com/apache/fluss/pull/3421" target="_blank">#3421</a>）：</strong>日志中脱敏 S3 delegation token access key。</li>
+      </ul>
+
+      <div class="source-links">
+        <h4>🔗 信息来源</h4>
+        <ul>
+          <li><a href="https://fluss.apache.org/blog/fluss-storage-hierarchy/" target="_blank">Storage Hierarchy 博客</a></li>
+          <li><a href="https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/" target="_blank">Tiering Service Deep Dive Part 1</a></li>
+          <li><a href="https://github.com/apache/fluss/pulls?q=updated:2026-05-28..2026-06-04" target="_blank">Fluss PRs (本周)</a></li>
+          <li><a href="https://github.com/apache/fluss" target="_blank">Fluss GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ==================== 趋势观察 ==================== -->
+  <article class="section" id="trends">
+    <div class="section-header" style="border-bottom-">
+      <div class="icon">📊</div>
+      <div class="info">
+        <h2>趋势观察</h2>
+        <div class="ver">6 月第1周 · Kafka / AutoMQ / Fluss 对比分析</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <h3>一、流存储进入"多模态"时代</h3>
+      <p>本周 Fluss 的 Lakehouse Tiering 深度推进、Arrow 列存优化、Hudi LakeCatalog 合并——三个信号共同指向一个方向：<strong>下一代流存储基础设施必须是多模态的。</strong>传统的数据平台（如 Hive、经典 Kafka）是为结构化数据设计的，而 AI 工作负载需要处理文本、图像、向量嵌入、JSON Blob 等多样化的数据形态。Fluss 的 Arrow 列存 + 多层 Tiering 架构正在为这一趋势铺路。</p>
+
+      <h3>二、Kafka 和 AutoMQ 的版本节奏对比</h3>
+      <table>
+        <thead>
+          <tr><th>维度</th><th>Apache Kafka</th><th>AutoMQ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>最新版本</td>
+            <td>4.3.0 (5月22日)</td>
+            <td>1.7.0 (6月4日)</td>
+          </tr>
+          <tr>
+            <td>上游基线</td>
+            <td>—</td>
+            <td>Kafka 3.9.1</td>
+          </tr>
+          <tr>
+            <td>版本差距</td>
+            <td>—</td>
+            <td>落后社区 3 个大版本（3.9 → 4.3）</td>
+          </tr>
+          <tr>
+            <td>核心竞争力</td>
+            <td>生态完整性、社区规模、协议标准化</td>
+            <td>云原生架构、S3-backed 存算分离、ZeroZone</td>
+          </tr>
+          <tr>
+            <td>KIP/PR 周期</td>
+            <td>9 个新 KIP 讨论中（含原生集群镜像）</td>
+            <td>通过 PR 直接合入（30 PRs/版本）</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>核心判断：</strong>AutoMQ 的 1.7.0 是一次质量很高的发布，但追踪的是 Kafka 3.9.1（而非 4.3.0）的基线。随着 Kafka 4.x 在运维成熟度（Cordon、Follower Tiered Fetch、Consumer 协议现代化）上的持续进步，AutoMQ 需要加快上游同步节奏。KIP-1279（原生集群镜像）如果落地，将成为一个关键变量——如果 AutoMQ 能率先提供更优雅的替代方案，这可能成为差异化优势；反之，如果 Kafka 4.4/4.5 自带原生镜像，AutoMQ 需要思考差异化方向。</p>
+
+      <h3>三、Fluss 的成长曲线</h3>
+      <p>本周 Fluss 的 63 个活跃 PR 和 8 个合并创下了追踪期内的新高。特别值得关注的是：</p>
+      <ul class="feature-list">
+        <li><strong>多语言 SDK 合仓（FIP-40）：</strong>Rust/Python/C++/Elixir 正在成为 Fluss 核心的一部分，这对降低 AI/ML 场景的接入门槛至关重要</li>
+        <li><strong>Hudi 支持首合（#3395）：</strong>在已有的 Iceberg 和 Paimon 支持外，Fluss 正在成为"跨 Lake Format 的 Streaming Layer"</li>
+        <li><strong>技术博客的定位：</strong>Storage Hierarchy 和 Tiering Service 两篇文章的深度和质量都很高——这不是"营销博客"，而是帮助潜在用户理解架构的必要文档</li>
+      </ul>
+
+    </div>
+  </article>
+
+  <!-- ==================== 参考链接 ==================== -->
+  <article class="section" id="refs">
+    <div class="section-header" style="border-bottom-">
+      <div class="icon">🔗</div>
+      <div class="info">
+        <h2>参考链接</h2>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <h3 style="font-size:0.9rem; margin:12px 0 8px;">🐘 Apache Kafka</h3>
+      <div class="refs-list">
+        <a href="https://kafka.apache.org/blog/2026/05/30/apache-kafka-4.2.1-release-announcement/" target="_blank">Kafka 4.2.1 Release Announcement</a>
+        <a href="https://downloads.apache.org/kafka/4.2.1/RELEASE_NOTES.html" target="_blank">Kafka 4.2.1 Release Notes</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1279%3A+Cluster+Mirroring" target="_blank">KIP-1279 · 原生集群镜像</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1277%3A+Support+Delayed+Message+in+Kafka" target="_blank">KIP-1277 · 原生延迟消息</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1290%3A+Rack-Aware+Minimum+In-Sync+Replicas" target="_blank">KIP-1290 · 机架感知 min ISR</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1297%3A+Role-Aware+Metric+Tags" target="_blank">KIP-1297 · Role-Aware Metric Tags</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1288%3A+SSL+Hot+Reload+for+Kafka+Clients" target="_blank">KIP-1288 · SSL 热加载</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1282%3A+Prevent+data+loss+during+partition+expansion" target="_blank">KIP-1282 · 分区扩展防丢数据</a>
+        <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-1272%3A+Support+compacted+topic+in+tiered+storage" target="_blank">KIP-1272 · Compacted Topic 分层存储</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; margin:16px 0 8px;">⚡ AutoMQ</h3>
+      <div class="refs-list">
+        <a href="https://github.com/AutoMQ/automq/releases/tag/1.7.0" target="_blank">AutoMQ 1.7.0 Release Notes</a>
+        <a href="https://github.com/AutoMQ/automq/compare/1.6.5...1.7.0" target="_blank">1.6.5 → 1.7.0 Changelog</a>
+        <a href="https://github.com/AutoMQ/automq/pull/3336" target="_blank">#3336 · DataBlockIndex int 溢出修复</a>
+        <a href="https://github.com/AutoMQ/automq/pull/3377" target="_blank">#3377 · 带宽限制器 CPU 优化</a>
+        <a href="https://github.com/AutoMQ/automq/pull/3312" target="_blank">#3312 · 集群事件框架</a>
+      </div>
+
+      <h3 style="font-size:0.9rem; margin:16px 0 8px;">🌊 Apache Fluss</h3>
+      <div class="refs-list">
+        <a href="https://fluss.apache.org/blog/fluss-storage-hierarchy/" target="_blank">Storage Hierarchy 博客</a>
+        <a href="https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/" target="_blank">Tiering Service Deep Dive Part 1</a>
+        <a href="https://github.com/apache/fluss/pull/3401" target="_blank">#3401 · FIP-40 fluss-rust 合仓</a>
+        <a href="https://github.com/apache/fluss/pull/3395" target="_blank">#3395 · Hudi LakeCatalog 合并</a>
+        <a href="https://github.com/apache/fluss/pull/3430" target="_blank">#3430 · Arrow 列存 Paimon 写入</a>
+        <a href="https://github.com/apache/fluss/pull/3400" target="_blank">#3400 · Cluster Health API</a>
+      </div>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <div class="team">CHANG_AI_TEAM · 技术调研</div>
+    <div>调研周期：2026-05-28 ~ 2026-06-04（第 23 周 · 第 3 期）</div>
+    <div style="margin-top:4px;">© 2026 CHANG_AI_TEAM — 仅供内部参考</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 - 整体架构对比：Fluss vs Kafka 2.7.2 · Fluss 源码分析 · CHANG_AI_TEAM</title>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#eef2ff', primaryBorderColor: '#6366f1', lineColor: '#6366f1', secondaryColor: '#f0f9ff', tertiaryColor: '#f8fafc' } });
+</script>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · 1/7</div>
+  <h1>01 - 整体架构对比：Fluss vs Kafka 2.7.2</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2</p>
+</div>
+
+<div class="module-toc"><h3>📑 本页目录</h3><ol><li><a href="#1.1-核心概念映射">1.1 核心概念映射</a></li><li><a href="#1.2-核心差异总览">1.2 核心差异总览</a></li><li><a href="#1.3-模块级映射（maven-模块-↔-gradle-模块）">1.3 模块级映射（Maven 模块 ↔ Gradle 模块）</a></li><li><a href="#1.4-命名空间对比">1.4 命名空间对比</a></li><li><a href="#1.5-server-启动流程对比">1.5 Server 启动流程对比</a></li><li><a href="#1.6-fluss-独有的核心能力（kafka-2.7.2-无对应）">1.6 Fluss 独有的核心能力（Kafka 2.7.2 无对应）</a></li><li><a href="#1.7-已确认的代码复用">1.7 已确认的代码复用</a></li></ol></div>
+
+<br>
+<h2 id="01---整体架构对比：fluss-vs-kafka-2.7.2">01 - 整体架构对比：Fluss vs Kafka 2.7.2</h2>
+<br>
+<blockquote>本文分析 Fluss trunk 与 Apache Kafka 2.7.2 的整体架构差异和模块映射关系。</blockquote>
+<br>
+<h3>1.1 核心概念映射</h3>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss 概念</th><th>Kafka 2.7.2 概念</th><th>说明</th></tr>
+<tr><td><strong>Database</strong></td><td>（无直接对应）</td><td>Fluss 引入 Database 作为 Table 的命名空间容器</td></tr>
+<tr><td><strong>Table</strong></td><td><strong>Topic</strong></td><td>基本的数据组织单元</td></tr>
+<tr><td><strong>Partition</strong></td><td><strong>Partition</strong></td><td>Table/Topic 的子分区（语义一致）</td></tr>
+<tr><td><strong>TableBucket</strong></td><td><strong>Partition（Replica）</strong></td><td>物理存储单元，Fluss 的 bucket 即 Kafka 的 partition replica</td></tr>
+<tr><td><strong>Tablet</strong></td><td><strong>Partition（逻辑）</strong></td><td>Fluss 中 Tablet 是表级别管理单元</td></tr>
+<tr><td><strong>TabletServer</strong></td><td><strong>Broker</strong></td><td>数据服务节点</td></tr>
+<tr><td><strong>CoordinatorServer</strong></td><td><strong>Controller</strong></td><td>集群管理节点</td></tr>
+<tr><td><strong>LogTablet</strong></td><td><strong>Log（Partition Log）</strong></td><td>物理日志实体</td></tr>
+<tr><td><strong>KV Store</strong></td><td><strong>（无对应，是 Fluss 独有）</strong></td><td>主键表/PK 表的 RocksDB 存储</td></tr>
+<tr><td><strong>Lake Table</strong></td><td><strong>（无对应）</strong></td><td>湖表，数据以 Parquet/Arrow 格式写入 Lakehouse</td></tr>
+<tr><td><strong>Changelog</strong></td><td><strong>（无对应）</strong></td><td>Fluss 为 PK 表自动生成 changelog</td></tr>
+<tr><td><strong>Merge Engine</strong></td><td><strong>（无对应）</strong></td><td>行级合并策略（aggregate/partial update/dedupe）</td></tr>
+<tr><td><strong>RemoteLogManager</strong></td><td><strong>（KIP-405 后才有，2.7.2 不存在）</strong></td><td>远程分层存储</td></tr>
+<tr><td><strong>Row / InternalRow</strong></td><td><strong>Record（Key+Value bytes）</strong></td><td>Fluss 用 Arrow 列式（schema-aware），Kafka 用字节流</td></tr>
+</table></div>
+<br>
+<h3>1.2 核心差异总览</h3>
+<br>
+<div class="mermaid">
+graph TB
+    subgraph Kafka["Kafka 2.7.2 架构"]
+        direction TB
+        KC[Controller] -->|ZK| KB1[Broker]
+        KC -->|ZK| KB2[Broker]
+        KB1 -->|Replication| KB2
+        KB1 --> KLog[Local Log<br/>Segment Files]
+        KP[Producer] --> KB1
+        KC1[Consumer] --> KB1
+    end
+    
+    subgraph Fluss["Fluss 架构"]
+        direction TB
+        FC[CoordinatorServer] -->|ZK| FT1[TabletServer]
+        FC -->|ZK| FT2[TabletServer]
+        FT1 -->|Replication| FT2
+        FT1 --> FLog[Local Log<br/>+ KV Store]
+        FT1 --> FRemote[Remote Log<br/>S3/HDFS]
+        FT1 --> FLake[Lake Table<br/>Parquet/Arrow]
+        FP[Writer] --> FT1
+        FS[Scanner] --> FT1
+    end
+</div>
+<br>
+<h4>关键差异总结</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td><strong>架构</strong></td><td>存算分离（TabletServer 专注存储）</td><td>存算耦合（Broker 同时服务读写+复制）</td></tr>
+<tr><td><strong>数据模型</strong></td><td>Table（有 schema，支持 PK）+ Database 命名空间</td><td>Topic（无 schema，key/value bytes）</td></tr>
+<tr><td><strong>存储层</strong></td><td>三层：本地 Log + KV Store + Remote/Lake Storage</td><td>单层：本地 Log Segment 文件</td></tr>
+<tr><td><strong>记录格式</strong></td><td>Arrow 列式（支持列裁剪 + 谓词下推）</td><td>行式字节流</td></tr>
+<tr><td><strong>一致性</strong></td><td>ISR 协议（同 Kafka）</td><td>ISR 协议</td></tr>
+<tr><td><strong>协调</strong></td><td>CoordinatorServer（类似 Controller，但职责更多）</td><td>Controller（仅管理分区/副本状态）</td></tr>
+<tr><td><strong>计算引擎</strong></td><td>原生集成 Flink/Spark（作为 Sink/Source）</td><td>通过 Connect Framework + 外部连接器</td></tr>
+<tr><td><strong>表类型</strong></td><td>3 种：普通表、PK 表（KV）、Lake 表</td><td>无表类型概念</td></tr>
+<tr><td><strong>分层存储</strong></td><td>原生支持 Remote Log + Lake Table</td><td>KIP-405 后才有（2.7.2 尚未引入）</td></tr>
+</table></div>
+<br>
+<h3>1.3 模块级映射（Maven 模块 ↔ Gradle 模块）</h3>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss Maven 模块</th><th>Kafka 2.7.2 Gradle 模块</th><th>功能</th></tr>
+<tr><td><code>fluss-common</code></td><td><code>clients</code> (common部分) + 无对应 Arrow 部分</td><td>公共数据结构、配置、Arrow 列式记录格式、文件系统抽象</td></tr>
+<tr><td><code>fluss-server</code></td><td><code>core</code></td><td>服务器核心：Log/Replica/KV/Coordinator/Tablet 管理</td></tr>
+<tr><td><code>fluss-client</code></td><td><code>clients</code> (Producer/Consumer/Admin)</td><td>客户端：Writer/Scanner/Admin/元数据缓存</td></tr>
+<tr><td><code>fluss-rpc</code></td><td><code>clients</code> (network部分) + 无对应</td><td>RPC 框架：Gateway Proxy、Netty 传输、API 管理</td></tr>
+<tr><td><code>fluss-flink</code></td><td>（外部 connector）</td><td>Flink Source/Sink/Table Connector</td></tr>
+<tr><td><code>fluss-spark</code></td><td>（外部 connector）</td><td>Spark Source/Sink</td></tr>
+<tr><td><code>fluss-kafka</code></td><td>（无对应）</td><td><strong>Kafka 协议兼容层</strong>（关键差异化模块）</td></tr>
+<tr><td><code>fluss-lake</code></td><td>（无对应）</td><td>湖存储层：Lake Catalog、Writer、Committer</td></tr>
+<tr><td><code>fluss-metrics</code></td><td><code>clients</code> (metrics部分)</td><td>指标收集与上报</td></tr>
+<tr><td><code>fluss-filesystems</code></td><td>（外部插件）</td><td>文件系统插件（S3、HDFS、OSS 等）</td></tr>
+<tr><td><code>fluss-protogen</code></td><td>（无对应，用 protobuf 生成）</td><td>RPC 消息的 Protobuf 代码生成</td></tr>
+<tr><td><code>fluss-jmh</code></td><td><code>jmh-benchmarks</code></td><td>JMH 性能基准测试</td></tr>
+<tr><td><code>fluss-dist</code></td><td><code>tools</code>（分布部分）</td><td>发行版打包</td></tr>
+</table></div>
+<br>
+<h3>1.4 命名空间对比</h3>
+<br>
+<pre><code class="">
+Kafka 层级:
+  /brokers/topics/[topic]/partitions/[partitionId]/state    ← ZK 路径
+  /brokers/ids/[brokerId]
+
+Fluss 层级:
+  /fluss/databases/[database]                               ← ZK 路径
+  /fluss/database/[database]/tables/[table]/partitions/[part]/
+  /fluss/tablet_servers/[serverId]
+  /fluss/coordinator/leader
+</code></pre>
+<br>
+<h3>1.5 Server 启动流程对比</h3>
+<br>
+<h4>Kafka Broker 启动</h4>
+<pre><code class="">
+KafkaServer.startup()
+  → LogManager (创建/恢复本地日志)
+  → SocketServer (启动网络层)
+  → KafkaApis (注册请求处理器)
+  → ReplicaManager (启动副本管理)
+  → KafkaController (如果是 controller)
+  → GroupCoordinator (消费者组协调)
+</code></pre>
+<br>
+<h4>Fluss TabletServer 启动</h4>
+<pre><code class="">
+FlussServer.startup()  [extends RpcServiceBase]
+  → LogManager (创建/恢复本地日志)
+  → KvManager (创建/恢复 KV 存储)
+  → ReplicaManager (启动副本管理)
+  → RemoteLogManager (远程日志分层管理)
+  → RpcServiceBase (启动 RPC 网络层)
+  → 向 Coordinator 注册
+</code></pre>
+<br>
+<h4>Fluss CoordinatorServer 启动</h4>
+<pre><code class="">
+CoordinatorServer.startup()  [extends RpcServiceBase]
+  → ZooKeeperClient (连接 ZK)
+  → CoordinatorEventProcessor (事件处理线程)
+  → CoordinatorService (集群管理逻辑)
+  → MetadataManager (元数据管理)
+  → AutoPartitionManager (自动分区)
+  → RebalanceManager (TableBucket 重平衡)
+  → LeaseManager (租约管理)
+  → ProducerOffsetsManager (Producer ID 管理)
+  → LakeTableTieringManager (Lake 表分层)
+</code></pre>
+<br>
+<h3>1.6 Fluss 独有的核心能力（Kafka 2.7.2 无对应）</h3>
+<br>
+<p>1. <strong>KV Store (RocksDB)</strong>：为 PK 表提供点查/更新/删除，Kafka 本质是 append-only log</p>
+<p>2. <strong>Arrow 列式记录</strong>：支持列裁剪、谓词下推、向量化计算，Kafka 是行式字节流</p>
+<p>3. <strong>Lake Table</strong>：数据可直接以 Parquet/Arrow 格式写入数据湖（Iceberg/Paimon）</p>
+<p>4. <strong>Remote Log</strong>：本地仅保留 N 个 segment，老数据自动 tier 到远程存储</p>
+<p>5. <strong>Merge Engine</strong>：行级聚合、部分更新、去重——Kafka 无此能力</p>
+<p>6. <strong>Primary Key 表</strong>：支持 Upsert/Delete，自动生成 Changelog</p>
+<p>7. <strong>Schema 管理</strong>：内建 schema evolution（通过 schema id）</p>
+<p>8. <strong>存算分离</strong>：TabletServer 可独立扩缩，CoordinatorServer 可独立高可用</p>
+<br>
+<h4>Kafka 2.7.2 独有（Fluss 无对应）</h4>
+<br>
+<p>1. <strong>Connect Framework</strong>：标准化的数据源/目标连接器生态系统</p>
+<p>2. <strong>Streams DSL</strong>：内建流处理库（但可被 Flink/Spark 替代）</p>
+<p>3. <strong>KRaft</strong>：KIP-500 去 ZK 化（2.7.2 中已引入 Raft 模块）</p>
+<p>4. <strong>事务生产者</strong>：完整的事务语义（Fluss 当前无分布式事务）</p>
+<p>5. <strong>幂等生产者</strong>：Producer ID + Sequence Number 机制</p>
+<p>6. <strong>分区的 compaction 策略</strong>：基于 key 的日志压缩</p>
+<br>
+<h3>1.7 已确认的代码复用</h3>
+<br>
+<p>Fluss 多个核心模块标注 <code>/<em> This file is based on source code of Apache Kafka Project </em>/</code>：</p>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss 文件</th><th>Kafka 来源</th><th>复用程度</th></tr>
+<tr><td><code>LocalLog.java</code></td><td><code>kafka.log.Log.scala</code></td><td>高度复用 Log Segment 管理逻辑</td></tr>
+<tr><td><code>LogTablet.java</code></td><td><code>kafka.log.Log.scala</code></td><td>复用了追加、读取、分段逻辑</td></tr>
+<tr><td><code>LogManager.java</code></td><td><code>kafka.log.LogManager.scala</code></td><td>复用了日志目录管理</td></tr>
+<tr><td><code>LogSegment.java</code></td><td><code>kafka.log.LogSegment.scala</code></td><td>高度复用</td></tr>
+<tr><td><code>ReplicaManager.java</code></td><td><code>kafka.server.ReplicaManager.scala</code></td><td>复用副本管理框架</td></tr>
+<tr><td><code>ReplicaFetcherThread.java</code></td><td><code>kafka.server.AbstractFetcherThread.scala</code></td><td>复用 Follower 拉取逻辑</td></tr>
+<tr><td><code>DelayedOperation.java</code></td><td><code>kafka.server.DelayedOperation.scala</code></td><td>复用延时操作框架</td></tr>
+<tr><td><code>LeaderAndIsr</code> (ZK data)</td><td><code>kafka.common.TopicAndPartition</code></td><td>复用 ISR 数据结构</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<blockquote>**下一步**：逐模块深读 → [[02-存储引擎模块|02 - 存储引擎]] | [[03-分布式协调|03 - 分布式协调]] | [[04-数据面-网络与RPC|04 - 数据面]] | [[05-客户端与计算集成|05 - 客户端]]</blockquote>
+<br>
+
+<div class="page-nav">
+  <span class="prev disabled">已是第一篇</span>
+  <a href="index.html">📋 返回索引</a>
+  <a href="02-存储引擎模块.html" class="next">存储引擎模块分析</a>
+</div>
+
+<div class="end-marker">
+  <p><a href="index.html">Fluss 源码分析 · 全文索引</a> | <a href="index.html">Deep Dives 目录</a></p>
+</div>
+
+</div>
+</body>
+</html>

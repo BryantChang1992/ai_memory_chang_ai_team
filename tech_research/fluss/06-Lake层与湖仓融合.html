@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 - Lake 层与湖仓融合 · Fluss 源码分析 · CHANG_AI_TEAM</title>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#eef2ff', primaryBorderColor: '#6366f1', lineColor: '#6366f1', secondaryColor: '#f0f9ff', tertiaryColor: '#f8fafc' } });
+</script>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · 6/7</div>
+  <h1>06 - Lake 层与湖仓融合</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2</p>
+</div>
+
+<div class="module-toc"><h3>📑 本页目录</h3><ol><li><a href="#6.1-概述">6.1 概述</a></li><li><a href="#6.2-lake-存储插件架构">6.2 Lake 存储插件架构</a></li><li><a href="#6.3-iceberg-集成（最完整）">6.3 Iceberg 集成（最完整）</a></li><li><a href="#6.4-paimon-集成">6.4 Paimon 集成</a></li><li><a href="#6.5-tiering-架构（flink-独立作业）">6.5 Tiering 架构（Flink 独立作业）</a></li><li><a href="#6.6-lance（arrow-native-lake）">6.6 Lance（Arrow Native Lake）</a></li><li><a href="#6.7-fluss-lake-能力与-kafka-对照">6.7 Fluss Lake 能力与 Kafka 对照</a></li><li><a href="#6.8-关键差异总结">6.8 关键差异总结</a></li></ol></div>
+
+<br>
+<h2 id="06---lake-层与湖仓融合">06 - Lake 层与湖仓融合</h2>
+<br>
+<h3>6.1 概述</h3>
+<br>
+<p>Lake 层是 Fluss 最大的架构差异化能力——它原生支持将数据写入 Lakehouse（数据湖），实现 <strong>"Streaming Table → Lakehouse Table"</strong> 的一体化转换。Kafka 2.7.2 完全没有此能力。</p>
+<br>
+<div class="mermaid">
+graph TB
+    subgraph Streaming["实时数据流"]
+        WT[Writer]
+        SC[Scanner]
+        LK[Lookuper]
+    end
+    
+    subgraph Server["Fluss Server"]
+        TS[TabletServer]
+        CO[CoordinatorServer]
+        
+        subgraph Local["本地存储"]
+            LOG[LogTablet]
+            KV[KvTablet]
+        end
+        
+        RL[RemoteLogManager]
+    end
+    
+    subgraph Lakehouse["Lakehouse 数据湖"]
+        ICE[(Apache Iceberg)]
+        PAI[(Apache Paimon)]
+        HUD[(Apache Hudi)]
+        LAN[(Lance)]
+    end
+    
+    subgraph Tiering["分层写入 (Tiering)"]
+        TJ[Flink Tiering Job]
+        TW[LakeWriter]
+        TC[LakeCommitter]
+    end
+    
+    WT --> TS
+    SC --> TS
+    TS --> LOG
+    TS --> KV
+    TS --> RL
+    LOG --> TJ
+    KV --> TJ
+    TJ --> TW
+    TW --> ICE
+    TW --> PAI
+    TJ --> TC
+    TC --> ICE
+    TC --> PAI
+</div>
+<br>
+<hr>
+<br>
+<h3>6.2 Lake 存储插件架构</h3>
+<br>
+<h4>6.2.1 插件接口</h4>
+<br>
+<pre><code class=" language-java">
+// 存储插件 — 工厂模式
+interface LakeStoragePlugin {
+    String name();                              // "iceberg" | "paimon" | "hudi" | "lance"
+    LakeStorage createLakeStorage(Configuration conf);
+}
+
+// 存储抽象
+interface LakeStorage {
+    LakeCatalog getLakeCatalog();
+    LakeTable getLakeTable(TablePath tablePath);
+    LakeTableMetaInfo getLakeTableMetaInfo(TablePath tablePath);
+}
+
+// Catalog 抽象
+interface LakeCatalog {
+    void createTable(TableDescriptor desc);
+    void dropTable(TablePath tablePath);
+    List<String> listTables();
+    Map<String, String> loadTableProperties(TablePath tablePath);
+    void alterTable(TablePath, TableChange...);
+}
+
+// 表抽象
+interface LakeTable {
+    TablePath tablePath();
+    LakeTableStats tableStats();    // 表统计信息
+    LakeTableRead read();           // 读操作
+    LakeTableAppend append();       // 追加写
+    LakeTableDelta delta();         // Delta 写（Upsert/Delete）
+}
+</code></pre>
+<br>
+<h4>6.2.2 四种后端实现</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>后端</th><th>模块</th><th>类</th><th>行数估计</th><th>完整度</th></tr>
+<tr><td><strong>Iceberg</strong></td><td><code>fluss-lake-iceberg</code></td><td><code>IcebergLakeStorage</code> / <code>IcebergLakeCatalog</code></td><td>~35 files</td><td>★★★★★ 完整</td></tr>
+<tr><td><strong>Paimon</strong></td><td><code>fluss-lake-paimon</code></td><td><code>PaimonLakeStorage</code> / <code>PaimonLakeCatalog</code></td><td>~30 files</td><td>★★★★★ 完整</td></tr>
+<tr><td><strong>Hudi</strong></td><td><code>fluss-lake-hudi</code></td><td><code>HudiLakeStorage</code> / <code>HudiLakeCatalog</code></td><td>~7 files</td><td>★★☆☆☆ 基础</td></tr>
+<tr><td><strong>Lance</strong></td><td><code>fluss-lake-lance</code></td><td><code>LanceLakeStorage</code> / <code>LanceLakeCatalog</code></td><td>~12 files</td><td>★★★☆☆ 部分</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>6.3 Iceberg 集成（最完整）</h3>
+<br>
+<h4>6.3.1 IcebergLakeStorage 结构</h4>
+<br>
+<pre><code class="">
+IcebergLakeStorage (impl LakeStorage)
+├── IcebergLakeCatalog
+│   ├── 创建 Iceberg Table（复用 TableDescriptor → Iceberg Schema）
+│   ├── 管理 Iceberg Namespace/TableProperties
+│   └── 支持 HadoopCatalog / HiveCatalog
+├── IcebergLakeSource (impl LakeTableRead)
+│   ├── IcebergSplitPlanner（分区规划）
+│   ├── IcebergSplit（单个 split）
+│   ├── IcebergRecordReader → 读取 DataFile
+│   ├── 谓词下推（File format filter + Row group filter）
+│   └── FlussToIcebergPredicateConverter（谓词转换）
+├── IcebergLakeWriter (impl LakeTableAppend / LakeTableDelta)
+│   ├── AppendOnlyTaskWriter（普通表：无 PK）
+│   │   └── 每 batch → DataFile (.parquet)
+│   └── DeltaTaskWriter（PK 表：支持 delete/update）
+│       └── 支持 Position Delete / Equality Delete
+├── IcebergLakeCommitter (impl LakeTableCommit)
+│   ├── 收集每个 task 的 WriteResult
+│   ├── 提交 Iceberg Snapshot
+│   └── 过期 Snapshot 清理
+└── IcebergRewriteDataFiles（compaction）
+    ├── 合并小 DataFile
+    ├── 清理 Delete Files
+    └── 支持 Z-ordering / Sorting
+</code></pre>
+<br>
+<h4>6.3.2 写入模式</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>表类型</th><th>Writer</th><th>Iceberg 操作</th><th>说明</th></tr>
+<tr><td>普通表 (Log Table)</td><td><code>AppendOnlyTaskWriter</code></td><td><code>AppendFiles</code></td><td>纯追加，Parquet 写入</td></tr>
+<tr><td>PK 表 (KV Table)</td><td><code>DeltaTaskWriter</code> + <code>GenericRecordDeltaWriter</code></td><td><code>RowDelta</code></td><td>Upsert/Delete，支持 Position Delete</td></tr>
+<tr><td>Merge-Engine 表</td><td><code>DeltaTaskWriter</code> (aggregate mode)</td><td><code>RowDelta</code> + rewrite</td><td>需要 compaction 来合并聚合结果</td></tr>
+</table></div>
+<br>
+<h4>6.3.3 读取模式</h4>
+<br>
+<pre><code class="">
+IcebergLakeSource → Fluss Source:
+  1. IcebergSplitPlanner: 根据 filter + snapshot 规划 split
+  2. 每个 split → IcebergSplit (filePath, offset, length)
+  3. IcebergRecordReader: 读取 Parquet → InternalRow
+  4. 可选谓词下推：
+     - Partition filter (目录级)
+     - Row group filter (Parquet 统计信息级)
+     - Arrow 统计信息 filter (列 min/max/null-count)
+  5. InternalRow → Fluss Row (Arrow 格式)
+</code></pre>
+<br>
+<hr>
+<br>
+<h3>6.4 Paimon 集成</h3>
+<br>
+<h4>6.4.1 PaimonLakeStorage 结构</h4>
+<br>
+<pre><code class="">
+PaimonLakeStorage (impl LakeStorage)
+├── PaimonLakeCatalog
+│   ├── 创建 Paimon Table
+│   └── 管理 Paimon Schema / Options
+├── PaimonLakeSource
+│   ├── PaimonSplitPlanner
+│   ├── PaimonRecordReader
+│   └── PaimonSortedRecordReader（有序读取）
+├── PaimonLakeWriter
+│   ├── AppendOnlyWriter（普通表）
+│   │   └── Arrow → Paimon Arrow Vector Column
+│   ├── MergeTreeWriter（PK 表 + Merge Engine）
+│   └── AppendOnlyArrowBatchHelper
+├── PaimonLakeCommitter
+├── DV Table 支持
+│   ├── DvTableReadableSnapshotRetriever
+│   └── PaimonDvTableUtils
+</code></pre>
+<br>
+<h4>6.4.2 Paimon 特有功能</h4>
+<br>
+<p>1. <strong>MergeTreeWriter</strong>：直接写入 Paimon 的 MergeTree 格式（LSM），支持 PK 表</p>
+<p>2. <strong>AppendOnlyWriter</strong>：纯追加写入，支持 Arrow 原生列式</p>
+<p>3. <strong>DV (Deletion Vector) 表</strong>：Paimon 0.9+ 引入的 DV 机制，支持增量删除</p>
+<p>4. <strong>SortedRecordReader</strong>：按 PK 排序读取，支持 Merge-on-Read</p>
+<p>5. <strong>PartitionBucket</strong>：Paimon 的分区桶映射</p>
+<br>
+<hr>
+<br>
+<h3>6.5 Tiering 架构（Flink 独立作业）</h3>
+<br>
+<h4>6.5.1 Tiering 工作流</h4>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant TS as TabletServer
+    participant CO as CoordinatorServer
+    participant TJ as Flink Tiering Job
+    participant LW as LakeWriter
+    participant LC as LakeCommitter
+    participant LH as Lakehouse
+    
+    TS->>CO: lakeTieringHeartbeat(bucket)
+    CO->>CO: 判断是否需要 Tiering
+    
+    TJ->>CO: 轮询 tiering tasks
+    CO-->>TJ: TableBucket + offsetRange
+    
+    TJ->>TS: FetchLog / GetBucketLog → 读取本地日志
+    TS-->>TJ: records
+    
+    TJ->>LW: write(records)
+    LW->>LH: write Parquet/Arrow files
+    
+    TJ->>LC: commit(snapshot)
+    LC->>LH: commit snapshot
+    
+    TJ->>CO: commitLakeTableSnapshot(bucket, offset)
+    CO->>TS: notifyLakeTableOffset(bucket, offset)
+    TS->>TS: 更新 local lake log start offset
+    TS->>TS: 可删除本地已 tiered 的 segments
+</div>
+<br>
+<h4>6.5.2 Tiering 组件</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>组件</th><th>类</th><th>功能</th></tr>
+<tr><td><strong>入口</strong></td><td><code>FlussLakeTiering</code> / <code>FlussLakeTieringEntrypoint</code></td><td>Tiering 作业启动</td></tr>
+<tr><td><strong>Source</strong></td><td><code>TieringSource</code> → <code>TieringSplitReader</code></td><td>从 TabletServer 读取数据</td></tr>
+<tr><td><strong>Writer</strong></td><td><code>LakeWriter</code> 接口</td><td>写入 Lake Storage</td></tr>
+<tr><td><strong>Committer</strong></td><td><code>TieringCommitOperator</code> / <code>TieringCommitter</code></td><td>提交 Lake Snapshot</td></tr>
+<tr><td><strong>Event</strong></td><td><code>TieringReachMaxDurationEvent</code> / <code>FinishedTieringEvent</code> / <code>FailedTieringEvent</code></td><td>事件驱动</td></tr>
+<tr><td><strong>Metrics</strong></td><td><code>TieringMetrics</code></td><td>指标收集</td></tr>
+<tr><td><strong>Split</strong></td><td><code>TieringLogSplit</code> / <code>TieringSnapshotSplit</code></td><td>分层 Split 定义</td></tr>
+<tr><td><strong>Result</strong></td><td><code>TableBucketWriteResult</code> / <code>TableBucketWriteResultEmitter</code></td><td>写入结果回传</td></tr>
+</table></div>
+<br>
+<h4>6.5.3 CoordinatorServer 端 Lake 管理</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>类</th><th>功能</th></tr>
+<tr><td><code>LakeTableTieringManager</code></td><td>管理 Lake 表的 Tiering 进度与调度</td></tr>
+<tr><td><code>LakeCatalogDynamicLoader</code></td><td>动态加载 Lake Catalog（支持运行时切换）</td></tr>
+<tr><td><code>CommitLakeTableSnapshot</code> event</td><td>处理 Tiering 提交的快照信息</td></tr>
+<tr><td><code>NotifyLakeTableOffset</code></td><td>通知 TabletServer 更新本地 Lake offset</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>6.6 Lance（Arrow Native Lake）</h3>
+<br>
+<p>Lance 是新兴的 Arrow-native 列式存储格式，Fluss 支持作为 Lake 后端：</p>
+<br>
+<pre><code class="">
+LanceLakeStorage
+├── LanceLakeCatalog
+├── LanceLakeWriter
+│   └── ShadedArrowBatchWriter（直接写 Arrow IPC，零拷贝）
+├── LanceLakeCommitter
+└── LanceWriteResult
+
+特点：
+- Arrow-native：无需序列化/反序列化转换，直接操作 Arrow Vector
+- 零拷贝路径：Fluss Arrow batch → Lance write（同一格式）
+- 列裁剪 + 谓词下推完全复用 Arrow 能力
+</code></pre>
+<br>
+<hr>
+<br>
+<h3>6.7 Fluss Lake 能力与 Kafka 对照</h3>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>能力</th><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td><strong>数据湖集成</strong></td><td>✅ 原生支持 Iceberg/Paimon/Hudi/Lance</td><td>❌ 无（需外部 ETL 管道）</td></tr>
+<tr><td><strong>Tiering</strong></td><td>✅ 内建 Flink Tiering Job，自动将本地数据分层到 Lake</td><td>❌ 无（KIP-405 仅分层到远程存储，非 Lakehouse）</td></tr>
+<tr><td><strong>Lake 格式</strong></td><td>Parquet / Arrow / 原生格式</td><td>❌ Segment 文件</td></tr>
+<tr><td><strong>Lake 查询</strong></td><td>✅ 可从 Lake 直接读取（BatchScanner）</td><td>❌ 无</td></tr>
+<tr><td><strong>快照隔离</strong></td><td>✅ Lake Snapshot 提供 MVCC 隔离</td><td>❌ 无 snapshot 概念</td></tr>
+<tr><td><strong>Schema Evolution</strong></td><td>✅ 服务端内建 + Lake Catalog 管理</td><td>❌ 服务端不解析 schema</td></tr>
+<tr><td><strong>Partition Evolution</strong></td><td>✅ 通过 Iceberg/Paimon 的分区演进</td><td>❌ 无</td></tr>
+<tr><td><strong>文件管理</strong></td><td>✅ Lake Catalog 管理 DataFile / DeleteFile</td><td>❌ Segment 文件由 Broker 自主管理</td></tr>
+<tr><td><strong>Compaction</strong></td><td>✅ RewriteDataFile（合并小文件 + 清理 Delete）</td><td>❌ Log compaction（仅 key-based tombstone）</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>6.8 关键差异总结</h3>
+<br>
+<h4>Fluss Lake 层的设计哲学</h4>
+<br>
+<pre><code class="">
+Fluss = Streaming Storage + Lakehouse Integration
+
+        实时写入 (ms 级)
+              ↓
+    ┌─────────────────────┐
+    │   Fluss Tablet      │  ← 本地 Log + KV，毫秒级读写
+    │  (oltp level)       │
+    └────────┬────────────┘
+             │ async tiering (minute-level)
+             ↓
+    ┌─────────────────────┐
+    │   Lakehouse         │  ← Parquet/Arrow，分钟级物化
+    │  (olap level)       │     支持批量查询 + 数据分析
+    └─────────────────────┘
+</code></pre>
+<br>
+<p>这不是简单的"存储分层"，而是 <strong>"实时存储 + 数据湖"的融合架构</strong>——与 Kafka 的"消息队列 + 外部 ETL" 是完全不同的范式。</p>
+<br>
+<h4>与 Kafka KIP-405 的区别</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>维度</th><th>Fluss Lake</th><th>Kafka KIP-405 (2.8+)</th></tr>
+<tr><td><strong>目标</strong></td><td>写入数据湖（Iceberg/Paimon），支持分析查询</td><td>将日志卸载到 S3/HDFS，释放本地磁盘</td></tr>
+<tr><td><strong>存储格式</strong></td><td>Parquet / Arrow / Paimon format</td><td>原始 <code>.log</code> segment（二进制相同）</td></tr>
+<tr><td><strong>可查询性</strong></td><td>✅ 可通过 Trino/Spark/Flink 查询</td><td>❌ 仅内部读取，不可外部访问</td></tr>
+<tr><td><strong>格式转换</strong></td><td>✅ 实时 Arrow → Parquet 转换</td><td>❌ 不转换（保持 Kafka Message 格式）</td></tr>
+<tr><td><strong>Schema 管理</strong></td><td>✅ Lake Catalog 管理 schema evolution</td><td>❌ 无 schema</td></tr>
+<tr><td><strong>Delete/Update</strong></td><td>✅ Delta/RowDelta（Iceberg）/ MergeTree（Paimon）</td><td>❌ 不支持</td></tr>
+<tr><td><strong>Compaction</strong></td><td>✅ RewriteDataFile（合并小文件 + 清理 delete）</td><td>❌ 仅 log compaction（key-based）</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<blockquote>**下一篇（最终）**：[[07-模块对应关系总表|07 - 模块对应关系总表]]</blockquote>
+<br>
+
+<div class="page-nav">
+  <a href="05-客户端与计算集成.html" class="prev">客户端与计算集成</a>
+  <a href="index.html">📋 返回索引</a>
+  <a href="07-模块对应关系总表.html" class="next">模块对应关系总表</a>
+</div>
+
+<div class="end-marker">
+  <p><a href="index.html">Fluss 源码分析 · 全文索引</a> | <a href="index.html">Deep Dives 目录</a></p>
+</div>
+
+</div>
+</body>
+</html>

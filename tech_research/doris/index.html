@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apache Doris 实时分析数据库深度调研报告</title>
+
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <h1>Apache Doris 深度调研报告</h1>
+  <p class="meta">涵盖核心概念、存储引擎、查询流程、架构演进、元数据存储与一致性复制的全面技术调研</p>
+  <div class="meta-tags">
+    <span class="tag">v1.1</span>
+    <span class="tag">2026-06-12</span>
+    <span class="tag">Stark · CHANG_AI_TEAM CTO</span>
+    <span class="tag">7 张技术图</span>
+  </div>
+</section>
+
+<div class="container">
+  <a href="../" class="back-link">← 技术调研首页</a>
+
+  <div class="chapter-list">
+    <a href="01-概述与核心概念.html" class="chapter-card">
+      <span class="chapter-num">01</span>
+      <div class="chapter-info">
+        <h3>概述与核心概念</h3>
+        <p class="desc">Doris 历史沿革、整体架构（Shared-Nothing & 存算分离）、数据模型、Tablet & Replica、索引体系、Unique Key 模型详解</p>
+        <div class="stats">📊 1 张架构图 · 📄 约 5000 字</div>
+      </div>
+    </a>
+
+    <a href="02-存储引擎.html" class="chapter-card">
+      <span class="chapter-num">02</span>
+      <div class="chapter-info">
+        <h3>存储引擎</h3>
+        <p class="desc">Segment v2 列式存储格式、存储层级结构、Compaction 策略（Cumulative/Base/Quick/Vertical）、MoW 写入实现、多层索引体系</p>
+        <div class="stats">📊 1 张存储图 · 📄 约 4200 字</div>
+      </div>
+    </a>
+
+    <a href="03-查询流程.html" class="chapter-card">
+      <span class="chapter-num">03</span>
+      <div class="chapter-info">
+        <h3>查询流程</h3>
+        <p class="desc">MPP 分布式执行模型、向量化引擎、Plan Fragment 分发、Data Shuffle 策略、Nereids CBO 优化器、Runtime Filter、Lakehouse 联邦查询</p>
+        <div class="stats">📊 1 张查询图 · 📄 约 4800 字</div>
+      </div>
+    </a>
+
+    <a href="04-架构演进.html" class="chapter-card">
+      <span class="chapter-num">04</span>
+      <div class="chapter-info">
+        <h3>架构演进</h3>
+        <p class="desc">Palo 时代 → Doris 0.x 开源孵化 → 1.x~2.x 功能爆发 → 3.0 存算分离 → 4.x Falcon 引擎 Roadmap，含竞品对比矩阵</p>
+        <div class="stats">📊 1 张演进图 · 📄 约 6200 字</div>
+      </div>
+    </a>
+
+    <a href="05-元数据存储与一致性复制.html" class="chapter-card">
+      <span class="chapter-num">05</span>
+      <div class="chapter-info">
+        <h3>元数据存储与一致性复制</h3>
+        <p class="desc">Meta Service 三层模型、BDB-JE → FoundationDB 演进、FE ImageCache LRU、多副本复制策略、2PC 事务一致性、故障恢复矩阵</p>
+        <div class="stats">📊 2 张技术图 · 📄 约 7700 字</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="about">
+    <p>由 <strong>CHANG_AI_TEAM</strong> 维护 · 内容由 AI Agent 自动生成 · 
+    <a href="https://github.com/BryantChang1992/ai_memory_chang_ai_team" target="_blank">GitHub 仓库</a></p>
+  </div>
+</div>
+
+</body>
+</html>

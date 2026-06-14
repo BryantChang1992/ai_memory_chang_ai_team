@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 - 客户端与计算集成 · Fluss 源码分析 · CHANG_AI_TEAM</title>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#eef2ff', primaryBorderColor: '#6366f1', lineColor: '#6366f1', secondaryColor: '#f0f9ff', tertiaryColor: '#f8fafc' } });
+</script>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div class="badge">FLUSS DEEP DIVE · 5/7</div>
+  <h1>05 - 客户端与计算集成</h1>
+  <p class="meta">CHANG_AI_TEAM CTO · 2026-06-10 · Fluss trunk vs Kafka 2.7.2</p>
+</div>
+
+<div class="module-toc"><h3>📑 本页目录</h3><ol><li><a href="#5.1-客户端架构概览">5.1 客户端架构概览</a></li><li><a href="#5.2-写入路径">5.2 写入路径</a></li><li><a href="#5.3-读取路径">5.3 读取路径</a></li><li><a href="#5.4-flink-connector-集成">5.4 Flink Connector 集成</a></li><li><a href="#5.5-数据转换层">5.5 数据转换层</a></li><li><a href="#5.6-lake-storage（湖存储层）">5.6 Lake Storage（湖存储层）</a></li><li><a href="#5.7-核心类级对照表">5.7 核心类级对照表</a></li></ol></div>
+
+<br>
+<h2 id="05---客户端与计算集成">05 - 客户端与计算集成</h2>
+<br>
+<h3>5.1 客户端架构概览</h3>
+<br>
+<div class="mermaid">
+graph TB
+    subgraph FlussClient["Fluss Java Client"]
+        subgraph Admin["Admin 管理客户端"]
+            FA[FlussAdmin<br/>表/DB/分区管理]
+        end
+        
+        subgraph TableAPI["Table API 层"]
+            FT[FlussTable<br/>统一表访问]
+            W[Writer - Append / Upsert]
+            S[Scanner - Log / KV / Batch]
+            LK[Lookuper - PK / Prefix]
+        end
+        
+        subgraph WriteEngine["写入引擎"]
+            WC[WriterClient]
+            RA[RecordAccumulator<br/>批量缓冲]
+            BA[BucketAssigner<br/>分区路由]
+            SE[Sender<br/>网络发送线程]
+            IM[IdempotenceManager<br/>幂等写入]
+        end
+        
+        subgraph ScanEngine["读取引擎"]
+            LS[LogScanner]
+            LF[LogFetcher<br/>拉取线程]
+            KS[KvBatchScanner]
+            LB[LimitBatchScanner]
+            RL[RemoteLogDownloader]
+        end
+        
+        subgraph RPC["RPC 通信"]
+            FC[FlussConnection]
+            NW[NettyClient]
+            MU[MetadataUpdater]
+        end
+    end
+    
+    FT --> W
+    FT --> S
+    FT --> LK
+    W --> WC
+    WC --> RA
+    RA --> SE
+    SE --> FC
+    S --> LS
+    LS --> LF
+    LF --> FC
+    FC --> NW
+    FC --> MU
+</div>
+<br>
+<h4>5.1.1 与 Kafka Client 对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>组件</th><th>Fluss</th><th>Kafka 2.7.2</th></tr>
+<tr><td><strong>管理客户端</strong></td><td><code>FlussAdmin</code> (implements <code>Admin</code>)</td><td><code>KafkaAdminClient</code> (implements <code>Admin</code>)</td></tr>
+<tr><td><strong>写入器</strong></td><td><code>AppendWriter</code> / <code>UpsertWriter</code> / <code>TableWriter</code></td><td><code>KafkaProducer</code></td></tr>
+<tr><td><strong>读取器</strong></td><td><code>LogScanner</code> / <code>BatchScanner</code> / <code>Lookuper</code></td><td><code>KafkaConsumer</code></td></tr>
+<tr><td><strong>连接管理</strong></td><td><code>FlussConnection</code> (单连接复用)</td><td><code>NetworkClient</code> (连接池)</td></tr>
+<tr><td><strong>批量缓冲</strong></td><td><code>RecordAccumulator</code></td><td><code>RecordAccumulator</code></td></tr>
+<tr><td><strong>发送线程</strong></td><td><code>Sender</code></td><td><code>Sender</code></td></tr>
+<tr><td><strong>元数据更新</strong></td><td><code>MetadataUpdater</code></td><td><code>Metadata</code> (ConsumerMetadata/ProducerMetadata)</td></tr>
+<tr><td><strong>幂等保证</strong></td><td><code>IdempotenceManager</code> / <code>IncompleteBatches</code></td><td><code>TransactionManager</code> / <code>InFlightBatches</code></td></tr>
+<tr><td><strong>分区分配</strong></td><td><code>BucketAssigner</code> (Hash/RoundRobin/Static/Sticky/Dynamic)</td><td><code>Partitioner</code> + 固定 partition 分配</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>5.2 写入路径</h3>
+<br>
+<h4>5.2.1 Writer API</h4>
+<br>
+<pre><code class="">
+Table.newWriter()              // 简单写入器
+  ├── AppendWriter             // 追加写入（仅 APPEND 语义）
+  │   └── ~ KafkaProducer.send()
+  ├── UpsertWriter             // 写入/更新（UPSERT 语义，PK 表）
+  │   └── ~ KafkaProducer + 服务端 Merge
+  └── TableWriter<T>           // 类型化写入器
+
+TypedAppendWriterImpl / TypedUpsertWriterImpl  // 类型安全包装
+</code></pre>
+<br>
+<h4>5.2.2 写入批次类型</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>批次类</th><th>LogFormat</th><th>适用表类型</th><th>说明</th></tr>
+<tr><td><code>ArrowLogWriteBatch</code></td><td>ARROW</td><td>所有类型</td><td>Arrow 列式批量写入</td></tr>
+<tr><td><code>CompactedLogWriteBatch</code></td><td>COMPACTED</td><td>PK 表</td><td>压缩格式写入</td></tr>
+<tr><td><code>IndexedLogWriteBatch</code></td><td>INDEXED</td><td>PK 表（点查优化）</td><td>索引格式写入</td></tr>
+<tr><td><code>KvWriteBatch</code></td><td>—</td><td>PK 表</td><td>KV 写入批次（RocksDB 写入）</td></tr>
+</table></div>
+<br>
+<h4>5.2.3 写入流程</h4>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant AW as AppendWriter
+    participant RA as RecordAccumulator
+    participant BA as BucketAssigner
+    participant SE as Sender
+    participant TS as TabletServer
+    
+    User->>AW: append(row)
+    AW->>BA: assignBucket(row)
+    BA->>BA: hash(key) % bucketCount
+    BA-->>AW: TableBucket
+    AW->>RA: append(bucket, batch)
+    Note over RA: 按 bucket 聚合批次<br/>达到 batch.size 或 linger.ms
+    
+    SE->>RA: drain() 获取就绪批次
+    loop 每个就绪批次
+        SE->>TS: ProduceLogRequest(bucket, records)
+        TS-->>SE: ProduceLogResponse(offset)
+        SE-->>User: callback(offset, exception)
+    end
+</div>
+<br>
+<h4>5.2.4 BucketAssigner 路由策略</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>策略</th><th>类</th><th>说明</th></tr>
+<tr><td><strong>Hash</strong></td><td><code>HashBucketAssigner</code></td><td>基于 key hash 路由（默认）</td></tr>
+<tr><td><strong>RoundRobin</strong></td><td><code>RoundRobinBucketAssigner</code></td><td>轮询分配</td></tr>
+<tr><td><strong>Static</strong></td><td><code>StaticBucketAssigner</code></td><td>固定 bucket 映射</td></tr>
+<tr><td><strong>Sticky</strong></td><td><code>StickyBucketAssigner</code></td><td>粘性分配（同一 writer 尽量写入同一 bucket）</td></tr>
+<tr><td><strong>Dynamic</strong></td><td><code>DynamicBucketAssigner</code></td><td>动态路由 + 自动分区创建</td></tr>
+</table></div>
+<br>
+<h4>5.2.5 IdempotenceManager</h4>
+<br>
+<pre><code class="">
+IdempotenceManager {
+    - IdempotenceBucketMap bucketMap
+    - long writerId
+    - int nextSequence → 类似 Kafka ProducerIdManager
+    
+    保证：同一 Writer 的同一 offset 只会写入一次
+    实现机制：writerId + sequenceNumber + bucket-based tracking
+}
+</code></pre>
+<br>
+<h4>5.2.6 与 KafkaProducer 对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>特性</th><th>Fluss Writer</th><th>Kafka 2.7.2 Producer</th></tr>
+<tr><td><strong>API 风格</strong></td><td><code>AppendWriter.append(row)</code> / <code>UpsertWriter.upsert(row)</code></td><td><code>Producer.send(ProducerRecord)</code></td></tr>
+<tr><td><strong>写入语义</strong></td><td>Append / Upsert / Delete</td><td>Append（无语义区分）</td></tr>
+<tr><td><strong>批次缓冲</strong></td><td><code>RecordAccumulator</code>（同 Kafka）</td><td><code>RecordAccumulator</code></td></tr>
+<tr><td><strong>Sender 线程</strong></td><td>✅ 单线程</td><td>✅ 单线程</td></tr>
+<tr><td><strong>批次过期</strong></td><td><code>request.timeout.ms</code></td><td><code>request.timeout.ms</code></td></tr>
+<tr><td><strong>linger</strong></td><td>✅ <code>linger.ms</code></td><td>✅ <code>linger.ms</code></td></tr>
+<tr><td><strong>compression</strong></td><td>Arrow 列式压缩（整列压缩）</td><td><code>gzip</code> / <code>snappy</code> / <code>lz4</code> / <code>zstd</code></td></tr>
+<tr><td><strong>幂等</strong></td><td><code>IdempotenceManager</code>（无事务）</td><td><code>TransactionManager</code>（有事务）</td></tr>
+<tr><td><strong>acks</strong></td><td>隐式（写入成功返回）</td><td><code>acks=0/1/all</code></td></tr>
+<tr><td><strong>重试</strong></td><td><code>RetryableGatewayClientProxy</code></td><td><code>retries</code> + <code>retry.backoff.ms</code></td></tr>
+<tr><td><strong>分区分配</strong></td><td><code>BucketAssigner</code> 5 种策略</td><td><code>Partitioner</code> + 用户自定义</td></tr>
+<tr><td><strong>事务</strong></td><td>❌</td><td>✅ <code>initTransactions()</code> / <code>commitTransaction()</code></td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>5.3 读取路径</h3>
+<br>
+<h4>5.3.1 Scanner API</h4>
+<br>
+<pre><code class="">
+Table.newScan()                   // 扫描器
+  ├── LogScanner                  // 日志扫描（顺序读）
+  │   ├── 从指定的 offset 开始
+  │   ├── 支持 bucketed / unbounded 模式
+  │   └── 远程日志透明下载
+  ├── BatchScanner                // 批量扫描（快照 + 日志合并）
+  │   ├── KvBatchScanner          // 基于 KV 快照的过滤扫描
+  │   ├── KvSnapshotBatchScanner  // 纯快照扫描（无日志）
+  │   ├── SnapshotReaders         // 从远程下载快照并读取
+  │   ├── LimitBatchScanner       // limit 扫描
+  │   └── CompositeBatchScanner   // 多源组合扫描
+  └── Lookuper                    // 点查
+      ├── PrimaryKeyLookuper      // 按 PK 精确查找
+      └── PrefixKeyLookuper       // 按前缀查找
+</code></pre>
+<br>
+<h4>5.3.2 BatchScanner 读取模式</h4>
+<br>
+<pre><code class="">
+CompositeBatchScanner:
+  = KvBatchScanner + KvSnapshotBatchScanner（组合）
+  
+KvBatchScanner:
+  1. 获取 KV 快照列表 (GetLatestKvSnapshots)
+  2. 下载快照文件 (从远程存储)
+  3. 读取快照 + 合并后续 Log（changelog）
+
+KvSnapshotBatchScanner:
+  1. 获取 Lake 快照 (GetLakeSnapshot)
+  2. 读取 Lake 快照文件（Parquet/Arrow）
+  3. 直接返回（无需合并 log，因为是物化视图）
+
+LakeSnapshotAndLogSplitScanner:
+  1. 读取 Lake 快照 split
+  2. 合并 Log 中的增量数据
+</code></pre>
+<br>
+<h4>5.3.3 LogScanner 流程</h4>
+<br>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant LS as LogScanner
+    participant LF as LogFetcher
+    participant TS as TabletServer
+    participant RL as RemoteLogDownloader
+    participant Remote as S3/HDFS
+    
+    User->>LS: poll(records)
+    LS->>LF: fetch(bucket)
+    
+    alt 本地有数据
+        LF->>TS: FetchLogRequest(bucket, startOffset)
+        TS-->>LF: FetchLogResponse(records)
+    else 数据在远程
+        LF->>TS: ListOffsets(bucket)
+        TS-->>LF: earliestLocalOffset
+        LF->>RL: download(remotePath, offsetRange)
+        RL->>Remote: GET
+        Remote-->>RL: log segments
+    end
+    
+    LF-->>LS: CompletedFetch
+    LS-->>User: Iterator<ScanRecord>
+</div>
+<br>
+<h4>5.3.4 LogFetchCollector 体系</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>类</th><th>LogFormat</th><th>说明</th></tr>
+<tr><td><code>AbstractLogFetchCollector</code></td><td>通用基类</td><td>拉取结果收集与解析</td></tr>
+<tr><td><code>ArrowLogFetchCollector</code></td><td>ARROW</td><td>Arrow 列式拉取的收集器</td></tr>
+<tr><td><code>ArrowScanRecords</code> / <code>ScanRecords</code></td><td>—</td><td>扫描结果封装</td></tr>
+</table></div>
+<br>
+<h4>5.3.5 与 KafkaConsumer 对照</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>特性</th><th>Fluss Scanner</th><th>Kafka 2.7.2 Consumer</th></tr>
+<tr><td><strong>API 风格</strong></td><td><code>scanner.poll()</code> 返回 <code>Iterator<ScanRecord></code></td><td><code>consumer.poll(Duration)</code> 返回 <code>ConsumerRecords</code></td></tr>
+<tr><td><strong>读取语义</strong></td><td>Log scan / Batch scan (snapshot+log) / Lookup</td><td>Log scan only</td></tr>
+<tr><td><strong>Offset 管理</strong></td><td>用户自行管理 offset</td><td>Consumer Group 协议自动管理</td></tr>
+<tr><td><strong>Rebalance</strong></td><td>无 Consumer Group 概念</td><td>Group Coordinator 协调</td></tr>
+<tr><td><strong>点查</strong></td><td>✅ <code>Lookuper.lookup(key)</code> / <code>prefixLookup(prefix)</code></td><td>❌ 不支持</td></tr>
+<tr><td><strong>范围扫描</strong></td><td>✅ <code>LimitBatchScanner.limitScan()</code></td><td>❌ 需要 seek + poll 模拟</td></tr>
+<tr><td><strong>谓词下推</strong></td><td>✅ Arrow 列裁剪 + 统计信息</td><td>❌ 不支持（2.7.2）</td></tr>
+<tr><td><strong>远程数据</strong></td><td>✅ <code>RemoteLogDownloader</code> 透明下载</td><td>❌（2.7.2 无分层存储）</td></tr>
+<tr><td><strong>快照读取</strong></td><td>✅ 从 Lake snapshot 直接读 Parquet/Arrow</td><td>❌ 不支持</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>5.4 Flink Connector 集成</h3>
+<br>
+<h4>5.4.1 模块结构</h4>
+<br>
+<pre><code class="">
+fluss-flink (215 Java files)
+├── fluss-flink-1.18/     — Flink 1.18 适配
+├── fluss-flink-1.19/     — Flink 1.19 适配
+├── fluss-flink-1.20/     — Flink 1.20 适配（仅 DummyClass）
+├── fluss-flink-2.2/      — Flink 2.2 适配
+├── fluss-flink-common/   — 共享逻辑
+└── fluss-flink-tiering/  — Lake Tiering 独立入口
+</code></pre>
+<br>
+<h4>5.4.2 核心能力矩阵</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>功能</th><th>实现</th><th>Kafka 对应</th></tr>
+<tr><td><strong>Flink Catalog</strong></td><td><code>FlinkCatalog</code> / <code>FlinkCatalogFactory</code></td><td>无标准 Catalog（通过 Connect 注册）</td></tr>
+<tr><td><strong>Source</strong></td><td><code>FlussSource</code> → <code>FlussSourceReader</code> → <code>FlussSplitReader</code></td><td><code>FlinkKafkaConsumer</code></td></tr>
+<tr><td><strong>Sink</strong></td><td><code>FlussSink</code> → <code>SinkWriter</code> → <code>PreWriteBuffer</code></td><td><code>FlinkKafkaProducer</code></td></tr>
+<tr><td><strong>Lookup Join</strong></td><td><code>FlussLookupFunction</code>（点查维表关联）</td><td>无直接对应（需借助 HBase/JDBC lookup）</td></tr>
+<tr><td><strong>Changelog Stream</strong></td><td><code>FlussChangelogSource</code>（CDC 流）</td><td><code>FlinkKafkaConsumer</code>（无法区分 CHANGE 类型）</td></tr>
+<tr><td><strong>Tiering Committer</strong></td><td><code>TieringCommitOperator</code> / <code>TieringCommitter</code></td><td>无</td></tr>
+<tr><td><strong>Lake Tiering Source</strong></td><td><code>TieringSource</code> / <code>TieringSourceReader</code></td><td>无</td></tr>
+<tr><td><strong>RoaringBitmap 聚合</strong></td><td><code>RbBuildAggFunction</code> / <code>RbAndAggFunction</code> / <code>RbOrAggFunction</code></td><td>无</td></tr>
+<tr><td><strong>谓词下推</strong></td><td><code>PushdownUtils</code> → <code>PredicateConverter</code></td><td><code>FlinkKafkaConsumer</code> 不支持下推</td></tr>
+<tr><td><strong>Arrow 转换</strong></td><td><code>FlussRowToFlinkRowConverter</code> ↔ Arrow ↔ RowData</td><td>无 Arrow 支持</td></tr>
+</table></div>
+<br>
+<h4>5.4.3 Sink 写入模型</h4>
+<br>
+<pre><code class="">
+Table API Insert:
+  INSERT INTO fluss_table SELECT ...
+    → FlussSink
+      → SinkWriter (pre-commit → commit cycle)
+        → RecordAccumulator (batch buffer)
+        → AppendWriter / UpsertWriter
+          → TabletServer (ProduceLog / PutKv)
+</code></pre>
+<br>
+<h4>5.4.4 Source 读取模型</h4>
+<br>
+<pre><code class="">
+SELECT * FROM fluss_table
+  → FlussSource
+    → FlussSourceEnumerator (split discovery)
+      → LogSplit / KvSnapshotSplit / LakeSplit
+    → FlussSourceReader
+      → FlussSplitReader
+        → LogScanner (log split)
+        → KvBatchScanner (snapshot split)
+        → IcebergLakeSource / PaimonLakeSource (lake split)
+</code></pre>
+<br>
+<h4>5.4.5 Tiering（分层）架构</h4>
+<br>
+<p>Fluss 的 Flink Tiering 是一个<strong>独立的 Flink 作业</strong>，负责将 Tablet 的本地数据持续写入 Lakehouse：</p>
+<br>
+<div class="mermaid">
+graph LR
+    subgraph TabletServer
+        LT[LogTablet]
+        KT[KvTablet]
+    end
+    
+    subgraph TieringJob["Flink Tiering Job"]
+        TS[TieringSource<br/>读取 Tablet 数据]
+        LW[LakeWriter<br/>写入 Lake Storage]
+        TC[TieringCommitter<br/>提交 Snapshot]
+    end
+    
+    subgraph Lakehouse
+        Ice[(Iceberg)]
+        Pai[(Paimon)]
+        Lan[(Lance)]
+    end
+    
+    LT --> TS
+    KT --> TS
+    TS --> LW
+    LW --> Ice
+    LW --> Pai
+    TS --> TC
+    TC --> Ice
+    TC --> Pai
+</div>
+<br>
+<hr>
+<br>
+<h3>5.5 数据转换层</h3>
+<br>
+<h4>5.5.1 类型系统映射</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss Type</th><th>Flink Type</th><th>Java POJO Type</th><th>Kafka Type（无）</th></tr>
+<tr><td><code>IntType</code></td><td><code>DataTypes.INT()</code></td><td><code>int</code> / <code>Integer</code></td><td>bytes（服务端不解析）</td></tr>
+<tr><td><code>BigIntType</code></td><td><code>DataTypes.BIGINT()</code></td><td><code>long</code> / <code>Long</code></td><td>bytes</td></tr>
+<tr><td><code>StringType</code></td><td><code>DataTypes.STRING()</code></td><td><code>String</code></td><td>bytes</td></tr>
+<tr><td><code>BytesType</code></td><td><code>DataTypes.BYTES()</code></td><td><code>byte[]</code></td><td>bytes (same)</td></tr>
+<tr><td><code>ArrayType</code></td><td><code>DataTypes.ARRAY(...)</code></td><td><code>List<T></code></td><td>需自行序列化</td></tr>
+<tr><td><code>MapType</code></td><td><code>DataTypes.MAP(...)</code></td><td><code>Map<K,V></code></td><td>需自行序列化</td></tr>
+<tr><td><code>RowType</code></td><td><code>DataTypes.ROW(...)</code></td><td>POJO object</td><td>需自行序列化</td></tr>
+</table></div>
+<br>
+<h4>5.5.2 核心转换器</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>转换器</th><th>方向</th><th>用途</th></tr>
+<tr><td><code>FlussRowToFlinkRowConverter</code></td><td>Fluss → Flink</td><td>Source 读取</td></tr>
+<tr><td><code>FlinkRowToFlussRowConverter</code></td><td>Flink → Fluss</td><td>Sink 写入</td></tr>
+<tr><td><code>RowToPojoConverter</code></td><td>Fluss Row → Java POJO</td><td>Java Client</td></tr>
+<tr><td><code>PojoToRowConverter</code></td><td>Java POJO → Fluss Row</td><td>Java Client</td></tr>
+<tr><td><code>FlinkTypeToFlussType</code></td><td>Flink DataType → Fluss DataType</td><td>Catalog</td></tr>
+<tr><td><code>FlussTypeToFlinkType</code></td><td>Fluss DataType → Flink DataType</td><td>Catalog</td></tr>
+<tr><td><code>FlussDataTypeToIcebergDataType</code></td><td>Fluss → Iceberg</td><td>Lake Storage</td></tr>
+<tr><td><code>FlussDataTypeToPaimonDataType</code></td><td>Fluss → Paimon</td><td>Lake Storage</td></tr>
+<tr><td><code>FlussDataTypeToHudiDataType</code></td><td>Fluss → Hudi</td><td>Lake Storage</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<h3>5.6 Lake Storage（湖存储层）</h3>
+<br>
+<h4>5.6.1 支持的后端</h4>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Lake Storage</th><th>模块</th><th>说明</th></tr>
+<tr><td><strong>Iceberg</strong></td><td><code>fluss-lake-iceberg</code> (35+ files)</td><td>完整实现：Catalog、Writer、Committer、Reader、Tiering</td></tr>
+<tr><td><strong>Paimon</strong></td><td><code>fluss-lake-paimon</code> (30+ files)</td><td>完整实现：Catalog、Writer、Committer、Reader、Tiering</td></tr>
+<tr><td><strong>Hudi</strong></td><td><code>fluss-lake-hudi</code> (7 files)</td><td>轻量实现：仅 Catalog + Storage</td></tr>
+<tr><td><strong>Lance</strong></td><td><code>fluss-lake-lance</code> (12 files)</td><td>Lance columnar format（Arrow native）</td></tr>
+</table></div>
+<br>
+<h4>5.6.2 Lake 插件架构</h4>
+<br>
+<pre><code class=" language-java">
+interface LakeStoragePlugin {
+    String name();                          // "iceberg" / "paimon" / "hudi" / "lance"
+    LakeStorage createLakeStorage(config);  // 创建存储实例
+}
+
+interface LakeCatalog {
+    createTable(TableDescriptor);
+    List<String> listTables();
+    Table getTable(String tableName);
+    ...
+}
+</code></pre>
+<br>
+<h4>5.6.3 Iceberg Lake 集成</h4>
+<br>
+<pre><code class="">
+IcebergLakeStorage
+├── IcebergLakeCatalog (表管理)
+├── IcebergLakeWriter (Tiering 写入)
+│   ├── AppendOnlyTaskWriter (普通表)
+│   └── DeltaTaskWriter (PK 表，支持 delete/update)
+├── IcebergLakeCommitter (快照提交)
+├── IcebergLakeSource (读取)
+│   ├── IcebergSplitPlanner (分区规划)
+│   └── IcebergRecordReader (记录读取)
+└── IcebergRewriteDataFiles (数据文件压缩)
+</code></pre>
+<br>
+<hr>
+<br>
+<h3>5.7 核心类级对照表</h3>
+<br>
+<div style="overflow-x:auto;"><table>
+<tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th></tr>
+<tr><td><code>FlussAdmin</code></td><td><code>KafkaAdminClient</code></td><td>管理客户端</td></tr>
+<tr><td><code>FlussTable</code></td><td>无（Kafka 无 Table 概念）</td><td>统一表访问 API</td></tr>
+<tr><td><code>AppendWriter</code></td><td><code>KafkaProducer</code></td><td>追加写入器</td></tr>
+<tr><td><code>UpsertWriter</code></td><td>无（Kafka 无 upsert）</td><td>Upsert 写入器</td></tr>
+<tr><td><code>RecordAccumulator</code></td><td><code>RecordAccumulator</code></td><td>批次缓冲</td></tr>
+<tr><td><code>Sender</code></td><td><code>Sender</code></td><td>后台发送线程</td></tr>
+<tr><td><code>BucketAssigner</code></td><td><code>Partitioner</code></td><td>分区路由</td></tr>
+<tr><td><code>IdempotenceManager</code></td><td><code>TransactionManager</code> (idempotent part)</td><td>幂等管理</td></tr>
+<tr><td><code>WriterClient</code></td><td><code>KafkaProducer</code> (internal send)</td><td>写入客户端</td></tr>
+<tr><td><code>LogScanner</code></td><td><code>Fetcher</code> (KafkaConsumer 内部)</td><td>日志扫描器</td></tr>
+<tr><td><code>LogFetcher</code></td><td><code>Fetcher</code> (KafkaConsumer 内部)</td><td>拉取线程</td></tr>
+<tr><td><code>KvBatchScanner</code></td><td>无</td><td>KV 批量扫描</td></tr>
+<tr><td><code>Lookuper</code> / <code>LookupClient</code></td><td>无</td><td>点查客户端</td></tr>
+<tr><td><code>PrimaryKeyLookuper</code></td><td>无</td><td>主键精确查找</td></tr>
+<tr><td><code>PrefixKeyLookuper</code></td><td>无</td><td>前缀查找</td></tr>
+<tr><td><code>RemoteLogDownloader</code></td><td>无（2.7.2 无远程存储）</td><td>远程日志下载</td></tr>
+<tr><td><code>FlussConnection</code></td><td><code>NetworkClient</code></td><td>连接管理</td></tr>
+<tr><td><code>MetadataUpdater</code></td><td><code>ConsumerMetadata</code> / <code>ProducerMetadata</code></td><td>元数据更新</td></tr>
+<tr><td><code>FlinkCatalog</code></td><td>无（无标准 Flink Catalog）</td><td>Flink 目录</td></tr>
+<tr><td><code>FlussSource</code></td><td><code>FlinkKafkaConsumer</code></td><td>Flink Source</td></tr>
+<tr><td><code>FlussSink</code></td><td><code>FlinkKafkaProducer</code></td><td>Flink Sink</td></tr>
+<tr><td><code>TieringCommitOperator</code></td><td>无</td><td>Lake 快照提交</td></tr>
+<tr><td><code>TieringSource</code></td><td>无</td><td>Lake Tiering 来源</td></tr>
+</table></div>
+<br>
+<hr>
+<br>
+<blockquote>**下一篇**：[[06-Lake层与湖仓融合|06 - Lake 层与湖仓融合]] | [[07-模块对应关系总表|07 - 模块对应总表]]</blockquote>
+<br>
+
+<div class="page-nav">
+  <a href="04-数据面-网络与RPC.html" class="prev">数据面：网络与 RPC</a>
+  <a href="index.html">📋 返回索引</a>
+  <a href="06-Lake层与湖仓融合.html" class="next">Lake 层与湖仓融合</a>
+</div>
+
+<div class="end-marker">
+  <p><a href="index.html">Fluss 源码分析 · 全文索引</a> | <a href="index.html">Deep Dives 目录</a></p>
+</div>
+
+</div>
+</body>
+</html>
