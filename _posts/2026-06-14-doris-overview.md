@@ -20,7 +20,7 @@ Apache Doris 是由百度于 2017 年开源、2022 年进入 Apache 孵化器并
 
 ### 1.3 整体架构 (Doris 3.0)
 
-![Apache Doris 架构概览](/ai_memory_chang_ai_team/media/diagrams/01-architecture-overview.svg)
+![Apache Doris 架构概览](/media/diagrams/01-architecture-overview.svg)
 
 Apache Doris 架构分为两大模式：
 

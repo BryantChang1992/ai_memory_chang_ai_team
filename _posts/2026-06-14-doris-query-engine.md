@@ -10,7 +10,7 @@ Doris 查询引擎是其高性能的核心，基于自研 C++ 向量化执行引
 
 ### 3.2 查询架构总览
 
-![Doris 查询执行](/ai_memory_chang_ai_team/media/diagrams/04-query-execution.svg)
+![Doris 查询执行](/media/diagrams/04-query-execution.svg)
 
 ```
 Client (MySQL Protocol / HTTP / Arrow Flight)

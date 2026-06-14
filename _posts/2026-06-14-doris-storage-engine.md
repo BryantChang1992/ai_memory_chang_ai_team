@@ -10,7 +10,7 @@ Doris 存储引擎采用自研 **Segment v2** 格式，基于列式存储思想�
 
 ### 2.2 存储层级结构
 
-![Doris 存储引擎](/ai_memory_chang_ai_team/media/diagrams/02-storage-engine.svg)
+![Doris 存储引擎](/media/diagrams/02-storage-engine.svg)
 
 ```
 Table

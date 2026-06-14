@@ -12,7 +12,7 @@ description: >-
 
 Doris 元数据管理经历了从 **BDB-JE 单机** → **BDB-JE Replication（类 Paxos）** → **Meta Service 存算分离** 的演进。
 
-![Doris 元数据存储](/ai_memory_chang_ai_team/media/diagrams/06-metadata-store.svg)
+![Doris 元数据存储](/media/diagrams/06-metadata-store.svg)
 
 #### 6.1.1 元数据存储分层
 
@@ -136,7 +136,7 @@ FE ImageCache 采用 **LRU 链表 + 版本校验**：
 
 ### 6.3 数据面：写入路径一致性
 
-![Doris 写一致性](/ai_memory_chang_ai_team/media/diagrams/07-write-consistency.svg)
+![Doris 写一致性](/media/diagrams/07-write-consistency.svg)
 
 #### 6.3.1 单 Tablet 写入一致性
 
