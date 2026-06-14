@@ -4,6 +4,8 @@ theme: jekyll-theme-chirpy
 lang: zh-CN
 timezone: Asia/Shanghai
 
+future: true
+
 title: BryantChang · Tech Insights
 tagline: AI 时代的技术观察与工程实践
 description: >-
