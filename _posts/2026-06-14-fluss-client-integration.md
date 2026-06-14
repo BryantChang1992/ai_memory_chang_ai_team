@@ -81,16 +81,17 @@ graph TB
 
 ### 5.2.1 Writer API
 
+```mermaid
+flowchart TD
+    NW["Table.newWriter() (simple writer)"]
+    NW --> AW["AppendWriter (APPEND only)"]
+    AW --> KP1["~ KafkaProducer.send()"]
+    NW --> UW["UpsertWriter (UPSERT, PK table)"]
+    UW --> KP2["~ KafkaProducer + server-side Merge"]
+    NW --> TW["TableWriter (typed writer)"]
 ```
-Table.newWriter()              // 简单写入器
-  ├── AppendWriter             // 追加写入（仅 APPEND 语义）
-  │   └── ~ KafkaProducer.send()
-  ├── UpsertWriter             // 写入/更新（UPSERT 语义，PK 表）
-  │   └── ~ KafkaProducer + 服务端 Merge
-  └── TableWriter<T>           // 类型化写入器
 
 TypedAppendWriterImpl / TypedUpsertWriterImpl  // 类型安全包装
-```
 
 ### 5.2.2 写入批次类型
 
@@ -173,21 +174,22 @@ IdempotenceManager {
 
 ### 5.3.1 Scanner API
 
-```
-Table.newScan()                   // 扫描器
-  ├── LogScanner                  // 日志扫描（顺序读）
-  │   ├── 从指定的 offset 开始
-  │   ├── 支持 bucketed / unbounded 模式
-  │   └── 远程日志透明下载
-  ├── BatchScanner                // 批量扫描（快照 + 日志合并）
-  │   ├── KvBatchScanner          // 基于 KV 快照的过滤扫描
-  │   ├── KvSnapshotBatchScanner  // 纯快照扫描（无日志）
-  │   ├── SnapshotReaders         // 从远程下载快照并读取
-  │   ├── LimitBatchScanner       // limit 扫描
-  │   └── CompositeBatchScanner   // 多源组合扫描
-  └── Lookuper                    // 点查
-      ├── PrimaryKeyLookuper      // 按 PK 精确查找
-      └── PrefixKeyLookuper       // 按前缀查找
+```mermaid
+flowchart TD
+    NS["Table.newScan() (scanner)"]
+    NS --> LS["LogScanner (sequential read)"]
+    LS --> L1["Start from given offset"]
+    LS --> L2["Bucked / unbounded modes"]
+    LS --> L3["Transparent remote log download"]
+    NS --> BS["BatchScanner (snapshot + log merge)"]
+    BS --> B1["KvBatchScanner (KV snapshot filter scan)"]
+    BS --> B2["KvSnapshotBatchScanner (snapshot only)"]
+    BS --> B3["SnapshotReaders (download + read from remote)"]
+    BS --> B4["LimitBatchScanner (limit scan)"]
+    BS --> B5["CompositeBatchScanner (multi-source merge)"]
+    NS --> LK["Lookuper (point lookup)"]
+    LK --> LK1["PrimaryKeyLookuper (exact PK lookup)"]
+    LK --> LK2["PrefixKeyLookuper (prefix lookup)"]
 ```
 
 ### 5.3.2 BatchScanner 读取模式
