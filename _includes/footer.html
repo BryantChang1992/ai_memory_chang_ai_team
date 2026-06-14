@@ -2,7 +2,7 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    // Convert Rouge-rendered mermaid code blocks to native mermaid format
+    /* Convert Rouge-rendered mermaid code blocks to native mermaid format */
     document.querySelectorAll('code.language-mermaid').forEach(function(block) {
       var pre = block.parentElement;
       pre.classList.add('mermaid');
@@ -17,7 +17,7 @@
       securityLevel: 'loose'
     });
 
-    // Manually trigger render after DOM is ready and mermaid blocks are converted
+    /* Manually trigger render after DOM is ready and mermaid blocks are converted */
     mermaid.run();
   });
 </script>
