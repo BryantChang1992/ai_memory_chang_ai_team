@@ -12,9 +12,12 @@
     });
 
     mermaid.initialize({
-      startOnLoad: true,
+      startOnLoad: false,
       theme: 'default',
       securityLevel: 'loose'
     });
+
+    // Manually trigger render after DOM is ready and mermaid blocks are converted
+    mermaid.run();
   });
 </script>
