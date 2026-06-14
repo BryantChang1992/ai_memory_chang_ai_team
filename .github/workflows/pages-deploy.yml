@@ -43,6 +43,16 @@ jobs:
         env:
           JEKYLL_ENV: "production"
 
+      - name: Copy static HTML directories (excluded from Jekyll)
+        run: |
+          SITE="_site${{ steps.pages.outputs.base_path }}"
+          for dir in tech_research tech_designs; do
+            if [ -d "$dir" ]; then
+              cp -r "$dir" "$SITE/"
+              echo "Copied $dir/ to _site/"
+            fi
+          done
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v4
         with:
