@@ -2,9 +2,9 @@
 title: "技术调研周报 — Week 06 (2026-06-18)"
 date: 2026-06-18 14:30:00 +0800
 categories: [技术调研, 周报]
-tags: [AI Harness, AI Agent, Kafka, Fluss, AutoMQ, Iceberg, Hudi, Delta Lake, Agent论文, 顶会, Doris, 时序数据库]
+tags: [AI Harness, AI Agent, Kafka, Fluss, AutoMQ, Iceberg, Hudi, Delta Lake, Agent论文, 顶会, Doris, 时序数据库, 存储引擎]
 description: >-
-  本周 6 方向全量追踪：Hudi 1.2 多模态 Lakehouse、AutoMQ 1.7.0 发布、LangGraph 1.2.5、KIP-1356~1359 集中讨论、12 篇 Agent 论文、顶会论文精选。
+  本周 6 方向全量追踪，63 条动态：Hudi 1.2 多模态 Lakehouse、AutoMQ 1.7.0 发布、LangGraph 1.2.5、KIP-1356~1359 集中讨论、12 篇 Agent 论文、顶会 Doris 合稿 (20 篇论文+动态)。
 ---
 
 > 覆盖周期：2026-06-11 ~ 2026-06-18 | Week 06
@@ -108,54 +108,31 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 
 ---
 
-## 🏛️ 存储/数据库/AI Infra 顶会趋势
+## 🏛️🔬 顶会趋势 / Doris / 时序 / 存储引擎（合稿）
 
-→ [子调研详情](../../tech_research/top_conferences/week_06_2026-06-18.html)
+→ [子调研详情](../../tech_research/wiki_synthesis/week_06_2026-06-18.html)
 
-本周采集 ArXiv 窗口内 5 篇 + 窗口外高相关 5 篇，共 10 篇。
+本周将顶会趋势与 Doris/时序/存储引擎两个方向合并为一个合稿，共 20 条动态。
 
-### 窗口内 (6/11~18)
-| 论文 | 领域 |
-|------|------|
-| Ghost Vectors: Soft-Deleted Embeddings in HNSW Vector DB | VectorDB / Security |
-| LLM Pre-training 504 GPUs 运维分析 | AI Infra |
-| RollArt: Disaggregated Multi-Task Agentic RL Training | AI Infra |
-| M-CTX: Exact Spatial Context Retrieval for Trajectory | Spatial DB |
-| DNA Storage PIR 私有检索 | Novel Storage |
-
-### 高相关补充
-"AI-Ready Database Platform" 架构选择框架、自动索引管理 AIM、Agent Memory 是否是数据库问题的哲学讨论、NVIDIA Spectrum-X 超大规模网络。
-
-### 顶会日历
-- **SIGMOD 2026**：已于 5/31-6/5 闭幕，论文索引待公开
-- **VLDB 2026**：8/31-9/4，Boston，尚未进入论文发布阶段
-
----
-
-## 🔬 深度方向：Doris / 时序数据库 / 存储引擎
-
-→ [子调研详情](../../tech_research/doris/week_06_2026-06-18.html)
-
-本周 10 条动态，4 个子方向。
+### 顶会论文（10 篇）
+- **Ghost Vectors**：HNSW 向量 DB 软删除 embedding 可恢复安全隐患
+- **LLM Pre-training 504 GPUs 运维**：系统化 GPU 故障检测→恢复链路
+- **RollArt Agentic RL**：解耦式多任务 Agentic RL 训练（阿里巴巴）
+- **M-CTX 空间轨迹检索**：SDF 索引优化大规模 AIS 数据检索
+- **DNA Storage PIR**：私有信息检索理论应用于 DNA 存储
+- 外加 5 篇高相关补充（AIOps / 架构选择 / 自动索引 / Agent Memory / Spectrum-X）
 
 ### Apache Doris
-- **4.0.6 发布**：稳定性 + 性能修复版本
-- **Supermetal CDC 单二进制集成**：CDC 管道极大简化（去 Kafka/Flink 中间层）
-- **2026 Roadmap**：社区公开路线图更新
+- 4.0.6 发布 + Supermetal CDC 单二进制集成（去 Kafka/Flink 中间层）+ 2026 Roadmap
 
 ### 时序数据库
-- **InfluxDB 3.10**：Pacha-Tree Beta（新存储引擎）+ RBAC
-- **TimescaleDB 2.28.0**：列存压缩查询 first/last 加速 + 增量刷新
-- **InfluxDB 3 卫星遥测架构**：ITAR 数据驻留合规
+- InfluxDB 3.10 Pacha-Tree Beta + RBAC + TimescaleDB 2.28 列存加速
 
 ### 存储引擎 / 分布式共识
-- CockroachDB @ SIGMOD 2026：Leader Lease 可扩展性论文
+- CockroachDB @ SIGMOD 2026 Leader Lease 论文
 
-### 云原生数据库
-- CockroachDB：Agentic AI 架构中数据库的新角色
-- SingleStore：云数据库 CMEK 客户自主管理加密密钥
-
-### 趋势：CDC 管道简化、时序 DB 内嵌 AI/ML、数据库 + Agentic AI 交叉
+### 顶会日历
+- SIGMOD 2026 已闭幕 (5/31-6/5)，论文索引待公开；VLDB 2026 (8/31-9/4 Boston)
 
 ---
 
@@ -165,6 +142,7 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 |------|:---:|
 | 追踪方向 | 6 |
 | 总动态条目 | 63 |
+| 子方向 | 7 (合稿1) |
 | 论文收录 | 22 |
 | 新 KIP | 4 |
 | 版本发布 | 6+ |

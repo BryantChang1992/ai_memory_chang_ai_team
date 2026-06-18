@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>顶会趋势 / Doris / 时序 / 存储引擎 合稿 | Week 06</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+<header>
+  <h1>顶会趋势 / Doris / 时序数据库 / 存储引擎</h1>
+  <p class="subtitle">Week #6 合稿 — 2026年6月18日</p>
+  <div class="meta">
+    <span>📅 2026-06-18</span>
+    <span>📊 Week 06</span>
+    <span>📄 20 条动态</span>
+  </div>
+</header>
+
+<section>
+  <h2>第一部分：顶会趋势</h2>
+
+  <h3>📊 本周概览</h3>
+  <table>
+    <tr><th>会议</th><th>状态</th><th>本周动态</th></tr>
+    <tr><td>SIGMOD 2026</td><td>已闭幕 (5/31-6/5, Bengaluru)</td><td>论文列表待后续跟踪</td></tr>
+    <tr><td>VLDB 2026</td><td>筹办中 (8/31-9/4, Boston)</td><td>PVLDB 滚动卷进行中</td></tr>
+    <tr><td>FAST 2026</td><td>投稿期</td><td>暂无公开论文列表</td></tr>
+    <tr><td>OSDI/SOSP 2026</td><td>待公布</td><td>暂无</td></tr>
+    <tr><td>CIDR 2026</td><td>待公布</td><td>暂无</td></tr>
+  </table>
+
+  <h3>🔬 本周论文</h3>
+
+  <h4>1. Ghost Vectors: Soft-Deleted Embeddings Remain Reconstructible in HNSW Vector Databases</h4>
+  <p><strong>来源</strong>：ArXiv (2026-06-16) | <strong>标签</strong>：<code>VectorDB</code> <code>Security</code> <code>Privacy</code> <code>HNSW</code></p>
+  <p>研究 RAG pipeline 中 HNSW 向量数据库在用户请求数据删除后，"软删除"的 embedding 仍然可被重建的安全隐患。揭露了当前向量数据库在数据删除合规性方面的系统性缺陷，对 GDPR/隐私合规场景有重要影响。</p>
+
+  <h4>2. From Detection to Recovery: Operational Analysis on LLM Pre-training with 504 GPUs</h4>
+  <p><strong>来源</strong>：ArXiv (2026-06-15) | <strong>标签</strong>：<code>AIInfra</code> <code>LLMTraining</code> <code>GPUCluster</code> <code>FaultTolerance</code></p>
+  <p>大规模 AI 训练本质上是分布式系统工程问题。本文基于 504 GPU 集群上的 LLM 预训练实战，系统分析了从故障检测到自动恢复的完整运维链路：包括 GPU 故障模式分类、checkpoint 策略优化、训练中断恢复时间 (MTTR) 分析与优化，为生产级大模型训练基础设施提供了宝贵的运维经验。</p>
+
+  <h4>3. RollArt: Disaggregated Multi-Task Agentic RL Training at Scale</h4>
+  <p><strong>来源</strong>：ArXiv (2026-06-14) | <strong>作者</strong>：Wei Gao 等 (Alibaba) | <strong>标签</strong>：<code>AIInfra</code> <code>RLTraining</code> <code>DisaggregatedArch</code> <code>AgenticAI</code></p>
+  <p>Agentic RL 训练需要同时管理多个 agent、environment 和 model。RollArt 提出解耦式架构将 RL 训练的推理、环境交互、模型更新分离到不同资源池，实现多任务弹性调度。在大规模集群上展示了显著的资源利用率和训练吞吐提升。</p>
+
+  <h4>4. M-CTX: Exact and Scalable Spatial Context Retrieval for Trajectory Analytics</h4>
+  <p><strong>来源</strong>：ArXiv (2026-06-13) | <strong>标签</strong>：<code>SpatialDB</code> <code>TrajectoryAnalytics</code> <code>Systems</code></p>
+  <p>空间上下文检索是轨迹预测的关键步骤，但在大规模 AIS 海事数据中（5.48M anchor 需约 17 CPU-days）已成为系统瓶颈。M-CTX 提出通过符号距离场 (SDF) 索引优化的精确可扩展空间上下文检索方法，大幅降低检索延迟。</p>
+
+  <h4>5. Private Information Retrieval for Large-Scale DNA-Based Data Storage</h4>
+  <p><strong>来源</strong>：ArXiv (2026-06-12) | <strong>标签</strong>：<code>NovelStorage</code> <code>DNAStorage</code> <code>PIR</code> <code>Privacy</code></p>
+  <p>首次将私有信息检索 (PIR) 理论应用于合成 DNA 数据存储场景。DNA 存储因其超高密度和长期稳定性成为新型存储介质的前沿方向，但随机访问和隐私保护是核心挑战。该工作提出适配 DNA 存储特性的 PIR 方案，为下一代存储架构的安全访问机制奠基。</p>
+
+  <h3>📡 近期高相关论文（窗口外，值得关注）</h3>
+  <table>
+    <tr><th>#</th><th>论文</th><th>来源</th><th>标签</th></tr>
+    <tr><td>6</td><td>A Multimodal ML Framework for DB Workload-Aware RCA</td><td>ArXiv 06-02</td><td><code>DatabaseOps</code> <code>ML</code></td></tr>
+    <tr><td>7</td><td>Architectural Evolution for DB Systems in AI-Ready Platforms</td><td>ArXiv 06-06</td><td><code>DatabaseArchitecture</code> <code>AI</code></td></tr>
+    <tr><td>8</td><td>AIM: Automated Index Management for SQL DB (Oracle)</td><td>ArXiv 05-29</td><td><code>IndexManagement</code> <code>AutoTuning</code></td></tr>
+    <tr><td>9</td><td>Is Agent Memory a Database?</td><td>ArXiv 05-25</td><td><code>AgentMemory</code> <code>AISystems</code></td></tr>
+    <tr><td>10</td><td>High-speed Networking for Giga-Scale AI Factories (NVIDIA Spectrum-X)</td><td>ArXiv 05-20</td><td><code>AIInfra</code> <code>Networking</code></td></tr>
+  </table>
+
+  <h3>🔍 顶会趋势观察</h3>
+  <ol>
+    <li><strong>向量数据库安全与隐私</strong>成为新兴热点——Ghost Vectors 揭露了软删除 embedding 可恢复的安全隐患</li>
+    <li><strong>AI Infra 运维实战</strong>报告增多——从 504 GPU 故障恢复到 Spectrum-X 网络架构，工程化论文增加</li>
+    <li><strong>Agent 与数据库的边界模糊化</strong>——"Is Agent Memory a Database?" 标志着长期记忆存储成为数据库领域新课题</li>
+    <li><strong>新型存储介质研究持续</strong>——DNA 存储 + PIR 的结合展示了基础理论向新型介质延伸</li>
+    <li><strong>自动化运维 (AIOps for DB)</strong>——多模态根因分析、自动索引管理成为持续热点</li>
+  </ol>
+</section>
+
+<section>
+  <h2>第二部分：Doris / 时序数据库 / 存储引擎</h2>
+
+  <h3>一、Apache Doris / OLAP 分析型数据库</h3>
+
+  <h4>1. Apache Doris 4.0.6 正式发布</h4>
+  <p><strong>日期</strong>：2026-06-08 | <strong>标签</strong>：<code>release</code> <code>ApacheDoris</code> <code>OLAP</code></p>
+  <p>Doris 4.0.6 正式发布，紧随 5 月 24 日的 4.1.1 和 4 月 21 日的 4.1.0。GitHub releases 页面显示后续还有持续 commit 合并（最近日 commit 在 6 月 17 日）。</p>
+
+  <h4>2. VeloDB + Apache Doris 通过 Supermetal 实现单二进制 CDC</h4>
+  <p><strong>日期</strong>：2026-06-15 | <strong>标签</strong>：<code>CDC</code> <code>VeloDB</code> <code>Supermetal</code></p>
+  <p>Supermetal 现在可将 Postgres、MySQL、MongoDB、SQL Server、Oracle 五种源的操作数据实时复制到 Apache Doris/VeloDB Cloud。</p>
+  <p><strong>架构简化</strong>：从 Debezium → Kafka → Flink → Doris 四跳简化到 Supermetal → Object Store → Doris 两跳，全程 Parquet + Arrow 列式传输，省去 JVM 依赖。</p>
+  <p><strong>基准测试</strong>：433M 行快照仅需 6 分 11 秒（~1.5M rows/sec）；CDC 端到端延迟在 25K ops/sec 负载下保持在 7-9 秒；Merge-on-Write 模型保证查询零读时去重。</p>
+
+  <h4>3. Apache Doris 2026 Roadmap</h4>
+  <p><strong>标签</strong>：<code>Roadmap</code> <code>向量搜索</code> <code>存算分离</code> <code>Iceberg</code> <code>Paimon</code></p>
+  <p>2026 年路线图以 <strong>"Scale Intelligence, Accelerate Insights"</strong> 为主题，聚焦三大方向：</p>
+  <ul>
+    <li><strong>AI & Hybrid Search</strong>：磁盘 ANN 支持单表 100 亿向量、全文搜索打分/多索引、Iceberg 混合搜索</li>
+    <li><strong>存储引擎</strong>：超大 Tablet (100GB+)、存算分离弹性调度、分布式缓存</li>
+    <li><strong>数据湖集成</strong>：Iceberg V3 全面支持、Paimon 读写、Arrow Flight Data Catalog</li>
+  </ul>
+  <p>MERGE INTO、递归 CTE、ASOF JOIN、Python UDF 等新特性也在规划中。</p>
+
+  <h3>二、时序数据库</h3>
+
+  <h4>4. InfluxDB 3.10 发布：Pacha-Tree Beta + 企业级特性</h4>
+  <p><strong>日期</strong>：2026-06-17 | <strong>标签</strong>：<code>InfluxDB</code> <code>PachaTree</code> <code>RBAC</code></p>
+  <table>
+    <tr><th>特性</th><th>说明</th></tr>
+    <tr><td>Pacha-Tree 性能 Beta</td><td>端到端备份恢复、行级删除、Parquet 批量导入</td></tr>
+    <tr><td>跨数据库插件查询</td><td>Processing Engine 插件可跨库读写，实现 raw → rollup → forecast 管道</td></tr>
+    <tr><td>生产就绪端点 /ready</td><td>验证对象存储可达性，而非简单进程存活</td></tr>
+    <tr><td>并行 Compaction</td><td>加速后台压缩</td></tr>
+    <tr><td>RBAC 预览</td><td>JWT/OAuth/OIDC、Admin/Auditor/Member 三种内置角色</td></tr>
+    <tr><td>Catalog v3 自动迁移</td><td>on-disk ~5-6x 压缩</td></tr>
+  </table>
+  <p>InfluxDB 3 Core 保持 MIT/Apache 2 开源。</p>
+
+  <h4>5. TimescaleDB 2.28.0：压缩查询加速 + 增量刷新</h4>
+  <p><strong>日期</strong>：2026-06-16 | <strong>标签</strong>：<code>TimescaleDB</code> <code>压缩优化</code> <code>连续聚合</code></p>
+  <table>
+    <tr><th>更新</th><th>说明</th></tr>
+    <tr><td>first()/last() 压缩加速</td><td>直接利用压缩列存批量元数据，跳过批量解压</td></tr>
+    <tr><td>增量分批刷新</td><td>refresh_continuous_aggregate() 锁粒度大幅降低</td></tr>
+    <tr><td>向量化 CASE</td><td>条件聚合不再退化为逐行解压</td></tr>
+    <tr><td>无重建添加列</td><td>ALTER MATERIALIZED VIEW ADD COLUMN 无需重建</td></tr>
+    <tr><td>PG 版本计划</td><td>2.28.x 为最后一个支持 PG15 的版本</td></tr>
+  </table>
+
+  <h4>6. InfluxDB 3 卫星遥测 + ITAR 数据驻留架构</h4>
+  <p><strong>日期</strong>：2026-06-11 | <strong>标签</strong>：<code>InfluxDB</code> <code>遥测</code> <code>ITAR</code></p>
+  <p>探讨卫星任务运营中如何用 InfluxDB 3 构建受控遥测架构。共享时序架构消除数据孤岛，让工程师在异常响应时无需跨系统拼凑数据。</p>
+
+  <h3>三、存储引擎 / 分布式共识</h3>
+
+  <h4>7. CockroachDB @ SIGMOD 2026：可扩展 Leader Lease 论文</h4>
+  <p><strong>来源</strong>：SIGMOD 2026 收录 | <strong>标签</strong>：<code>分布式共识</code> <code>Raft</code> <code>Lease</code> <code>CockroachDB</code></p>
+  <p>论文解决多 Raft Group 场景下 Leader Lease 机制的可扩展性问题——这是分布式 SQL 数据库实现低延迟一致性读的关键基础设施。</p>
+
+  <h3>四、云原生数据库架构</h3>
+
+  <h4>8. CockroachDB：Agentic AI 架构中的数据库角色</h4>
+  <p><strong>日期</strong>：2026-06-11 | <strong>标签</strong>：<code>AgenticAI</code> <code>云原生</code> <code>CockroachDB</code></p>
+  <p>当企业将自主 AI Agent 连接到生产数据栈时，数据库需要提供三个核心能力：<strong>Memory</strong>（持久化记忆）、<strong>Context</strong>（上下文管理）、<strong>Control</strong>（访问控制）。</p>
+
+  <h4>9. SingleStore：云数据库客户自主管理加密密钥 (CMEK)</h4>
+  <p><strong>日期</strong>：2026-06-11 | <strong>标签</strong>：<code>云原生</code> <code>加密</code> <code>CMEK</code> <code>SingleStore</code></p>
+  <p>SingleStore 发布云数据库加密控制频谱，CMEK 让企业客户在共享责任模型中获得对加密密钥的完全生命周期控制。</p>
+</section>
+
+<section>
+  <h2>📊 综合趋势信号</h2>
+  <table>
+    <tr><th>信号</th><th>强度</th><th>说明</th></tr>
+    <tr><td>CDC 管道简化</td><td>⬆️ 强</td><td>Supermetal → Doris 单二进制替代 Kafka+Flink 四跳架构</td></tr>
+    <tr><td>时序数据库 AI/ML 内嵌</td><td>⬆️ 强</td><td>InfluxDB PE 插件生态成熟，信号生成器/异常检测/预测维护落地</td></tr>
+    <tr><td>存储引擎列存加速</td><td>⬆️ 中</td><td>TimescaleDB 向量化 CASE、first/last 利用列存元数据避免解压</td></tr>
+    <tr><td>存算分离深化</td><td>➡️ 持续</td><td>Doris Roadmap 分布式缓存、弹性调度、读写分离</td></tr>
+    <tr><td>数据库 + Agentic AI</td><td>⬆️ 新</td><td>CockroachDB/SingleStore 均在布局 AI Agent 基础设施</td></tr>
+    <tr><td>向量数据库安全</td><td>⬆️ 新</td><td>Ghost Vectors 揭露软删除 embedding 可恢复的安全隐患</td></tr>
+    <tr><td>AI Infra 运维实战</td><td>⬆️ 中</td><td>504 GPU 故障恢复、NVIDIA Spectrum-X 网络架构</td></tr>
+  </table>
+</section>
+
+<footer>
+  <p>由 <strong>CHANG_AI_TEAM</strong> CTO Agent 采集与编撰 · 2026-06-18</p>
+</footer>
+</body>
+</html>
