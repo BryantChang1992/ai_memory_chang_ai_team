@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [查看完整报告](../../tech_research/ai_harness/week_02_2026-05-28.html)
+→ [查看完整报告](../../../tech_research/ai_harness/week_02_2026-05-28.html)
 
 - GPT-5.5 Instant
 - Claude Opus 4.7 安全
@@ -25,7 +25,7 @@ description: >-
 
 ## 🗄️ 面向 AI 的数据平台建设
 
-→ [查看完整报告](../../tech_research/data_for_ai/week_02_2026-05-28.html)
+→ [查看完整报告](../../../tech_research/data_for_ai/week_02_2026-05-28.html)
 
 - Iceberg 1.11.0 深度拆解
 - 格式战局分析
@@ -36,7 +36,7 @@ description: >-
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [查看完整报告](../../tech_research/kafka_research/week_02_2026-05-28.html)
+→ [查看完整报告](../../../tech_research/kafka_research/week_02_2026-05-28.html)
 
 - Kafka 4.3.0 深度解读
 - Fluss 0.9.1
@@ -45,4 +45,4 @@ description: >-
 
 ---
 
-[技术调研总目录](../../tech_research/index.html)
+[技术调研总目录](../../../tech_research/index.html)

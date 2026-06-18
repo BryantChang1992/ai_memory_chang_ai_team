@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [子调研详情](../../tech_research/ai_harness/week_06_2026-06-18.html)
+→ [子调研详情](../../../tech_research/ai_harness/week_06_2026-06-18.html)
 
 本周 AI Agent 基础设施层持续迭代，共收录 11 条动态。
 
@@ -39,7 +39,7 @@ description: >-
 
 ## 🐘 Kafka / AutoMQ / Fluss 社区动态
 
-→ [子调研详情](../../tech_research/kafka_research/week_06_2026-06-18.html)
+→ [子调研详情](../../../tech_research/kafka_research/week_06_2026-06-18.html)
 
 本周三大流处理社区合计 13 条动态，**Fluss 活跃度持续攀升**。
 
@@ -67,7 +67,7 @@ Fluss 本周 PR 聚焦**生产可靠性**（校验、背压、安全脱敏、wat
 
 ## 💾 面向 AI 的数据平台建设
 
-→ [子调研详情](../../tech_research/data_for_ai/week_06_2026-06-18.html)
+→ [子调研详情](../../../tech_research/data_for_ai/week_06_2026-06-18.html)
 
 本周 Lakehouse 生态 7 条动态，**Hudi 1.2 多模态是最大亮点**。
 
@@ -91,7 +91,7 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 
 ## 📄 AI Agent 论文速览（12 篇）
 
-→ [子调研详情](../../tech_research/ai_agent_papers/week_06_2026-06-18.html)
+→ [子调研详情](../../../tech_research/ai_agent_papers/week_06_2026-06-18.html)
 
 本周收录 ArXiv + ICML 2026 论文 12 篇，覆盖规划、安全、记忆、协作四大类。
 
@@ -111,7 +111,7 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 
 ## 🏛️🔬 顶会趋势 / Doris / 时序 / 存储引擎（合稿）
 
-→ [子调研详情](../../tech_research/wiki_synthesis/week_06_2026-06-18.html)
+→ [子调研详情](../../../tech_research/wiki_synthesis/week_06_2026-06-18.html)
 
 本周将顶会趋势与 Doris/时序/存储引擎两个方向合并为一个合稿，共 20 条动态。
 

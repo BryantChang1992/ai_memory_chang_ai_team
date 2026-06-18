@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [查看完整报告](../../tech_research/ai_harness/week_04_2026-06-11.html)
+→ [查看完整报告](../../../tech_research/ai_harness/week_04_2026-06-11.html)
 
 ### 🔴 重大动态
 
@@ -51,7 +51,7 @@ description: >-
 
 ## 🗄️ 面向 AI 的数据平台建设
 
-→ [查看完整报告](../../tech_research/data_for_ai/week_04_2026-06-11.html)
+→ [查看完整报告](../../../tech_research/data_for_ai/week_04_2026-06-11.html)
 
 ### 🔥 本周最大亮点
 
@@ -74,7 +74,7 @@ description: >-
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [查看完整报告](../../tech_research/kafka_research/week_04_2026-06-11.html)
+→ [查看完整报告](../../../tech_research/kafka_research/week_04_2026-06-11.html)
 
 ### 🐘 Kafka
 
@@ -109,5 +109,5 @@ description: >-
 
 ## 🔗 链接
 
-- [技术调研总目录](../../tech_research/index.html)
+- [技术调研总目录](../../../tech_research/index.html)
 - [GitHub 仓库](https://github.com/BryantChang1992/ai_memory_chang_ai_team)

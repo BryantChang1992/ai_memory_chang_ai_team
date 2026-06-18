@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [查看完整报告](../../tech_research/ai_harness/week_03_2026-06-04.html)
+→ [查看完整报告](../../../tech_research/ai_harness/week_03_2026-06-04.html)
 
 - Anthropic NLAs 可解释性突破
 - Project Glasswing 进展
@@ -25,7 +25,7 @@ description: >-
 
 ## 🗄️ 面向 AI 的数据平台建设
 
-→ [查看完整报告](../../tech_research/data_for_ai/week_03_2026-06-04.html)
+→ [查看完整报告](../../../tech_research/data_for_ai/week_03_2026-06-04.html)
 
 - Delta Lake 4.2.0
 - Hudi RFC-100
@@ -36,7 +36,7 @@ description: >-
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [查看完整报告](../../tech_research/kafka_research/week_03_2026-06-04.html)
+→ [查看完整报告](../../../tech_research/kafka_research/week_03_2026-06-04.html)
 
 - Kafka 4.2.1 发布
 - AutoMQ 1.7.0 里程碑版本
@@ -45,4 +45,4 @@ description: >-
 
 ---
 
-[技术调研总目录](../../tech_research/index.html)
+[技术调研总目录](../../../tech_research/index.html)

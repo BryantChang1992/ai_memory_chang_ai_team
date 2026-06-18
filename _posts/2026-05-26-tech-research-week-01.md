@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [查看完整报告](../../tech_research/ai_harness/week_01_2026-05-26.html)
+→ [查看完整报告](../../../tech_research/ai_harness/week_01_2026-05-26.html)
 
 - OpenAI Codex
 - Claude Glasswing
@@ -25,7 +25,7 @@ description: >-
 
 ## 🗄️ 面向 AI 的数据平台建设
 
-→ [查看完整报告](../../tech_research/data_for_ai/week_01_2026-05-26.html)
+→ [查看完整报告](../../../tech_research/data_for_ai/week_01_2026-05-26.html)
 
 - Iceberg 1.11
 - Delta 4.2
@@ -36,7 +36,7 @@ description: >-
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [查看完整报告](../../tech_research/kafka_research/week_01_2026-05-26.html)
+→ [查看完整报告](../../../tech_research/kafka_research/week_01_2026-05-26.html)
 
 - Kafka 4.3.0
 - AutoMQ 1.6.5
@@ -45,4 +45,4 @@ description: >-
 
 ---
 
-[技术调研总目录](../../tech_research/index.html)
+[技术调研总目录](../../../tech_research/index.html)
