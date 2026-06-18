@@ -1,6 +1,7 @@
 ---
 title: "🏗️ 面向 AI 的数据平台建设 · 周报 #4（2026-06-11）"
 date: 2026-06-11 08:00:00 +0800
+permalink: /posts/tech-research/week-04/data-for-ai/
 categories: [技术调研, 周报, 面向AI的数据平台]
 tags: [数据平台, Lakehouse]
 description: >-

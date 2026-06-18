@@ -1,6 +1,7 @@
 ---
 title: "技术调研周报 — Week 04 (2026-06-11)"
 date: 2026-06-11 08:00:00 +0800
+permalink: /posts/tech-research/week-04/
 categories: [技术调研, 周报, 技术调研]
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-

@@ -1,6 +1,7 @@
 ---
 title: "🤖 AI Harness · Agent 基础设施 — 周报 #3（2026-06-04）"
 date: 2026-06-04 08:00:00 +0800
+permalink: /posts/tech-research/week-03/ai-harness/
 categories: [技术调研, 周报, AI Harness]
 tags: [AI基础设施, Agent, 框架]
 description: >-

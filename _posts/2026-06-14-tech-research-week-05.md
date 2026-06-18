@@ -1,6 +1,7 @@
 ---
 title: "技术调研周报 — Week 05 (2026-06-14)"
 date: 2026-06-14 23:00:00 +0800
+permalink: /posts/tech-research/week-05/
 categories: [技术调研, 周报]
 tags: [LSM-Tree, OLAP, TSDB, 分布式一致性, Wiki Synthesize]
 description: >-
