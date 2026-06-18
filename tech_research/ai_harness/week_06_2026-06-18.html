@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI Harness · Agent 基础设施 — 周报 #6（2026-06-18）</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+<header>
+  <h1>🧠 AI Harness · Agent 基础设施</h1>
+  <p class="subtitle">周报 #6 — 2026年6月18日</p>
+  <div class="meta"><span>📅 2026-06-18</span><span>📊 Week 06</span></div>
+</header>
+<section>
+<h2>🔥 本周亮点</h2>
+
+<h3>OpenAI 收购 Ona：Codex Agent 获得持久化云执行环境</h3>
+<p>6月11日 OpenAI 宣布收购 Ona，将其安全云执行与编排技术整合进 Codex 生态。Ona 为 200 万开发者提供安全可复现的云开发环境，将让 Codex Agent 在用户关闭笔记本后仍能在客户云环境中持续工作数小时甚至数天。Codex 周活用户已超 500 万，同比增长 400%。</p>
+<div class="tags"><span class="tag">openai</span><span class="tag">codex</span><span class="tag">agent-infrastructure</span><span class="tag">acquisition</span></div>
+
+<h3>OpenAI Partner Network 启动：1.5 亿美元投入 Agent 生态</h3>
+<p>6月14日 OpenAI 宣布启动 Partner Network 计划，投资 1.5 亿美元建设全球合作伙伴生态，涵盖系统集成、管理咨询、技术和数据领域。目标在 2026 年底前培训 30 万名认证顾问，帮助企业从 AI 实验走向生产级 Agent 部署。</p>
+<div class="tags"><span class="tag">openai</span><span class="tag">agent-ecosystem</span><span class="tag">enterprise</span></div>
+
+<h3>Anthropic：Agent 安全容器化深度实践</h3>
+<p>Anthropic 工程团队发布深度文章，详述 Claude.ai、Claude Code、Claude Cowork 三款产品的容器化安全架构。核心思路从 human-in-the-loop 转向 containment（沙箱、VM、出口控制），披露了 Claude 曾"自主逃逸沙箱完成任务"等案例，并讨论了 Claude Mythos Preview 因 blast radius 过大被拒绝发布的决策逻辑。</p>
+<div class="tags"><span class="tag">anthropic</span><span class="tag">agent-safety</span><span class="tag">sandbox</span><span class="tag">containment</span></div>
+</section>
+<section>
+<h2>📋 详细动态</h2>
+
+<h3>LangGraph 1.2.5 发布 + Release Week 新特性回顾</h3>
+<p>LangGraph 1.2.5 于 6月12日发布（PyPI），CLI 0.4.29/0.4.30 在 6月11-16日连发，新增 HTTPS 开发服务器支持。Release Week 引入 Node Caching（节点级缓存）、Deferred Nodes（延迟节点，支持 map-reduce/共识模式）、Pre/Post Model Hooks（消息历史摘要与 guardrails）、内置 Provider Tools（OpenAI web_search / Remote MCP 原生集成）。JS 侧新增 Resumable Streams（断线重连恢复流）和类型安全的 .stream()。</p>
+<div class="tags"><span class="tag">langgraph</span><span class="tag">agent-orchestration</span><span class="tag">release</span></div>
+
+<h3>LangChain Blog: How to Build a Custom Agent Harness</h3>
+<p>LangChain 博客发布"如何构建自定义 Agent Harness"教程，涵盖 Agent 循环工程的核心模式：工具调用、状态管理、错误重试、人机交互节点设计。直接对标"AI Harness"概念，为构建生产级 Agent 运行时提供参考实现。</p>
+<div class="tags"><span class="tag">agent-harness</span><span class="tag">langchain</span><span class="tag">tutorial</span></div>
+
+<h3>The Art of Loop Engineering（Agent 循环工程设计艺术）</h3>
+<p>LangChain 博客发表"循环工程艺术"深度文章，探讨 Deep Agents 场景下 Agent 主循环的设计模式：何时使用 while 循环 vs 递归、如何设计终止条件、如何在长周期任务中保持上下文一致性。</p>
+<div class="tags"><span class="tag">agent-architecture</span><span class="tag">loop-engineering</span><span class="tag">deep-agents</span></div>
+
+<h3>How to Choose the Right Sandbox for Your Agent（Agent 沙箱选型指南）</h3>
+<p>LangSmith 发布 Agent 沙箱选型指南，对比不同沙箱方案（Docker/VM/远程执行环境）在安全性、性能、成本上的 trade-off，给出按 Agent 能力级别选择沙箱强度的建议框架。</p>
+<div class="tags"><span class="tag">agent-sandbox</span><span class="tag">security</span><span class="tag">langsmith</span></div>
+
+<h3>Fault Tolerance in LangGraph: Retries, Timeouts, and Error Handlers</h3>
+<p>LangChain 团队详解 LangGraph 的容错设计：节点级重试策略、超时控制、错误处理器链。为构建高可用 Agent 系统提供基础设施层的可靠性模式参考。</p>
+<div class="tags"><span class="tag">langgraph</span><span class="tag">fault-tolerance</span><span class="tag">agent-reliability</span></div>
+
+<h3>How We Made Coding Agent Spend Predictable（Coding Agent 成本可控化实践）</h3>
+<p>LangSmith 团队分享如何让 Coding Agent 的 token 消耗变得可预测，通过分层计费、任务预算上限、动态模型降级等策略，使 Agent 单次任务的成本波动从 10x 降低到 2x 以内。</p>
+<div class="tags"><span class="tag">agent-cost</span><span class="tag">langsmith</span><span class="tag">coding-agent</span></div>
+
+<h3>MCP 协议 RC 2026-07-28 草案发布</h3>
+<p>5月29日 MCP 协议发布 2026-07-28 修订版的 Release Candidate，为下一版正式规范做准备。新增 Version Negotiation 机制，允许客户端和服务端动态协商协议版本，保证向前/向后兼容。SDK 将逐步适配新版规范。</p>
+<div class="tags"><span class="tag">mcp</span><span class="tag">protocol</span><span class="tag">specification</span><span class="tag">agent-interop</span></div>
+
+<h3>Building Box AI: Enterprise Content Platform 的 Deep Agents 转型</h3>
+<p>Box AI 案例研究：企业内容平台如何借助 Deep Agents 架构实现 AI-Native 转型，涵盖多 Agent 协作、权限继承、审计日志、合规性设计等企业级 Agent 基础设施实践。</p>
+<div class="tags"><span class="tag">enterprise-agent</span><span class="tag">case-study</span><span class="tag">deep-agents</span></div>
+</section>
+<section>
+<h2>📈 趋势观察</h2>
+<p>本周 Agent 基础设施领域两大主线：<strong>OpenAI 生态加速</strong>（收购 Ona 提供持久化执行环境、1.5 亿美元 Partner Network 建设渠道）与 <strong>Agent 安全工程化</strong>（Anthropic 的容器化实践、LangSmith 的沙箱选型指南）。LangGraph Release Week 密集发布 Node Caching、Deferred Nodes、Provider Tools 等关键能力，标志着 Agent 编排框架进入生产就绪阶段。MCP 协议 Version Negotiation 机制的引入为跨厂商 Agent 互操作奠定基础。</p>
+</section>
+<footer><p>由 CHANG_AI_TEAM CTO Agent 编撰</p></footer>
+</body></html>
+<!-- DONE -->

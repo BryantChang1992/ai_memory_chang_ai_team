@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>深度方向周报 | Week 06</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+<header>
+  <h1>深度方向周报</h1>
+  <p class="subtitle">周报 #6 — 2026年6月18日</p>
+  <div class="meta">
+    <span>📅 2026-06-18</span>
+    <span>📊 Week 06</span>
+  </div>
+</header>
+
+<section>
+  <h2>📋 详细动态</h2>
+
+  <h3>一、Apache Doris / OLAP 分析型数据库</h3>
+
+  <h4>1. Apache Doris 4.0.6 正式发布</h4>
+  <p>
+    Doris 4.0.6 正式发布，紧随 5月24日的 4.1.1 和 4月21日的 4.1.0 之后。
+    GitHub releases 页面显示后续还有持续 commit 合并（最近日 commit 在 6月17日）。
+  </p>
+  <div class="tags"><span class="tag">#release</span><span class="tag">#ApacheDoris</span><span class="tag">#OLAP</span></div>
+
+  <h4>2. VeloDB + Apache Doris 通过 Supermetal 实现单二进制 CDC</h4>
+  <p>
+    Supermetal 现在可将 Postgres、MySQL、MongoDB、SQL Server、Oracle 五种源的操作数据实时复制到 Apache Doris/VeloDB Cloud。
+    架构从 Debezium→Kafka→Flink→Doris 四跳简化为 Supermetal→Object Store→Doris 两跳，全程 Parquet + Arrow 列式传输，省去 JVM 依赖。
+    基准测试：433M 行快照仅需 6 分 11 秒（~1.5M rows/sec），CDC 端到端延迟在 25K ops/sec 负载下保持在 7-9 秒。
+    Merge-on-Write 模型保证查询零读时去重。
+  </p>
+  <div class="tags"><span class="tag">#CDC</span><span class="tag">#VeloDB</span><span class="tag">#Supermetal</span><span class="tag">#ApacheDoris</span><span class="tag">#实时同步</span></div>
+
+  <h4>3. Apache Doris 2026 Roadmap 更新</h4>
+  <p>
+    2026年路线图以 "Scale Intelligence, Accelerate Insights" 为主题，聚焦三大方向：
+    (a) AI &amp; Hybrid Search — 磁盘ANN支持单表100亿向量、全文搜索打分/多索引、Iceberg混合搜索；
+    (b) 存储引擎 — 超大Tablet(100GB+)、存算分离弹性调度、分布式缓存；
+    (c) 数据湖集成 — Iceberg V3全面支持、Paimon读写、Arrow Flight Data Catalog。
+    MERGE INTO、递归CTE、ASOF JOIN、Python UDF 等新特性也在规划中。
+  </p>
+  <div class="tags"><span class="tag">#Roadmap</span><span class="tag">#向量搜索</span><span class="tag">#存算分离</span><span class="tag">#Iceberg</span><span class="tag">#Paimon</span></div>
+
+  <h3>二、时序数据库</h3>
+
+  <h4>4. InfluxDB 3.10 发布：Performance Beta 扩展 + 企业级特性</h4>
+  <p>
+    InfluxDB 3.10 核心亮点：(a) Pacha-Tree 性能 Beta 继续扩展，新增端到端备份恢复、行级删除、Parquet 批量导入；
+    (b) 跨数据库插件查询 — Processing Engine 插件可跨库读取写入，实现 raw→rollup→forecast 管道；
+    (c) 生产就绪端点 /ready — 验证对象存储可达性；
+    (d) 并行 Compaction 加速；
+    (e) 用户认证+RBAC 预览（JWT/OAuth/OIDC，Admin/Auditor/Member 三种内置角色）；
+    (f) Catalog v3 自动迁移（on-disk ~5-6x 压缩）。InfluxDB 3 Core 保持 MIT/Apache 2 开源。
+  </p>
+  <div class="tags"><span class="tag">#InfluxDB</span><span class="tag">#时序数据库</span><span class="tag">#RBAC</span><span class="tag">#PachaTree</span><span class="tag">#跨库查询</span></div>
+
+  <h4>5. InfluxDB 3 合成时序数据生成插件</h4>
+  <p>
+    InfluxDB 3 新增两个 Processing Engine 调度插件：Bird Tracking Simulator（鸟类移动遥测模拟）和 Signal Generator（可配置波形生成器，支持 sine/square/triangle/sawtooth/noise/spike）。
+    可直接通过 influxdb3 create trigger 一键启动数据生成，用于仪表盘测试、告警验证、边缘复制评估等场景。
+  </p>
+  <div class="tags"><span class="tag">#InfluxDB</span><span class="tag">#时序数据</span><span class="tag">#插件</span><span class="tag">#测试工具</span></div>
+
+  <h4>6. TimescaleDB 2.28.0 发布：压缩查询加速 + 增量刷新</h4>
+  <p>
+    TimescaleDB v2.28.0 关键更新：(a) first()/last() 直接利用压缩列存批量元数据，跳过批量解压，最新值查询显著加速；
+    (b) refresh_continuous_aggregate() 支持增量分批刷新，锁粒度大幅降低；
+    (c) 向量化执行引擎覆盖 CASE 表达式，条件聚合不再退化为逐行解压；
+    (d) ALTER MATERIALIZED VIEW ADD COLUMN 支持无重建添加新聚合列；
+    (e) 移除自适应 Chunking。同时宣布 2.28.x 为最后一个支持 PG15 的版本。
+  </p>
+  <div class="tags"><span class="tag">#TimescaleDB</span><span class="tag">#时序数据库</span><span class="tag">#压缩优化</span><span class="tag">#连续聚合</span><span class="tag">#PostgreSQL</span></div>
+
+  <h4>7. InfluxDB 3 卫星遥测 + ITAR 数据驻留架构</h4>
+  <p>
+    探讨卫星任务运营中如何用 InfluxDB 3 构建受控遥测架构。
+    Ingress 支持 Telegraf Agent、MQTT Pipeline 等路径，Tag 注入操作上下文（航天器ID、子系统、地面站）；
+    部署层面 InfluxDB 3 Core 自托管满足边缘/私有云需求，Enterprise 提供 HA + 读副本分离。
+    核心论点：共享时序架构消除数据孤岛，让工程师在异常响应时无需跨系统拼凑数据。
+  </p>
+  <div class="tags"><span class="tag">#InfluxDB</span><span class="tag">#遥测</span><span class="tag">#ITAR</span><span class="tag">#架构</span></div>
+
+  <h3>三、存储引擎 / 分布式共识</h3>
+
+  <h4>8. CockroachDB @ SIGMOD 2026：可扩展 Leader Lease 论文</h4>
+  <p>
+    Cockroach Labs 在 SIGMOD 2026 发表论文 "Scalable Leader Leases For Multi Consensus Groups in CockroachDB"。
+    解决多 Raft Group 场景下 Leader Lease 机制的可扩展性问题——分布式 SQL 数据库实现低延迟一致性读的关键基础设施。
+  </p>
+  <div class="tags"><span class="tag">#分布式共识</span><span class="tag">#Raft</span><span class="tag">#Lease</span><span class="tag">#SIGMOD2026</span><span class="tag">#CockroachDB</span></div>
+
+  <h3>四、云原生数据库架构</h3>
+
+  <h4>9. CockroachDB：Agentic AI 架构中的数据库角色</h4>
+  <p>
+    探讨当企业将自主 AI Agent 连接到生产数据栈时，数据库需要提供 Memory（持久化记忆）、Context（上下文管理）和 Control（访问控制）三个能力。
+    CockroachDB 作为分布式 SQL 数据库在 Agentic AI 架构中的定位。
+  </p>
+  <div class="tags"><span class="tag">#AgenticAI</span><span class="tag">#云原生</span><span class="tag">#分布式数据库</span><span class="tag">#CockroachDB</span></div>
+
+  <h4>10. SingleStore：云数据库客户自主管理加密密钥 (CMEK)</h4>
+  <p>
+    SingleStore 发布云数据库加密控制频谱，重点介绍 Customer-Managed Encryption Keys (CMEK) 能力。
+    作为云原生数据库安全架构的关键演进，CMEK 让企业客户在共享责任模型中获得对加密密钥的完全生命周期控制。
+  </p>
+  <div class="tags"><span class="tag">#云原生</span><span class="tag">#加密</span><span class="tag">#CMEK</span><span class="tag">#SingleStore</span><span class="tag">#安全架构</span></div>
+
+  <h3>📊 本周趋势信号</h3>
+  <table>
+    <tr><th>信号</th><th>强度</th><th>说明</th></tr>
+    <tr><td>CDC 管道简化</td><td>⬆️ 强</td><td>Supermetal→Doris 单二进制替代 Kafka+Flink 四跳架构</td></tr>
+    <tr><td>时序数据库 AI/ML 内嵌</td><td>⬆️ 强</td><td>InfluxDB PE 插件生态成熟，信号生成器/异常检测/预测维护落地</td></tr>
+    <tr><td>存储引擎列存加速</td><td>⬆️ 中</td><td>TimescaleDB 向量化 CASE、first/last 利用列存元数据避免解压</td></tr>
+    <tr><td>存算分离深化</td><td>➡️ 持续</td><td>Doris Roadmap 分布式缓存、弹性调度、读写分离</td></tr>
+    <tr><td>数据库 + Agentic AI</td><td>⬆️ 新</td><td>CockroachDB/SingleStore 均在布局 AI Agent 基础设施</td></tr>
+  </table>
+</section>
+
+<footer>
+  <p>由 CHANG_AI_TEAM CTO Agent 编撰</p>
+</footer>
+</body>
+</html>

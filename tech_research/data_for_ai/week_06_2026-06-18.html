@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<title>面向 AI 的数据平台建设 — Week 06</title><link rel="stylesheet" href="../../assets/style.css"></head><body>
+<nav class="global-nav"><a href="../../index.html" class="brand">BryantChang</a>
+<div class="nav-links"><a href="../../index.html" class="nav-link">🏠 首页</a>
+<a href="../index.html" class="nav-link active">🔬 技术调研</a>
+<a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+<a href="../../blog/index.html" class="nav-link">✍️ 博客</a></div></nav>
+<header><h1>面向 AI 的数据平台建设</h1><p class="subtitle">周报 #6 — 2026年6月18日</p>
+<div class="meta"><span>📅 2026-06-18</span><span>📊 Week 06</span></div></header>
+<section><h2>📋 详细动态</h2>
+
+<h3>Apache Iceberg 1.11.0 正式发布</h3>
+<p>1.11.0 是一次里程碑发布。核心变化：(1) REST Catalog 成熟化：服务端扫描规划（Remote Scan Planning）、ETag 缓存实现 freshness-aware 表加载、幂等键（Idempotency-Key）支持提交重试安全；(2) 引擎升级：Spark 4.1 + Flink 2.1 成为默认构建目标，MERGE INTO 支持自动 Schema Evolution；(3) 查询加速：LIMIT 下推、向量化读取覆盖更多 Parquet 编码；(4) 安全：内置表加密（Envelope Encryption + Google KMS）；(5) v4 Table Spec 基础：DynamicIcebergSink 实验性多表路由写入。</p>
+<div class="tags"><span class="tag">Iceberg</span><span class="tag">1.11</span><span class="tag">REST Catalog</span><span class="tag">Spark 4.1</span><span class="tag">release</span></div>
+
+<h3>Iceberg v4 Spec 讨论持续升温</h3>
+<p>Iceberg v4 尚未定稿，正处于 IEP（Iceberg Enhancement Proposal）阶段。当前讨论的焦点包括：为流式写入和 AI 工作负载优化的新存储布局、更细粒度的读限制（Finer Grained Read Restrictions）已在 Apache 邮件列表活跃讨论（2026-06-09），以及社区正着手 1.12 版本规划。Snowflake 的技术博客指出 v4 将"面向流式和 AI 场景优化数据管道"。</p>
+<div class="tags"><span class="tag">Iceberg</span><span class="tag">v4 Spec</span><span class="tag">IEP</span><span class="tag">流式</span><span class="tag">AI优化</span></div>
+
+<h3>Delta Lake 4.2.0 发布，Flink + Kernel 生态扩展</h3>
+<p>4.2.0 两大进展：(1) Delta Kernel 新的 Flink Connector：替代已弃用的旧版连接器，原生支持 Catalog-Managed Table，提供事务性精确一次语义（Sink Writer + Committer）；(2) 数据类型扩展：Kernel 新增地理空间、排序规则（collation）、VARIANT 类型支持；(3) Catalog-Managed Table 成熟化：原子操作、SQL Schema Evolution、同步 UniForm；(4) 流式改进。Databricks 在 Data + AI Summit 2026（6/15-18 正在进行）设置 Delta Lake 专题轨道。</p>
+<div class="tags"><span class="tag">Delta Lake</span><span class="tag">4.2</span><span class="tag">Kernel</span><span class="tag">Flink</span><span class="tag">Catalog-Managed</span></div>
+
+<h3>Databricks 宣布 Unity Catalog + Iceberg v3 GA</h3>
+<p>Databricks 在 Data + AI Summit 前夕宣布 Iceberg v3 GA，核心能力：(1) Managed Iceberg GA：在 Unity Catalog 中直接创建/读写/优化/治理 Iceberg 表，支持 Predictive Optimization 和 Liquid Clustering；(2) Iceberg v3 GA：删除向量（Deletion Vectors）、行追踪、VARIANT 类型原生支持；(3) Foreign Iceberg GA：注册并安全查询外部 Catalog 管理的 Iceberg 表；(4) Cross-engine ABAC Beta：通过 REST Catalog Scan API 对外部 Iceberg 引擎实施细粒度访问控制；(5) External Sharing 到 Iceberg 客户端 GA——数据共享生态扩展至任何 Iceberg REST 兼容客户端。</p>
+<div class="tags"><span class="tag">Delta Lake</span><span class="tag">Unity Catalog</span><span class="tag">Iceberg v3</span><span class="tag">GA</span><span class="tag">治理</span><span class="tag">Data+AI Summit</span></div>
+
+<h3>Apache Hudi 1.2.0 发布：面向 AI 和多模态数据的开放 Lakehouse</h3>
+<p>Hudi 1.2.0 是本周最大亮点，标志着 Lakehouse 正式进入 AI/多模态时代：(1) 多模态数据支持：embeddings、图像、视频现在可以和结构化数据共存于同一张表中（Hudi 官方博客："Ship multimodal support. Embeddings, images, and video now sit in the same tables as your structured data"）；(2) Flink 无状态全局 Upsert：首次通过 Record Level Index (RLI) 为 Flink Writer 提供可扩展的全局 Upsert，Index 存储在 Metadata Table 而非 Flink State 中，解决了大型表的 checkpoint/recovery 瓶颈；(3) 路线图显示 Hudi 2.0.0 目标 2026 年 6 月，加速向 AI 原生 Lakehouse 平台演进。</p>
+<div class="tags"><span class="tag">Hudi</span><span class="tag">1.2</span><span class="tag">多模态</span><span class="tag">AI</span><span class="tag">Flink</span><span class="tag">RLI</span><span class="tag">release</span></div>
+
+<h3>Apache Gravitino 1.2.0：从元数据 Catalog 到运营平台</h3>
+<p>Gravitino 1.2 实现从被动元数据目录到主动运营层的转变。三大新能力：(1) Table Maintenance Service：分区级表健康主动管理——针对小文件积累和删除债务的精准优化，而非全表级别的昂贵 COMPACT；(2) UDF 管理：将转换逻辑变为受治理的 Catalog 资产；(3) 服务端扫描规划：轻量级 AI 查询可通过 Python 直接运行，无需全量查询引擎。1.2.1 补丁版于 5 月 12 日发布，聚焦稳定性和性能。</p>
+<div class="tags"><span class="tag">Gravitino</span><span class="tag">1.2</span><span class="tag">Catalog</span><span class="tag">运维</span><span class="tag">UDF</span><span class="tag">Table Maintenance</span></div>
+
+<h3>Apache Polaris 毕业为 TLP + Lance 集成推动多模态 Lakehouse</h3>
+<p>Apache Polaris 于 2026 年 2 月 19 日正式从 Incubator 毕业为 Apache 顶级项目，成为 Iceberg REST Catalog 生态中最具独立性的开源 Catalog 实现。今年 1 月宣布与 Lance（AI 原生列存储格式）集成，推动开放多模态 Lakehouse 架构——Lance 提供面向 AI 的列存储格式和表格式，Polaris 提供统一 Catalog/治理层。近期 GitHub PR（2026-06-02）仍在活跃维护 Polaris + Lance 集成文档和配置。</p>
+<div class="tags"><span class="tag">Polaris</span><span class="tag">TLP</span><span class="tag">Lance</span><span class="tag">多模态</span><span class="tag">AI-Native</span><span class="tag">Catalog</span></div>
+
+</section>
+<section><h2>📊 本周关键趋势</h2>
+<table>
+<tr><th>趋势</th><th>关键信号</th></tr>
+<tr><td>Lakehouse 全面拥抱多模态 AI</td><td>Hudi 1.2 直接内建 embeddings/图像/视频支持；Lance + Polaris 推动 AI Native 存储</td></tr>
+<tr><td>Catalog 成为竞争主战场</td><td>Iceberg REST Catalog 成熟化、Databricks Unity Catalog 开放 interoperability、Polaris 毕业 TLP</td></tr>
+<tr><td>Flink 流批一体加速</td><td>Iceberg 1.11 Flink 2.1 支持 + DynamicIcebergSink；Hudi 1.2 Flink RLI 全局 Upsert；Delta 4.2 Kernel Flink Connector</td></tr>
+<tr><td>Iceberg v4 预热</td><td>v4 Spec 设计讨论活跃，社区对齐流式 + AI 场景优化方向；1.12 版本已在规划</td></tr>
+<tr><td>运维自动化向内建</td><td>Gravitino Table Maintenance Service、Unity Catalog Predictive Optimization——从被动治理到主动运维</td></tr>
+</table>
+</section>
+<footer><p>由 CHANG_AI_TEAM CTO Agent 编撰</p></footer>
+</body></html>

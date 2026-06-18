@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Kafka/AutoMQ/Fluss 流式存储 — 周报 #6（2026-06-18）</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+<header>
+  <h1>📡 Kafka · AutoMQ · Fluss 流式存储</h1>
+  <p class="subtitle">周报 #6 — 2026年6月18日</p>
+  <div class="meta"><span>📅 2026-06-18</span><span>📊 Week 06</span></div>
+</header>
+<section>
+<h2>🔥 本周亮点</h2>
+
+<h3>AutoMQ 1.7.0 正式发布 🚀</h3>
+<p>AutoMQ 发布 1.7.0 版本，对比 1.6.5 包含 40+ PR。关键特性：Namespace 支持（多实例隔离）、基于 Protobuf 的 Cluster Events Framework、Autoscaling 指标暴露、Fetch Listener Callbacks 异步 inter-broker 请求、QuorumControllerExtension 生命周期钩子、首次 Maven Snapshot 发布。修复 S3 并发写入异常、LogCache 双重释放竞争、DataBlockIndex int overflow 导致 compaction 数据丢失等关键问题。E2E 测试全面加固 MirrorMaker、Connect、Streams。</p>
+<div class="tags"><span class="tag">Release</span><span class="tag">1.7.0</span><span class="tag">Namespace</span><span class="tag">Autoscaling</span><span class="tag">Cluster Events</span></div>
+
+<h3>Gravitee Kafka 2026 全景分析：KRaft 迁移与 4.x 治理层挑战</h3>
+<p>Gravitee 6/15 发布 Kafka 2026 全景分析，涵盖 4.x 系列 KRaft 迁移、KIP-932 Share Groups 替代传统消息队列、Tiered Storage 成熟度评估。重点提醒：ZooKeeper 在 4.x 中已完全消除（非 deprecated），3.x 集群必须完成 KRaft 迁移后才能升级。面向 CTO/平台负责人的决策参考。</p>
+<div class="tags"><span class="tag">KRaft Migration</span><span class="tag">KIP-932</span><span class="tag">Tiered Storage</span><span class="tag">Platform Decision</span></div>
+
+<h3>Apache Fluss 持续高频迭代：Lake Storage 正确性与 KV 稳定性</h3>
+<p>Fluss 本周 5 个活跃 PR，焦点集中在 Lake Storage 正确性（snapshot 校验和 watermark 上报到 Paimon）、KV 存储稳定性（RocksDB L0 背压机制）和安全加固（敏感配置脱敏）。FIP-37 bitmap 标量函数增强 bitemporal 分析能力。仍在 incubating 阶段但 PR 质量和数量均在线。</p>
+<div class="tags"><span class="tag">Fluss</span><span class="tag">Lake Storage</span><span class="tag">Paimon</span><span class="tag">RocksDB</span></div>
+</section>
+<section>
+<h2>📋 详细动态</h2>
+
+<h3>Apache Kafka</h3>
+
+<h3>KIP-1359: Improve usability of resetting group offsets</h3>
+<p>Andrew Schofield 提出的改进 consumer group offset 重置可用性的提案，6/18 仍在活跃讨论。</p>
+<div class="tags"><span class="tag">KIP</span><span class="tag">Consumer Group</span><span class="tag">Usability</span></div>
+
+<h3>KIP-1358: Gradual and gated preferred-leader election in the KRaft controller</h3>
+<p>Haifeng Chen 提出的 KRaft controller 渐进式 preferred leader 选举方案，6/18 活跃讨论。</p>
+<div class="tags"><span class="tag">KIP</span><span class="tag">KRaft</span><span class="tag">Leader Election</span></div>
+
+<h3>KIP-1357: Add broker side custom assignors for "streams" groups</h3>
+<p>Gabriella Fu 提出的为 Streams group 添加 broker 侧自定义 assignor 的 KIP，6/17 活跃讨论。</p>
+<div class="tags"><span class="tag">KIP</span><span class="tag">Kafka Streams</span><span class="tag">Consumer Group</span></div>
+
+<h3>KIP-1356: Introduce IQv2 for headers-aware state stores</h3>
+<p>Jess Jin 提出的为 headers-aware state stores (KIP-1271) 引入 Interactive Query v2 支持，6/18 活跃讨论。</p>
+<div class="tags"><span class="tag">KIP</span><span class="tag">Kafka Streams</span><span class="tag">State Store</span><span class="tag">Interactive Query</span></div>
+
+<h3>Kafka-Nated Espresso May 2026：Current Summit + 社区动态</h3>
+<p>Hugh Evans 的 5 月 Kafka 月报：Current Summit 在伦敦 ExCeL 举办；Sean Quah 被宣布为新的 Apache Kafka Committer；KIP-1276 (CIDR-based ACL) 和 KIP-1306 (ConsumerRebalanceListener 扩展) 投票通过；KIP-1279 (Cluster Mirroring) 仍在活跃讨论中，预计进入 4.4。另外提到 Fluss 在 Fresha 团队的 EKS 生产实践。</p>
+<div class="tags"><span class="tag">Community</span><span class="tag">Current Summit</span><span class="tag">KIP-1276</span><span class="tag">KIP-1279</span><span class="tag">Committer</span></div>
+
+<h3>Red Hat Kafka Monthly Digest: May 2026（第100期里程碑）</h3>
+<p>Red Hat 发布 Kafka 月报第 100 期里程碑，回顾 2026 年 5 月 Apache Kafka 社区动态。</p>
+<div class="tags"><span class="tag">Monthly Digest</span><span class="tag">Red Hat</span><span class="tag">Milestone</span></div>
+
+<h3>Apache Fluss (Incubating)</h3>
+
+<h3>FLUSS-3483: Validate lake snapshot offsets before commit</h3>
+<p>Jackeyzhe 6/18 提交：修复表 drop 后重建导致的 stale V2 lake snapshot commit 竞争条件。新表可能指向旧 tableId 的 offsets metadata，导致 lake tiering 反复失败。PR 在 commit 前校验 tableId、offsets 可读性和 TableBucket 一致性。</p>
+<div class="tags"><span class="tag">PR</span><span class="tag">Lake Storage</span><span class="tag">Bug Fix</span><span class="tag">Coordinator</span></div>
+
+<h3>Server/Client: Cooperative KV backpressure based on RocksDB L0</h3>
+<p>6/10 创建，6/17 仍在活跃讨论。为 KV 存储引入基于 RocksDB L0 文件数的协同背压机制，防止写入过快导致 compaction 积压。</p>
+<div class="tags"><span class="tag">PR</span><span class="tag">KV Store</span><span class="tag">RocksDB</span><span class="tag">Backpressure</span></div>
+
+<h3>Security: Redact sensitive config values in startup logs</h3>
+<p>6/15 创建，6/17 更新。安全增强：在启动日志中对敏感配置值（如密码、密钥）进行脱敏处理。</p>
+<div class="tags"><span class="tag">PR</span><span class="tag">Security</span><span class="tag">Configuration</span></div>
+
+<h3>FIP-37: Add bitmap scalar functions</h3>
+<p>6/16 创建。实现 FIP-37 提案：添加 bitmap 标量函数并通过 FlussCatalog 注册，增强 Fluss 的 bitemporal 分析能力。</p>
+<div class="tags"><span class="tag">PR</span><span class="tag">FIP-37</span><span class="tag">Bitmap</span><span class="tag">Flink</span></div>
+
+<h3>Lake/Tiering: Support reporting watermark to Paimon snapshot</h3>
+<p>6/2 创建，6/17 仍在活跃更新。为 lake tiering 添加向 Paimon snapshot 上报 watermark 的能力，改善端到端数据新鲜度追踪。</p>
+<div class="tags"><span class="tag">PR</span><span class="tag">Lake Storage</span><span class="tag">Paimon</span><span class="tag">Watermark</span></div>
+</section>
+<section>
+<h2>📈 趋势观察</h2>
+<table>
+  <thead><tr><th>项目</th><th>趋势</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Kafka</strong></td>
+      <td>KIP 讨论活跃，偏向 Streams 改进（headers-aware state stores、custom assignors、IQv2）和 KRaft 运维优化。社区关注 KRaft 迁移实操和 4.x 治理层挑战。</td>
+    </tr>
+    <tr>
+      <td><strong>AutoMQ</strong></td>
+      <td>1.7.0 发布是本周最大事件，功能密度高（namespace、事件框架、autoscaling），体现了对多租户和企业级生产就绪的投入。</td>
+    </tr>
+    <tr>
+      <td><strong>Fluss</strong></td>
+      <td>持续高频迭代，焦点在 lake storage 正确性（snapshot 校验、watermark）、KV 存储稳定性（RocksDB 背压）和安全加固。仍在 incubating 阶段但 PR 质量和数量均在线。</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<footer><p>由 CHANG_AI_TEAM CTO Agent 编撰</p></footer>
+</body></html>
+<!-- DONE -->
