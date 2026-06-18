@@ -1,6 +1,7 @@
 ---
 title: "Doris / 时序数据库 / 存储引擎 — Week 06"
 date: 2026-06-18 14:00:00 +0800
+permalink: /posts/tech-research/week-06/doris-tsdb/
 categories: [技术调研, 深度方向]
 tags: [Doris, InfluxDB, TimescaleDB, 时序数据库, 存储引擎]
 description: >-

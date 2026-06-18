@@ -1,6 +1,7 @@
 ---
 title: "技术调研周报 — Week 06 (2026-06-18)"
 date: 2026-06-18 14:30:00 +0800
+permalink: /posts/tech-research/week-06/
 categories: [技术调研, 周报]
 tags: [AI Harness, AI Agent, Kafka, Fluss, AutoMQ, Iceberg, Hudi, Delta Lake, Agent论文, 顶会, Doris, 时序数据库, 存储引擎]
 description: >-

@@ -1,6 +1,7 @@
 ---
 title: "存储/数据库/AI Infra 顶会趋势 — Week 06"
 date: 2026-06-18 14:00:00 +0800
+permalink: /posts/tech-research/week-06/conferences/
 categories: [技术调研, 顶会趋势]
 tags: [SIGMOD, VLDB, 顶会, ArXiv, VectorDB, AI Infra]
 description: >-

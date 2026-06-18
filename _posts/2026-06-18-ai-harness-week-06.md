@@ -1,6 +1,7 @@
 ---
 title: "AI Harness · Agent 基础设施 — Week 06"
 date: 2026-06-18 14:00:00 +0800
+permalink: /posts/tech-research/week-06/ai-harness/
 categories: [技术调研, AI Harness]
 tags: [agent-infrastructure, langgraph, openai, anthropic, agent-safety, mcp]
 description: >-

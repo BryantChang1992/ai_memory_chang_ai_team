@@ -1,6 +1,7 @@
 ---
 title: "AI Agent 论文速览 — Week 06（12 篇）"
 date: 2026-06-18 14:00:00 +0800
+permalink: /posts/tech-research/week-06/ai-agent-papers/
 categories: [技术调研, AI Agent]
 tags: [Agent, 论文, ArXiv, 规划, 安全, Memory]
 description: >-

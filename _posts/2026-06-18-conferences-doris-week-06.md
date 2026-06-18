@@ -1,6 +1,7 @@
 ---
 title: "顶会趋势 / Doris / 时序 / 存储引擎 — Week 06 合稿"
 date: 2026-06-18 14:00:00 +0800
+permalink: /posts/tech-research/week-06/conferences-doris/
 categories: [技术调研, 深度方向, 顶会趋势]
 tags: [SIGMOD, VLDB, 顶会, ArXiv, VectorDB, AI Infra, Doris, InfluxDB, TimescaleDB, 时序数据库, 存储引擎]
 description: >-

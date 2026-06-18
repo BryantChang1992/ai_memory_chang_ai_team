@@ -1,6 +1,7 @@
 ---
 title: "面向 AI 的数据平台建设 — Week 06"
 date: 2026-06-18 14:00:00 +0800
+permalink: /posts/tech-research/week-06/data-for-ai/
 categories: [技术调研, 数据平台]
 tags: [Iceberg, Hudi, Delta Lake, Catalog, Lakehouse]
 description: >-
