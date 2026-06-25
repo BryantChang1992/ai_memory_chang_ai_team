@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>湖仓 / Data for AI — Week 08 子调研</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #333; }
+h1 { border-bottom: 3px solid #1abc9c; padding-bottom: 10px; }
+h2 { color: #1abc9c; margin-top: 30px; }
+h3 { color: #555; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+th { background: #1abc9c; color: white; }
+.source { color: #888; font-size: 0.9em; }
+.highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>🏛 湖仓 / Data for AI — Week 08 (2026-06-25)</h1>
+<p class="source">覆盖周期：2026-06-19 ~ 2026-06-25</p>
+
+<h2>1. Apache Iceberg v3 Public Preview on Databricks</h2>
+<p><span class="highlight">🔥 2026-04-09 发布</span>。开放表格式进入新时代。</p>
+
+<h3>三大核心特性</h3>
+
+<h4>1.1 Row Lineage + Deletion Vectors = Native CDC</h4>
+<p>每行携带<strong>永久 row ID + 序列号</strong>，精确识别变更。Deletion Vectors 使逻辑删除无需重写 Parquet 文件，数据操作性能最高 <strong>10x 提升</strong>。</p>
+
+<p>Geodis（全球物流）正在利用这一能力集中 Iceberg 数据资产，同时保持引擎选择自由：<em>"Now that Deletion Vectors have come to Iceberg, we can centralize our Iceberg data estate in Unity Catalog, while leveraging the engine of our choice and maintaining best-in-class performance."</em> — Delio Amato, Chief Architect & Data Officer, Geodis</p>
+
+<h4>1.2 VARIANT 类型</h4>
+<p>原生半结构化数据列类型，<strong>不需要 flatten、不需要外部存储、不需要 ETL normalization</strong>。与关系列共处一表，新字段出现即可查询（无需 schema migration）。</p>
+
+<p>Panther 安全公司利用 VARIANT 实现百万级安全日志接入和分析：<em>"Unity Catalog and Iceberg v3 unlock the power of semi-structured data through VARIANT."</em> — Russell Leighton, Chief Architect, Panther</p>
+
+<p>通过 <strong>Shredding</strong> 优化，VARIANT 数据可达到列存级别性能，支持低延迟 BI 和告警。</p>
+
+<h4>1.3 Delta-Iceberg 互通里程碑</h4>
+<p>Iceberg v3 原生采纳 <strong>Deletion Vectors、Row Lineage、VARIANT</strong>，与 Delta Lake 功能对齐。Delta UniForm 允许多引擎读取同一份 Delta 数据（Snowflake、BigQuery、Redshift、Athena、Trino）。</p>
+
+<p>历史性的 trade-off 被消除：顾客不再需要在「Delta 的性能」和「Iceberg 的兼容性」之间二选一。</p>
+
+<p class="source">来源：<a href="https://www.databricks.com/blog/next-era-open-lakehouse-apache-icebergtm-v3-public-preview-databricks">databricks.com/blog — Iceberg v3 Public Preview</a></p>
+
+<h2>2. 湖仓格式竞争格局（2026）</h2>
+
+<table>
+  <tr><th>格式</th><th>核心生态</th><th>2026 差异化</th><th>最新版本</th></tr>
+  <tr>
+    <td><strong>Iceberg</strong></td>
+    <td>最广泛引擎支持</td>
+    <td>v3 打破性能-兼容 trade-off；Databricks + Snowflake 双引擎战略</td>
+    <td>v3 (Public Preview)</td>
+  </tr>
+  <tr>
+    <td><strong>Delta Lake</strong></td>
+    <td>Spark / Databricks</td>
+    <td>UniForm 实现 Iceberg 兼容读写；Lakehouse 一体化平台</td>
+    <td>4.2.x</td>
+  </tr>
+  <tr>
+    <td><strong>Hudi</strong></td>
+    <td>Uber / AWS</td>
+    <td>1.2 多模态 Lakehouse；2.0 目标 2026-06</td>
+    <td>1.2.0</td>
+  </tr>
+  <tr>
+    <td><strong>Paimon</strong></td>
+    <td>Flink / 阿里巴巴</td>
+    <td>Fluss 配合实现实时 Lakehouse；原生流批一体</td>
+    <td>-</td>
+  </tr>
+</table>
+
+<h2>3. Fluss + Paimon 实时湖仓链路</h2>
+
+<p>Fluss 定位为 <strong>"real-time data layer on top of Lakehouse"</strong>，配合 Paimon 实现：</p>
+<pre style="background: #f5f5f5; padding: 10px; border-radius: 5px;">
+Kafka/Event Source → Fluss (Streaming Storage)
+                         ↓ LakeStream
+                    Paimon (Lakehouse Table)
+                         ↓
+              Flink / Trino / Spark 查询
+</pre>
+
+<p>核心能力：<strong>在已有湖仓表上直接启用流式读写</strong>（LakeStream），不需要新建 streaming 表。这是阿里巴巴流批一体战略的关键技术拼图。</p>
+
+<p class="source">来源：<a href="https://github.com/apache/fluss/discussions/2684">github.com/apache/fluss — 1.0 Roadmap</a>, <a href="https://db.cs.cmu.edu/events/future-data-apache-fluss-a-streaming-storage-for-real-time-lakehouse/">CMU DB Group — Future Data: Fluss</a></p>
+
+<h2>4. Iceberg vs Delta Lake 产业分析</h2>
+
+<p>2026 年多篇对比分析文章共识：</p>
+<ul>
+  <li>两种格式的核心 lakehouse 能力（ACID、Time Travel、Schema Evolution）已基本对齐</li>
+  <li>差异转移到了<strong>实现细节和运维体验</strong>：catalog 管理、引擎兼容性、性能优化策略</li>
+  <li>Databricks 的 Unity Catalog 通过对 Delta 数据暴露 Iceberg 接口，本质上在推动 <strong>"一份数据，多引擎读取"</strong>的架构收敛</li>
+  <li>"单表格式胜利"不再重要，<strong>"多格式互通 + 统一治理"</strong>成为 2026 年主流叙事</li>
+</ul>
+
+<p class="source">来源：<a href="https://www.dremio.com/blog/apache-iceberg-vs-delta-lake/">Dremio — Iceberg vs Delta Lake (2026-02)</a>, <a href="https://bigdataboutique.com/blog/apache-iceberg-vs-delta-lake-choosing-the-right-table-format">Big Data Boutique (2026-03)</a></p>
+
+<h2>小结</h2>
+<p>湖仓方向 2026 年的核心矛盾已从「选哪个格式」转变为「如何统一治理」。Iceberg v3 和 Delta UniForm 从两个方向推动互通：一个在格式层增强，一个在接口层桥接。Fluss + Paimon 则代表第三条路：用流式存储层统一 streaming 和 lakehouse 两层。</p>
+
+</body>
+</html>

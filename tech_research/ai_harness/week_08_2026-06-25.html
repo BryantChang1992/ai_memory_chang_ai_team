@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra · Agent 基础设施 — Week 08 子调研</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #333; }
+h1 { border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+h2 { color: #667eea; margin-top: 30px; }
+h3 { color: #555; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+th { background: #667eea; color: white; }
+tr:nth-child(even) { background: #f9f9f9; }
+.source { color: #888; font-size: 0.9em; }
+.highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; }
+.tag { display: inline-block; background: #667eea; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; margin: 2px; }
+</style>
+</head>
+<body>
+
+<h1>🧠 AI Infra · Agent 基础设施 — Week 08 (2026-06-25)</h1>
+<p class="source">覆盖周期：2026-06-19 ~ 2026-06-25</p>
+
+<h2>1. Microsoft Agent Framework at BUILD 2026</h2>
+
+<p><span class="highlight">🔥 本周最重要的发布</span>。MAF 1.0 于 4 月 GA，BUILD 2026 一次性发布三大组件。</p>
+
+<h3>1.1 Agent Harness</h3>
+<p>将 <strong>Model + Harness = Agent</strong> 公式产品化。内建能力：</p>
+<ul>
+  <li><strong>Automatic Context Compaction</strong>：token 用量监控 + 对话历史自动压缩，防止长 tool-calling 链 context overflow</li>
+  <li><strong>FileMemoryProvider</strong>：session 级文件内存，agent 可跨轮次持久化笔记</li>
+  <li><strong>TodoProvider</strong>：多步任务管理（add/complete/remove/list）</li>
+  <li><strong>AgentModeProvider</strong>：plan vs execute 模式切换</li>
+  <li><strong>AgentSkillsProvider</strong>：文件系统驱动的技能发现和执行</li>
+  <li><strong>BackgroundAgentsProvider</strong>：子 Agent 并行调度（fan-out）</li>
+  <li><strong>OpenTelemetryAgent</strong>：自动 OTEL SemConv 追踪</li>
+  <li><strong>ToolApprovalAgent</strong>：「不再询问」审批规则</li>
+</ul>
+<p class="source">来源：<a href="https://devblogs.microsoft.com/agent-framework/microsoft-agent-framework-at-build-2026-announce/">devblogs.microsoft.com/agent-framework</a>, 2026-06-03</p>
+
+<h3>1.2 Hosted Agents (Foundry)</h3>
+<p>从本地开发到生产部署的完整路径：容器化 → Foundry 托管 → 自动扩缩 + 持久化状态 + 可观测性。</p>
+<ul>
+  <li>Scale to zero（空闲零成本）</li>
+  <li>VM 隔离沙箱 + session 持久化（跨 scale-to-zero）</li>
+  <li>OpenTelemetry 自动对接 Application Insights</li>
+  <li>.NET 3 行代码 / Python 2 行代码上线</li>
+</ul>
+<p class="source">来源：同上</p>
+
+<h3>1.3 CodeAct + Hyperlight</h3>
+<p>消除多步工具调用的串行推理瓶颈：模型生成 Python 代码 → <code>call_tool()</code> 批量执行 → Hyperlight micro-VM 沙箱。</p>
+
+<table>
+  <tr><th>指标</th><th>传统方式</th><th>CodeAct</th><th>改进</th></tr>
+  <tr><td>耗时</td><td>27.81s</td><td>13.23s</td><td><strong>52.4%</strong> ↓</td></tr>
+  <tr><td>Token</td><td>6,890</td><td>2,489</td><td><strong>63.9%</strong> ↓</td></tr>
+</table>
+
+<p>Hyperlight micro-VM 基于 KVM/macOS Hypervisor.framework，每次调用启动全新轻量 VM，执行后销毁。隔离级别 = 硬件级，启动时间极短。</p>
+<p class="source">来源：同上 / <a href="https://github.com/hyperlight-dev/hyperlight">github.com/hyperlight-dev/hyperlight</a></p>
+
+<h2>2. Harness Engineering 理论化</h2>
+
+<p>Faros AI 系统化阐述 AI 工程三阶段：</p>
+<table>
+  <tr><th>阶段</th><th>时期</th><th>核心学科</th><th>产出</th></tr>
+  <tr><td>1. Prompt Engineering</td><td>2022-2023</td><td>语言</td><td>代码片段 / 自动补全</td></tr>
+  <tr><td>2. Context Engineering</td><td>2024-2025</td><td>信息</td><td>上下文感知文件更新</td></tr>
+  <tr><td>3. Harness Engineering</td><td>2026</td><td>环境</td><td>端到端任务执行 + 验证</td></tr>
+</table>
+
+<p>Mitchell Hashimoto 的核心理念：<em>「每当 Agent 犯错，不要修改 prompt，要改造 harness——让同一个错误永不再犯。」</em></p>
+
+<p>LangChain 实战案例：不改模型，仅优化 harness → Terminal Bench 2.0 排名从第 30 位跃升至第 5 位。</p>
+
+<p>Anthropic 识别的三类模型原生缺陷：</p>
+<ul>
+  <li><strong>Victory Declaration Bias</strong>：不验证就标记完成</li>
+  <li><strong>Context Anxiety</strong>：context window 快满时急于完成，跳过关键步骤</li>
+  <li><strong>One-shotting Overreach</strong>：一次处理全部任务，产生不可审查的大范围变更</li>
+</ul>
+
+<p class="source">来源：<a href="https://www.faros.ai/blog/harness-engineering">faros.ai/blog/harness-engineering</a>, <a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">anthropic.com/engineering/harness-design-long-running-apps</a></p>
+
+<h2>3. 模型架构 2026 H1 趋势</h2>
+
+<p>Sebastian Raschka 的论文列表揭示：</p>
+<ul>
+  <li><strong>Hybrid Architecture 主流化</strong>：Nemotron 3 Super (Attention + Mamba-2)、Qwen 3.6 (Attention + Gated DeltaNet)</li>
+  <li><strong>SSM 进化</strong>：Mamba-3（Improved Sequence Modeling）、Gated DeltaNet-2（解耦 Erase/Write）</li>
+  <li><strong>MoE 反思</strong>：Scaling Embeddings Outperforms Scaling Experts — 挑战传统 MoE 容量假设</li>
+  <li><strong>Diffusion LLM</strong>：升格为独立研究方向（被列为第 9 大分类）</li>
+  <li><strong>Agent Harness & Tool Use</strong>：首次被列为独立研究分类（第 6 大分类）</li>
+</ul>
+
+<p>关键论文：</p>
+<ul>
+  <li>Nemotron 3 Super (2026-04-13)：120B-A12B MoE，Hybrid Mamba-Transformer，生产环境部署</li>
+  <li>Step 3.5 Flash (2026-02-11)：11B 活跃参数达 frontier 级性能</li>
+  <li>Scaling Embeddings Outperforms Scaling Experts (2026-01-29)：重思 MoE 设计</li>
+  <li>GLM-5 (2026-02-17)：From Vibe Coding to Agentic Engineering</li>
+</ul>
+
+<p class="source">来源：<a href="https://magazine.sebastianraschka.com/p/llm-research-papers-2026-part1">sebastianraschka.com — LLM Research Papers 2026 Part 1</a></p>
+
+<h2>小结</h2>
+<p>Agent 基础设施从 2025 年的「框架百花齐放」进入 2026 年的「平台化收敛」。Microsoft 三件套确立了 Harness → Execution → Deployment 的完整链路。Harness Engineering 理论化标志着这个领域正在形成自己的工程方法论。</p>
+
+</body>
+</html>
