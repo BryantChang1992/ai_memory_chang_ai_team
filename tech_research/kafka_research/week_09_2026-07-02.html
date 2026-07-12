@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 09 · Kafka / AutoMQ / Fluss 社区动态</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<nav class="global-nav">
+  <a href="../../index.html" class="brand">BryantChang</a>
+  <div class="nav-links">
+    <a href="../../index.html" class="nav-link">🏠 首页</a>
+    <a href="../index.html" class="nav-link active">🔬 技术调研</a>
+    <a href="../../tech_designs/index.html" class="nav-link">📐 技术方案设计</a>
+    <a href="../../blog/index.html" class="nav-link">✍️ 博客</a>
+  </div>
+</nav>
+
+<div class="container">
+<header>
+<h1>⚡ Week 09 · Kafka / AutoMQ / Fluss 社区动态</h1>
+<p>2026-07-02 · 覆盖周期 2026-06-26 ~ 2026-07-02</p>
+</header>
+
+<!-- ======== Kafka ======== -->
+<section id="kafka">
+<h2>🐘 Apache Kafka</h2>
+
+<h3>Kafka 4.4.0 发布节奏</h3>
+<p>社区已将 Kafka 4.4.0 预计发布日期调整至 <strong>2026 年 9 月</strong>，KIP freeze 截止日设为 <strong>7 月 8 日</strong>。这是首个围绕 KIP-1314（Broker-side Consumer Group Rebalance Callback）等重器设计的版本。</p>
+
+<h3>活跃 KIP</h3>
+<table>
+<tr><th>编号</th><th>标题</th><th>状态</th></tr>
+<tr>
+  <td><strong>KIP-1314</strong></td>
+  <td>Broker-side consumer group rebalance callback — 允许 broker 在 rebalance 时触发自定义回调，扩展 group coordinator 的可编程性</td>
+  <td>🔵 PR 活跃</td>
+</tr>
+<tr>
+  <td><strong>KIP-1320</strong></td>
+  <td>Deprecate Utils behind an internal implementation — PoC PR 已于 7/5 提交</td>
+  <td>🟡 PoC</td>
+</tr>
+</table>
+
+<h3>本周 PR 亮点（6/26-7/2）</h3>
+<ul>
+  <li><strong>KAFKA-20769</strong> — ListDeserializer 截断输入时静默反序列化损坏条目修复（安全关键）</li>
+  <li><strong>KAFKA-20770</strong> — LocalLeaderEndPoint 在 leader epoch 不可解析时应返回 UNDEFINED_EPOCH</li>
+  <li><strong>KAFKA-20538</strong> — RocksDBTimeOrderedKeyValueBuffer 增加 headers 感知能力（Streams 增强）</li>
+  <li><strong>KAFKA-20197</strong> — Headers-aware StreamPartitioner，允许基于消息 header 的路由分区</li>
+  <li><strong>KAFKA-14249</strong> — 修复 TLSv1.3 空闲连接测试不稳定问题</li>
+  <li><strong>KAFKA-10025</strong> — RocksDBMetricsRecorder 在 store close 时的 value provider 读取保护</li>
+  <li><strong>KAFKA-13009</strong> — 全局 state store 不再加入 per-task subtopologies</li>
+</ul>
+
+<h3>趋势信号</h3>
+<p>Kafka 4.x 系列进入成熟期，本周 PR 聚焦 <strong>稳定性修复</strong>（TLS、反序列化安全、RocksDB 保护）和 <strong>Streams 能力扩展</strong>（headers-aware partitioner/buffer）。</p>
+</section>
+
+<!-- ======== AutoMQ ======== -->
+<section id="automq">
+<h2>⚡ AutoMQ</h2>
+
+<h3>AutoMQ 1.7.1 发布（2026-06-23）</h3>
+<p>在 1.7.0 发布仅 19 天后即推出 1.7.1 补丁版，包含 13 个修复和增强：</p>
+
+<h3>核心修复</h3>
+<table>
+<tr><th>类别</th><th>修复</th></tr>
+<tr>
+  <td><strong>API Key 鉴权</strong></td>
+  <td>AutoMQ API Key 授权机制修复 — 安全关键，补齐 1.7.0 的鉴权短板</td>
+</tr>
+<tr>
+  <td><strong>Failover 加速</strong></td>
+  <td>Failover 延迟优化（#3398）+ Retry Storm Backoff（#3380），双重降低故障恢复延迟</td>
+</tr>
+<tr>
+  <td><strong>S3 WAL 优化</strong></td>
+  <td>批量 Object ID 优化 WAL upload prepare（#3407）、NoSuchUploadException 兜底（#3419）、WAL 对象预留校验（#3414）</td>
+</tr>
+<tr>
+  <td><strong>S3 Checksum</strong></td>
+  <td>S3 写入预计算 checksum（#3416），减少写入链路上的计算开销</td>
+</tr>
+</table>
+
+<h3>1.7.1 后活跃 PR（6/26-7/2）</h3>
+<ul>
+  <li><strong>S3Stream</strong> — 跨 bucket multipart copy 支持（#3450/#3452），解锁跨区域 S3 数据迁移</li>
+  <li><strong>S3Stream</strong> — metrics 声明按 owner 模块化重组（#3453/#3454），提升可维护性</li>
+  <li><strong>Failover</strong> — parallelize list offset handling（#3445），加速 failover 时的 offset 恢复</li>
+  <li><strong>Connect</strong> — 启动失败日志增强（#3444），降低调试门槛</li>
+  <li><strong>TableTopic</strong> — Debezium key 派生 identifier（#3449），增强 CDC 集成</li>
+  <li><strong>运行时监控</strong> — runtime monitor 新增（#3420/#3438），生产可观测性提升</li>
+</ul>
+
+<h3>趋势信号</h3>
+<p>AutoMQ 从 1.7.0 的「功能型发布」快速进入「生产加固」节奏。1.7.1 的三板斧（鉴权修复+Failover加速+S3 WAL 可靠性）表明团队对生产级 SLO 的关注在提升。</p>
+</section>
+
+<!-- ======== Fluss ======== -->
+<section id="fluss">
+<h2>🌊 Apache Fluss</h2>
+
+<h3>Week 09 PR 动态（6/26-7/2）</h3>
+
+<table>
+<tr><th>PR</th><th>描述</th><th>方向</th></tr>
+<tr>
+  <td><strong>#3523</strong></td>
+  <td>Support custom Paimon lake table path — 允许用户指定 Paimon 湖表路径，打通自定义 Lakehouse 布局</td>
+  <td>🏛 湖仓集成</td>
+</tr>
+<tr>
+  <td><strong>#3537</strong></td>
+  <td>Support configurable rebalance concurrency — KV 表负载重均衡并发度可配置</td>
+  <td>⚙️ 运维</td>
+</tr>
+<tr>
+  <td><strong>#3549</strong></td>
+  <td>Add Hudi tiering service documentation — Hudi 分层服务文档正式化</td>
+  <td>📖 文档</td>
+</tr>
+<tr>
+  <td><strong>#3554</strong></td>
+  <td>Decouple common tiering class from Flink module — 分层逻辑从 Flink 模块解耦，为多引擎支持铺路</td>
+  <td>🔧 架构</td>
+</tr>
+<tr>
+  <td><strong>#3463</strong></td>
+  <td>Cooperative KV backpressure based on RocksDB L0 — RocksDB L0 协同背压，与 Week 06 的 L0 backpressure 工作关联</td>
+  <td>⚡ 性能</td>
+</tr>
+<tr>
+  <td><strong>#3469</strong></td>
+  <td>Add pendingRecordLag metric for lake tiering — 湖分层 pending record lag 监控指标</td>
+  <td>📊 可观测</td>
+</tr>
+</table>
+
+<h3>持续活跃 PR</h3>
+<ul>
+  <li><strong>#3393</strong> — DROP COLUMN schema evolution（7/12 合并 ✅），补齐 ALTER TABLE 语义</li>
+  <li><strong>#3047</strong> — SASL/PLAIN 认证用户管理通过 cluster properties 实现（7/10 合并 ✅），安全能力增强</li>
+  <li><strong>#3222</strong> — 支持 table.log.ttl 选项应用于本地 segment，实现本地存储自动清理</li>
+  <li><strong>#3424</strong> — Fluss + Iceberg + Flink + AWS Glue/Hive 集成文档持续完善</li>
+</ul>
+
+<h3>趋势信号</h3>
+<p>Fluss 本周主攻三个方向：<strong>湖仓集成深化</strong>（Paimon 自定义路径、Hudi 文档、Tiering 解耦）、<strong>生产可靠性</strong>（背压、Rebalance 并发控制、TTL）、<strong>生态扩展</strong>（安全认证、集成文档）。从 PR 模式看，社区已从「核心功能开发」进入「运维可观测 + 生态连接」阶段。</p>
+</section>
+
+<!-- ======== 趋势总结 ======== -->
+<section id="trends">
+<h2>📊 本周趋势判断</h2>
+<ol>
+  <li><strong>Kafka 4.4.0 预热</strong>：KIP-1314（Broker-side rebalance callback）和 KIP-1320（Utils 内部化）是 9 月发布的关键驱动，标志着 Kafka 从「功能补齐」进入「架构清理 + 可编程性扩展」</li>
+  <li><strong>AutoMQ 可靠性加固</strong>：1.7.0→1.7.1 的快速迭代节奏表明团队对生产级 SLO 的重视，API Key 鉴权补丁是安全关键修复</li>
+  <li><strong>Fluss 湖仓连接器角色明朗化</strong>：Hudi+Paimon 双湖格式支持 + Tiering 模块解耦，Fluss 作为「流-湖连接器」的定位愈发清晰</li>
+</ol>
+</section>
+
+</div>
+</body>
+</html>

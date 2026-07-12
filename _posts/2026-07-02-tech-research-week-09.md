@@ -1,14 +1,14 @@
 ---
 title: "技术调研周报 — Week 09 (2026-07-02)"
-date: 2026-07-02 22:00:00 +0800
+date: 2026-07-12 22:00:00 +0800
 permalink: /posts/tech-research/week-09/
 categories: [技术调研, 周报]
-tags: [AI Infra, Agent Harness, Hermes Agent, Qwen 3.6, Flink 2.3.0, Fluss, LSM-tree, CockroachDB, CXL, 湖仓]
+tags: [AI Infra, Agent Harness, Hermes Agent, Qwen 3.6, Flink 2.3.0, Fluss, Kafka, AutoMQ, Delta Lake, Doris, LSM-tree, CockroachDB, CXL, 湖仓, 时序数据库]
 description: >-
-  Week 09 技术调研周报：Hermes Agent 140k⭐登顶 OpenRouter #1、Flink 2.3.0 发布（FROM_CHANGELOG/TO_CHANGELOG）、Fluss 客户端写入流程深度分析（内部产出）、Agent 框架 2026 全景对比、CXL 数据库演进。
+  Week 09 技术调研周报（修订版）：Hermes Agent 140k⭐登顶 OpenRouter #1、Flink 2.3.0 发布、Kafka KIP-1314/1320 推进、AutoMQ 1.7.1 发布、Fluss 湖仓集成深化、Delta Lake 4.3.0 UC REST API、Doris 4.0.7、Agent 框架 2026 全景对比、CXL 数据库演进。
 ---
 
-> 覆盖周期：2026-06-26 ~ 2026-07-02 | Week 09
+> 覆盖周期：2026-06-26 ~ 2026-07-02 | Week 09（2026-07-12 修订）
 
 ---
 
@@ -55,6 +55,66 @@ HPE 在 Las Vegas Discover 2026 宣布面向 GreenLake 和 Morpheus 的 Agent AI
 ### 内部：Agent Harness 知识图谱修复
 
 本周内部完成 Agent Harness 系列 wikilink 图谱修复（434c840, 6/29）：综述 + 8 张子卡片的双向引用全部补全，README 索引完整，网状引用密度从 ~60% → 100%。
+
+---
+
+## ⚡ Kafka / AutoMQ / Fluss 社区动态
+
+→ [子调研详情](../../../tech_research/kafka_research/week_09_2026-07-02.html)
+
+### 🐘 Apache Kafka — 4.4.0 预热
+
+社区将 Kafka 4.4.0 预计发布日期调至 2026 年 9 月，KIP freeze 截止 7/8。
+
+**活跃 KIP**：
+| 编号 | 标题 | 状态 |
+|------|------|------|
+| **KIP-1314** | Broker-side consumer group rebalance callback — 允许 broker 在 rebalance 时触发自定义回调 | 🔵 PR 活跃 |
+| **KIP-1320** | Deprecate Utils behind internal implementation | 🟡 PoC（7/5） |
+
+**本周 PR 亮点**（6/26-7/2）：
+- **KAFKA-20769** — ListDeserializer 截断输入时静默反序列化损坏条目修复（🔴 安全关键）
+- **KAFKA-20538** — RocksDBTimeOrderedKeyValueBuffer 增加 headers 感知能力
+- **KAFKA-20197** — Headers-aware StreamPartitioner，允许基于消息 header 的路由分区
+- **KAFKA-10025** — RocksDBMetricsRecorder store close 时 value provider 读取保护
+- **KAFKA-13009** — 全局 state store 不再加入 per-task subtopologies
+
+**趋势**：Kafka 4.x 进入成熟期，本周 PR 聚焦**稳定性修复 + Streams 能力扩展**。
+
+### ⚡ AutoMQ 1.7.1 发布（6/23）
+
+1.7.0 发布仅 19 天后即推出补丁版，13 个修复：
+
+| 类别 | 修复 |
+|------|------|
+| **API Key 鉴权** | AutoMQ API Key 授权机制修复 — 补齐 1.7.0 安全短板 |
+| **Failover 加速** | 延迟优化 + Retry Storm Backoff，双重降低故障恢复延迟 |
+| **S3 WAL 可靠性** | 批量 Object ID 优化 + NoSuchUploadException 兜底 + 写入前校验 |
+
+**1.7.1 后活跃 PR**：
+- S3Stream 跨 bucket multipart copy（#3450/#3452），解锁跨区域 S3 迁移
+- Parallelize list offset handling（#3445），加速 failover offset 恢复
+- TableTopic Debezium key 派生 identifier（#3449），增强 CDC 集成
+- Runtime monitor 新增（#3420/#3438），生产可观测性提升
+
+### 🌊 Apache Fluss — 湖仓集成深化
+
+**本周 PR 动态**（6/26-7/2）：
+
+| PR | 描述 | 方向 |
+|----|------|------|
+| **#3523** | 支持自定义 Paimon lake table path | 🏛 湖仓集成 |
+| **#3537** | KV rebalance 并发度可配置 | ⚙️ 运维 |
+| **#3554** | Tiering 逻辑从 Flink 模块解耦，为多引擎支持铺路 | 🔧 架构 |
+| **#3463** | RocksDB L0 协同背压机制 | ⚡ 性能 |
+| **#3469** | Lake tiering pendingRecordLag 监控指标 | 📊 可观测 |
+
+**持续活跃**：
+- **#3393** ✅ DROP COLUMN schema evolution 已合并
+- **#3047** ✅ SASL/PLAIN 认证用户管理已合并
+- **#3222** 本地 segment TTL 自动清理
+
+**趋势**：Fluss 从「核心功能开发」进入「运维可观测 + 生态连接」阶段。Hudi+Paimon 双湖格式 + Tiering 解耦，流-湖连接器定位愈发清晰。
 
 ---
 
@@ -113,11 +173,51 @@ CXL 3.0（PCIe 6.0 基础）预计 2026 年产品化，有望改变内存数据�
 
 ## 🏛 湖仓
 
-→ [子调研详情](../../../tech_research/doris/week_09_2026-07-02.html#lakehouse)
+→ [子调研详情](../../../tech_research/data_for_ai/week_09_2026-07-02.html)
+
+### 🔥 Delta Lake 4.3.0 发布（6/18）
+
+本周湖仓方向最大事件：
+
+| 特性 | 描述 |
+|------|------|
+| **UC Delta REST API** | Spark 原生支持 Unity Catalog Delta API，服务端 commit validation + server-advertised table features。为 Flink/Trino 等多引擎统一访问奠定基础 |
+| **replaceOn / replaceUsing** | DataFrame 选择性数据替换 API，细粒度数据修正不再需要全表重写 |
+| **UniForm 原子+增量 Iceberg** | Iceberg metadata 与 Delta commit 原子写入，仅增量转换变更日志，大幅降低兼容开销 |
+| **Delta Sharing Streaming + CDF** | Trigger.AvailableNow 支持 shared tables，Parquet→Delta streaming 自动转换 |
+
+**4.3.1 补丁**（7/8）：OAuth case-sensitivity 修复、S3A fast listing 兼容、UC metadata 持久化修复。
+
+### 湖仓格式竞争格局 — 2026 Mid-Year
+
+| 格式 | 最新版本 | 周期内关键事件 |
+|------|----------|----------------|
+| Delta Lake | 4.3.1 (7/8) | UC REST API 集成、replaceOn、UniForm 增量 Iceberg |
+| Iceberg | 1.11.0 (5/20) | v3 Spec 生产就绪（删除向量、服务端扫描、表加密） |
+| Hudi | 1.2.0 (5/23) / 0.14.2 (6/8) | 1.2 多模态正式版、Hudi 2.0 目标 6 月 |
+| Paimon | 持续迭代 | Fluss 深度整合，实时湖仓链路推进 |
+
+**趋势洞察**：Delta UC REST API 标志着 Catalog 战争升级——Databricks 将 Catalog 变成控制平面。UniForm 双向兼容使 Delta 性能 + Iceberg 兼容不再互斥。Hudi 2.0 是关键变量。Fluss+Paimon 的「Kafka→Fluss→Paimon→Flink」全链路可能成为实时湖仓事实标准。
 
 ### Fluss + Paimon 实时湖仓推进
 
-Fluss 1.0 路线图 Feature Freeze 6/1、Release 目标 6/15。核心能力 LakeStream 在已有湖仓表上启用流式读写。最新 commit 已涉及 Hudi Flink connector 集成（#3535）和 Iceberg → Fluss 类型转换。
+Fluss 湖仓集成继续深化：Paimon 自定义路径、Hudi tiering 文档、Tiering 逻辑从 Flink 解耦。LakeStream 在已有湖仓表上启用流式读写的核心能力持续迭代。
+
+---
+
+## 📊 时序 & 分析型数据库
+
+→ [子调研详情](../../../tech_research/data_for_ai/week_09_2026-07-02.html#doris)
+
+### Apache Doris 4.0.7 发布（7/12）
+
+4.0 系列最新 patch release，4.1 系列（4.1.2 发布于 6/17）持续迭代。4.1.x 的 AI 统一存储能力（HNSW+IVF+IVF_ON_DISK 向量索引、BM25 全文搜索、单行 100MB JSON）吸引社区持续关注。存算分离模式已部署 2000+ 企业。
+
+### 时序数据库趋势
+
+- **InfluxDB 3.x** — Pacha-Tree 存储引擎 Beta 测试推进，LSM-tree + 时间分区混合架构
+- **TimescaleDB** — 列存加速 + Hypertable 压缩比持续优化
+- **趋势** — 时序 DB 与 OLAP DB 边界模糊化：Doris 时序能力增强 vs InfluxDB SQL 兼容性提升，两者在「时序分析」场景形成正面竞争
 
 ---
 
@@ -126,15 +226,17 @@ Fluss 1.0 路线图 Feature Freeze 6/1、Release 目标 6/15。核心能力 Lake
 | 方向 | 动态数 | 亮点 |
 |------|--------|------|
 | AI Infra · Agent 基础设施 | 5 | Hermes Agent 140k⭐、Qwen 3.6、Agent 框架对比 2026、内部图谱修复 |
+| Kafka / AutoMQ / Fluss | 12 | Kafka KIP-1314/1320、AutoMQ 1.7.1、Fluss 湖仓集成 + Paimon/Hudi |
 | 流处理 | 3 | Flink 2.3.0（FROM_CHANGELOG/TO_CHANGELOG）、Fluss 客户端深度分析 |
 | 分布式数据库 | 2 | CockroachDB vs TiDB 2026、CXL 3.0 产品化 |
 | 存储引擎 | 1 | LSM-tree KV Store 综述（ArXiv） |
-| 湖仓 | 1 | Fluss + Paimon 路线图推进 |
+| 湖仓 | 6 | Delta Lake 4.3.0 UC REST API、四大格式竞争格局、Fluss+Paimon |
+| 时序 & 分析型 | 3 | Doris 4.0.7、InfluxDB Pacha-Tree、TSDB vs OLAP 融合趋势 |
 
-**合计 12 条动态 | 5 方向覆盖**
+**合计 32 条动态 | 7 方向全覆盖**
 
 ---
 
-> ⚡ **下期预告**：Week 10 关注 Flink 2.3.0 的 FROM_CHANGELOG 实际落地案例、Hermes Agent 自进化 Skill 机制深入分析、以及 VLDB 2026 论文列表。
+> ⚡ **下期预告**：Week 10 关注 Kafka 4.4.0 KIP freeze 结果、Flink 2.3.0 FROM_CHANGELOG 落地、Delta Lake UC REST API 多引擎支持进展、VLDB 2026 论文列表。
 >
 > 📎 子调研详情详见各方向页面。CEO 审阅后标记待入库文章，周五 Wiki 维护日统一入知识库。

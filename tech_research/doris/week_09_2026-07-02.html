@@ -114,6 +114,27 @@
 <p>Fluss 最新 commit 已涉及 Hudi Flink connector 集成（#3535），以及 Iceberg LocalTime → Fluss millis-of-day 的类型转换。Apache Fluss 社区活跃度持续攀升，已进入 Apache 孵化器的成熟阶段。</p>
 </section>
 
+<!-- ======== Doris & TSDB ======== -->
+<section id="doris-tsdb">
+<h2>📊 Apache Doris 4.0.7 + 时序数据库</h2>
+
+<h3>Doris 4.0.7 发布（7/12）</h3>
+<p>Doris 4.0 系列最新 patch release，紧随 4.0.6（6/8）发布。4.1 系列（4.1.2 发布于 6/17）持续迭代中。4.1.x 的 AI 统一存储能力持续吸引社区关注：</p>
+<ul>
+  <li><strong>向量索引</strong>：HNSW + IVF + IVF_ON_DISK 三级索引，支持十亿~万亿级向量</li>
+  <li><strong>全文搜索</strong>：BM25 评分 + ES 兼容语法 + NESTED 搜索</li>
+  <li><strong>长上下文存储</strong>：单行 100MB JSON 文档，覆盖 Agent 执行轨迹、RAG 上下文</li>
+  <li><strong>存算分离</strong>：已部署 2000+ 企业</li>
+</ul>
+
+<h3>时序数据库趋势</h3>
+<ul>
+  <li><strong>InfluxDB 3.x</strong> — Pacha-Tree 存储引擎 Beta 推进，LSM-tree + 时间分区的混合架构</li>
+  <li><strong>TimescaleDB</strong> — 列存加速 + Hypertable 压缩比持续优化</li>
+  <li><strong>DB-OS 融合</strong> — 时序 DB 与 OLAP DB 边界模糊化：Doris 增强时序能力 vs InfluxDB 提升 SQL 兼容</li>
+</ul>
+</section>
+
 <footer>
 <p><a href="../../index.html">← 返回首页</a> · <a href="../index.html">← 返回技术调研</a></p>
 </footer>
