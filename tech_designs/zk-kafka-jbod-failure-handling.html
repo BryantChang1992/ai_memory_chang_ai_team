@@ -506,20 +506,19 @@ kafka-dirs.sh --force-online --bootstrap-server localhost:9092 \
 </footer>
 
 </div><!-- .container -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <span class="close">&times;</span>
-  <img id="lightbox-img" src="" alt="" />
+<dialog class="lightbox" id="lightbox" aria-label="图片预览" onclick="closeLightbox()">
+  <button class="close" type="button" aria-label="关闭图片">&times;</button>
+  <img id="lightbox-img" alt="" />
   <span class="hint">点击任意位置关闭 / Click anywhere to close</span>
-</div>
+</dialog>
 <script>
 (function(){
   var lb=document.getElementById('lightbox'),img=document.getElementById('lightbox-img');
   document.querySelectorAll('.arch-diagram img').forEach(function(el){
-    el.addEventListener('click',function(e){e.stopPropagation();img.src=el.src;img.alt=el.alt;lb.classList.add('active')})
+    el.addEventListener('click',function(e){e.stopPropagation();img.src=el.src;img.alt=el.alt;lb.showModal()})
   });
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')lb.classList.remove('active')})
 })();
-function closeLightbox(){document.getElementById('lightbox').classList.remove('active')}
+function closeLightbox(){document.getElementById('lightbox').close()}
 </script>
 </body>
 </html>

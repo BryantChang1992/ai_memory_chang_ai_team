@@ -5,6 +5,8 @@ lang: zh-CN
 timezone: Asia/Shanghai
 
 future: true
+strict_front_matter: true
+disable_disk_cache: true
 
 title: BryantChang · Tech Insights
 tagline: AI 时代的技术观察与工程实践
@@ -86,7 +88,19 @@ exclude:
   - purgecss.js
   - "*.config.js"
   - "package*.json"
-  - assets/
+  - AGENTS.md
+  - SOUL.md
+  - IDENTITY.md
+  - USER.md
+  - TOOLS.md
+  - MEMORY.md
+  - HEARTBEAT.md
+  - agents
+  - memory
+  - skills
+  - scripts
+  - tests
+  - 技术文章
   - "blog/*.html"
   - "blog/**/*.html"
   - "tech_research/*.html"

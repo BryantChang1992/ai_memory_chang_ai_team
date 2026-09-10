@@ -15,13 +15,13 @@ description: "GPT-5.5 Instant 上线、Claude Opus 4.7 发布、Agent 框架竞�
 
 ## 📑 目录
 
-1. [本周重磅](#本周重磅)
-2. [OpenAI — GPT-5.5 Instant / GPT-Rosalind / GPT-6 传闻](#openai)
-3. [Anthropic — Opus 4.7 / Claude Security / Agent SDK / Mythos](#anthropic)
-4. [Agent 框架生态 — LangGraph / LangChain / 竞品格局](#agent框架生态)
-5. [Agent 安全 — 前沿模型攻防 / OWASP / 双用途模型](#agent安全)
-6. [趋势观察](#趋势观察)
-7. [信息来源](#信息来源)
+1. [本周重磅](#-本周重磅)
+2. [OpenAI — GPT-5.5 Instant / GPT-Rosalind / GPT-6 传闻](#-openai)
+3. [Anthropic — Opus 4.7 / Claude Security / Agent SDK / Mythos](#-anthropic)
+4. [Agent 框架生态 — LangGraph / LangChain / 竞品格局](#-agent-框架生态)
+5. [Agent 安全 — 前沿模型攻防 / OWASP / 双用途模型](#️-agent-安全)
+6. [趋势观察](#-趋势观察)
+7. [信息来源](#-信息来源)
 
 ---
 

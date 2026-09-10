@@ -3,7 +3,7 @@ title: "技术调研周报 — Week 09 (2026-07-02)"
 date: 2026-07-12 22:00:00 +0800
 permalink: /posts/tech-research/week-09/
 categories: [技术调研, 周报]
-tags: [AI Infra, Agent Harness, Hermes Agent, Qwen 3.6, Flink 2.3.0, Fluss, Kafka, AutoMQ, Delta Lake, Doris, LSM-tree, CockroachDB, CXL, 湖仓, 时序数据库]
+tags: [AI Infra, Agent Harness, Hermes Agent, Qwen 3.6, Flink 2.3.0, Fluss, Kafka, AutoMQ, Delta Lake, Doris, LSM-Tree, CockroachDB, CXL, 湖仓, 时序数据库]
 description: >-
   Week 09 技术调研周报（修订版）：Hermes Agent 140k⭐登顶 OpenRouter #1、Flink 2.3.0 发布、Kafka KIP-1314/1320 推进、AutoMQ 1.7.1 发布、Fluss 湖仓集成深化、Delta Lake 4.3.0 UC REST API、Doris 4.0.7、Agent 框架 2026 全景对比、CXL 数据库演进。
 ---
@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Infra · Agent 基础设施
 
-→ [子调研详情](../../../tech_research/ai_harness/week_09_2026-07-02.html)
+→ [子调研详情]({{ '/tech_research/ai_harness/week_09_2026-07-02.html' | relative_url }})
 
 ### 🔥 Hermes Agent：自进化 Agent 登顶 OpenRouter #1
 
@@ -60,7 +60,7 @@ HPE 在 Las Vegas Discover 2026 宣布面向 GreenLake 和 Morpheus 的 Agent AI
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [子调研详情](../../../tech_research/kafka_research/week_09_2026-07-02.html)
+→ [子调研详情]({{ '/tech_research/kafka_research/week_09_2026-07-02.html' | relative_url }})
 
 ### 🐘 Apache Kafka — 4.4.0 预热
 
@@ -120,7 +120,7 @@ HPE 在 Las Vegas Discover 2026 宣布面向 GreenLake 和 Morpheus 的 Agent AI
 
 ## 🌊 流处理
 
-→ [子调研详情](../../../tech_research/doris/week_09_2026-07-02.html#flink)
+→ [子调研详情]({{ '/tech_research/doris/week_09_2026-07-02.html#flink' | relative_url }})
 
 ### 🔥 Apache Flink 2.3.0 发布（6/25）
 
@@ -149,7 +149,7 @@ Flink 2.1.3 补丁版同周期发布（5 个 bug 修复）。
 
 ## 🐘 分布式数据库
 
-→ [子调研详情](../../../tech_research/doris/week_09_2026-07-02.html#distdb)
+→ [子调研详情]({{ '/tech_research/doris/week_09_2026-07-02.html#distdb' | relative_url }})
 
 ### CockroachDB vs TiDB 2026 架构对比
 
@@ -163,7 +163,7 @@ CXL 3.0（PCIe 6.0 基础）预计 2026 年产品化，有望改变内存数据�
 
 ## 💾 存储引擎
 
-→ [子调研详情](../../../tech_research/doris/week_09_2026-07-02.html#storage)
+→ [子调研详情]({{ '/tech_research/doris/week_09_2026-07-02.html#storage' | relative_url }})
 
 ### LSM-tree KV Store 综述（ArXiv 2507.09642）
 
@@ -173,7 +173,7 @@ CXL 3.0（PCIe 6.0 基础）预计 2026 年产品化，有望改变内存数据�
 
 ## 🏛 湖仓
 
-→ [子调研详情](../../../tech_research/data_for_ai/week_09_2026-07-02.html)
+→ [子调研详情]({{ '/tech_research/data_for_ai/week_09_2026-07-02.html' | relative_url }})
 
 ### 🔥 Delta Lake 4.3.0 发布（6/18）
 
@@ -207,7 +207,7 @@ Fluss 湖仓集成继续深化：Paimon 自定义路径、Hudi tiering 文档、
 
 ## 📊 时序 & 分析型数据库
 
-→ [子调研详情](../../../tech_research/data_for_ai/week_09_2026-07-02.html#doris)
+→ [子调研详情]({{ '/tech_research/data_for_ai/week_09_2026-07-02.html#doris' | relative_url }})
 
 ### Apache Doris 4.0.7 发布（7/12）
 

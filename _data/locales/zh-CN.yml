@@ -14,6 +14,7 @@ tabs:
   tags: 标签
   archives: 归档
   about: 关于
+  library: 专题
 
 # the text displayed in the search bar & search results
 search:

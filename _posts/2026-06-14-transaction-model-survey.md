@@ -170,7 +170,7 @@ flowchart LR
     B --> C["内存 Buffer<br/>Pool"]
     C --> D["数据页<br/>(异步刷盘)"]
     B --> E["磁盘日志"]
-    E -.->|fsync()| F["持久化完成<br/>事务可提交"]
+    E -.->|"fsync()"| F["持久化完成<br/>事务可提交"]
 ```
 
 **Redo Log vs Undo Log**:

@@ -38,7 +38,7 @@
 <br>
 <h2 id="04---数据面：网络与-rpc">04 - 数据面：网络与 RPC</h2>
 <br>
-<h3>4.1 整体架构概览</h3>
+<h3 id="4.1-整体架构概览">4.1 整体架构概览</h3>
 <br>
 <div class="mermaid">
 graph TB
@@ -79,7 +79,7 @@ graph TB
 <br>
 <hr>
 <br>
-<h3>4.2 RPC 协议设计</h3>
+<h3 id="4.2-rpc-协议设计">4.2 RPC 协议设计</h3>
 <br>
 <h4>4.2.1 协议栈对比</h4>
 <br>
@@ -299,7 +299,7 @@ invoke(proxy, method, args):
 <br>
 <hr>
 <br>
-<h3>4.3 网络传输层</h3>
+<h3 id="4.3-网络传输层">4.3 网络传输层</h3>
 <br>
 <h4>4.3.1 Netty 集成</h4>
 <br>
@@ -345,7 +345,7 @@ NettyServer (boss + worker event loops)
 <br>
 <hr>
 <br>
-<h3>4.4 请求/响应模型</h3>
+<h3 id="4.4-请求/响应模型">4.4 请求/响应模型</h3>
 <br>
 <h4>4.4.1 Fluss 请求结构</h4>
 <br>
@@ -396,7 +396,7 @@ fluss-protogen/src/main/proto/
 <br>
 <hr>
 <br>
-<h3>4.5 Kafka 协议兼容层深度</h3>
+<h3 id="4.5-kafka-协议兼容层深度">4.5 Kafka 协议兼容层深度</h3>
 <br>
 <h4>4.5.1 文件清单（5 个 Java 文件）</h4>
 <br>
@@ -454,7 +454,7 @@ short v = apiKey.latestVersion() > 12 ? 12; // latest > 12 ? 12
 <br>
 <hr>
 <br>
-<h3>4.6 核心类级对照表</h3>
+<h3 id="4.6-核心类级对照表">4.6 核心类级对照表</h3>
 <br>
 <div style="overflow-x:auto;"><table>
 <tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th></tr>

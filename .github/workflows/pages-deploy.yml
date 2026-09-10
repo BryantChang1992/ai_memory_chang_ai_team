@@ -1,5 +1,6 @@
 name: "Build and Deploy"
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -16,7 +17,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
   cancel-in-progress: true
 
 jobs:
@@ -29,6 +30,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         id: pages
         uses: actions/configure-pages@v5
 
@@ -39,26 +41,20 @@ jobs:
           bundler-cache: true
 
       - name: Build site
-        run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
-        env:
-          JEKYLL_ENV: "production"
+        run: bash scripts/build_site.sh
 
-      - name: Copy static HTML directories (excluded from Jekyll)
+      - name: Check category coverage and generated links
         run: |
-          SITE="_site${{ steps.pages.outputs.base_path }}"
-          for dir in tech_research tech_designs blog; do
-            if [ -d "$dir" ]; then
-              cp -r "$dir" "$SITE/"
-              echo "Copied $dir/ to _site/"
-            fi
-          done
+          bundle exec ruby tests/category_tree_test.rb
+          python3 scripts/check_site.py _site
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: "_site${{ steps.pages.outputs.base_path }}"
+          path: _site
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

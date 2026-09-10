@@ -38,7 +38,7 @@
 <br>
 <h2 id="03---分布式协调层分析">03 - 分布式协调层分析</h2>
 <br>
-<h3>3.1 整体架构概览</h3>
+<h3 id="3.1-整体架构概览">3.1 整体架构概览</h3>
 <br>
 <p>Fluss 的分布式协调层采用 <strong>Coordinator Server（协调器）</strong> 架构，对标 Kafka 的 <strong>Controller</strong> 角色，但进行了现代化重构（Java 实现、事件驱动、统一 RPC 通道）。核心组件关系如下：</p>
 <br>
@@ -128,7 +128,7 @@ graph TB
 <br>
 <hr>
 <br>
-<h3>3.2 Coordinator 系统</h3>
+<h3 id="3.2-coordinator-系统">3.2 Coordinator 系统</h3>
 <br>
 <h4>3.2.1 CoordinatorServer 架构</h4>
 <br>
@@ -397,7 +397,7 @@ sequenceDiagram
 <br>
 <hr>
 <br>
-<h3>3.3 TableBucket 重平衡</h3>
+<h3 id="3.3-tablebucket-重平衡">3.3 TableBucket 重平衡</h3>
 <br>
 <h4>3.3.1 重平衡算法</h4>
 <br>
@@ -520,7 +520,7 @@ NOT_STARTED → REBALANCING → COMPLETED
 <br>
 <hr>
 <br>
-<h3>3.4 租约管理（Lease）</h3>
+<h3 id="3.4-租约管理（lease）">3.4 租约管理（Lease）</h3>
 <br>
 <h4>3.4.1 Lease 机制</h4>
 <br>
@@ -578,7 +578,7 @@ stateDiagram-v2
 <br>
 <hr>
 <br>
-<h3>3.5 Producer ID 管理</h3>
+<h3 id="3.5-producer-id-管理">3.5 Producer ID 管理</h3>
 <br>
 <h4>3.5.1 与 Kafka TransactionCoordinator 对照</h4>
 <br>
@@ -627,7 +627,7 @@ public static final class ProducerIdZNode {
 <br>
 <hr>
 <br>
-<h3>3.6 ZooKeeper 集成</h3>
+<h3 id="3.6-zookeeper-集成">3.6 ZooKeeper 集成</h3>
 <br>
 <h4>3.6.1 Fluss ZK 数据结构</h4>
 <br>
@@ -749,7 +749,7 @@ public class LeaderAndIsr {
 <br>
 <hr>
 <br>
-<h3>3.7 元数据管理</h3>
+<h3 id="3.7-元数据管理">3.7 元数据管理</h3>
 <br>
 <h4>3.7.1 Table/Partition/TableBucket 元数据</h4>
 <br>
@@ -889,7 +889,7 @@ public class CoordinatorMetadataCache implements ServerMetadataCache {
 <br>
 <hr>
 <br>
-<h3>3.8 核心类级对照表</h3>
+<h3 id="3.8-核心类级对照表">3.8 核心类级对照表</h3>
 <br>
 <h4>Coordinator → Controller 对照</h4>
 <br>
@@ -969,7 +969,7 @@ public class CoordinatorMetadataCache implements ServerMetadataCache {
 <br>
 <hr>
 <br>
-<h3>3.9 Coordinator 启动与 Leader 选举序列</h3>
+<h3 id="3.9-coordinator-启动与-leader-选举序列">3.9 Coordinator 启动与 Leader 选举序列</h3>
 <br>
 <div class="mermaid">
 sequenceDiagram
@@ -1005,7 +1005,7 @@ sequenceDiagram
     Note over CEP: 事件循环就绪，开始处理各种事件
 </div>
 <br>
-<h3>3.10 关键设计总结</h3>
+<h3 id="3.10-关键设计总结">3.10 关键设计总结</h3>
 <br>
 <h4>Fluss Coordinator 相比 Kafka Controller 的主要改进</h4>
 <br>

@@ -1,0 +1,9 @@
+#page-category .pagination > li { padding: 0; }
+#page-category .pagination > li::before { content: none; }
+#page-category [data-category-post] > a { min-width: 0; overflow-wrap: anywhere; }
+.category-posts, #page-category section { scroll-margin-top: 5rem; }
+@media (max-width: 575px) {
+  #page-category [data-category-post] { flex-wrap: wrap; gap: .25rem .75rem; }
+  #page-category [data-category-post] > a { flex: 1 1 100%; white-space: normal; }
+  #page-category [data-category-post] > .dash { display: none; }
+}

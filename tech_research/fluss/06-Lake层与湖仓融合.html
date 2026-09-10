@@ -38,7 +38,7 @@
 <br>
 <h2 id="06---lake-层与湖仓融合">06 - Lake 层与湖仓融合</h2>
 <br>
-<h3>6.1 概述</h3>
+<h3 id="6.1-概述">6.1 概述</h3>
 <br>
 <p>Lake 层是 Fluss 最大的架构差异化能力——它原生支持将数据写入 Lakehouse（数据湖），实现 <strong>"Streaming Table → Lakehouse Table"</strong> 的一体化转换。Kafka 2.7.2 完全没有此能力。</p>
 <br>
@@ -92,7 +92,7 @@ graph TB
 <br>
 <hr>
 <br>
-<h3>6.2 Lake 存储插件架构</h3>
+<h3 id="6.2-lake-存储插件架构">6.2 Lake 存储插件架构</h3>
 <br>
 <h4>6.2.1 插件接口</h4>
 <br>
@@ -141,7 +141,7 @@ interface LakeTable {
 <br>
 <hr>
 <br>
-<h3>6.3 Iceberg 集成（最完整）</h3>
+<h3 id="6.3-iceberg-集成（最完整）">6.3 Iceberg 集成（最完整）</h3>
 <br>
 <h4>6.3.1 IcebergLakeStorage 结构</h4>
 <br>
@@ -197,7 +197,7 @@ IcebergLakeSource → Fluss Source:
 <br>
 <hr>
 <br>
-<h3>6.4 Paimon 集成</h3>
+<h3 id="6.4-paimon-集成">6.4 Paimon 集成</h3>
 <br>
 <h4>6.4.1 PaimonLakeStorage 结构</h4>
 <br>
@@ -231,7 +231,7 @@ PaimonLakeStorage (impl LakeStorage)
 <br>
 <hr>
 <br>
-<h3>6.5 Tiering 架构（Flink 独立作业）</h3>
+<h3 id="6.5-tiering-架构（flink-独立作业）">6.5 Tiering 架构（Flink 独立作业）</h3>
 <br>
 <h4>6.5.1 Tiering 工作流</h4>
 <br>
@@ -291,7 +291,7 @@ sequenceDiagram
 <br>
 <hr>
 <br>
-<h3>6.6 Lance（Arrow Native Lake）</h3>
+<h3 id="6.6-lance（arrow-native-lake）">6.6 Lance（Arrow Native Lake）</h3>
 <br>
 <p>Lance 是新兴的 Arrow-native 列式存储格式，Fluss 支持作为 Lake 后端：</p>
 <br>
@@ -311,7 +311,7 @@ LanceLakeStorage
 <br>
 <hr>
 <br>
-<h3>6.7 Fluss Lake 能力与 Kafka 对照</h3>
+<h3 id="6.7-fluss-lake-能力与-kafka-对照">6.7 Fluss Lake 能力与 Kafka 对照</h3>
 <br>
 <div style="overflow-x:auto;"><table>
 <tr><th>能力</th><th>Fluss</th><th>Kafka 2.7.2</th></tr>
@@ -328,7 +328,7 @@ LanceLakeStorage
 <br>
 <hr>
 <br>
-<h3>6.8 关键差异总结</h3>
+<h3 id="6.8-关键差异总结">6.8 关键差异总结</h3>
 <br>
 <h4>Fluss Lake 层的设计哲学</h4>
 <br>

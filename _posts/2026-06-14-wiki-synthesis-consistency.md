@@ -7,7 +7,7 @@ description: >-
   从事务层、副本层、会话层三个层面构建分布式数据系统的全景一致性视图。串联 Event Horizon 半线性化、RaaS 日志回放、Spanner TrueTime 等关键概念。
 ---
 
-> 本文是 **Wiki Synthesize（知识库领域提炼）** 首轮综述之三。基于事务模型深度调研、Event Horizon、RaaS、存算分离等页面。[完整周报](/posts/tech-research-week-05/) · [子调研详情](../../tech_research/wiki_synthesis/week_01_2026-06-14.html)
+> 本文是 **Wiki Synthesize（知识库领域提炼）** 首轮综述之三。基于事务模型深度调研、Event Horizon、RaaS、存算分离等页面。[完整周报]({{ '/posts/tech-research/week-05/' | relative_url }}) · [子调研详情]({{ '/tech_research/wiki_synthesis/week_01_2026-06-14.html' | relative_url }})
 
 ---
 

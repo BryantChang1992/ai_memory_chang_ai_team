@@ -1,0 +1,20 @@
+{% if include.node.direct_posts.size > 0 %}
+<ul>
+  {% for post in include.node.direct_posts limit: 5 %}
+  <li><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></li>
+  {% endfor %}
+  {% if include.node.direct_posts.size > 5 %}
+  <li><a href="{{ include.node.url | relative_url }}">查看全部 {{ include.node.direct_posts.size }} 篇文章</a></li>
+  {% endif %}
+</ul>
+{% endif %}
+{% if include.node.children.size > 0 %}
+<ul>
+  {% for child in include.node.children %}
+  <li>
+    <a href="{{ child.url | relative_url }}">{{ child.name | escape }}</a> <span class="text-muted">（{{ child.posts.size }} 篇）</span>
+    {% include category-index.html node=child %}
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}

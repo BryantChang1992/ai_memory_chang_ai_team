@@ -3,7 +3,7 @@ title: "技术调研周报 — Week 10 (2026-07-09)"
 date: 2026-07-09 22:00:00 +0800
 permalink: /posts/tech-research/week-10/
 categories: [技术调研, 周报]
-tags: [AI Infra, Agent, GPT-5.5, Claude Sonnet 5, MAS SAFR, LSM-tree, 存储引擎, 知识库升级, Schema V2]
+tags: [AI Infra, Agent, GPT-5.5, Claude Sonnet 5, MAS SAFR, LSM-Tree, 存储引擎, 知识库升级, Schema V2]
 description: >-
   Week 10 技术调研周报：GPT-5.5 Instant Mini 静默上线、Claude Sonnet 5 Agentic 升级、MAS SAFR 金融 Agent 安全框架发布、LSM-tree KV Survey Top 10 CCF-A 论文入库、知识库 V2 全量升级完成。
 ---
@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Infra · Agent 基础设施
 
-→ [子调研详情](../../../tech_research/ai_harness/week_10_2026-07-09.html)
+→ [子调研详情]({{ '/tech_research/ai_harness/week_10_2026-07-09.html' | relative_url }})
 
 ### 🤖 OpenAI GPT-5.5 Instant Mini：无声升级底层 Fallback 模型
 
@@ -52,7 +52,7 @@ SAFR 基于 MAS Project Mindforge 的 AI 风险管理工具包构建，已在多
 
 ## 💾 存储引擎与数据基础设施
 
-→ [子调研详情](../../../tech_research/doris/week_10_2026-07-09.html)
+→ [子调研详情]({{ '/tech_research/doris/week_10_2026-07-09.html' | relative_url }})
 
 ### 📚 LSM-tree KV Store 综述深度扩展：Top 10 CCF-A 论文入库
 

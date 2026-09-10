@@ -570,47 +570,47 @@ public static final class ProducerIdZNode {
 
 ```mermaid
 graph TB
-    ROOT[/]
+    ROOT["/"]
     
-    ROOT --> METADATA[/metadata/]
-    ROOT --> COORDS[/coordinators/]
-    ROOT --> CLUSTER[/cluster/]
-    ROOT --> PRODUCERS[/producers/]
-    ROOT --> LEASES[/leases/]
+    ROOT --> METADATA["/metadata/"]
+    ROOT --> COORDS["/coordinators/"]
+    ROOT --> CLUSTER["/cluster/"]
+    ROOT --> PRODUCERS["/producers/"]
+    ROOT --> LEASES["/leases/"]
     
-    METADATA --> DBS[/metadata/databases/]
-    METADATA --> TSEQ[/metadata/table_seqid]
-    METADATA --> PSEQ[/metadata/partition_seqid]
-    METADATA --> WID[/metadata/writer_id]
+    METADATA --> DBS["/metadata/databases/"]
+    METADATA --> TSEQ["/metadata/table_seqid"]
+    METADATA --> PSEQ["/metadata/partition_seqid"]
+    METADATA --> WID["/metadata/writer_id"]
     
-    DBS --> DB[/databases/{dbName}/]
-    DB --> TABLES[/tables/]
-    DB --> TABLES2[tables/{tableName}]
+    DBS --> DB["/databases/{dbName}/"]
+    DB --> TABLES["/tables/"]
+    DB --> TABLES2["tables/{tableName}"]
     
-    TABLES2 --> SCHEMAS[/schemas/]
-    TABLES2 --> PARTS[/partitions/]
-    TABLES2 --> AUTO[/auto_inc/]
+    TABLES2 --> SCHEMAS["/schemas/"]
+    TABLES2 --> PARTS["/partitions/"]
+    TABLES2 --> AUTO["/auto_inc/"]
     
-    SCHEMAS --> SCHEMA[/schemas/{schemaId}]
-    PARTS --> PART[/partitions/{partName}]
+    SCHEMAS --> SCHEMA["/schemas/{schemaId}"]
+    PARTS --> PART["/partitions/{partName}"]
     
-    COORDS --> CIDS[/coordinators/ids/]
-    COORDS --> CELEC[/coordinators/election]
-    CIDS --> CID[/ids/{serverId}]
+    COORDS --> CIDS["/coordinators/ids/"]
+    COORDS --> CELEC["/coordinators/election"]
+    CIDS --> CID["/ids/{serverId}"]
     
-    CLUSTER --> TIDS[/cluster/table_ids/]
-    CLUSTER --> PIDS[/cluster/partition_ids/]
-    CLUSTER --> SERVERIDS[/cluster/server_ids/]
-    CLUSTER --> TAGS[/cluster/server_tags/]
-    CLUSTER --> REBAL[/cluster/rebalance]
-    CLUSTER --> REMOTEL[/cluster/remote_logs/]
+    CLUSTER --> TIDS["/cluster/table_ids/"]
+    CLUSTER --> PIDS["/cluster/partition_ids/"]
+    CLUSTER --> SERVERIDS["/cluster/server_ids/"]
+    CLUSTER --> TAGS["/cluster/server_tags/"]
+    CLUSTER --> REBAL["/cluster/rebalance"]
+    CLUSTER --> REMOTEL["/cluster/remote_logs/"]
     
-    TIDS --> TID[/table_ids/{tableId}: TableAssignment]
-    PIDS --> PID[/partition_ids/{partitionId}: PartitionAssignment]
-    SERVERIDS --> SID[/server_ids/{serverId}: TabletServerRegistration]
+    TIDS --> TID["/table_ids/{tableId}: TableAssignment"]
+    PIDS --> PID["/partition_ids/{partitionId}: PartitionAssignment"]
+    SERVERIDS --> SID["/server_ids/{serverId}: TabletServerRegistration"]
     
-    PRODUCERS --> PROD[/producers/{producerId}: ProducerOffsets]
-    LEASES --> KVLEASE[/leases/kv_snapshot/{leaseId}: KvSnapshotLeaseMetadata]
+    PRODUCERS --> PROD["/producers/{producerId}: ProducerOffsets"]
+    LEASES --> KVLEASE["/leases/kv_snapshot/{leaseId}: KvSnapshotLeaseMetadata"]
 
     style METADATA fill:#e1f5fe
     style COORDS fill:#fff3e0
@@ -950,21 +950,19 @@ sequenceDiagram
 ### 架构层级总览
 
 ```mermaid
-block-beta
-    block:CS:CoordinatorServer
-        block:RPC:CoordinatorService (RPC 处理)
-            columns 5
+flowchart TB
+    subgraph CS["CoordinatorServer"]
+        subgraph RPC["CoordinatorService (RPC 处理)"]
             A["Table CRUD"]
             B["DB CRUD"]
             C["Server Reg"]
             D["Lease Mgr"]
             E["Rebal Mgr"]
         end
-        block:CEP:CoordinatorEventProcessor (事件循环)
+        subgraph CEP["CoordinatorEventProcessor (事件循环)"]
             CEM["CoordinatorEventManager (队列)"]
         end
-        block:States
-            columns 2
+        subgraph States["状态机"]
             RSM["ReplicaState Machine"]
             TBSM["TableBucketState Machine"]
         end

@@ -40,7 +40,7 @@
 <br>
 <blockquote>本文分析 Fluss trunk 与 Apache Kafka 2.7.2 的整体架构差异和模块映射关系。</blockquote>
 <br>
-<h3>1.1 核心概念映射</h3>
+<h3 id="1.1-核心概念映射">1.1 核心概念映射</h3>
 <br>
 <div style="overflow-x:auto;"><table>
 <tr><th>Fluss 概念</th><th>Kafka 2.7.2 概念</th><th>说明</th></tr>
@@ -60,7 +60,7 @@
 <tr><td><strong>Row / InternalRow</strong></td><td><strong>Record（Key+Value bytes）</strong></td><td>Fluss 用 Arrow 列式（schema-aware），Kafka 用字节流</td></tr>
 </table></div>
 <br>
-<h3>1.2 核心差异总览</h3>
+<h3 id="1.2-核心差异总览">1.2 核心差异总览</h3>
 <br>
 <div class="mermaid">
 graph TB
@@ -102,7 +102,7 @@ graph TB
 <tr><td><strong>分层存储</strong></td><td>原生支持 Remote Log + Lake Table</td><td>KIP-405 后才有（2.7.2 尚未引入）</td></tr>
 </table></div>
 <br>
-<h3>1.3 模块级映射（Maven 模块 ↔ Gradle 模块）</h3>
+<h3 id="1.3-模块级映射（maven-模块-↔-gradle-模块）">1.3 模块级映射（Maven 模块 ↔ Gradle 模块）</h3>
 <br>
 <div style="overflow-x:auto;"><table>
 <tr><th>Fluss Maven 模块</th><th>Kafka 2.7.2 Gradle 模块</th><th>功能</th></tr>
@@ -121,7 +121,7 @@ graph TB
 <tr><td><code>fluss-dist</code></td><td><code>tools</code>（分布部分）</td><td>发行版打包</td></tr>
 </table></div>
 <br>
-<h3>1.4 命名空间对比</h3>
+<h3 id="1.4-命名空间对比">1.4 命名空间对比</h3>
 <br>
 <pre><code class="">
 Kafka 层级:
@@ -135,7 +135,7 @@ Fluss 层级:
   /fluss/coordinator/leader
 </code></pre>
 <br>
-<h3>1.5 Server 启动流程对比</h3>
+<h3 id="1.5-server-启动流程对比">1.5 Server 启动流程对比</h3>
 <br>
 <h4>Kafka Broker 启动</h4>
 <pre><code class="">
@@ -173,7 +173,7 @@ CoordinatorServer.startup()  [extends RpcServiceBase]
   → LakeTableTieringManager (Lake 表分层)
 </code></pre>
 <br>
-<h3>1.6 Fluss 独有的核心能力（Kafka 2.7.2 无对应）</h3>
+<h3 id="1.6-fluss-独有的核心能力（kafka-2.7.2-无对应）">1.6 Fluss 独有的核心能力（Kafka 2.7.2 无对应）</h3>
 <br>
 <p>1. <strong>KV Store (RocksDB)</strong>：为 PK 表提供点查/更新/删除，Kafka 本质是 append-only log</p>
 <p>2. <strong>Arrow 列式记录</strong>：支持列裁剪、谓词下推、向量化计算，Kafka 是行式字节流</p>
@@ -193,7 +193,7 @@ CoordinatorServer.startup()  [extends RpcServiceBase]
 <p>5. <strong>幂等生产者</strong>：Producer ID + Sequence Number 机制</p>
 <p>6. <strong>分区的 compaction 策略</strong>：基于 key 的日志压缩</p>
 <br>
-<h3>1.7 已确认的代码复用</h3>
+<h3 id="1.7-已确认的代码复用">1.7 已确认的代码复用</h3>
 <br>
 <p>Fluss 多个核心模块标注 <code>/<em> This file is based on source code of Apache Kafka Project </em>/</code>：</p>
 <br>

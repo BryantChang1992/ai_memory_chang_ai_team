@@ -18,6 +18,12 @@ code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-size: 0.9
 </style>
 </head>
 <body>
+<nav aria-label="站点导航">
+  <a href="../../index.html">首页</a> ·
+  <a href="../index.html">技术调研</a> ·
+  <a href="../../tech_designs/index.html">技术方案设计</a> ·
+  <a href="../../blog/index.html">博客</a>
+</nav>
 
 <h1>⏱ Doris / 分析型数据库 — Week 08 (2026-06-25)</h1>
 <p class="source">覆盖周期：2026-06-19 ~ 2026-06-25（部分内容跨月，均为 2026 年重要发布）</p>
@@ -90,7 +96,7 @@ code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-size: 0.9
 
 <p class="source">来源：<a href="https://github.com/apache/doris/issues/60036">github.com/apache/doris #60036 — Roadmap 2026</a></p>
 
-<h2>3. 分布式数据库</h2>
+<h2 id="distdb">3. 分布式数据库</h2>
 
 <h3>CockroachDB Leader Leases (SIGMOD 2026)</h3>
 <p>解决分布式 SQL 数据库的 lease 管理扩展瓶颈。核心创新：</p>
@@ -110,7 +116,7 @@ code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-size: 0.9
 </ul>
 <p class="source">来源：<a href="https://openproceedings.org/2026/conf/edbt/paper-280.pdf">EDBT 2026 paper</a>, <a href="https://dbgroup.cs.tsinghua.edu.cn/ligl//papers/CXL_ICDE.pdf">清华 CXL ICDE 论文</a></p>
 
-<h2>4. 存储引擎</h2>
+<h2 id="storage">4. 存储引擎</h2>
 
 <h3>PASV 入选 ACM Transactions on Storage</h3>
 <p>LSM-tree 数据库的 double-logging 解决方案 PASV 于 2026 年 5 月入选 ACM TOS（DOI: 10.1145/3813114）。</p>

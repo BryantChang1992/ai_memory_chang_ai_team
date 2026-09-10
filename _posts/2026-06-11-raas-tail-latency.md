@@ -20,13 +20,13 @@ description: "SIGMOD 2026 论文精读：Reducing Tail Latency in Storage-Disagg
 
 ## 📑 目录
 
-1. [问题背景 — 存储计算分离数据库的 Tail Latency](#问题背景)
-2. [根因分析 — 两大实验验证](#根因分析)
-3. [RaaS 核心方案 — Replay-as-a-Service](#raas核心方案)
-4. [在 OpenAurora 上的实现](#openaurora实现)
-5. [实验评估 — 核心结果](#实验评估)
-6. [与 Kafka/流存储系统的关联分析](#kafka关联分析)
-7. [论文评价](#论文评价)
+1. [问题背景 — 存储计算分离数据库的 Tail Latency](#一问题背景)
+2. [根因分析 — 两大实验验证](#二根因分析)
+3. [RaaS 核心方案 — Replay-as-a-Service](#三raasreplay-as-a-service核心方案)
+4. [在 OpenAurora 上的实现](#四在-openaurora-上的实现)
+5. [实验评估 — 核心结果](#五实验评估)
+6. [与 Kafka/流存储系统的关联分析](#六与-kafka流存储系统的关联分析)
+7. [论文评价](#七论文评价)
 
 ---
 

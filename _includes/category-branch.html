@@ -1,0 +1,13 @@
+<section aria-labelledby="{{ include.node.id | escape }}">
+  <h{{ include.level }} id="{{ include.node.id | escape }}">
+    <a href="{{ include.node.url | relative_url }}">{{ include.node.name | escape }}</a>
+    <span class="text-muted">（{{ include.node.posts.size }} 篇）</span>
+  </h{{ include.level }}>
+  {% if include.node.direct_posts.size > 0 %}
+    {% include category-posts.html posts=include.node.direct_posts %}
+  {% endif %}
+  {% for child in include.node.children %}
+    {% assign next_level = include.level | plus: 1 | at_most: 6 %}
+    {% include category-branch.html node=child level=next_level %}
+  {% endfor %}
+</section>

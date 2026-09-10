@@ -20,7 +20,7 @@ description: >-
 
 ### 综述一：LSM-Tree 存储引擎体系
 
-→ [阅读全文](/posts/wiki-synthesis-lsm-tree/) · [子调研详情](../../../tech_research/wiki_synthesis/week_01_2026-06-14.html)
+→ [阅读全文]({{ '/posts/wiki-synthesis-lsm-tree/' | relative_url }}) · [子调研详情]({{ '/tech_research/wiki_synthesis/week_01_2026-06-14.html' | relative_url }})
 
 基于 VLDB Journal 2019 Survey 的 7 张 wiki 卡片，以 RUM 猜想为统一框架。5 个核心洞察：
 
@@ -32,7 +32,7 @@ description: >-
 
 ### 综述二：OLAP 与时序数据库全景对比
 
-→ [阅读全文](/posts/wiki-synthesis-olap-tsdb/)
+→ [阅读全文]({{ '/posts/wiki-synthesis-olap-tsdb/' | relative_url }})
 
 Doris (OLAP) vs InfluxDB (TSDB) 横向对比，17 张卡片输入。3 个核心洞察：
 
@@ -42,7 +42,7 @@ Doris (OLAP) vs InfluxDB (TSDB) 横向对比，17 张卡片输入。3 个核心�
 
 ### 综述三：分布式数据系统一致性体系
 
-→ [阅读全文](/posts/wiki-synthesis-consistency/)
+→ [阅读全文]({{ '/posts/wiki-synthesis-consistency/' | relative_url }})
 
 事务层 → 副本层 → 会话层，三层叠加视图。4 个核心洞察：
 
@@ -64,5 +64,5 @@ Doris (OLAP) vs InfluxDB (TSDB) 横向对比，17 张卡片输入。3 个核心�
 
 ## 🔗 链接
 
-- [技术调研总目录](../../../tech_research/index.html)
+- [技术调研总目录]({{ '/tech_research/index.html' | relative_url }})
 - [知识库 GitHub](https://github.com/BryantChang1992/ai_wikis)

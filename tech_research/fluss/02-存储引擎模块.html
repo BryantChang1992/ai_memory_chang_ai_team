@@ -38,7 +38,7 @@
 <br>
 <h2 id="02---存储引擎模块分析">02 - 存储引擎模块分析</h2>
 <br>
-<h3>2.1 整体架构概览</h3>
+<h3 id="2.1-整体架构概览">2.1 整体架构概览</h3>
 <br>
 <div class="mermaid">
 graph TB
@@ -99,7 +99,7 @@ graph TB
 <br>
 <hr>
 <br>
-<h3>2.2 Log 子系统</h3>
+<h3 id="2.2-log-子系统">2.2 Log 子系统</h3>
 <br>
 <h4>2.2.1 核心类关系</h4>
 <br>
@@ -193,7 +193,7 @@ LogAppendInfo {
 <br>
 <hr>
 <br>
-<h3>2.3 KV 存储子系统（Fluss 独有）</h3>
+<h3 id="2.3-kv-存储子系统（fluss-独有）">2.3 KV 存储子系统（Fluss 独有）</h3>
 <br>
 <h4>2.3.1 概述</h4>
 <br>
@@ -340,7 +340,7 @@ classDiagram
 <br>
 <hr>
 <br>
-<h3>2.4 Tablet 抽象</h3>
+<h3 id="2.4-tablet-抽象">2.4 Tablet 抽象</h3>
 <br>
 <h4>2.4.1 Tablet 定义</h4>
 <br>
@@ -371,7 +371,7 @@ Tablet = LogTablet（普通表） 或  KvTablet（PK 表）
 <br>
 <hr>
 <br>
-<h3>2.5 Replica 机制</h3>
+<h3 id="2.5-replica-机制">2.5 Replica 机制</h3>
 <br>
 <h4>2.5.1 Fluss ReplicaManager</h4>
 <br>
@@ -446,7 +446,7 @@ classDiagram
 <br>
 <hr>
 <br>
-<h3>2.6 记录格式</h3>
+<h3 id="2.6-记录格式">2.6 记录格式</h3>
 <br>
 <h4>2.6.1 Fluss Row 格式（Arrow 列式）</h4>
 <br>
@@ -506,7 +506,7 @@ InternalRow (行式抽象，类似 Flink RowData)
 <br>
 <hr>
 <br>
-<h3>2.7 核心类级对照表</h3>
+<h3 id="2.7-核心类级对照表">2.7 核心类级对照表</h3>
 <br>
 <div style="overflow-x:auto;"><table>
 <tr><th>Fluss 类</th><th>Kafka 2.7.2 类</th><th>功能</th><th>差异</th></tr>

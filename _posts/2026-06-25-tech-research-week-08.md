@@ -3,7 +3,7 @@ title: "技术调研周报 — Week 08 (2026-06-25)"
 date: 2026-06-25 14:30:00 +0800
 permalink: /posts/tech-research/week-08/
 categories: [技术调研, 周报]
-tags: [AI Infra, Agent Harness, CodeAct, Hyperlight, CockroachDB, Leader Leases, Flink, Fluss, Doris, Iceberg, LSM-tree, PASV, 湖仓, CXL]
+tags: [AI Infra, Agent Harness, CodeAct, Hyperlight, CockroachDB, Leader Leases, Flink, Fluss, Doris, Iceberg, LSM-Tree, PASV, 湖仓, CXL]
 description: >-
   Week 08 补调研周报，6 方向全量追踪：Microsoft Agent Framework BUILD 2026 三大发布、CockroachDB SIGMOD 2026 Leader Leases 论文、Apache Doris 4.1 AI 统一存储检索、Iceberg v3 Public Preview、PASV 被动持久化入 ACM TOS、Flink 2.0.2 + Fluss 1.0 路线图。
 ---
@@ -14,7 +14,7 @@ description: >-
 
 ## 🧠 AI Infra · Agent 基础设施
 
-→ [子调研详情](../../../tech_research/ai_harness/week_08_2026-06-25.html)
+→ [子调研详情]({{ '/tech_research/ai_harness/week_08_2026-06-25.html' | relative_url }})
 
 本周 AI Infra 领域最大的事件是 **Microsoft BUILD 2026 Agent Framework 三大发布**，另有 Harness Engineering 理论化进展和模型架构演进信号。
 
@@ -52,7 +52,7 @@ Sebastian Raschka 发布的 2026 H1 论文列表揭示了几个趋势：
 
 ## 🐘 分布式数据库
 
-→ [子调研详情](../../../tech_research/ai_harness/week_08_2026-06-25.html#distdb)
+→ [子调研详情]({{ '/tech_research/doris/week_08_2026-06-25.html#distdb' | relative_url }})
 
 ### 🔥 CockroachDB Leader Leases — SIGMOD 2026
 
@@ -83,7 +83,7 @@ CXL（Compute Express Link）内存与数据库系统的交叉研究在 2026 年
 
 ## 🌊 流处理
 
-→ [子调研详情](../../../tech_research/kafka_research/week_08_2026-06-25.html)
+→ [子调研详情]({{ '/tech_research/kafka_research/week_08_2026-06-25.html' | relative_url }})
 
 ### Flink 2.0 生态成型
 
@@ -116,7 +116,7 @@ RisingWave 2.x 系列已发布至 v2.8.0（2026-03-02），新增跨数据库查
 
 ## 💾 存储引擎
 
-→ [子调研详情](../../../tech_research/ai_harness/week_08_2026-06-25.html#storage]
+→ [子调研详情]({{ '/tech_research/doris/week_08_2026-06-25.html#storage' | relative_url }})
 
 ### PASV 入选 ACM Transactions on Storage
 
@@ -138,7 +138,7 @@ ACM TOS 版本扩展为"Passive and Hybrid Data Persistence Scheme"，增加了 
 
 ## ⏱ 时序 & 分析型数据库
 
-→ [子调研详情](../../../tech_research/doris/week_08_2026-06-25.html)
+→ [子调研详情]({{ '/tech_research/doris/week_08_2026-06-25.html' | relative_url }})
 
 ### 🔥 Apache Doris 4.1：AI 统一存储与检索
 
@@ -173,7 +173,7 @@ GitHub Issue #60036 明确的 2026 路线图：
 
 ## 🏛 湖仓
 
-→ [子调研详情](../../../tech_research/data_for_ai/week_08_2026-06-25.html)
+→ [子调研详情]({{ '/tech_research/data_for_ai/week_08_2026-06-25.html' | relative_url }})
 
 ### 🔥 Iceberg v3 Public Preview on Databricks
 
