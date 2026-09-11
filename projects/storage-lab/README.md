@@ -16,20 +16,27 @@
 
 在当前训练对话完成讨论后，将真实内容写入相应训练记录并提交。只保存需要公开的设计内容，不复制整段聊天或本机配置。计划日期不代表完成日期；顺延训练应保留计划与实际状态的区别。
 
+用户已明确选择：所有讨论继续在原训练对话中进行，不要求在网页写作、登录或提交。网站是公开档案和进度回看入口。每期页面提供阶段进度、下一步讨论提示、三个环节的提纲，以及按证据记录的能力观察。提纲不属于已完成的答案。
+
 ## 更新一份训练记录
 
 编辑 `content/training.json` 对应的 session：
 
-- `status`：`planned` → `drafting` → `review` → `completed`。
+- `status`：`planned` → `drafting` → `review` → `revising` → `completed`，按真实进展更新；允许回到评审。
 - `brief` 与 `questions`：实际发布的题目和约束。未发布的未来题面保持空。
-- `design`、`review`、`reflection`：纯文本记录，段落间空一行；内容按文本渲染，不执行 HTML。
+- `design`：第一份设计，保留原始假设与尚未解决的问题。后续方案变化写入 `revisions`，不覆盖原设计。纯文本按段落渲染，不执行 HTML。
+- `review`：可选的评审概述；逐条问题放入 `reviewQuestions`，避免把多轮讨论压成一段结论。
+- `reviewQuestions`：每个问题保存稳定的 `id`、维度 `dimension`（scale / consistency / performance）、问题 `question`、状态 `status`（open / resolved / deferred）、按时间追加的 `discussion` 与 `conclusion`。每条讨论包含 `role`（bryant / reviewer）、`text`、`date`。只将用户实际回答记为 bryant；AI 建议不能冒充用户作答。
+- `revisions`：按时间追加 `id`、`date`、`before`、`after`、`reason`、`validation`。写清修改前后、对应追问与验证办法；尚未执行的实验明确标记为计划，不能写成通过。
+- `reflection`：实际复盘，包括收获、未解决问题和下一次重点。纯文本，段落间空一行。
 - `takeaways`：从实际讨论得到的结论。
 - `scores`：规模、一致性、性能的 0—3 级观察；未评估为 null，不能用 0 冒充未评估。
+- `scoreEvidence`：同样三个维度，填写对应回答与判断依据。给出分数必须有证据；没有评估时可留空。
 - `updatedAt`：实际更新日期，格式 YYYY-MM-DD。
 - `minutes`：实际投入分钟数，没有记录时为 0。
 - `references`：使用过的一手来源。
 
-标记 completed 前必须有真实复盘与更新日期。第 4、8、12 期进行阶段回评。
+标记 completed 前必须有初稿、评审、真实复盘与更新日期；open 问题须继续讨论或明确转为 deferred 并说明原因。resolved 问题须保留用户回答和结论。第 4、8、12 期进行阶段回评。留待验证的问题会持续显示在页面上，不因归档而消失。
 
 ## 本地运行
 
@@ -40,7 +47,7 @@ npm ci
 npm run dev
 ```
 
-`npm run validate` 检查记录结构、双周节奏与完成状态。`npm run build:pages` 生成 GitHub Pages 静态输出至 `out/`，每期有独立 URL、页面元数据和 canonical 链接。
+`npm run validate` 检查记录结构、双周节奏、问答历史、修订依据与完成状态。`node --test scripts/training-schema.test.mjs` 使用隔离样例检查误标完成、无依据评分等情况，样例不进入网站数据。`npm run build:pages` 生成 GitHub Pages 静态输出至 `out/`，每期有独立 URL、页面元数据和 canonical 链接。
 
 ## 博客发布
 

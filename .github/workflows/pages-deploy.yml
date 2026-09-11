@@ -51,6 +51,7 @@ jobs:
         working-directory: projects/storage-lab
         run: |
           npm ci
+          node --test scripts/training-schema.test.mjs
           npm run build:pages
 
       - name: Build site
