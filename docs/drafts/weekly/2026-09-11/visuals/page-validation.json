@@ -1,0 +1,325 @@
+{
+  "previewBase": "http://127.0.0.1:4186/ai_memory_chang_ai_team/review/2026-09-11/",
+  "checks": [
+    {
+      "slug": "overview",
+      "mode": "desktop",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 1440,
+      "viewport": 1440,
+      "diagrams": [
+        {
+          "width": 559.65625,
+          "height": 614,
+          "viewBoxWidth": 559.65625,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "lakehouse",
+      "mode": "desktop",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 1440,
+      "viewport": 1440,
+      "diagrams": [
+        {
+          "width": 615.9375,
+          "height": 766,
+          "viewBoxWidth": 615.9375,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 552.28125,
+          "height": 662,
+          "viewBoxWidth": 552.28125,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "streaming",
+      "mode": "desktop",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 1440,
+      "viewport": 1440,
+      "diagrams": [
+        {
+          "width": 508.03125,
+          "height": 785.28125,
+          "viewBoxWidth": 508.03125,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 545,
+          "height": 990,
+          "viewBoxWidth": 545,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 608.46875,
+          "height": 1082.75,
+          "viewBoxWidth": 608.48046875,
+          "scale": 0.9999807409594854,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "distributed-storage",
+      "mode": "desktop",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 1440,
+      "viewport": 1440,
+      "diagrams": [
+        {
+          "width": 526.015625,
+          "height": 606,
+          "viewBoxWidth": 526.0234375,
+          "scale": 0.9999851480001782,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 656,
+          "height": 882,
+          "viewBoxWidth": 656,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "ai-infra",
+      "mode": "desktop",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 1440,
+      "viewport": 1440,
+      "diagrams": [
+        {
+          "width": 687.125,
+          "height": 1038,
+          "viewBoxWidth": 687.125,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 734.5,
+          "height": 786.25,
+          "viewBoxWidth": 734.5,
+          "scale": 1,
+          "containerWidth": 757,
+          "scrollWidth": 757,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "overview",
+      "mode": "mobile",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 390,
+      "viewport": 390,
+      "diagrams": [
+        {
+          "width": 559.65625,
+          "height": 614,
+          "viewBoxWidth": 559.65625,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 560,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "lakehouse",
+      "mode": "mobile",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 390,
+      "viewport": 390,
+      "diagrams": [
+        {
+          "width": 615.9375,
+          "height": 766,
+          "viewBoxWidth": 615.9375,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 616,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 552.28125,
+          "height": 662,
+          "viewBoxWidth": 552.28125,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 552,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "streaming",
+      "mode": "mobile",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 390,
+      "viewport": 390,
+      "diagrams": [
+        {
+          "width": 508.03125,
+          "height": 785.28125,
+          "viewBoxWidth": 508.03125,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 508,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 545,
+          "height": 990,
+          "viewBoxWidth": 545,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 545,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 608.46875,
+          "height": 1082.75,
+          "viewBoxWidth": 608.48046875,
+          "scale": 0.9999807409594854,
+          "containerWidth": 358,
+          "scrollWidth": 608,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "distributed-storage",
+      "mode": "mobile",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 390,
+      "viewport": 390,
+      "diagrams": [
+        {
+          "width": 526.015625,
+          "height": 606,
+          "viewBoxWidth": 526.0234375,
+          "scale": 0.9999851480001782,
+          "containerWidth": 358,
+          "scrollWidth": 526,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 656,
+          "height": 882,
+          "viewBoxWidth": 656,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 656,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    },
+    {
+      "slug": "ai-infra",
+      "mode": "mobile",
+      "status": "rendered",
+      "errors": [],
+      "documentWidth": 390,
+      "viewport": 390,
+      "diagrams": [
+        {
+          "width": 687.125,
+          "height": 1038,
+          "viewBoxWidth": 687.125,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 687,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        },
+        {
+          "width": 734.5,
+          "height": 786.25,
+          "viewBoxWidth": 734.5,
+          "scale": 1,
+          "containerWidth": 358,
+          "scrollWidth": 735,
+          "overflowX": "auto",
+          "hasTitle": true,
+          "hasDescription": true
+        }
+      ]
+    }
+  ]
+}

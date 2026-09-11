@@ -1,0 +1,228 @@
+{
+  "draft_revision": 3,
+  "generated_at": "2026-09-11T03:13:25+00:00",
+  "mermaid_version": "11.13.0",
+  "publication_front_matter": {
+    "mermaid": true
+  },
+  "figures": [
+    {
+      "id": "overview-1",
+      "article": "overview",
+      "title": "图 1｜从“已复制”到“可安全回收”，中间还有读路径检查",
+      "caption": "图中数字沿用上文推演，展示非空 manifest 的核心约束。复制完成不会绕过可读性和其他回收条件；空 manifest 的特殊路径见流存储分稿。",
+      "source_ids": [
+        "S9"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "fec5b51ca926ca2bd1b55f4560da20034bd662b6f1f302cf1a733df68ce44d77",
+      "assets": {
+        "svg": {
+          "path": "overview-1.svg",
+          "sha256": "5a4993da45c57049d7e38d0f668bdb195d0b9273221dd34578a39a134c20ccaa"
+        },
+        "png": {
+          "path": "overview-1.png",
+          "sha256": "80492888311f319d0cd210414d5cf6a20c205253e4f982159ee85176e07b8296"
+        }
+      }
+    },
+    {
+      "id": "lakehouse-1",
+      "article": "lakehouse",
+      "title": "图 1：跳过页面，仍按原始行位置匹配删除",
+      "caption": "图中沿用上面的教学数据，假设文件已有可用页索引；行位置 157 不因跳读变成 57。连线表示信息依赖，不代表引擎算子的完整执行顺序。",
+      "source_ids": [
+        "L2",
+        "L7"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "9ed1d96eae6de2c16721856c53192089fe19b747978b7dd591a33a7fc1c3757f",
+      "assets": {
+        "svg": {
+          "path": "lakehouse-1.svg",
+          "sha256": "121dcef7809031a8d7dea5bb98975744e18ddce902838d7b6f5f15e04ac0a36b"
+        },
+        "png": {
+          "path": "lakehouse-1.png",
+          "sha256": "1b36d8eb8a06e24ec5f8eb255c5fbc440d77e359e50b804182695ea2f2c45bc4"
+        }
+      }
+    },
+    {
+      "id": "lakehouse-2",
+      "article": "lakehouse",
+      "title": "图 2：值可以共用数组容器，类型语义仍需分别保存",
+      "caption": "图中只展示此次支持的类型路径；末端合流表示值的物化容器相同，ARRAY 与 VECTOR 的 schema 约束仍不同。图示不包含 INT8、嵌套向量或 schema evolution，也不表示新增向量检索能力。",
+      "source_ids": [
+        "L4",
+        "L5"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "f5aca161e025db54656614280642795b3ba713d4e08bf5ac11ae93dbf1a3119f",
+      "assets": {
+        "svg": {
+          "path": "lakehouse-2.svg",
+          "sha256": "c27be6ce32f2db5d3696c11d4638ace48d60a0187d2d0751fdef8dc1ade81543"
+        },
+        "png": {
+          "path": "lakehouse-2.png",
+          "sha256": "0c37a8d61b333022ac0353b98e42df66587fd8191580102cf15883602913519a"
+        }
+      }
+    },
+    {
+      "id": "streaming-1",
+      "article": "streaming",
+      "title": "图 1｜Fluss 先公布可读范围，再计算本地清理边界",
+      "caption": "这张图对应补丁中的更新顺序与边界选择，未展开所有保留策略。连线不代表这些状态更新构成一个跨线程原子事务。",
+      "source_ids": [
+        "S9"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "a14d526b2ed479432f2455af045dd7e9764623b518c8b2186847a4fafe38a9fa",
+      "assets": {
+        "svg": {
+          "path": "streaming-1.svg",
+          "sha256": "53ecf9cf2b97102549d446d749d715715080f02457a2317395299fec674f2b63"
+        },
+        "png": {
+          "path": "streaming-1.png",
+          "sha256": "3caf3b1b0fd1511e04786d8447bb59da6417d91cb94980bfd40e2cbf7f790811"
+        }
+      }
+    },
+    {
+      "id": "streaming-2",
+      "article": "streaming",
+      "title": "图 2｜新分区并发生产：为什么要先拒绝较晚的批次",
+      "caption": "这是 PR 所述竞态的简化时序，展示 A 能及时重试成功的一条路径；若 A 已交付超时，后续恢复还涉及 producer epoch 处理。它不适用于“曾经写过数据、现在旧状态不可见”的所有分区。",
+      "source_ids": [
+        "S1"
+      ],
+      "diagram_type": "sequenceDiagram",
+      "source_code_sha256": "d6d5a8b0ba3471c2698c96e2921265c912a1732f3b74dee8a0371319ef6cd3a4",
+      "assets": {
+        "svg": {
+          "path": "streaming-2.svg",
+          "sha256": "ee8e3a5d77702d3b6fcae7e20c64d7c31ea0a496a1e1fe777c894550e00b5acd"
+        },
+        "png": {
+          "path": "streaming-2.png",
+          "sha256": "51349d55e1de1dc613f4141715f4e96d5c2478a86cfcf516372d7c6244628aec"
+        }
+      }
+    },
+    {
+      "id": "streaming-3",
+      "article": "streaming",
+      "title": "图 3｜AutoMQ 元数据写入：版本门槛与压缩门槛分别判断",
+      "caption": "V6 是内部能力版本；16 KiB 指压缩前 Avro 载荷大小。图只展示写入策略，读取端仍需识别旧 JSON 与新格式，并拒绝已识别新格式中的损坏。",
+      "source_ids": [
+        "S3",
+        "S4"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "ed95c8820795fb15a634e02cb60e6cf04a2dcaebbef5ac7c80e8d68d51afca81",
+      "assets": {
+        "svg": {
+          "path": "streaming-3.svg",
+          "sha256": "b2eb2a419e80f57eda3053d0668672e8272cae507224b36ede4031ec46dec08c"
+        },
+        "png": {
+          "path": "streaming-3.png",
+          "sha256": "35de9d1e1cc44fc778defdc7235071b4b64f7150284fe8daef585772cc320f3d"
+        }
+      }
+    },
+    {
+      "id": "distributed-storage-1",
+      "article": "distributed-storage",
+      "title": "图 1：分片方式改变，逻辑摘要保持一致",
+      "caption": "图中 ha 代表键值对 a 的叶子哈希，其余类推。这是静止数据集的简化结构：每个键值对必须恰好计入一次；可交换聚合允许重新分组，并不负责消除迁移中的重复读取。",
+      "source_ids": [
+        "D1"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "cae11074694a9056b51566c940ce1d58b5d379ce7dc3de08623fbf138a1af0bf",
+      "assets": {
+        "svg": {
+          "path": "distributed-storage-1.svg",
+          "sha256": "adca8260ac14dcce0ef7a281748ac14a46af24f75f47ff6c5df4588aed931fe4"
+        },
+        "png": {
+          "path": "distributed-storage-1.png",
+          "sha256": "220fb74f817e6c839e68e0d695a3db2d525cb2bd0679d633f57c33dea79afeac"
+        }
+      }
+    },
+    {
+      "id": "distributed-storage-2",
+      "article": "distributed-storage",
+      "title": "图 2：新 guard 安装成功后，旧在途写入被拒绝",
+      "caption": "图示简化了单个键范围的协议，省略分片变化、失败重试及缓存失效步骤。P2 在 guard 安装成功并确认所有权仍有效后才发出新写；存储端依据处理写入时的当前 guard 校验，旧请求的发送时间不构成放行依据。",
+      "source_ids": [
+        "D5",
+        "D14"
+      ],
+      "diagram_type": "sequenceDiagram",
+      "source_code_sha256": "7eb29b4a7f4a868f88c62cc00a857851de5dff168aba760c90e1c5f86882276c",
+      "assets": {
+        "svg": {
+          "path": "distributed-storage-2.svg",
+          "sha256": "9d454c84627041dc7c29f73af080bd00aeb14a675b699e54e66e0549291419d9"
+        },
+        "png": {
+          "path": "distributed-storage-2.png",
+          "sha256": "2c3719a7715ca9f7c995a639d359a33413d285cc3089e67f003ee3bba690b96f"
+        }
+      }
+    },
+    {
+      "id": "ai-infra-1",
+      "article": "ai-infra",
+      "title": "图 1｜vLLM 容量准入与上游重试边界",
+      "caption": "图中仅展开这两个容量阈值；通过准入仍需等待调度。虚线表示本文建议的上游策略，由调用方实现，不是 vLLM 默认自动重试；预算应同时约束次数与总等待时间。",
+      "source_ids": [
+        "A1",
+        "A2"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "fc224ad56024810b49b6894f09cea197faf799ed39f206b653d8a0630dd702bd",
+      "assets": {
+        "svg": {
+          "path": "ai-infra-1.svg",
+          "sha256": "7d2222669a17dca2c7eb43a687d361410ad7ca05f1f2e2918959f78a156d92c9"
+        },
+        "png": {
+          "path": "ai-infra-1.png",
+          "sha256": "b4ec89019e8008701fec40a4cf07e759c183db6bef251e2bff27804013767f05"
+        }
+      }
+    },
+    {
+      "id": "ai-infra-2",
+      "article": "ai-infra",
+      "title": "图 2｜缓存复用的身份与就绪检查：本文概念模型",
+      "caption": "此图用于拆开“身份相符、数据所在层、执行所需部分就绪”三个问题，假设模型与配置一致，不对应某个具体引擎的完整执行流程，也不把 Strata 与本周 SGLang 的不同改动合成为一套已实现系统。就绪检查针对当前计算所需的层或范围，不要求先搬完全部上下文；缓存命中本身不能跳过加载与同步条件。",
+      "source_ids": [
+        "A4",
+        "A6",
+        "A7",
+        "A16"
+      ],
+      "diagram_type": "flowchart",
+      "source_code_sha256": "7143ad4792f9700aec1b5f368588d430bc3c0048acd0416e85a537fc772cacdb",
+      "assets": {
+        "svg": {
+          "path": "ai-infra-2.svg",
+          "sha256": "452d55bf5fe464654aeb61adbb2bf0dcbd5a257331157ec27197ab21d1f8fbe3"
+        },
+        "png": {
+          "path": "ai-infra-2.png",
+          "sha256": "9a5ff72e4c57333d7dd29ca54125709ee9a052b19fa45c21817ccba818d9734c"
+        }
+      }
+    }
+  ]
+}

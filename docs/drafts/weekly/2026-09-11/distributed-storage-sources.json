@@ -1,0 +1,203 @@
+[
+  {
+    "id": "D1",
+    "title": "FoundationDB #13866: RangeDigest",
+    "url": "https://github.com/apple/foundationdb/pull/13866",
+    "publisher": "FoundationDB",
+    "event_date": "2026-09-08T16:01:25Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Merged to main; commit c3787dfbddee2e8afc670ba52bf8b7bf20d6fab0.",
+      "Storage-server-side SHA-256 leaf hashes summed modulo 2^256 give partition-independent content fingerprints.",
+      "Requires stopped writes and moving_data=0; not adversarial collision-resistant and not an online pinned-snapshot audit.",
+      "No released-version evidence established.",
+      "The additive combine is associative and commutative but requires every key-value to be counted exactly once.",
+      "Rate limiting and batching reuse existing audit controls; server-side hashing still scans the data."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read live GitHub REST pull detail and files endpoint, including design/range-digest.md. Browser fetch of PR page returned cache miss. No benchmark reproduced; no speedup ratio used."
+  },
+  {
+    "id": "D2",
+    "title": "JuiceFS #7476: exact SQL edge identity",
+    "url": "https://github.com/juicedata/juicefs/pull/7476",
+    "publisher": "JuiceFS",
+    "event_date": "2026-09-09T06:30:44Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Merged to main; commit 5f250030ec437d6c676355e7a99f92b8ec480747.",
+      "Checks full edge identity and affected rows, retrying when stale SQL directory entries have been replaced.",
+      "PR helper tests cover stale-identity, ABA and rollback; PR explicitly does not claim concurrent public API end-to-end testing.",
+      "Duplicate-name handling is separate PR #7526; not claimed as part of this PR.",
+      "SQL helper matches inode, type and optional edge row ID, with affected-row checks; conceptual timeline in article is derived from PR description, not a reproduced concurrent test."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read live REST detail and pkg/meta/sql.go patch. web cached HTML crawled six days earlier still said Open and contained an older scope; current API merged_at and body used for status and final scope."
+  },
+  {
+    "id": "D3",
+    "title": "JuiceFS #7500: abandoned fetch must not turn failure into success",
+    "url": "https://github.com/juicedata/juicefs/pull/7500",
+    "publisher": "JuiceFS",
+    "event_date": "2026-09-04T02:11:39Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Merged to main; commit 0e5cb0c8a74f75553af5b51050925dbd7332772e.",
+      "Late async callback could overwrite named return error after timeout.",
+      "Separate GET result state is accepted only after successful WithTimeout; load and loadRange changed.",
+      "This does not prove all timeout/buffer-lifetime races fixed.",
+      "The named-return corruption window is during return/defer before final return; no claim that an already-delivered return value changes retroactively. Article timing example is a mechanism illustration, not a reproduced trace."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read live REST detail and pkg/chunk/cached_store.go patch. No local reproduction performed."
+  },
+  {
+    "id": "D4",
+    "title": "Ceph #71568: defer EC pool alignment check",
+    "url": "https://github.com/ceph/ceph/pull/71568",
+    "publisher": "Ceph",
+    "event_date": "2026-09-07T18:07:39Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Merged to main; commit c443f6d01edfa11889f81bce6f50a61bfe7d6954.",
+      "RGW startup checked nonexistent default placement data pool and dedup initialization failed with ENOENT on fresh clusters.",
+      "Moves pool capability detection into actual dedup processing and skips work when pool absent.",
+      "PR checklist says no added tests; no release inclusion verified."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read live REST detail and src/rgw/driver/rados/rgw_dedup.cc patch."
+  },
+  {
+    "id": "D5",
+    "title": "WriteGuards: Distributed Storage Support for Strongly Consistent Caches",
+    "url": "https://www.usenix.org/system/files/osdi26-mao-ziming-writeguards.pdf",
+    "publisher": "USENIX OSDI 2026",
+    "event_date": "2026-07-13/2026-07-15",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Official conference proceedings cover confirms July 13–15 2026; presentation BibTeX month jul.",
+      "Range-based guards checked by storage reject writes from previous cache owners.",
+      "Read motivation and core Sections 4–6; implementation uses TiDB and coordinated ownership; not a drop-in TTL mechanism.",
+      "Core Section 6.2 constrains SetGuard to start and complete within one ownership interval, non-overlapping calls for a key, and fresh unique values including retries.",
+      "A data OCC version check can still admit a previous owner write when the new owner has only read and cached an unchanged version."
+    ],
+    "window_classification": "background_outside_window",
+    "access_notes": "Opened official presentation, PDF and relevant sections; did not reproduce performance results or perform exhaustive full-paper evaluation."
+  },
+  {
+    "id": "D6",
+    "title": "OSDI 2026 technical sessions",
+    "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": "2026-07-13",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Official directory located WriteGuards paper; proceedings public from July 13."
+    ],
+    "window_classification": "background_outside_window",
+    "access_notes": "Opened full official directory. No claim of this-week publication."
+  },
+  {
+    "id": "D7",
+    "title": "TiKV GitHub releases",
+    "url": "https://api.github.com/repos/tikv/tikv/releases?per_page=8",
+    "publisher": "TiKV",
+    "event_date": "2026-08-27T09:06:31Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Latest returned release v8.5.8 predates report window."
+    ],
+    "window_classification": "baseline_outside_window",
+    "access_notes": "Read REST releases; also inspected recent closed PR list with merged_at filter. No TiKV article selected; not an assertion of no updates."
+  },
+  {
+    "id": "D8",
+    "title": "FoundationDB GitHub releases",
+    "url": "https://api.github.com/repos/apple/foundationdb/releases?per_page=8",
+    "publisher": "FoundationDB",
+    "event_date": "2026-09-01T15:24:20Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Latest returned release 7.4.7 predates report window."
+    ],
+    "window_classification": "baseline_outside_window",
+    "access_notes": "Read official release REST response; selected main-branch changes do not have a confirmed published release."
+  },
+  {
+    "id": "D9",
+    "title": "JuiceFS GitHub releases",
+    "url": "https://api.github.com/repos/juicedata/juicefs/releases?per_page=8",
+    "publisher": "JuiceFS",
+    "event_date": "2026-08-07T09:12:29Z",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Latest returned publication v1.3.3 predates report window; v1.4.1 published July 30."
+    ],
+    "window_classification": "baseline_outside_window",
+    "access_notes": "Read official release REST response; no release containing selected changes verified."
+  },
+  {
+    "id": "D10",
+    "title": "Ceph release index",
+    "url": "https://docs.ceph.com/en/latest/releases/",
+    "publisher": "Ceph",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Official release index checked as release discovery source; no selected PR-to-release mapping established."
+    ],
+    "window_classification": "coverage_only",
+    "access_notes": "Official documentation accessible; ceph/ceph GitHub releases endpoint returned empty array."
+  },
+  {
+    "id": "D11",
+    "title": "PVLDB volume 19",
+    "url": "https://www.vldb.org/pvldb/volumes/19/",
+    "publisher": "VLDB Endowment",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Official volume directory opened for discovery only; no window-qualified distributed-storage paper selected."
+    ],
+    "window_classification": "coverage_only",
+    "access_notes": "Directory accessible; no publication-in-window conclusion from discovery date."
+  },
+  {
+    "id": "D12",
+    "title": "FAST 2026 technical sessions",
+    "url": "https://www.usenix.org/conference/fast26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [],
+    "window_classification": "coverage_gap",
+    "access_notes": "Two open attempts failed (timeout / empty fetch); not used as evidence of no papers."
+  },
+  {
+    "id": "D13",
+    "title": "CockroachDB GitHub releases",
+    "url": "https://api.github.com/repos/cockroachdb/cockroach/releases?per_page=8",
+    "publisher": "Cockroach Labs",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Endpoint returned an empty list; does not establish absence of official releases."
+    ],
+    "window_classification": "coverage_gap",
+    "access_notes": "GitHub merged search window returned zero items. Official release-note pages not examined, so coverage incomplete."
+  },
+  {
+    "id": "D14",
+    "title": "WriteGuards official presentation and bibliographic entry",
+    "url": "https://www.usenix.org/conference/osdi26/presentation/mao-ziming-writeguards",
+    "publisher": "USENIX OSDI 2026",
+    "event_date": "2026-07-13/2026-07-15",
+    "checked_at": "2026-09-11T02:23:07.810277+00:00",
+    "claims": [
+      "Official OSDI 2026 presentation entry supports the title, abstract and July publication date.",
+      "Background reading, not a publication event in this reporting window."
+    ],
+    "window_classification": "background_outside_window",
+    "access_notes": "Official presentation page opened during paper discovery; the core-mechanism reading is separately recorded against the PDF in D5."
+  }
+]

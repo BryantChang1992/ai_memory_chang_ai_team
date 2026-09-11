@@ -1,0 +1,467 @@
+[
+  {
+    "id": "S1",
+    "title": "KAFKA-15591: Reject out-of-order first produce request on empty partitions",
+    "url": "https://github.com/apache/kafka/pull/23234",
+    "publisher": "apache/kafka",
+    "event_date": "2026-09-09T07:25:04Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "trunk",
+    "merge_commit": "81b993044efcb6889577e5e02a620a4004e3d456",
+    "released_version": null,
+    "claims": [
+      "从未追加记录且没有 producer 状态的分区，首批序号必须从 0 开始；不影响曾有数据后清空的分区。",
+      "已核实合并时间；未确认本项实现进入正式发行版。",
+      "Expanded explanation follows PR request-reordering sequence; no claim that merely retransmitting duplicate requests covers this case."
+    ],
+    "api_url": "https://api.github.com/repos/apache/kafka/pulls/23234",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/apache-kafka-prs.json",
+      "evidence/apache-kafka-23234-files.json"
+    ],
+    "analysis_revisited_at": "2026-09-11T02:49:38+00:00"
+  },
+  {
+    "id": "S2",
+    "title": "KAFKA-20609 : Use lastModified time as retention anchor for future-timestamped segments",
+    "url": "https://github.com/apache/kafka/pull/22873",
+    "publisher": "apache/kafka",
+    "event_date": "2026-09-06T12:52:54Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "trunk",
+    "merge_commit": "f52e331cae61e01629618c4ece6cdc14c0db129c",
+    "released_version": null,
+    "claims": [
+      "远端复制启用且记录最大时间戳在未来时，以 lastModified 作为本地时间回收锚点；保留上传后才删除的约束。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/apache/kafka/pulls/22873",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/apache-kafka-prs.json",
+      "evidence/apache-kafka-22873-files.json"
+    ]
+  },
+  {
+    "id": "S3",
+    "title": "feat: encode ElasticLogMeta with Avro",
+    "url": "https://github.com/AutoMQ/automq/pull/3574",
+    "publisher": "AutoMQ/automq",
+    "event_date": "2026-09-04T09:05:54Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "1.8",
+    "merge_commit": "c0d13532e9505f19abf1fb3664c9782dea78596d",
+    "released_version": null,
+    "claims": [
+      "ElasticLogMeta 的 Avro 编码合入 1.8；与 #3576 同一项实现，不重复计为独立创新。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/AutoMQ/automq/pulls/3574",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同实现回移或上游合并仅核验元数据/正文，未独立审查完整差异。",
+    "evidence_files": [
+      "evidence/AutoMQ-automq-prs.json"
+    ]
+  },
+  {
+    "id": "S4",
+    "title": "feat: encode ElasticLogMeta with Avro",
+    "url": "https://github.com/AutoMQ/automq/pull/3576",
+    "publisher": "AutoMQ/automq",
+    "event_date": "2026-09-04T09:20:52Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "main",
+    "merge_commit": "ffcc547bd0b85ed9d46960388f9a3bd512930383",
+    "released_version": null,
+    "claims": [
+      "AutoMQVersion V6+ 写带版本头的 Avro，V5 及以前写 JSON，读端支持两者。",
+      "16 KiB 起采用 Zstd level 3；识别到的新格式损坏不会回退 JSON。",
+      "内部能力版本不同于产品发行版本；未引用体积数字推导恢复或吞吐收益。",
+      "已核实合并时间；未确认本项实现进入正式发行版。",
+      "Version supplier evaluated on each metadata persistence; subsequent V6 persistence can write the new format without a proactive rewrite of every historical value.",
+      "Dual-read capability is not evidence of safe downgrade to arbitrary older product versions."
+    ],
+    "api_url": "https://api.github.com/repos/AutoMQ/automq/pulls/3576",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/AutoMQ-automq-prs.json",
+      "evidence/AutoMQ-automq-3576-files.json"
+    ],
+    "analysis_revisited_at": "2026-09-11T02:49:38+00:00"
+  },
+  {
+    "id": "S5",
+    "title": "fix(metadata): clear pending topic configs on replay",
+    "url": "https://github.com/AutoMQ/automq/pull/3575",
+    "publisher": "AutoMQ/automq",
+    "event_date": "2026-09-04T13:04:18Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "1.7",
+    "merge_commit": "9eee5bbe9afef18869627eb8651570bd1df55f0e",
+    "released_version": null,
+    "claims": [
+      "删除主题重放同时清理本轮 pending delta，阻止旧配置进入同名重建主题；此项为 1.7 分支。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/AutoMQ/automq/pulls/3575",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/AutoMQ-automq-prs.json",
+      "evidence/AutoMQ-automq-3575-files.json"
+    ]
+  },
+  {
+    "id": "S6",
+    "title": "fix(metadata): clear pending topic configs on replay",
+    "url": "https://github.com/AutoMQ/automq/pull/3577",
+    "publisher": "AutoMQ/automq",
+    "event_date": "2026-09-06T01:34:24Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "main",
+    "merge_commit": "fb08e783b3c3244205000f4df34fce10634b0f72",
+    "released_version": null,
+    "claims": [
+      "同一 pending topic config 修复进入 main。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/AutoMQ/automq/pulls/3577",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同实现回移或上游合并仅核验元数据/正文，未独立审查完整差异。",
+    "evidence_files": [
+      "evidence/AutoMQ-automq-prs.json"
+    ]
+  },
+  {
+    "id": "S7",
+    "title": "fix(metadata): clear pending topic configs on replay",
+    "url": "https://github.com/AutoMQ/automq/pull/3578",
+    "publisher": "AutoMQ/automq",
+    "event_date": "2026-09-06T01:34:34Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "1.8",
+    "merge_commit": "952c65df7bb25614a1b2f37107c0546053e033d4",
+    "released_version": null,
+    "claims": [
+      "同一 pending topic config 修复进入 1.8。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/AutoMQ/automq/pulls/3578",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同实现回移或上游合并仅核验元数据/正文，未独立审查完整差异。",
+    "evidence_files": [
+      "evidence/AutoMQ-automq-prs.json"
+    ]
+  },
+  {
+    "id": "S8",
+    "title": "feat: merge apache kafka 3.9.2",
+    "url": "https://github.com/AutoMQ/automq/pull/3584",
+    "publisher": "AutoMQ/automq",
+    "event_date": "2026-09-08T08:27:44Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "1.8",
+    "merge_commit": "2ce9f1d0eb423418213ddf18bcb6aa19da7fd105",
+    "released_version": null,
+    "claims": [
+      "PR 标题与合并事件记录向 1.8 合并 Apache Kafka 3.9.2；未逐项审计上游功能或确认 AutoMQ 发版。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/AutoMQ/automq/pulls/3584",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同实现回移或上游合并仅核验元数据/正文，未独立审查完整差异。",
+    "evidence_files": [
+      "evidence/AutoMQ-automq-prs.json"
+    ]
+  },
+  {
+    "id": "S9",
+    "title": "[server] Update remote log offsets before local segment cleanup",
+    "url": "https://github.com/apache/fluss/pull/4254",
+    "publisher": "apache/fluss",
+    "event_date": "2026-09-10T12:49:30Z",
+    "checked_at": "2026-09-11T02:42:33.229811+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "main",
+    "merge_commit": "dd2d30a0f2f23b90eced5cf08f945a032fa3b732",
+    "released_version": null,
+    "claims": [
+      "先发布同一 committed manifest 的远端可读起止 offset，再推进复制水位及本地清理。",
+      "非空 manifest 清理上界为远端可读末尾与复制水位的较小值；空 manifest 保留过期回收路径。",
+      "已核实合并时间；未确认本项实现进入正式发行版。",
+      "Expanded 200/300 offset illustration is hypothetical, not a production incident; end offsets are exclusive as covered by the included tests.",
+      "Sequentially publishing readable offsets before cleanup is not claimed to create a cross-thread atomic transaction."
+    ],
+    "api_url": "https://api.github.com/repos/apache/fluss/pulls/4254",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。 本轮浏览器缓存仍显示 9 月 8 日 Open 状态，live REST 再次确认 9 月 10 日已合并；采用 live 状态和已保存补丁。",
+    "evidence_files": [
+      "evidence/apache-fluss-prs.json",
+      "evidence/apache-fluss-4254-files.json",
+      "evidence/fluss-4254-status-recheck.json"
+    ],
+    "analysis_revisited_at": "2026-09-11T02:49:38+00:00"
+  },
+  {
+    "id": "S10",
+    "title": "[flink] Support custom lookup shuffle by bucket for Flink 2.x",
+    "url": "https://github.com/apache/fluss/pull/3675",
+    "publisher": "apache/fluss",
+    "event_date": "2026-09-10T02:05:36Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "main",
+    "merge_commit": "5ed493b3145b0224a44d5792d8ef27610ce62ea5",
+    "released_version": null,
+    "claims": [
+      "Flink 2.2 支持显式 LOOKUP shuffle hint，按 Fluss bucket 路由探测流。",
+      "无 hint 时保留原分布；依赖 bucket keys 与 Fluss Catalog 提供桶数，不能假定热点负载均衡或通用加速。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/apache/fluss/pulls/3675",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/apache-fluss-prs.json",
+      "evidence/apache-fluss-3675-files.json"
+    ]
+  },
+  {
+    "id": "S11",
+    "title": "KAFKA-20939: Disable async dns resolution in streams and connect",
+    "url": "https://github.com/apache/kafka/pull/23364",
+    "publisher": "apache/kafka",
+    "event_date": "2026-09-09T19:09:43Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "trunk",
+    "merge_commit": "cb029195d99eb374ed7867a108865fe599817f40",
+    "released_version": null,
+    "claims": [
+      "Streams/Connect 内部客户端强制同步 bootstrap DNS，覆盖正值 bootstrap.resolve.timeout.ms。",
+      "原因是框架未适配异步失败后客户端永久失效并需重建的契约；关联 KIP-909。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/apache/kafka/pulls/23364",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/apache-kafka-prs.json",
+      "evidence/apache-kafka-23364-files.json"
+    ]
+  },
+  {
+    "id": "S12",
+    "title": "KAFKA-19414: Revert 2PC public API changes for 4.4",
+    "url": "https://github.com/apache/kafka/pull/23356",
+    "publisher": "apache/kafka",
+    "event_date": "2026-09-04T16:41:16Z",
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "in_window_merged",
+    "event_type": "pull_request_merged",
+    "branch": "4.4",
+    "merge_commit": "31e698de7fd1c6fd0bb46c727ca37c9069be28aa",
+    "released_version": null,
+    "claims": [
+      "4.4 分支撤回部分此前加入的 2PC 公共 API，等待 KIP-939 就绪。",
+      "不能据此推断 KIP 被撤回；此提交不代表 4.4 已发布。",
+      "已核实合并时间；未确认本项实现进入正式发行版。"
+    ],
+    "api_url": "https://api.github.com/repos/apache/kafka/pulls/23356",
+    "access_notes": "读取 GitHub 官方 REST 元数据与完整 PR 正文。同时读取代码补丁。",
+    "evidence_files": [
+      "evidence/apache-kafka-prs.json",
+      "evidence/apache-kafka-23356-files.json"
+    ]
+  },
+  {
+    "id": "S13",
+    "title": "KIP-909: DNS Resolution Failure Should Not Fail the Clients",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/240884528/KIP-909+DNS+Resolution+Failure+Should+Not+Fail+the+Clients",
+    "publisher": "Apache Kafka",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "Sep 08, 2026",
+    "claims": [
+      "首次基线状态：Accepted。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。"
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。"
+  },
+  {
+    "id": "S14",
+    "title": "KIP-939: Support Participation in 2PC",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/255071659/KIP-939+Support+Participation+in+2PC",
+    "publisher": "Apache Kafka",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "Jul 23, 2024",
+    "claims": [
+      "首次基线状态：Accepted。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。"
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。"
+  },
+  {
+    "id": "S15",
+    "title": "KIP-1163: Diskless Core",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core",
+    "publisher": "Apache Kafka",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "Jul 09, 2026",
+    "claims": [
+      "首次基线状态：Under Discussion。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。",
+      "Design background: batch bytes persisted in object storage, batch coordinate ordering assigned by Diskless Coordinator, local segments treated as caches."
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。",
+    "analysis_revisited_at": "2026-09-11T02:49:38+00:00"
+  },
+  {
+    "id": "S16",
+    "title": "KIP-1164: Diskless Coordinator",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator",
+    "publisher": "Apache Kafka",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "Feb 27, 2026",
+    "claims": [
+      "首次基线状态：Under Discussion。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。",
+      "Design background: __diskless_metadata log is the source of truth; SQLite is local materialized state, with pending versus committed operations distinguished."
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。",
+    "analysis_revisited_at": "2026-09-11T02:49:38+00:00"
+  },
+  {
+    "id": "S17",
+    "title": "KIP-1183: Unified Shared Storage",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage",
+    "publisher": "Apache Kafka",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "May 16, 2025",
+    "claims": [
+      "首次基线状态：Under Discussion。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。",
+      "Design background: abstract log/log-segment boundaries support classic/shared implementations; optional Stream layer is proposed for storage backends."
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。",
+    "analysis_revisited_at": "2026-09-11T02:49:38+00:00"
+  },
+  {
+    "id": "S18",
+    "title": "FIP-3: Support tiering Fluss data to Iceberg",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214340/FIP-3+Support+tiering+Fluss+data+to+Iceberg",
+    "publisher": "Apache Fluss",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "Oct 21, 2025",
+    "claims": [
+      "首次基线状态：Accepted (official directory)。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。"
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。"
+  },
+  {
+    "id": "S19",
+    "title": "FIP-6: Decouple Flink union read with paimon",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214598/FIP-6+Decouple+Flink+union+read+with+paimon",
+    "publisher": "Apache Fluss",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": "Dec 28, 2025",
+    "claims": [
+      "首次基线状态：Accepted (official directory)。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。"
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。"
+  },
+  {
+    "id": "S20",
+    "title": "FIP-9: Support CoordinatorServer High Availability",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/373886089/FIP-9+Support+CoordinatorServer+High+Availability",
+    "publisher": "Apache Fluss",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "page_modified_date": null,
+    "claims": [
+      "首次基线状态：Accepted (official directory and page label)。",
+      "页面修改日期不等于状态变化日期；不将基线观察计作本周新增事件。"
+    ],
+    "access_notes": "已打开原文；Kafka 采用原文状态，Fluss 同时核对官方目录。所列讨论/投票未完整读取，不独立确认投票结果。"
+  },
+  {
+    "id": "S21",
+    "title": "Fluss Improvement Proposals",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals",
+    "publisher": "Apache Fluss",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "first_observation_baseline",
+    "claims": [
+      "FIP-3/6/9 在 Accepted 区；FIP-9 目标 1.0，不是实际发行证明。"
+    ],
+    "access_notes": "打开官方目录，检查新候选并选择与本期主题相关条目；非全部 FIP 的穷尽审计。"
+  },
+  {
+    "id": "S22",
+    "title": "Kafka official blog/release discovery",
+    "url": "https://kafka.apache.org/blog/",
+    "publisher": "Kafka",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "coverage_only_no_release_inclusion_verified",
+    "claims": [
+      "用于核对发行证据；未从读取到的目录为本期选定 PR 确认正式版本归属。"
+    ],
+    "access_notes": "已读取官方页面；不能用 GitHub Release 空页或本次检索结果断言社区没有发布。"
+  },
+  {
+    "id": "S23",
+    "title": "AutoMQ release discovery",
+    "url": "https://github.com/AutoMQ/automq/releases",
+    "publisher": "AutoMQ",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "coverage_only_no_release_inclusion_verified",
+    "claims": [
+      "用于核对发行证据；未从读取到的目录为本期选定 PR 确认正式版本归属。"
+    ],
+    "access_notes": "已读取官方页面；不能用 GitHub Release 空页或本次检索结果断言社区没有发布。"
+  },
+  {
+    "id": "S24",
+    "title": "Fluss release discovery",
+    "url": "https://github.com/apache/fluss/releases",
+    "publisher": "Fluss",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:32:17+00:00",
+    "window_classification": "coverage_only_no_release_inclusion_verified",
+    "claims": [
+      "用于核对发行证据；未从读取到的目录为本期选定 PR 确认正式版本归属。"
+    ],
+    "access_notes": "已读取官方页面；不能用 GitHub Release 空页或本次检索结果断言社区没有发布。"
+  }
+]

@@ -1,22 +1,616 @@
 {
   "schema_version": 1,
   "timezone": "Asia/Shanghai",
-  "baseline_completed_at": null,
-  "last_successful_window_end": null,
-  "selection_topics": ["对象与分层存储", "存算分离", "复制与一致性", "元数据与故障恢复", "消费协议", "湖仓集成"],
+  "baseline_completed_at": "2026-09-11T02:35:54+00:00",
+  "last_successful_window_end": "2026-09-11T09:00:00+08:00",
+  "selection_topics": [
+    "对象与分层存储",
+    "存算分离",
+    "复制与一致性",
+    "元数据与故障恢复",
+    "消费协议",
+    "湖仓集成"
+  ],
   "discovery_sources": [
-    {"project": "Kafka", "kind": "proposal_index", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/50859233/Kafka+Improvement+Proposals"},
-    {"project": "Fluss", "kind": "proposal_index", "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals"},
-    {"project": "AutoMQ", "kind": "issues", "url": "https://github.com/AutoMQ/automq/issues"},
-    {"project": "AutoMQ", "kind": "pull_requests", "url": "https://github.com/AutoMQ/automq/pulls"},
-    {"project": "AutoMQ", "kind": "releases", "url": "https://github.com/AutoMQ/automq/releases"}
+    {
+      "project": "Kafka",
+      "kind": "proposal_index",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/50859233/Kafka+Improvement+Proposals"
+    },
+    {
+      "project": "Fluss",
+      "kind": "proposal_index",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals"
+    },
+    {
+      "project": "AutoMQ",
+      "kind": "issues",
+      "url": "https://github.com/AutoMQ/automq/issues"
+    },
+    {
+      "project": "AutoMQ",
+      "kind": "pull_requests",
+      "url": "https://github.com/AutoMQ/automq/pulls"
+    },
+    {
+      "project": "AutoMQ",
+      "kind": "releases",
+      "url": "https://github.com/AutoMQ/automq/releases"
+    }
   ],
   "seed_candidates": [
-    {"project": "Kafka", "id": "KIP-1163", "title": "Diskless Core", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core", "reason": "对象存储上的日志读写路径与成本/延迟取舍", "state": "baseline_required"},
-    {"project": "Kafka", "id": "KIP-1164", "title": "Diskless Coordinator", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator", "reason": "无盘日志元数据、顺序与协调机制", "state": "baseline_required"},
-    {"project": "Kafka", "id": "KIP-1183", "title": "Unified Shared Storage", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage", "reason": "共享存储设计及 Kafka 与 AutoMQ 的实现关联", "state": "baseline_required"}
+    {
+      "project": "Kafka",
+      "id": "KIP-1163",
+      "title": "Diskless Core",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core",
+      "reason": "对象存储上的日志读写路径与成本/延迟取舍",
+      "state": "baseline_recorded"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1164",
+      "title": "Diskless Coordinator",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator",
+      "reason": "无盘日志元数据、顺序与协调机制",
+      "state": "baseline_recorded"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1183",
+      "title": "Unified Shared Storage",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage",
+      "reason": "共享存储设计及 Kafka 与 AutoMQ 的实现关联",
+      "state": "baseline_recorded"
+    }
   ],
-  "tracked_items": [],
-  "item_fields": ["project", "id", "title", "url", "reason", "source_status", "previous_status", "change_summary", "event_date", "checked_at", "discussion_urls", "vote_urls", "implementation_prs", "target_version", "released_version", "release_evidence", "upstream_kip", "implementation_difference", "follow_up", "history"],
-  "note": "种子是候选线索，尚未建立完整状态基线。首次调研必须补充 Fluss FIP 和 AutoMQ 官方 Issue/PR，并逐条核验；不要把 baseline_required 当作社区提案状态。"
+  "tracked_items": [
+    {
+      "id": "KIP-909",
+      "title": "DNS Resolution Failure Should Not Fail the Clients",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/240884528/KIP-909+DNS+Resolution+Failure+Should+Not+Fail+the+Clients",
+      "source_status": "Accepted",
+      "reason": "消费/生产客户端失败恢复与框架兼容",
+      "follow_up": "跟踪 Streams/Connect 恢复契约适配和发行版本；页面 9 月 8 日更新尚未逐版本比对设计修订。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/st84zzwnq5m3pkzd1r7jk9lmqdt9m98s"
+      ],
+      "vote_urls": [],
+      "target_version": null,
+      "project": "Kafka",
+      "previous_status": null,
+      "change_summary": "Streams/Connect 内部客户端强制同步 bootstrap DNS，覆盖正值 bootstrap.resolve.timeout.ms。",
+      "event_date": "2026-09-09T19:09:43Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [
+        "https://github.com/apache/kafka/pull/23364"
+      ],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/240884528/KIP-909+DNS+Resolution+Failure+Should+Not+Fail+the+Clients"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-09T19:09:43Z",
+          "source_status": "Accepted",
+          "kind": "baseline_with_implementation_event"
+        }
+      ]
+    },
+    {
+      "id": "KIP-939",
+      "title": "Support Participation in 2PC",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/255071659/KIP-939+Support+Participation+in+2PC",
+      "source_status": "Accepted",
+      "reason": "外部事务协调与 Flink 端到端事务",
+      "follow_up": "跟踪公共 API 再引入、完整实现及正式发行归属。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/wbs9sqs3z1tdm7ptw5j4o9osmx9s41nf"
+      ],
+      "vote_urls": [
+        "https://lists.apache.org/thread/m9wk8bm958wypsoq0glhc41mrwxzmhox"
+      ],
+      "target_version": null,
+      "project": "Kafka",
+      "previous_status": null,
+      "change_summary": "4.4 分支撤回部分此前加入的 2PC 公共 API，等待 KIP-939 就绪。",
+      "event_date": "2026-09-04T16:41:16Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [
+        "https://github.com/apache/kafka/pull/23356"
+      ],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/255071659/KIP-939+Support+Participation+in+2PC"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-04T16:41:16Z",
+          "source_status": "Accepted",
+          "kind": "baseline_with_implementation_event"
+        }
+      ]
+    },
+    {
+      "id": "KIP-1163",
+      "title": "Diskless Core",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core",
+      "source_status": "Under Discussion",
+      "reason": "对象存储日志数据路径及成本/延迟取舍",
+      "follow_up": "核对核心设计修订、投票与实际实现；本期无确认到的窗口内状态事件。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/3dj67w04r7pcmlytl912gv69j22o3g4j"
+      ],
+      "vote_urls": [],
+      "target_version": null,
+      "project": "Kafka",
+      "previous_status": null,
+      "change_summary": "首次建立状态基线；未确认本窗口内的状态变化。",
+      "event_date": null,
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": null,
+          "source_status": "Under Discussion",
+          "kind": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "KIP-1164",
+      "title": "Diskless Coordinator",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator",
+      "source_status": "Under Discussion",
+      "reason": "无盘日志元数据、顺序与协调机制",
+      "follow_up": "跟踪元数据持久化、协调故障恢复及关联 Core 设计的分工。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/m9l6lbqv2cffxtz5frypylmqjd7bsqoz"
+      ],
+      "vote_urls": [],
+      "target_version": null,
+      "project": "Kafka",
+      "previous_status": null,
+      "change_summary": "首次建立状态基线；未确认本窗口内的状态变化。",
+      "event_date": null,
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": null,
+          "source_status": "Under Discussion",
+          "kind": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "KIP-1183",
+      "title": "Unified Shared Storage",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage",
+      "source_status": "Under Discussion",
+      "reason": "共享日志存储抽象与 AutoMQ 上游关联",
+      "follow_up": "明确 Kafka 提案状态与 AutoMQ 某版本实现的差异，不从作者或项目关联推断交付。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/k9ydcdyxdyfgoy73cgsgs8w46yhpxrw2"
+      ],
+      "vote_urls": [],
+      "target_version": null,
+      "project": "Kafka",
+      "previous_status": null,
+      "change_summary": "首次建立状态基线；未确认本窗口内的状态变化。",
+      "event_date": null,
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": null,
+          "source_status": "Under Discussion",
+          "kind": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "FIP-3",
+      "title": "Support tiering Fluss data to Iceberg",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214340/FIP-3+Support+tiering+Fluss+data+to+Iceberg",
+      "source_status": "Accepted (official directory)",
+      "reason": "日志/KV 与 Iceberg 分层读写语义",
+      "follow_up": "继续核对投票原文、实现覆盖和正式发行；未把本周 Fluss 日志清理 PR 强行对应为本提案的实现。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/hvcxvt5zgk7k38jf3v67mrzvrhsn25o7"
+      ],
+      "vote_urls": [
+        "https://lists.apache.org/thread/8srwqn4lz76dpcdv8tkrdjdzwdszpjhz"
+      ],
+      "target_version": null,
+      "project": "Fluss",
+      "previous_status": null,
+      "change_summary": "首次建立状态基线；未确认本窗口内的状态变化。",
+      "event_date": null,
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214340/FIP-3+Support+tiering+Fluss+data+to+Iceberg",
+        "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": null,
+          "source_status": "Accepted (official directory)",
+          "kind": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "FIP-6",
+      "title": "Decouple Flink union read with paimon",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214598/FIP-6+Decouple+Flink+union+read+with+paimon",
+      "source_status": "Accepted (official directory)",
+      "reason": "湖格式与 Flink union read 解耦",
+      "follow_up": "核对 LakeSource/reader 接口实际落地范围及发布证据。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/bfwd9boynsqtv1r6tcpdqg1g99sn9rz3"
+      ],
+      "vote_urls": [
+        "https://lists.apache.org/thread/oowo748m3tr6ws4bdtmg1vcnfvzyzj8m"
+      ],
+      "target_version": null,
+      "project": "Fluss",
+      "previous_status": null,
+      "change_summary": "首次建立状态基线；未确认本窗口内的状态变化。",
+      "event_date": null,
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214598/FIP-6+Decouple+Flink+union+read+with+paimon",
+        "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": null,
+          "source_status": "Accepted (official directory)",
+          "kind": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "FIP-9",
+      "title": "Support CoordinatorServer High Availability",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/373886089/FIP-9+Support+CoordinatorServer+High+Availability",
+      "source_status": "Accepted (official directory and page label)",
+      "reason": "元数据服务高可用与旧 leader fencing",
+      "follow_up": "核对旧 leader 重连、ZooKeeper 写入 fencing、投票和正式发行；1.0 仅目录目标。",
+      "discussion_urls": [
+        "https://lists.apache.org/thread/61tof9lk49cgjb6lto07w7xoxb6fkdof"
+      ],
+      "vote_urls": [
+        "https://lists.apache.org/thread/fhkqcz240fmbhmg8lg43z15hgo8jcklg"
+      ],
+      "target_version": "1.0",
+      "project": "Fluss",
+      "previous_status": null,
+      "change_summary": "首次建立状态基线；未确认本窗口内的状态变化。",
+      "event_date": null,
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "提案接受状态与实际合并/发布分别跟踪。",
+      "status_evidence": [
+        "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/373886089/FIP-9+Support+CoordinatorServer+High+Availability",
+        "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals"
+      ],
+      "verification_limits": "讨论与投票归档未完整读取；首次观察没有上一期可比较状态。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": null,
+          "source_status": "Accepted (official directory and page label)",
+          "kind": "baseline"
+        }
+      ]
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3576",
+      "title": "feat: encode ElasticLogMeta with Avro",
+      "url": "https://github.com/AutoMQ/automq/pull/3576",
+      "reason": "日志元数据大小与格式迁移",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "AutoMQVersion V6+ 写带版本头的 Avro，V5 及以前写 JSON，读端支持两者。",
+      "event_date": "2026-09-04T09:20:52Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "discussion_urls": [
+        "https://github.com/AutoMQ/automq/pull/3576",
+        "https://github.com/AutoMQ/automq/pull/3574"
+      ],
+      "vote_urls": [],
+      "implementation_prs": [
+        "https://github.com/AutoMQ/automq/pull/3576",
+        "https://github.com/AutoMQ/automq/pull/3574"
+      ],
+      "target_version": null,
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "按原始 PR 编号跟踪；没有证据时不命名 AMIP，不对应未核验的 KIP/FIP。",
+      "branches": [
+        "main",
+        "1.8"
+      ],
+      "follow_up": "跟踪产品发版、旧格式兼容和恢复时延；内部 V6 不是产品版本。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-04T09:20:52Z",
+          "source_status": "Merged; release unverified",
+          "branch": "main",
+          "url": "https://github.com/AutoMQ/automq/pull/3576"
+        },
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-04T09:05:54Z",
+          "source_status": "Merged; release unverified",
+          "branch": "1.8",
+          "url": "https://github.com/AutoMQ/automq/pull/3574"
+        }
+      ]
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3575",
+      "title": "fix(metadata): clear pending topic configs on replay",
+      "url": "https://github.com/AutoMQ/automq/pull/3575",
+      "reason": "主题删除重建时的元数据重放正确性",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "删除主题重放同时清理本轮 pending delta，阻止旧配置进入同名重建主题；此项为 1.7 分支。",
+      "event_date": "2026-09-04T13:04:18Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "discussion_urls": [
+        "https://github.com/AutoMQ/automq/pull/3575",
+        "https://github.com/AutoMQ/automq/pull/3577",
+        "https://github.com/AutoMQ/automq/pull/3578"
+      ],
+      "vote_urls": [],
+      "implementation_prs": [
+        "https://github.com/AutoMQ/automq/pull/3575",
+        "https://github.com/AutoMQ/automq/pull/3577",
+        "https://github.com/AutoMQ/automq/pull/3578"
+      ],
+      "target_version": null,
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "按原始 PR 编号跟踪；没有证据时不命名 AMIP，不对应未核验的 KIP/FIP。",
+      "branches": [
+        "1.7",
+        "main",
+        "1.8"
+      ],
+      "follow_up": "跟踪 1.7/1.8/main 的发行归属，避免把回移重复记作新功能。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-04T13:04:18Z",
+          "source_status": "Merged; release unverified",
+          "branch": "1.7",
+          "url": "https://github.com/AutoMQ/automq/pull/3575"
+        },
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-06T01:34:24Z",
+          "source_status": "Merged; release unverified",
+          "branch": "main",
+          "url": "https://github.com/AutoMQ/automq/pull/3577"
+        },
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-06T01:34:34Z",
+          "source_status": "Merged; release unverified",
+          "branch": "1.8",
+          "url": "https://github.com/AutoMQ/automq/pull/3578"
+        }
+      ]
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3584",
+      "title": "feat: merge apache kafka 3.9.2",
+      "url": "https://github.com/AutoMQ/automq/pull/3584",
+      "reason": "AutoMQ 与 Kafka 上游版本对齐",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "PR 标题与合并事件记录向 1.8 合并 Apache Kafka 3.9.2；未逐项审计上游功能或确认 AutoMQ 发版。",
+      "event_date": "2026-09-08T08:27:44Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "discussion_urls": [
+        "https://github.com/AutoMQ/automq/pull/3584"
+      ],
+      "vote_urls": [],
+      "implementation_prs": [
+        "https://github.com/AutoMQ/automq/pull/3584"
+      ],
+      "target_version": null,
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "按原始 PR 编号跟踪；没有证据时不命名 AMIP，不对应未核验的 KIP/FIP。",
+      "branches": [
+        "1.8"
+      ],
+      "follow_up": "核对具体上游功能差异及 AutoMQ 实际发行；不从合并标题推导完整兼容。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-08T08:27:44Z",
+          "source_status": "Merged; release unverified",
+          "branch": "1.8",
+          "url": "https://github.com/AutoMQ/automq/pull/3584"
+        }
+      ]
+    },
+    {
+      "project": "Fluss",
+      "id": "#4254",
+      "title": "[server] Update remote log offsets before local segment cleanup",
+      "url": "https://github.com/apache/fluss/pull/4254",
+      "reason": "远端可读边界与本地清理顺序",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "先发布同一 committed manifest 的远端可读起止 offset，再推进复制水位及本地清理。",
+      "event_date": "2026-09-10T12:49:30Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "discussion_urls": [
+        "https://github.com/apache/fluss/pull/4254"
+      ],
+      "vote_urls": [],
+      "implementation_prs": [
+        "https://github.com/apache/fluss/pull/4254"
+      ],
+      "target_version": null,
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "按原始 PR 编号跟踪；没有证据时不命名 AMIP，不对应未核验的 KIP/FIP。",
+      "branches": [
+        "main"
+      ],
+      "follow_up": "跟踪 Fluss 正式发布、manifest/切主/并发 fetch 的故障注入证据。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-10T12:49:30Z",
+          "source_status": "Merged; release unverified",
+          "branch": "main",
+          "url": "https://github.com/apache/fluss/pull/4254"
+        }
+      ]
+    },
+    {
+      "project": "Fluss",
+      "id": "#3675",
+      "title": "[flink] Support custom lookup shuffle by bucket for Flink 2.x",
+      "url": "https://github.com/apache/fluss/pull/3675",
+      "reason": "流湖 lookup 路由与缓存局部性",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "Flink 2.2 支持显式 LOOKUP shuffle hint，按 Fluss bucket 路由探测流。",
+      "event_date": "2026-09-10T02:05:36Z",
+      "checked_at": "2026-09-11T02:32:17+00:00",
+      "discussion_urls": [
+        "https://github.com/apache/fluss/pull/3675"
+      ],
+      "vote_urls": [],
+      "implementation_prs": [
+        "https://github.com/apache/fluss/pull/3675"
+      ],
+      "target_version": null,
+      "released_version": null,
+      "release_evidence": [],
+      "upstream_kip": null,
+      "implementation_difference": "按原始 PR 编号跟踪；没有证据时不命名 AMIP，不对应未核验的 KIP/FIP。",
+      "branches": [
+        "main"
+      ],
+      "follow_up": "核对正式版本和热点负载表现，显式 hint 与 Fluss Catalog 前提。",
+      "history": [
+        {
+          "checked_at": "2026-09-11T02:32:17+00:00",
+          "event_date": "2026-09-10T02:05:36Z",
+          "source_status": "Merged; release unverified",
+          "branch": "main",
+          "url": "https://github.com/apache/fluss/pull/3675"
+        }
+      ]
+    }
+  ],
+  "item_fields": [
+    "project",
+    "id",
+    "title",
+    "url",
+    "reason",
+    "source_status",
+    "previous_status",
+    "change_summary",
+    "event_date",
+    "checked_at",
+    "discussion_urls",
+    "vote_urls",
+    "implementation_prs",
+    "target_version",
+    "released_version",
+    "release_evidence",
+    "upstream_kip",
+    "implementation_difference",
+    "follow_up",
+    "history"
+  ],
+  "note": "2026-09-11 首次记录 8 项 KIP/FIP 与 5 项待追踪发行的实现事件。该基线覆盖所选核心条目，并非社区全量清单；邮件投票及发行归属缺口保留在各条目中。",
+  "last_draft": {
+    "path": "docs/drafts/weekly/2026-09-11",
+    "window_start": "2026-09-04T09:00:00+08:00",
+    "window_end": "2026-09-11T09:00:00+08:00",
+    "status": "approved_for_publication",
+    "proposed_issue": 11,
+    "generated_at": "2026-09-11T02:35:54+00:00",
+    "revised_at": "2026-09-11T03:15:25+00:00",
+    "revision": 3,
+    "published_at": null,
+    "approved_at": "2026-09-11T03:24:19+00:00",
+    "approved_revision": 3,
+    "publication_record": "docs/drafts/weekly/2026-09-11/publication.json"
+  }
 }

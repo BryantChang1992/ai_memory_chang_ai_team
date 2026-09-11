@@ -1,0 +1,85 @@
+{
+  "mermaid": "11.13.0",
+  "figures": [
+    {
+      "id": "overview-1",
+      "status": "rendered",
+      "viewBox": "0 0 559.65625 614",
+      "width": 560,
+      "height": 614,
+      "labels": 12
+    },
+    {
+      "id": "lakehouse-1",
+      "status": "rendered",
+      "viewBox": "0 0 615.9375 766",
+      "width": 616,
+      "height": 766,
+      "labels": 17
+    },
+    {
+      "id": "lakehouse-2",
+      "status": "rendered",
+      "viewBox": "0 0 552.28125 662",
+      "width": 553,
+      "height": 662,
+      "labels": 18
+    },
+    {
+      "id": "streaming-1",
+      "status": "rendered",
+      "viewBox": "0 0 508.03125 785.28125",
+      "width": 509,
+      "height": 785.28125,
+      "labels": 14
+    },
+    {
+      "id": "streaming-2",
+      "status": "rendered",
+      "viewBox": "-50 -10 545 972",
+      "width": 545,
+      "height": 972,
+      "labels": 20
+    },
+    {
+      "id": "streaming-3",
+      "status": "rendered",
+      "viewBox": "0 0 608.48046875 1082.75",
+      "width": 609,
+      "height": 1082.75,
+      "labels": 19
+    },
+    {
+      "id": "distributed-storage-1",
+      "status": "rendered",
+      "viewBox": "0 0 526.0234375 606",
+      "width": 527,
+      "height": 606,
+      "labels": 14
+    },
+    {
+      "id": "distributed-storage-2",
+      "status": "rendered",
+      "viewBox": "-50 -10 656 844",
+      "width": 656,
+      "height": 844,
+      "labels": 18
+    },
+    {
+      "id": "ai-infra-1",
+      "status": "rendered",
+      "viewBox": "0 0 687.125 1038",
+      "width": 688,
+      "height": 1038,
+      "labels": 19
+    },
+    {
+      "id": "ai-infra-2",
+      "status": "rendered",
+      "viewBox": "0 0 734.5 786.25",
+      "width": 735,
+      "height": 786.25,
+      "labels": 18
+    }
+  ]
+}

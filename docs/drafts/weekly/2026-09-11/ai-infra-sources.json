@@ -1,0 +1,250 @@
+[
+  {
+    "id": "A1",
+    "title": "vLLM v0.29.0 release",
+    "url": "https://github.com/vllm-project/vllm/releases/tag/v0.29.0",
+    "publisher": "vllm-project",
+    "event_date": "2026-09-09T08:54:49Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "v0.29.0 已正式发布",
+      "Model Runner V2 默认启用，少量 ROCm 模型及未支持特性有例外",
+      "发布说明列入 PR #49445 的请求数与 token 数准入控制"
+    ],
+    "window_classification": "in_window_release",
+    "access_notes": "已读取官方 Release 正文，并由 api.github.com/repos/vllm-project/vllm/releases/tags/v0.29.0 的 published_at 核验时间；created_at=2026-09-08T08:50:34Z，不用创建时间代替发布时间。"
+  },
+  {
+    "id": "A2",
+    "title": "[Core] Add max_num_queued_reqs and max_num_queued_tokens for queue size management (#49445)",
+    "url": "https://github.com/vllm-project/vllm/pull/49445",
+    "publisher": "vllm-project",
+    "event_date": "2026-08-31T14:26:50Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "PR 在窗口前合并，本周随 v0.29.0 发布",
+      "请求数涵盖等待和运行中请求；token 限制计算 prefill 请求完整 prompt",
+      "参数默认关闭，超限返回 HTTP 503",
+      "计数未扣除 chunked prefill 进度和前缀缓存命中，可能保守拒绝"
+    ],
+    "window_classification": "pre_window_implementation_released_in_window",
+    "access_notes": "已读取官方 PR HTML 与 GitHub REST PR body/merged_at；只转述准入语义与已列明限制，没有声称测得性能收益。",
+    "release_evidence": [
+      "https://github.com/vllm-project/vllm/releases/tag/v0.29.0"
+    ]
+  },
+  {
+    "id": "A3",
+    "title": "[Model Runner V2] Use MRV2 for all models by default (#53183)",
+    "url": "https://github.com/vllm-project/vllm/pull/53183",
+    "publisher": "vllm-project",
+    "event_date": "2026-08-27T18:59:35Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "默认使用 MRV2；部分 ROCm 模型与不支持的功能保留 MRV1"
+    ],
+    "window_classification": "pre_window_implementation_released_in_window",
+    "access_notes": "已读取官方 GitHub REST PR body 和 merged_at；v0.29.0 Release 明确列入此 PR。",
+    "release_evidence": [
+      "https://github.com/vllm-project/vllm/releases/tag/v0.29.0"
+    ]
+  },
+  {
+    "id": "A4",
+    "title": "SGLang v0.5.19 release",
+    "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.19",
+    "publisher": "sgl-project",
+    "event_date": "2026-09-05T02:27:42Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "v0.5.19 正式发布",
+      "统一 radix tree 默认覆盖所有模型",
+      "发布列入统一树运行时 L3 挂载/卸载和 HiCache PP 一致性修复"
+    ],
+    "window_classification": "in_window_release",
+    "access_notes": "已读取官方 Release 正文并核验 REST published_at；created_at=2026-09-04T19:40:33Z 与 published_at 不同，采用后者。"
+  },
+  {
+    "id": "A5",
+    "title": "Using unified radix tree by default for all case (#35081)",
+    "url": "https://github.com/sgl-project/sglang/pull/35081",
+    "publisher": "sgl-project",
+    "event_date": "2026-08-21T02:45:47Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "统一树成为所有情形默认实现，扩展到 Full Only"
+    ],
+    "window_classification": "pre_window_implementation_released_in_window",
+    "access_notes": "已读取 GitHub REST 官方 PR body 和 merged_at；v0.5.19 Release 列入此 PR。",
+    "release_evidence": [
+      "https://github.com/sgl-project/sglang/releases/tag/v0.5.19"
+    ]
+  },
+  {
+    "id": "A6",
+    "title": "[UnifiedTree] feat: support runtime attach/detach for historage (#35269)",
+    "url": "https://github.com/sgl-project/sglang/pull/35269",
+    "publisher": "sgl-project",
+    "event_date": "2026-08-19T14:49:09Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "统一树实现运行时存储挂载和卸载",
+      "挂载前已存在节点需要补齐父子哈希链，否则可能错误重用其他上下文 KV",
+      "并发操作存在 not idle 拒绝，不是任意状态下无条件热切换"
+    ],
+    "window_classification": "pre_window_implementation_released_in_window",
+    "access_notes": "已读取官方 PR HTML 与 REST body/merged_at；不将 PR 作者测试等同于独立验证。",
+    "release_evidence": [
+      "https://github.com/sgl-project/sglang/releases/tag/v0.5.19"
+    ]
+  },
+  {
+    "id": "A7",
+    "title": "[HiCache] Fix PP inconsistency with HiCache L3 (#22607) (#27010)",
+    "url": "https://github.com/sgl-project/sglang/pull/27010",
+    "publisher": "sgl-project",
+    "event_date": "2026-08-25T12:49:58Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "协调 PP rank 消费相同数量的完成事件",
+      "跨预取线程使用 all_reduce(MIN) 协调 L3 可用长度",
+      "后台 prefetch_sync_thread 执行预取进度同步"
+    ],
+    "window_classification": "pre_window_implementation_released_in_window",
+    "access_notes": "已读取官方 REST PR body 和 merged_at；没有引用作者不完全等价配置下的 SWE-bench 结果。",
+    "release_evidence": [
+      "https://github.com/sgl-project/sglang/releases/tag/v0.5.19"
+    ]
+  },
+  {
+    "id": "A8",
+    "title": "[Data] Fix silent data loss when a file read retries mid-file (#66011)",
+    "url": "https://github.com/ray-project/ray/pull/66011",
+    "publisher": "ray-project",
+    "event_date": "2026-09-09T06:06:36Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "已合并主干，尚未核验正式版本发布",
+      "文件句柄前移与从头重放的重试契约冲突导致静默缺块",
+      "作者复现为 8 KiB 文件按 1 KiB 分块、第 3 次读后注入错误，旧代码仅交付 5/8 blocks，修复交付 8/8",
+      "修复每次重试重新打开文件；Parquet 不走该路径",
+      "重新解析和嵌套重试带来额外成本"
+    ],
+    "window_classification": "in_window_merge_release_unconfirmed",
+    "access_notes": "web HTML 获取 Cache miss；已通过官方 GitHub REST /repos/ray-project/ray/pulls/66011 完整读取 body 与 merged_at；未运行复现测试。"
+  },
+  {
+    "id": "A9",
+    "title": "[serve] Aggregate autoscaling metrics only at the controller (#65714)",
+    "url": "https://github.com/ray-project/ray/pull/65714",
+    "publisher": "ray-project",
+    "event_date": "2026-09-09T03:29:47Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "移除 RAY_SERVE_AGGREGATE_METRICS_AT_CONTROLLER 开关，统一 controller 聚合",
+      "源端均值求和一般不等于总量的时间加权均值，MAX/MIN 也不正确",
+      "原开关默认 0，本次影响默认聚合行为"
+    ],
+    "window_classification": "in_window_merge_release_unconfirmed",
+    "access_notes": "已读取官方 GitHub REST PR body 和 merged_at；只确认主干合并，未确认发行。"
+  },
+  {
+    "id": "A10",
+    "title": "[serve] Columnar zero-copy autoscaling-metrics codec (#64281)",
+    "url": "https://github.com/ray-project/ray/pull/64281",
+    "publisher": "ray-project",
+    "event_date": "2026-09-10T23:58:51Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "列式指标 codec 已合并",
+      "原文明示此提交 runtime no-op：尚无生产者编码或消费者解码",
+      "完整链路基准依赖后续 PR，不是当前合并已实现的收益"
+    ],
+    "window_classification": "in_window_merge_runtime_noop",
+    "access_notes": "web HTML Cache miss；已完整读取官方 REST PR body/merged_at。合并时间北京时间 09-11 07:58，早于本期 09:00 截止。正文刻意不采用尚未交付的性能数字。"
+  },
+  {
+    "id": "A11",
+    "title": "Ray releases (latest published release baseline)",
+    "url": "https://github.com/ray-project/ray/releases/tag/ray-2.58.0",
+    "publisher": "ray-project",
+    "event_date": "2026-08-23T05:42:08Z",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "核验时官方 releases API 返回最新正式发布为 ray-2.58.0，发布时间 08-23",
+      "不能据主干合并推断 A8/A9/A10 已正式交付"
+    ],
+    "window_classification": "pre_window_release_baseline",
+    "access_notes": "已读取 releases 官方 HTML 与 /repos/ray-project/ray/releases?per_page=3；后者前三项依次 2.58.0、2.57.0、2.56.1。"
+  },
+  {
+    "id": "A12",
+    "title": "Strata: Hierarchical Context Caching for Long Context Language Model Serving",
+    "url": "https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang",
+    "publisher": "USENIX Association",
+    "event_date": "2026-07-13",
+    "checked_at": "2026-09-11T02:41:29Z",
+    "claims": [
+      "OSDI 2026 正式论文，书目标记 July 2026",
+      "涉及分层上下文缓存、I/O 布局与感知缓存加载的调度",
+      "不属于本周新论文"
+    ],
+    "window_classification": "pre_window_paper_background",
+    "access_notes": "已读取官方论文页摘要与 BibTeX，会议目录核验 July 13 session/公开论文集；本轮进一步读取正式 PDF 第 3 节与第 4.1–4.4 节，详见 A16。未全文精读、未复现评测，不采用性能倍数。"
+  },
+  {
+    "id": "A13",
+    "title": "OSDI 2026 Technical Sessions",
+    "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+    "publisher": "USENIX Association",
+    "event_date": "2026-07-13",
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "完整论文集向公众开放日期 July 13",
+      "Strata 位于 July 13 的 KV Cache and Long Context session"
+    ],
+    "window_classification": "pre_window_paper_directory",
+    "access_notes": "已打开正式目录原文；当天抓取不代表当天发表。"
+  },
+  {
+    "id": "A14",
+    "title": "MLSys Proceedings Index",
+    "url": "https://proceedings.mlsys.org/",
+    "publisher": "MLSys",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "正式目录可访问并列出 MLSys 2026 Proceedings volume 8"
+    ],
+    "window_classification": "coverage_only_no_weekly_event_verified",
+    "access_notes": "仅用于覆盖说明，未确认该窗口新增论文；不从目录抓取时间推断发表日期。"
+  },
+  {
+    "id": "A15",
+    "title": "NSDI 2026 Technical Sessions",
+    "url": "https://www.usenix.org/conference/nsdi26/technical-sessions",
+    "publisher": "USENIX Association",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:20:49Z",
+    "claims": [
+      "已访问 NSDI 2026 正式目录"
+    ],
+    "window_classification": "coverage_only_no_weekly_event_verified",
+    "access_notes": "用于覆盖说明，不声称完整核对了目录每篇论文及本周代码变更；NeurIPS/ICML/ICLR 本期覆盖不足。"
+  },
+  {
+    "id": "A16",
+    "title": "Strata: Hierarchical Context Caching for Long Context Language Model Serving — official paper, sections 3 and 4",
+    "url": "https://www.usenix.org/system/files/osdi26-xie-zhiqiang.pdf",
+    "publisher": "USENIX Association",
+    "event_date": "2026-07-13",
+    "checked_at": "2026-09-11T02:41:29Z",
+    "claims": [
+      "正式 PDF 封面注明 OSDI 2026 于 July 13–15 举行，论文属七月背景",
+      "第 3 节讨论小 KV 页搬运效率与 delay hit；第 4.2、4.2.1 节描述 GPU 辅助 I/O、layer-first GPU 布局和 page-first 主存布局间转换，以及计算资源争用",
+      "第 4.3 节描述用 transient nodes 延迟共享未就绪前缀的请求、平衡加载和计算需求、用其他工作填充加载空隙"
+    ],
+    "window_classification": "pre_window_paper_background",
+    "access_notes": "通过官方论文页 PDF 链接读取完整可检索文档，并重点阅读第 3 节和第 4.1–4.4 节（纸面 pp.3–8；PDF 包含封面，索引对应 P3–P8）；读取图 6、图 7 及算法 1 文本，尝试 web screenshot，下载本地版本返回 403，未进行本地渲染。阅读范围不等于全文精读；未复现测评、不引用速度倍数；示例为本文标注的推演，未声称本周 PR 完整实现论文。"
+  }
+]

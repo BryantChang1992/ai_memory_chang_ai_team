@@ -1,0 +1,118 @@
+[
+  {
+    "id": "L1",
+    "title": "Flink: Fix microsecond truncation for timestamps in arrays and maps (#18001)",
+    "url": "https://github.com/apache/iceberg/pull/18001",
+    "publisher": "Apache Iceberg / GitHub official repository",
+    "event_date": "2026-09-07T09:22:46Z",
+    "checked_at": "2026-09-11T02:21:00Z",
+    "claims": [
+      "PR merged into main at the recorded event_date; no release inclusion was verified.",
+      "StructRowData timestamp conversion now preserves microseconds before splitting epoch milliseconds and nano-of-millisecond.",
+      "Patch updates Flink 1.20, 2.1, 2.2 and 2.3 source paths; the added array regression includes timestamps before and after the Unix epoch.",
+      "合并源码以 Math.floorDiv(micros, 1000L) 和 Math.floorMod(micros, 1000L) * 1000 拆分；epoch 前 1 微秒为正文明确标注的算术推演。"
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read official PR body and files through GitHub REST API; web PR page also accessible. Exact timestamp is pull request merged_at, not search closed_at or crawl time. Upstream tests were not rerun.",
+    "api_url": "https://api.github.com/repos/apache/iceberg/pulls/18001",
+    "precision_rechecked_at": "2026-09-11T02:52:17+00:00",
+    "precision_commit": "9bf2afd491be4b1a598918afd271cacb4aff9609"
+  },
+  {
+    "id": "L2",
+    "title": "Enable Iceberg Parquet page skipping with column indexes (#30971)",
+    "url": "https://github.com/trinodb/trino/pull/30971",
+    "publisher": "Trino / GitHub official repository",
+    "event_date": "2026-09-07T03:36:59Z",
+    "checked_at": "2026-09-11T02:21:00Z",
+    "claims": [
+      "PR merged into master; milestone field is 484, but actual release inclusion was not verified.",
+      "Iceberg reader gains parquet_use_column_index and receives a Parquet predicate, enabling page skipping for already indexed files.",
+      "PR states Trino Iceberg writer does not yet emit page indexes; tests cover deletion-related and row-position correctness. No benchmark speedup is claimed.",
+      "PR 正文直接给出 SET SESSION iceberg.parquet_use_column_index = false；文章限定 catalog 名为 iceberg。"
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read full official PR body and relevant production/test diffs via GitHub API; web PR page accessible. References to #30976 were treated as dependencies described by this PR, not independently audited changes.",
+    "api_url": "https://api.github.com/repos/trinodb/trino/pulls/30971",
+    "precision_rechecked_at": "2026-09-11T02:52:17+00:00"
+  },
+  {
+    "id": "L3",
+    "title": "feat(core): Support schema management over REST in RESTCatalog (#9673)",
+    "url": "https://github.com/apache/paimon/pull/9673",
+    "publisher": "Apache Paimon / GitHub official repository",
+    "event_date": "2026-09-08T14:09:20Z",
+    "checked_at": "2026-09-11T02:21:00Z",
+    "claims": [
+      "PR merged into master; release not verified.",
+      "Actual scope is display-only schema history: load LATEST/EARLIEST/schema ID and list full TableSchema objects in descending schema ID order with pagination.",
+      "Existing getTable, alterTable and rollbackSchema operations keep their prior implementation; the patch adds compatibility tests for a server without the new endpoints."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read full PR body, new REST GET implementation and test-file inventory through official GitHub API. Title alone overstates scope; claims follow the body and implementation. Did not execute tests.",
+    "api_url": "https://api.github.com/repos/apache/paimon/pulls/9673"
+  },
+  {
+    "id": "L4",
+    "title": "feat(flink): support vector columns in Lance writer (#19831)",
+    "url": "https://github.com/apache/hudi/pull/19831",
+    "publisher": "Apache Hudi / GitHub official repository",
+    "event_date": "2026-09-04T09:08:17Z",
+    "checked_at": "2026-09-11T02:21:00Z",
+    "claims": [
+      "PR merged into master inside the window; creation was before the window and was not used as the event.",
+      "Hoodie write schema distinguishes top-level FLOAT/DOUBLE VECTOR from ARRAY in Flink Lance writes; vectors use Arrow FixedSizeList with dimension validation.",
+      "hoodie.vector.columns metadata preserves vector identity; ordinary arrays retain their prior representation. Release inclusion was not verified."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read full official PR description and retrieved file diffs through GitHub API. Validation counts stated by contributors were not independently reproduced or used as performance evidence.",
+    "api_url": "https://api.github.com/repos/apache/hudi/pulls/19831"
+  },
+  {
+    "id": "L5",
+    "title": "feat(flink): support vector columns in Lance reader (#19842)",
+    "url": "https://github.com/apache/hudi/pull/19842",
+    "publisher": "Apache Hudi / GitHub official repository",
+    "event_date": "2026-09-08T04:18:47Z",
+    "checked_at": "2026-09-11T02:21:00Z",
+    "claims": [
+      "PR merged into master; release inclusion was not verified.",
+      "Reader handles FixedSizeList, restores VECTOR schema identity and validates dimension/element type; materializes Flink ArrayData.",
+      "Scope excludes INT8/nested vectors and Lance schema evolution; PR includes file round-trip and COW/MOR upsert/compaction test coverage."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Read complete PR body, Arrow list conversion, schema conversion diffs and test inventory through official API. This supports vector storage interoperability, not an ANN-search implementation claim.",
+    "api_url": "https://api.github.com/repos/apache/hudi/pulls/19842"
+  },
+  {
+    "id": "L6",
+    "title": "[Kernel] Fix kernel corrupt checkpoint bug (#7221)",
+    "url": "https://github.com/delta-io/delta/pull/7221",
+    "publisher": "Delta Lake / GitHub official repository",
+    "event_date": "2026-09-09T16:42:35Z",
+    "checked_at": "2026-09-11T02:21:00Z",
+    "claims": [
+      "PR merged into master at event_date; creation in July is background, not this week's event. Release inclusion was not verified.",
+      "Input iterator failure could cause resource close to flush, footer and publish an incomplete Parquet file; patch adds abort state for failed output.",
+      "Implementation covers staged temp/rename and abortable streams. PositionOutputStream documentation explicitly limits non-abortable streams writing directly to the destination."
+    ],
+    "window_classification": "in_window_merged",
+    "access_notes": "Web page cache miss; official GitHub API body and source diffs read successfully. Inspected PositionOutputStream, HadoopOutputFile and HadoopPositionOutputStream changes; checked test-file names. Did not run upstream tests.",
+    "api_url": "https://api.github.com/repos/delta-io/delta/pulls/7221"
+  },
+  {
+    "id": "L7",
+    "title": "Parquet Page Index: Layout to Support Page Skipping",
+    "url": "https://parquet.apache.org/docs/file-format/pageindex/",
+    "publisher": "Apache Parquet official documentation",
+    "event_date": null,
+    "checked_at": "2026-09-11T02:40:41Z",
+    "claims": [
+      "Page index is optional ColumnChunk metadata; ColumnIndex locates candidate pages by values, and OffsetIndex maps row indexes to corresponding pages in other columns.",
+      "Page index separates page-level metadata so selective scans need not access every data page header before deciding which pages to skip.",
+      "Used only as format background; the three-page example is an author-created hypothetical layout, not a benchmark or new feature announcement."
+    ],
+    "window_classification": "background_undated",
+    "access_notes": "Read official documentation body. The page footer records a website search-related modification on 2026-02-24; it is not treated as a feature release date. No claim that Page Index originated or changed during this weekly window."
+  }
+]

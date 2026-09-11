@@ -1,0 +1,46 @@
+{
+  "status": "approved_for_publication",
+  "approved_at": "2026-09-11T03:24:19+00:00",
+  "approved_by": "Bryant",
+  "approved_revision": 3,
+  "authorization": "没问题，你可以提交了，然后确认远程的gitpage是否更新，确认后再确认任务完成",
+  "body_changes": "只删除草稿状态及重复一级标题、替换正式站内链接和来源链接，补齐发布元数据；技术正文及 Mermaid 源码保持批准版本。",
+  "articles": [
+    {
+      "draft": "overview.md",
+      "approved_draft_sha256": "0376e7009369b17fc878fc7a35a1721cce679e9cd23af64c2ecc16d86d26241d",
+      "post": "_posts/2026-09-11-tech-research-week-11.md",
+      "post_sha256": "a2b74b7143fe45888f19eef93d89d8b4745a13027db682ed74f38b372f5c0a2d",
+      "url": "/posts/tech-research/week-11/"
+    },
+    {
+      "draft": "lakehouse.md",
+      "approved_draft_sha256": "dad8b0510227255e240acd1df260a97955b86e8a371ac3632a5050823596f677",
+      "post": "_posts/2026-09-11-tech-research-week-11-lakehouse.md",
+      "post_sha256": "da216cb2d9e5f3faab1e6b6073d6a88ea32abc5d430492397cc9147b723103a3",
+      "url": "/posts/tech-research/week-11/lakehouse/"
+    },
+    {
+      "draft": "streaming.md",
+      "approved_draft_sha256": "7cc9f18154c77cc8cb7072a1a2531c87725a4e3f5c50e88a718f773d2f84f254",
+      "post": "_posts/2026-09-11-tech-research-week-11-streaming.md",
+      "post_sha256": "92977ad8a2d3872f0e48d6b8e71c06daa6398493837d0611e06547b91f90e418",
+      "url": "/posts/tech-research/week-11/streaming/"
+    },
+    {
+      "draft": "distributed-storage.md",
+      "approved_draft_sha256": "60bbff847358e702ae770ef24dbac1a8c80fc8731f1aab990b28e317f885e5b1",
+      "post": "_posts/2026-09-11-tech-research-week-11-distributed-storage.md",
+      "post_sha256": "8fdbdd9115f8d49959cb62eed58e0d63bbc15b4718ddbe632923964b07ac54ce",
+      "url": "/posts/tech-research/week-11/distributed-storage/"
+    },
+    {
+      "draft": "ai-infra.md",
+      "approved_draft_sha256": "75082d75512b6d559f492fa65ad0fb2d3064c989d15062810c2ee414b5269c83",
+      "post": "_posts/2026-09-11-tech-research-week-11-ai-infra.md",
+      "post_sha256": "53a0ccf82fcebd3aa6a948be8769249452d3ab77b72a8fe8640fba3ba47acca3",
+      "url": "/posts/tech-research/week-11/ai-infra/"
+    }
+  ],
+  "verification": null
+}

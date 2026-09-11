@@ -242,7 +242,9 @@ categories: [一级分类, 二级子分类, 三级子分类]
 - 复杂嵌套用 `flowchart TD`（自上而下）
 - 时序交互用 `sequenceDiagram`
 - 架构层次用 `graph LR`（从左到右）
-- 所有 Mermaid 图依赖 Chirpy 内置 mermaid@11 支持（`_layouts/post.html` 自动引入）
+- 所有 Mermaid 图依赖 Chirpy 配套的 Mermaid 11；文章 front matter 必须设置 `mermaid: true`，主题的 `_includes/js-selector.html` 才会引入脚本
+- 每图提供图题、说明简化范围的图注，以及 `accTitle` / `accDescr`
+- 较宽图可设置对应图种的 `useMaxWidth: false`，利用主题的图表容器横向滚动；检查手机字号与整页溢出
 
 **示例**：
 

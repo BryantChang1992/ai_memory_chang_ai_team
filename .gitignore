@@ -5,3 +5,6 @@ _site
 vendor
 .bundle
 __pycache__/
+
+# Raw research downloads stay local; curated sources and reviewed drafts are tracked.
+docs/drafts/weekly/*/evidence/

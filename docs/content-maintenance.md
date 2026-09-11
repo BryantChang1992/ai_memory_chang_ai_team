@@ -12,6 +12,7 @@
 - `categories`：对应的中文主题名，分别为“流式数据与消息系统”“数据库与存储”“AI 基础设施与数据平台”。跨主题文章可以使用多个分类。
 - `content_type`：源码分析、深度调研、技术综述、论文解读、论文翻译、工程实践或随笔。
 - `reading_title`：可选的简短展示标题，文章原始标题继续保留。
+- `mermaid: true`：含 Mermaid 图的文章必须启用，否则 Chirpy 不会加载图表脚本。图使用 Markdown 的 `mermaid` 代码块，配套图题、图注及无障碍描述。
 
 系列文章另填 `series: fluss` 或 `series: doris`，以及 `series_order` 阅读顺序；专题页会自动加入该章节。新增系列需在 `_data/editorial.yml` 声明。
 
@@ -45,3 +46,5 @@ python3 scripts/check_site.py _site
 ```
 
 检查内容覆盖、旧链接与所有站内链接后，再沿用现有 GitHub Pages 发布流程。
+
+含图稿件还需打开实际主题页面，确认全部图表渲染成功、桌面和手机均无整页横向溢出。较宽图保留清晰字号，在图表容器内横向滚动，并提供阅读提示。静态构建成功不等于浏览器中的 Mermaid 已成功渲染。
