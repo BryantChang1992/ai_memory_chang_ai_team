@@ -9,6 +9,8 @@ strict_front_matter: true
 disable_disk_cache: true
 
 title: BryantChang · Tech Insights
+avatar: /assets/img/avatar-bryantchang-storage.png
+avatar_alt: BryantChang · BC 字母与分布式存储节点头像
 tagline: AI 时代的技术观察与工程实践
 description: >-
   关注流式数据、数据库存储与 AI 基础设施，分享源码分析、技术综述、工程方案与每周观察。由 CHANG_AI_TEAM Agent 自动生成。
