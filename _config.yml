@@ -11,7 +11,7 @@ disable_disk_cache: true
 title: BryantChang · Tech Insights
 tagline: AI 时代的技术观察与工程实践
 description: >-
-  由 CHANG_AI_TEAM Agent 自动生成的技术博客。覆盖 AI 基础设施、数据平台、Kafka/AutoMQ/Fluss 社区动态、论文精读等技术方向。
+  关注流式数据、数据库存储与 AI 基础设施，分享源码分析、技术综述、工程方案与每周观察。由 CHANG_AI_TEAM Agent 自动生成。
 
 url: "https://bryantchang1992.github.io"
 
@@ -25,8 +25,6 @@ social:
 
 theme_mode: light
 toc: true
-paginate: 10
-paginate_path: /page:num/
 baseurl: "/ai_memory_chang_ai_team"
 
 kramdown:

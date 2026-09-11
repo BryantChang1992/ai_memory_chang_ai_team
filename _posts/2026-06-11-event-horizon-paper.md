@@ -1,11 +1,17 @@
 ---
 title: "论文精读：Event Horizon — 非对称依赖与半线性化"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研, 论文精读]
+categories: ["数据库与存储"]
 tags: [论文精读, Event Horizon, CIDR 2026]
 description: >-
   CIDR 2026 论文精读：Event Horizon 提出半线性化（Semi-Linearizability）一致性模型，通过非对称操作依赖突破地理分布式系统的过度协调瓶颈。
+topic: "storage"
+content_type: "论文解读"
+translation: "/posts/event-horizon-translation/"
 ---
+
+补充阅读：[论文全文翻译]({{ '/posts/event-horizon-translation/' | relative_url }})
+
 
 > **论文**：Event Horizon: Asymmetric Dependencies for Fast Geo-Distributed Operations  
 > **作者**：Jonathan Arns (KTH), Harald Ng (KTH), Kyriakos Psarakis (Ververica / TU Delft), Asterios Katsifodimos (TU Delft), Paris Carbone (KTH)  

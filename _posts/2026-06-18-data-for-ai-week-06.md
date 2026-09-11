@@ -2,10 +2,15 @@
 title: "面向 AI 的数据平台建设 — Week 06"
 date: 2026-06-18 14:00:00 +0800
 permalink: /posts/tech-research/week-06/data-for-ai/
-categories: [技术调研, 数据平台]
+categories: ["AI 基础设施与数据平台"]
 tags: [Iceberg, Hudi, Delta Lake, Catalog, Lakehouse]
 description: >-
   Hudi 1.2 多模态 Lakehouse · Iceberg 1.11 里程碑 · Delta 4.2 Flink · UC Iceberg v3 GA
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "面向 AI 的数据平台"
 ---
 
 > 采集时间：2026-06-18 | 范围：Apache Iceberg / Delta Lake / Apache Hudi / Catalog 生态

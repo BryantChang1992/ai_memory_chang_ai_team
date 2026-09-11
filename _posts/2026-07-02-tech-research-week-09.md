@@ -2,10 +2,14 @@
 title: "技术调研周报 — Week 09 (2026-07-02)"
 date: 2026-07-12 22:00:00 +0800
 permalink: /posts/tech-research/week-09/
-categories: [技术调研, 周报]
+categories: []
 tags: [AI Infra, Agent Harness, Hermes Agent, Qwen 3.6, Flink 2.3.0, Fluss, Kafka, AutoMQ, Delta Lake, Doris, LSM-Tree, CockroachDB, CXL, 湖仓, 时序数据库]
 description: >-
   Week 09 技术调研周报（修订版）：Hermes Agent 140k⭐登顶 OpenRouter #1、Flink 2.3.0 发布、Kafka KIP-1314/1320 推进、AutoMQ 1.7.1 发布、Fluss 湖仓集成深化、Delta Lake 4.3.0 UC REST API、Doris 4.0.7、Agent 框架 2026 全景对比、CXL 数据库演进。
+issue: 9
+issue_date: "2026-07-02"
+content_type: "周报"
+reading_title: "Agent 框架、流式系统与数据平台进展"
 ---
 
 > 覆盖周期：2026-06-26 ~ 2026-07-02 | Week 09（2026-07-12 修订）
@@ -239,4 +243,4 @@ Fluss 湖仓集成继续深化：Paimon 自定义路径、Hudi tiering 文档、
 
 > ⚡ **下期预告**：Week 10 关注 Kafka 4.4.0 KIP freeze 结果、Flink 2.3.0 FROM_CHANGELOG 落地、Delta Lake UC REST API 多引擎支持进展、VLDB 2026 论文列表。
 >
-> 📎 子调研详情详见各方向页面。CEO 审阅后标记待入库文章，周五 Wiki 维护日统一入知识库。
+> 📎 子调研详情详见各方向页面。

@@ -2,10 +2,14 @@
 title: "技术调研周报 — Week 03 (2026-06-04)"
 date: 2026-06-04 08:00:00 +0800
 permalink: /posts/tech-research/week-03/
-categories: [技术调研, 周报, 技术调研]
+categories: []
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-
   覆盖周期 2026-05-28 ~ 2026-06-04，追踪 Anthropic NLAs 可解释性突破、Delta Lake 4.2.0、Kafka 4.2.1、AutoMQ 1.7.0 等动态。
+issue: 3
+issue_date: "2026-06-04"
+content_type: "周报"
+reading_title: "Agent 安全、数据格式与流存储进展"
 ---
 
 > 覆盖周期：2026-05-28 ~ 2026-06-04
@@ -14,7 +18,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [查看完整报告]({{ '/tech_research/ai_harness/week_03_2026-06-04.html' | relative_url }})
+→ [查看完整报告]({{ '/posts/tech-research/week-03/ai-harness/' | relative_url }})
 
 - Anthropic NLAs 可解释性突破
 - Project Glasswing 进展
@@ -25,7 +29,7 @@ description: >-
 
 ## 🗄️ 面向 AI 的数据平台建设
 
-→ [查看完整报告]({{ '/tech_research/data_for_ai/week_03_2026-06-04.html' | relative_url }})
+→ [查看完整报告]({{ '/posts/tech-research/week-03/data-for-ai/' | relative_url }})
 
 - Delta Lake 4.2.0
 - Hudi RFC-100
@@ -36,7 +40,7 @@ description: >-
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [查看完整报告]({{ '/tech_research/kafka_research/week_03_2026-06-04.html' | relative_url }})
+→ [查看完整报告]({{ '/posts/tech-research/week-03/kafka/' | relative_url }})
 
 - Kafka 4.2.1 发布
 - AutoMQ 1.7.0 里程碑版本
@@ -45,4 +49,4 @@ description: >-
 
 ---
 
-[技术调研总目录]({{ '/tech_research/index.html' | relative_url }})
+[技术调研总目录]({{ '/weekly/' | relative_url }})

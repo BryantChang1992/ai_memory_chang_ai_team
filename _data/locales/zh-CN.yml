@@ -15,6 +15,7 @@ tabs:
   archives: 归档
   about: 关于
   library: 专题
+  weekly: 周报
 
 # the text displayed in the search bar & search results
 search:

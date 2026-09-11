@@ -2,10 +2,15 @@
 title: "🤖 AI Harness · Agent 基础设施 — 周报 #3（2026-06-04）"
 date: 2026-06-04 08:00:00 +0800
 permalink: /posts/tech-research/week-03/ai-harness/
-categories: [技术调研, 周报, AI Harness]
+categories: ["AI 基础设施与数据平台"]
 tags: [AI基础设施, Agent, 框架]
 description: >-
   Anthropic NLAs 可解释性突破、Project Glasswing 首月成果（10,000+ 高危漏洞）、LangGraph 密集发布 1.2.3/1.2.4、MCP 协议新 RC、Coding Agent 社会科学调查。
+issue: 3
+issue_date: "2026-06-04"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "Agent 基础设施"
 ---
 
 ## 🔥 本周亮点

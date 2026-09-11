@@ -1,0 +1,43 @@
+---
+layout: default
+---
+<div class="content-hub home-hub">
+  <section class="hub-section" aria-labelledby="featured-heading">
+    <div class="section-heading"><h1 id="featured-heading">精选文章</h1><a href="{{ '/library/' | relative_url }}">浏览专题 <span aria-hidden="true">→</span></a></div>
+    <div class="featured-list">
+      {% for url in site.data.editorial.featured %}
+        {% assign post = site.posts | where: 'url', url | first %}
+        {% if post %}<article>{% include editorial-post.html post=post summary=true show_topic=true %}</article>{% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="hub-section" aria-labelledby="series-heading">
+    <div class="section-heading"><h2 id="series-heading">专题系列</h2></div>
+    <div class="series-grid">
+      {% for series in site.data.editorial.series %}
+        {% assign chapters = site.posts | where: 'series', series.id %}
+        <a class="series-card" href="{{ '/library/' | append: '#' | append: series.id | relative_url }}">
+          <i class="{{ series.icon }}" aria-hidden="true"></i><span class="reading-meta">{{ chapters.size }} 篇</span>
+          <h3>{{ series.title }}</h3><p>{{ series.description }}</p><span class="series-action">开始阅读 <span aria-hidden="true">→</span></span>
+        </a>
+      {% endfor %}
+      <a class="series-card" href="{{ '/library/#engineering' | relative_url }}">
+        <i class="fas fa-code" aria-hidden="true"></i><span class="reading-meta">{{ site.data.editorial.engineering.size }} 篇</span>
+        <h3>工程方案</h3><p>故障处理与 Agent 可观测性的具体设计。</p><span class="series-action">查看方案 <span aria-hidden="true">→</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="hub-section" aria-labelledby="weekly-heading">
+    <div class="section-heading"><h2 id="weekly-heading">最近周报</h2><a href="{{ '/weekly/' | relative_url }}">全部周报 <span aria-hidden="true">→</span></a></div>
+    {% for issue in site.data.catalog.weekly limit: 3 %}
+      {% assign post = issue.overview %}
+      <a class="weekly-row" href="{{ post.url | relative_url }}" data-weekly-issue="{{ post.issue }}">
+        <span class="issue-label">W{{ post.issue | prepend: '0' | slice: -2, 2 }}</span>
+        <span><strong>{{ post.reading_title | escape }}</strong><span class="reading-meta">{{ post.issue_date | date: '%Y.%m.%d' }}</span></span>
+        <span class="row-arrow" aria-hidden="true">→</span>
+      </a>
+    {% endfor %}
+  </section>
+</div>

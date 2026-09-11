@@ -2,9 +2,14 @@
 title: "AI Harness · Agent 基础设施进展 · 周报 #1"
 date: 2026-05-26 08:00:00 +0800
 permalink: /posts/tech-research/week-01/ai-harness/
-categories: [技术调研, 周报, AI Harness]
+categories: ["AI 基础设施与数据平台"]
 tags: [AI基础设施, Agent, 框架, 安全]
 description: "OpenAI Codex 生态爆发、Anthropic 安全前沿、Agent 框架竞争格局、安全与评估前沿"
+issue: 1
+issue_date: "2026-05-26"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "Agent 基础设施"
 ---
 
 > **📌 本期定位：** AI Harness 周报第 1 期 — OpenAI Codex 生态爆发、Anthropic 安全前沿、Agent 框架生态 — LangChain / AutoGen / CrewAI、Agent 安全与评估前沿论文

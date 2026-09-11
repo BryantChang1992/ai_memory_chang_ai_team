@@ -1,10 +1,15 @@
 ---
 title: "Apache Doris 调研：架构演进"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Doris 调研]
+categories: ["数据库与存储"]
 tags: [Doris, 架构演进, OLAP]
 description: >-
   Apache Doris 从百度内部 OLAP 引擎到 Apache 顶级项目的十多年演进，从 Shared-Nothing MPP 到存算分离 3.0 的架构蜕变。
+topic: "storage"
+content_type: "深度调研"
+series: "doris"
+series_order: 2
+reading_title: "架构演进"
 ---
 Apache Doris 经历了从百度内部 OLAP 引擎到 Apache 顶级项目的十多年演进，架构不断进化以应对日益复杂的分析需求。
 

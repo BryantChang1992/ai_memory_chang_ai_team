@@ -1,10 +1,15 @@
 ---
 title: "Fluss 源码分析：数据面 — 网络与 RPC"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss 源码分析]
+categories: ["流式数据与消息系统"]
 tags: [Fluss, 网络, RPC]
 description: >-
   Fluss RPC 框架的 Netty 传输层、Protobuf 序列化、双协议引擎（Fluss + Kafka）、Gateway 动态代理和 Kafka 协议兼容层的深度分析。
+topic: "streaming"
+content_type: "源码分析"
+series: "fluss"
+series_order: 3
+reading_title: "数据面 — 网络与 RPC"
 ---
 
 

@@ -2,10 +2,15 @@
 title: "存储/数据库/AI Infra 顶会趋势 — Week 06"
 date: 2026-06-18 14:00:00 +0800
 permalink: /posts/tech-research/week-06/conferences/
-categories: [技术调研, 顶会趋势]
+categories: ["数据库与存储", "AI 基础设施与数据平台"]
 tags: [SIGMOD, VLDB, 顶会, ArXiv, VectorDB, AI Infra]
 description: >-
   10 篇精选：Ghost Vectors · LLM 504 GPU 运维 · RollArt Agentic RL · NVIDIA Spectrum-X
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报分稿"
+topic: "storage"
+reading_title: "顶会论文趋势"
 ---
 
 > 采集窗口：2026-06-11 ~ 2026-06-18 · 来源：ArXiv + 顶会官网

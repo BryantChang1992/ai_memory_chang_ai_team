@@ -1,19 +1,26 @@
 ---
 title: "论文精读：RaaS — 存储计算分离数据库的 Tail Latency 消除"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研, 论文精读]
+categories: ["数据库与存储"]
 tags: [论文精读, RaaS, SIGMOD 2026]
 description: >-
   SIGMOD 2026 论文精读：RaaS（Replay-as-a-Service）将日志回放从存储引擎解耦为独立服务，降低存储计算分离数据库 P95 尾延迟 40.1%。
+topic: "storage"
+content_type: "论文解读"
+translation: "/posts/raas-translation/"
 ---
 
 > **论文**：Reducing Tail Latency in Storage-Disaggregated Database Systems  
 > **作者**：Xi Pang, Jianguo Wang (Purdue University)  
 > **会议**：SIGMOD 2026 · Proc. ACM Manag. Data, Vol. 4, No. 1, Article 74  
 > **代码**：https://github.com/purduedb/OpenAurora/tree/RaaS  
-> **联盟**：NSF 2337806
+> **资助**：NSF 2337806
 
 ---
+
+**论文 PDF：** [Reducing Tail Latency in Storage-Disaggregated Database Systems（26 pages）](https://cs.purdue.edu/homes/csjgwang/pubs/SIGMOD26_RaaS.pdf)
+
+补充阅读：[论文全文翻译]({{ '/posts/raas-translation/' | relative_url }})
 
 ## 一、问题背景
 

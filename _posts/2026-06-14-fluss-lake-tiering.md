@@ -1,10 +1,15 @@
 ---
 title: "Fluss 源码分析：Lake 层与湖仓融合"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss 源码分析]
+categories: ["流式数据与消息系统"]
 tags: [Fluss, Lake层, 湖仓融合]
 description: >-
   Fluss Lake 层架构：Iceberg/Paimon/Hudi/Lance 四种后端实现、Flink Tiering 独立作业、与 Kafka KIP-405 的差异对比。
+topic: "streaming"
+content_type: "源码分析"
+series: "fluss"
+series_order: 7
+reading_title: "Lake 层与湖仓融合"
 ---
 
 

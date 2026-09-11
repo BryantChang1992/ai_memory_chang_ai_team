@@ -1,4 +1,5 @@
 ---
+nav_hidden: true
 icon: fas fa-stream
 order: 2
 layout: page

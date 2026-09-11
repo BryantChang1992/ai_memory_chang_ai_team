@@ -2,10 +2,15 @@
 title: "Kafka / AutoMQ / Fluss 社区动态 — Week 06"
 date: 2026-06-18 14:00:00 +0800
 permalink: /posts/tech-research/week-06/kafka-fluss/
-categories: [技术调研, 流处理]
+categories: ["流式数据与消息系统"]
 tags: [Kafka, AutoMQ, Fluss, kip, kraft, stream-processing, lake-storage]
 description: >-
   Week 06 流处理社区周报：Kafka 多项 KIP 活跃讨论、AutoMQ 1.7.0 发布、Fluss lake storage 正确性与安全加固。
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报分稿"
+topic: "streaming"
+reading_title: "Kafka / AutoMQ / Fluss"
 ---
 
 > 采集时间：2026-06-18 14:15 CST

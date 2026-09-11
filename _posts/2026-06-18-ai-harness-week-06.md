@@ -2,10 +2,15 @@
 title: "AI Harness · Agent 基础设施 — Week 06"
 date: 2026-06-18 14:00:00 +0800
 permalink: /posts/tech-research/week-06/ai-harness/
-categories: [技术调研, AI Harness]
+categories: ["AI 基础设施与数据平台"]
 tags: [agent-infrastructure, langgraph, openai, anthropic, agent-safety, mcp]
 description: >-
   Week 06 Agent 基础设施周报：LangGraph 1.2.5 发布、OpenAI 收购 Ona、Partner Network 启动、Anthropic 容器化安全实践、MCP RC 草案发布等 11 条动态。
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "Agent 基础设施"
 ---
 
 ## 本周亮点

@@ -1,10 +1,15 @@
 ---
 title: "Apache Doris 调研：元数据存储与一致性复制"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Doris 调研]
+categories: ["数据库与存储"]
 tags: [Doris, 元数据, 一致性复制]
 description: >-
   Doris 元数据管理从 BDB-JE 单机到 Meta Service 存算分离的演进，控制面多副本复制与数据面写入一致性保障的深度分析。
+topic: "storage"
+content_type: "深度调研"
+series: "doris"
+series_order: 5
+reading_title: "元数据存储与一致性复制"
 ---
 ## 6. 元数据存储与一致性复制
 

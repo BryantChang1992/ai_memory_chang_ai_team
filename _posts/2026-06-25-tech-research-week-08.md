@@ -2,10 +2,14 @@
 title: "技术调研周报 — Week 08 (2026-06-25)"
 date: 2026-06-25 14:30:00 +0800
 permalink: /posts/tech-research/week-08/
-categories: [技术调研, 周报]
+categories: []
 tags: [AI Infra, Agent Harness, CodeAct, Hyperlight, CockroachDB, Leader Leases, Flink, Fluss, Doris, Iceberg, LSM-Tree, PASV, 湖仓, CXL]
 description: >-
   Week 08 补调研周报，6 方向全量追踪：Microsoft Agent Framework BUILD 2026 三大发布、CockroachDB SIGMOD 2026 Leader Leases 论文、Apache Doris 4.1 AI 统一存储检索、Iceberg v3 Public Preview、PASV 被动持久化入 ACM TOS、Flink 2.0.2 + Fluss 1.0 路线图。
+issue: 8
+issue_date: "2026-06-25"
+content_type: "周报"
+reading_title: "Agent 框架、分布式数据库与湖仓融合"
 ---
 
 > 覆盖周期：2026-06-19 ~ 2026-06-25 | Week 08（补调研）
@@ -223,4 +227,4 @@ Fluss（已进入 Apache 孵化器）定位为"real-time data layer on top of La
 
 > ⚡ **下期预告**：Week 09 按常规节奏进行调研（非补调研），重点关注 Fluss 1.0 发布结果、ACM TOS PASV 论文精读、以及即将举行的 VLDB 2026 论文 list。
 >
-> 📎 子调研详情详见各方向页面。CEO 审阅后标记待入库文章，周五 Wiki 维护日统一入知识库。
+> 📎 子调研详情详见各方向页面。

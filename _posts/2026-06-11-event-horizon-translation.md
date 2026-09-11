@@ -1,11 +1,16 @@
 ---
 title: "论文全文翻译：Event Horizon — 面向快速地理分布式操作的非对称依赖"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研, 论文精读]
+categories: ["数据库与存储"]
 tags: [论文精读, Event Horizon, 全文翻译]
 description: >-
   CIDR 2026 论文 Event Horizon: Asymmetric Dependencies for Fast Geo-Distributed Operations 的全文中文翻译。
+topic: "storage"
+content_type: "论文翻译"
 ---
+
+[先读论文解读]({{ '/posts/event-horizon-paper/' | relative_url }})
+
 
 > **原文标题**：Event Horizon: Asymmetric Dependencies for Fast Geo-Distributed Operations  
 > **作者**：Jonathan Arns (KTH Royal Institute of Technology), Harald Ng (KTH Royal Institute of Technology), Kyriakos Psarakis* (Ververica GmbH / TU Delft), Asterios Katsifodimos (Delft University of Technology), Paris Carbone (KTH Royal Institute of Technology)  

@@ -1,0 +1,41 @@
+---
+layout: page
+icon: fas fa-book-open
+order: 2
+title: Library
+permalink: /library/
+---
+<div class="content-hub library-hub">
+  <nav class="topic-nav" aria-label="专题方向">
+    {% for topic in site.data.editorial.topics %}<a href="#{{ topic.id }}">{{ topic.name }}</a>{% endfor %}
+  </nav>
+  {% for topic in site.data.editorial.topics %}
+    <section class="topic-section" id="{{ topic.id }}">
+      <h2>{{ topic.name }}</h2><p class="hub-intro">{{ topic.description }}</p>
+      {% assign series_list = site.data.editorial.series | where: 'topic', topic.id %}
+      {% for series in series_list %}
+        {% assign chapters = site.posts | where: 'series', series.id | sort: 'series_order' %}
+        <div class="series-reading" id="{{ series.id }}">
+          <h3>{{ series.title }} <span class="reading-meta">{{ chapters.size }} 篇</span></h3>
+          <ol>{% for post in chapters %}<li><a href="{{ post.url | relative_url }}">{{ post.reading_title | default: post.title | escape }}</a></li>{% endfor %}</ol>
+        </div>
+      {% endfor %}
+      <div class="topic-articles">
+        {% for post in site.data.catalog.articles %}
+          {% if post.topic == topic.id and post.series == nil %}
+            <article>{% include editorial-post.html post=post %}
+              {% if post.translation %}<a class="supplement-link" href="{{ post.translation | relative_url }}">补充阅读：论文全文翻译 <span aria-hidden="true">↗</span></a>{% endif %}
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+  <section class="topic-section" id="engineering">
+    <h2>工程方案</h2>
+    {% for item in site.data.editorial.engineering %}
+      <a class="engineering-link" href="{{ item.url | relative_url }}"><h3>{{ item.title }}</h3><p>{{ item.description }}</p></a>
+    {% endfor %}
+  </section>
+  <div class="browse-more"><a href="{{ '/weekly/' | relative_url }}">查看每周动态 →</a><a href="{{ '/tags/' | relative_url }}">按技术标签查找 →</a><a href="{{ '/archives/' | relative_url }}">全部文章归档 →</a></div>
+</div>

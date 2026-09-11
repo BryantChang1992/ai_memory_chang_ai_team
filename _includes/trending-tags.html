@@ -1,0 +1,8 @@
+<section>
+  <h2 class="panel-heading">阅读专题</h2>
+  <ul class="content list-unstyled ps-0 pb-1 ms-1 mt-2">
+    {% for topic in site.data.editorial.topics %}
+      <li class="lh-lg"><a href="{{ '/library/' | append: '#' | append: topic.id | relative_url }}">{{ topic.name }}</a></li>
+    {% endfor %}
+  </ul>
+</section>

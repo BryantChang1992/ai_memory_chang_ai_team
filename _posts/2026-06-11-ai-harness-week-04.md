@@ -2,10 +2,15 @@
 title: "🤖 AI Harness · Agent 基础设施 — 周报 #4（2026-06-11）"
 date: 2026-06-11 08:00:00 +0800
 permalink: /posts/tech-research/week-04/ai-harness/
-categories: [技术调研, 周报, AI Harness]
+categories: ["AI 基础设施与数据平台"]
 tags: [AI基础设施, Agent, 框架]
 description: >-
   Anthropic 发布 Fable 5/Mythos 5、高级 Tool Use 平台、Agent 容器化安全工程；OpenAI Assistants API 宣布退役；OWASP Agentic Top 10 落地。
+issue: 4
+issue_date: "2026-06-11"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "Agent 基础设施"
 ---
 
 ## 🔥 本周亮点

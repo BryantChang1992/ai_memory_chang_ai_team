@@ -2,21 +2,23 @@
 title: "技术调研周报 — Week 05 (2026-06-14)"
 date: 2026-06-14 23:00:00 +0800
 permalink: /posts/tech-research/week-05/
-categories: [技术调研, 周报]
+categories: []
 tags: [LSM-Tree, OLAP, TSDB, 分布式一致性, Wiki Synthesize]
 description: >-
-  首轮 Wiki Synthesize：31 张概念卡片 → 3 篇综述，11 个跨领域洞察。LSM-Tree 体系、OLAP/TSDB 横向对比、分布式一致性全层次视图。
+  三篇技术综述，讨论存储引擎与一致性的关键联系。LSM-Tree 体系、OLAP/TSDB 横向对比、分布式一致性全层次视图。
+issue: 5
+issue_date: "2026-06-14"
+content_type: "周报"
+reading_title: "LSM、OLAP 与分布式一致性综述"
 ---
 
 > 覆盖周期：2026-06-12 ~ 2026-06-14（本周为知识库建设专项周）
 
 ---
 
-## 🧠 Wiki Synthesize · 知识库领域提炼（首轮）
+## 三个存储与一致性专题
 
-> 31 张概念卡片 → 3 篇综述 + 1 篇 Lint 报告。每篇综述已发布为独立 Blog 文章。
-
-### 综述一：LSM-Tree 存储引擎体系
+三篇技术综述分别讨论存储引擎、分析型数据库与分布式一致性。
 
 ### 综述一：LSM-Tree 存储引擎体系
 
@@ -51,18 +53,10 @@ Doris (OLAP) vs InfluxDB (TSDB) 横向对比，17 张卡片输入。3 个核心�
 - **存算分离打破了一致性假设**：本地日志编排公平性本身就是一致性命题
 - **分布式事务演进史 = 协调代价 vs 隔离保证的压缩史**
 
-### Lint 质量报告
-
-| 类别 | 结果 |
-|------|------|
-| 孤儿页 | 0 ✅ |
-| 概念矛盾 | 0 ✅ |
-| Bloom Filter 缺口 | 被 15 页引用但无独立卡片 🟡 |
-| 存算分离集群 | 仅 4 页未达 synthesis 临界质量 🟡 |
 
 ---
 
 ## 🔗 链接
 
-- [技术调研总目录]({{ '/tech_research/index.html' | relative_url }})
+- [技术调研总目录]({{ '/weekly/' | relative_url }})
 - [知识库 GitHub](https://github.com/BryantChang1992/ai_wikis)

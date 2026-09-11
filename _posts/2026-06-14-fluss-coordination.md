@@ -1,10 +1,15 @@
 ---
 title: "Fluss 源码分析：分布式协调层"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss 源码分析]
+categories: ["流式数据与消息系统"]
 tags: [Fluss, 分布式协调, 流存储]
 description: >-
   Fluss Coordinator Server 分布式协调层架构分析：事件驱动模型、双状态机设计、重平衡、租约管理、Producer ID 管理及 ZK 集成。
+topic: "streaming"
+content_type: "源码分析"
+series: "fluss"
+series_order: 5
+reading_title: "分布式协调层"
 ---
 
 

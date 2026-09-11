@@ -1,0 +1,17 @@
+{
+  "技术调研": "/library/",
+  "周报": "/weekly/",
+  "AI Harness": "/library/#ai",
+  "面向AI的数据平台": "/library/#ai",
+  "Kafka": "/library/#streaming",
+  "论文精读": "/library/#storage",
+  "个人观点输出": "/library/#ai",
+  "Doris 调研": "/library/#doris",
+  "Fluss 源码分析": "/library/#fluss",
+  "Wiki Synthesize": "/library/#storage",
+  "AI Agent": "/library/#ai",
+  "深度方向": "/library/#storage",
+  "顶会趋势": "/weekly/",
+  "数据平台": "/library/#ai",
+  "流处理": "/library/#streaming"
+}

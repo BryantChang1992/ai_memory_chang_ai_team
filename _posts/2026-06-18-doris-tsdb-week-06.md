@@ -2,10 +2,15 @@
 title: "Doris / 时序数据库 / 存储引擎 — Week 06"
 date: 2026-06-18 14:00:00 +0800
 permalink: /posts/tech-research/week-06/doris-tsdb/
-categories: [技术调研, 深度方向]
+categories: ["数据库与存储"]
 tags: [Doris, InfluxDB, TimescaleDB, 时序数据库, 存储引擎]
 description: >-
   Doris 4.0.6 · InfluxDB 3.10 Pacha-Tree · TimescaleDB 2.28 · CRDB Leader Lease
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报分稿"
+topic: "storage"
+reading_title: "Doris 与存储系统"
 ---
 
 > 采集窗口：2026-06-11 ~ 2026-06-18 · 来源：SearXNG + 直接源抓取

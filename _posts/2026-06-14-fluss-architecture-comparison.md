@@ -1,10 +1,14 @@
 ---
 title: "Fluss 源码分析：整体架构对比 — Fluss vs Kafka 2.7.2"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss 源码分析]
+categories: ["流式数据与消息系统"]
 tags: [Fluss, 架构, 流存储]
-description: >-
-  Fluss trunk 与 Apache Kafka 2.7.2 的整体架构差异和模块映射关系分析，涵盖核心概念映射、架构差异、模块对应和代码复用。
+description: "从核心概念、存储层次和模块映射入手，建立阅读 Fluss 源码的整体地图。"
+topic: "streaming"
+content_type: "源码分析"
+series: "fluss"
+series_order: 1
+reading_title: "Fluss 与 Kafka：从架构到模块的对照"
 ---
 
 

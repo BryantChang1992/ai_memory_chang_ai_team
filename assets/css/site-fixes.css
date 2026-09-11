@@ -7,3 +7,70 @@
   #page-category [data-category-post] > a { flex: 1 1 100%; white-space: normal; }
   #page-category [data-category-post] > .dash { display: none; }
 }
+
+/* Curated reading pages share the existing Chirpy palette and navigation. */
+#main-wrapper:has(.content-hub) #panel-wrapper { display: none; }
+#main-wrapper:has(.content-hub) main,
+#main-wrapper:has(.content-hub) #tail-wrapper { flex: 0 0 100%; max-width: 100%; }
+.content-hub { --hub-accent: #2759a5; --hub-line: #e3e8ef; --hub-muted: #596779; padding-bottom: 2rem; }
+.content-hub a { border-bottom: 0 !important; }
+.content-hub a:focus-visible, .content-hub summary:focus-visible { outline: 3px solid #2759a5; outline-offset: 5px; border-radius: 3px; }
+.content-hub .hub-section { margin-bottom: 2.7rem; }
+.content-hub .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .9rem; }
+.content-hub h1, .content-hub h2 { font-size: 1.5rem; font-weight: 650; letter-spacing: -.025em; line-height: 1.5; margin: 0; }
+.content-hub .section-heading > a { font-size: .9rem; white-space: nowrap; }
+.content-hub h3 { font-size: 1.12rem; line-height: 1.65; font-weight: 600; margin: .3rem 0 .5rem; color: var(--heading-color); }
+.content-hub p { font-size: 1rem; line-height: 1.85; margin: 0; color: var(--hub-muted); }
+.content-hub .reading-meta { font-size: .875rem; line-height: 1.6; color: var(--hub-muted); font-weight: 400; }
+.featured-list { border-top: 2px solid var(--hub-accent); }
+.featured-list article { border-bottom: 1px solid var(--hub-line); }
+.reading-link { display: block; padding: 1.2rem 0; text-decoration: none; }
+.reading-link:hover h3, .engineering-link:hover h3 { color: var(--hub-accent); }
+.featured-list .reading-link h3 { font-size: 1.25rem; }
+.series-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.series-card { display: flex; flex-direction: column; padding: 1.2rem; background: #f5f7fb; border: 1px solid var(--hub-line); border-radius: .55rem; }
+.series-card > i { color: var(--hub-accent); font-size: 1.2rem; margin-bottom: .85rem; }
+.series-card p { font-size: .925rem; }
+.series-card .series-action { font-size: .9rem; padding-top: 1rem; margin-top: auto; }
+.series-card:hover { background: #edf2fa; }
+.weekly-row { display: grid; grid-template-columns: 3.5rem 1fr auto; align-items: center; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--hub-line); }
+.weekly-row strong { display: block; font-size: 1rem; line-height: 1.7; color: var(--heading-color); font-weight: 550; }
+.weekly-row .reading-meta { display: block; margin-top: .2rem; }
+.weekly-row:hover strong { color: var(--hub-accent); }
+.issue-label { font-size: .95rem; font-weight: 650; letter-spacing: .02em; color: var(--hub-accent); font-variant-numeric: tabular-nums; }
+.row-arrow { color: var(--hub-muted); }
+.content-hub .topic-nav { display: flex; flex-wrap: wrap; gap: .6rem; margin: .25rem 0 2rem; }
+.topic-nav a { padding: .45rem .8rem; background: #f0f4fa; border-radius: .3rem; font-size: .925rem; }
+.content-hub .topic-section { padding: 1.8rem 0; border-top: 1px solid var(--hub-line); scroll-margin-top: 5rem; }
+.content-hub .hub-intro { margin: .5rem 0 1.35rem; }
+.series-reading { scroll-margin-top: 5rem; }
+.content-hub .series-reading h3 { margin-top: 1.2rem; }
+.content-hub .series-reading h3 .reading-meta { margin-left: .5rem; }
+.content-hub ol, .content-hub ul { margin: .8rem 0 1.5rem; padding-left: 1.4rem; }
+.content-hub li { padding-left: .25rem; margin: .6rem 0; line-height: 1.8; }
+.topic-articles article { border-top: 1px solid var(--hub-line); }
+.topic-articles .reading-link { padding: .9rem 0; }
+.supplement-link { display: inline-block; font-size: .9rem; margin: -.1rem 0 1.1rem; }
+.engineering-link { display: block; padding: 1rem 0; }
+.browse-more { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; font-size: .9rem; margin-top: 1.8rem; }
+.weekly-issue { padding: 1.5rem 0; border-top: 1px solid var(--hub-line); scroll-margin-top: 5rem; }
+.content-hub .weekly-issue h2 { font-size: 1.2rem; margin: .5rem 0 .65rem; }
+.issue-links { margin: .9rem 0; font-size: .95rem; }
+.report-details { border-left: 2px solid var(--hub-line); padding: .4rem 0 .4rem 1rem; }
+.report-details summary { cursor: pointer; font-size: .925rem; color: var(--hub-muted); }
+.report-details summary .reading-meta { margin-left: .5rem; }
+.report-details ul { margin-bottom: .4rem; }
+.footer-browse { white-space: nowrap; margin: 0 1rem; }
+.article-context { margin: 1.5rem 0; padding: 1rem 1.2rem; background: #f5f7fb; border-left: 3px solid #2759a5; font-size: .925rem; line-height: 1.8; }
+.article-context summary { cursor: pointer; margin-top: .5rem; }
+.article-context li { margin: .35rem 0; }
+.article-context ul { margin-bottom: .25rem; }
+@media (max-width: 767px) {
+  .series-grid { grid-template-columns: 1fr; }
+  .series-card { padding: 1.15rem; }
+  .content-hub .section-heading { gap: .5rem; }
+  .content-hub h1, .content-hub h2 { font-size: 1.35rem; }
+  .featured-list .reading-link h3 { font-size: 1.12rem; }
+  .weekly-row { grid-template-columns: 2.7rem 1fr auto; gap: .55rem; }
+  .footer-browse { margin: .6rem 0; }
+}

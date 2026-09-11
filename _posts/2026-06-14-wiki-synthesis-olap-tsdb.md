@@ -1,10 +1,12 @@
 ---
-title: "Wiki Synthesize：OLAP 与时序数据库全景综述"
+title: "技术综述：OLAP 与时序数据库全景综述"
 date: 2026-06-14 22:45:00 +0800
-categories: [技术调研, Wiki Synthesize]
+categories: ["数据库与存储"]
 tags: [OLAP, TSDB, Doris, InfluxDB, 数据库, 架构对比]
 description: >-
   横向对比 Apache Doris (OLAP) 与 InfluxDB (TSDB) 两大赛道的存储引擎、查询模式、一致性模型和架构演进。揭示 OLAP 和时序数据库正在快速趋同的趋势。
+topic: "storage"
+content_type: "技术综述"
 ---
 
 > 本文是 **Wiki Synthesize（知识库领域提炼）** 首轮综述之二。基于 17 张 wiki 卡片（Doris 8 张 + InfluxDB 8 张 + 调研报告）。[完整周报]({{ '/posts/tech-research/week-05/' | relative_url }}) · [子调研详情]({{ '/tech_research/wiki_synthesis/week_01_2026-06-14.html' | relative_url }})

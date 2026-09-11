@@ -2,10 +2,14 @@
 title: "技术调研周报 — Week 04 (2026-06-11)"
 date: 2026-06-11 08:00:00 +0800
 permalink: /posts/tech-research/week-04/
-categories: [技术调研, 周报, 技术调研]
+categories: []
 tags: [AI基础设施, 数据平台, Kafka]
 description: >-
   覆盖周期 2026-06-04 ~ 2026-06-11，Claude Fable 5 & Mythos 5 发布、OpenAI Assistants API 宣布退役、Apache Hudi 1.2 发布等重大动态。
+issue: 4
+issue_date: "2026-06-11"
+content_type: "周报"
+reading_title: "Agent 工具调用与湖仓生态更新"
 ---
 
 > 覆盖周期：2026-06-04 ~ 2026-06-11
@@ -14,7 +18,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [查看完整报告]({{ '/tech_research/ai_harness/week_04_2026-06-11.html' | relative_url }})
+→ [查看完整报告]({{ '/posts/tech-research/week-04/ai-harness/' | relative_url }})
 
 ### 🔴 重大动态
 
@@ -51,7 +55,7 @@ description: >-
 
 ## 🗄️ 面向 AI 的数据平台建设
 
-→ [查看完整报告]({{ '/tech_research/data_for_ai/week_04_2026-06-11.html' | relative_url }})
+→ [查看完整报告]({{ '/posts/tech-research/week-04/data-for-ai/' | relative_url }})
 
 ### 🔥 本周最大亮点
 
@@ -74,7 +78,7 @@ description: >-
 
 ## ⚡ Kafka / AutoMQ / Fluss 社区动态
 
-→ [查看完整报告]({{ '/tech_research/kafka_research/week_04_2026-06-11.html' | relative_url }})
+→ [查看完整报告]({{ '/posts/tech-research/week-04/kafka/' | relative_url }})
 
 ### 🐘 Kafka
 
@@ -109,5 +113,5 @@ description: >-
 
 ## 🔗 链接
 
-- [技术调研总目录]({{ '/tech_research/index.html' | relative_url }})
+- [技术调研总目录]({{ '/weekly/' | relative_url }})
 - [GitHub 仓库](https://github.com/BryantChang1992/ai_memory_chang_ai_team)

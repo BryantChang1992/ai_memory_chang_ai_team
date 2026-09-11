@@ -2,9 +2,14 @@
 title: "存储/数据库顶会趋势洞察 · Week 04"
 date: 2026-06-11 08:00:00 +0800
 permalink: /posts/tech-research/week-04/conferences/
-categories: [技术调研, 论文精读]
+categories: ["数据库与存储", "AI 基础设施与数据平台"]
 tags: [顶会, 趋势洞察]
 description: "SIGMOD 2026 · FAST 2026 · CIDR 2026 四主题深度调研"
+issue: 4
+issue_date: "2026-06-11"
+content_type: "周报分稿"
+topic: "storage"
+reading_title: "顶会论文趋势"
 ---
 
 > **📌 本期定位：** Week 04 · 2026-06-11 · 四主题深度调研 · 30+ 篇论文 · 全部可免费获取

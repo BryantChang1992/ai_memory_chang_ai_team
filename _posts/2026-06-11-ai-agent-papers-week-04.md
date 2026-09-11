@@ -2,9 +2,14 @@
 title: "🤖 AI Agent 论文周报 · Week #4"
 date: 2026-06-11 08:00:00 +0800
 permalink: /posts/tech-research/week-04/ai-agent-papers/
-categories: [技术调研, 论文精读]
+categories: ["AI 基础设施与数据平台"]
 tags: [AI Agent, 论文速览]
 description: "arxiv + 顶会最新论文调研 — 多 Agent 协作 · 推理规划 · 安全对齐 · 基础设施"
+issue: 4
+issue_date: "2026-06-11"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "AI Agent 论文"
 ---
 
 > **📌 本期定位：** arxiv + 顶会最新论文调研 — 多 Agent 协作 · 推理规划 · 安全对齐 · 基础设施

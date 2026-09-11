@@ -1,0 +1,24 @@
+---
+layout: page
+title: Weekly
+icon: far fa-calendar
+order: 3
+permalink: /weekly/
+---
+<div class="content-hub weekly-hub">
+  <p class="hub-intro">按期阅读技术动态与趋势观察。</p>
+  {% for issue in site.data.catalog.weekly %}
+    {% assign post = issue.overview %}
+    <section class="weekly-issue" id="week-{{ post.issue_date | date: '%Y' }}-{{ post.issue }}" data-weekly-issue="{{ post.issue }}">
+      <div class="reading-meta">Week {{ post.issue | prepend: '0' | slice: -2, 2 }} <span aria-hidden="true">·</span> {{ post.issue_date | date: '%Y.%m.%d' }}</div>
+      <h2><a href="{{ post.url | relative_url }}">{{ post.reading_title | escape }}</a></h2>
+      <p>{{ post.description | escape }}</p>
+      <div class="issue-links"><a href="{{ post.url | relative_url }}">阅读本期总览 <span aria-hidden="true">→</span></a></div>
+      {% if issue.reports.size > 0 %}
+        <details class="report-details"><summary>分方向阅读 <span class="reading-meta">{{ issue.reports.size }} 篇</span></summary>
+          <ul>{% for report in issue.reports %}<li><a href="{{ report.url | relative_url }}">{{ report.title | escape }}</a></li>{% endfor %}</ul>
+        </details>
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>

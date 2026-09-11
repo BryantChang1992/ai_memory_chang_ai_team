@@ -2,10 +2,14 @@
 title: "技术调研周报 — Week 10 (2026-07-09)"
 date: 2026-07-09 22:00:00 +0800
 permalink: /posts/tech-research/week-10/
-categories: [技术调研, 周报]
+categories: []
 tags: [AI Infra, Agent, GPT-5.5, Claude Sonnet 5, MAS SAFR, LSM-Tree, 存储引擎, 知识库升级, Schema V2]
 description: >-
-  Week 10 技术调研周报：GPT-5.5 Instant Mini 静默上线、Claude Sonnet 5 Agentic 升级、MAS SAFR 金融 Agent 安全框架发布、LSM-tree KV Survey Top 10 CCF-A 论文入库、知识库 V2 全量升级完成。
+  Week 10 技术调研周报：GPT-5.5 Instant Mini 静默上线、Claude Sonnet 5 Agentic 升级、MAS SAFR 金融 Agent 安全框架发布、LSM-tree 存储研究。
+issue: 10
+issue_date: "2026-07-09"
+content_type: "周报"
+reading_title: "Agent 安全治理与 LSM 存储研究"
 ---
 
 > 覆盖周期：2026-07-03 ~ 2026-07-09 | Week 10
@@ -54,9 +58,9 @@ SAFR 基于 MAS Project Mindforge 的 AI 风险管理工具包构建，已在多
 
 → [子调研详情]({{ '/tech_research/doris/week_10_2026-07-09.html' | relative_url }})
 
-### 📚 LSM-tree KV Store 综述深度扩展：Top 10 CCF-A 论文入库
+### 📚 LSM-tree KV Store：十篇论文与研究方向
 
-基于 Week 09 入库的 ArXiv LSM-tree KV Store 综述，本周完成了综述引用的 **Top 10 CCF-A 顶会/期刊论文的追踪入库**，新生成 10 张 Wiki 概念卡片。
+基于 Week 09 入库的 ArXiv LSM-tree KV Store 综述，本期梳理了综述引用的十篇顶会和期刊论文，关注合并优化、硬件适配与存算分离。
 
 | 论文/系统 | 方向 | 出处 |
 |-----------|------|------|
@@ -76,12 +80,6 @@ SAFR 基于 MAS Project Mindforge 的 AI 风险管理工具包构建，已在多
 2. **异构硬件适配**：Learned Index + GPU Compaction + PMEM Compaction → LSM 引擎走向异构硬件协同
 3. **存算分离共识**：Hailstorm + CaaS 与 Fluss/CockroachDB 的存算分离趋势一脉相承
 
-### 🔧 知识库 Schema V2 升级 + V2 全量升级
-
-- **Schema V2**（Commit `5e424bc`，7/5）：引入 confidence + confidence_rationale 字段、.entities.json 实体图谱、Supersession 检测
-- **全量升级**（Commit `92e4c8e`，7/6）：121 页全量注入 confidence（0.70-0.95）、119 实体 + 485 关系知识图谱、Lint 全量清零、修复 6 处 dangling wikilink + 16 个 sources 路径 + 19 个 ASCII 残留 + 16 个孤儿
-
-V2 升级后，知识库具备了自我评估能力——每张卡片明确标注"我知道什么、我有多确定"。
 
 ---
 
@@ -90,13 +88,12 @@ V2 升级后，知识库具备了自我评估能力——每张卡片明确标�
 | 方向 | 动态数 | 亮点 |
 |------|--------|------|
 | AI Infra · Agent 基础设施 | 3 | GPT-5.5 Instant Mini、Claude Sonnet 5、MAS SAFR 金融 Agent 治理框架 |
-| 存储引擎 | 1 | LSM-tree Top 10 CCF-A 论文入库（10 张概念卡片） |
-| 知识库升级 | 1 | Schema V2 + V2 全量升级（121 页 confidence + 实体图谱） |
+| 存储引擎 | 1 | LSM-tree 十篇论文与研究方向 |
 
-**合计 5 条动态 | 3 方向覆盖**
+**合计 4 条动态 | 2 方向覆盖**
 
 ---
 
-> ⚡ **本周特征**：外部 Agent 动态密集——OpenAI/Anthropic 工作马模型同时升级 + 金融监管率先建立 Agent 安全框架。内部侧聚焦知识库 V2 方法论升级，从"存知识"走向"知道有多确定"。
+> ⚡ **本周特征**：外部 Agent 动态密集——OpenAI/Anthropic 工作马模型同时升级 + 金融监管率先建立 Agent 安全框架。存储方向关注 LSM-tree 的合并优化、异构硬件与存算分离。
 >
-> 📎 子调研详情详见各方向页面。CEO 审阅后标记待入库文章，周五 Wiki 维护日统一入知识库。
+> 📎 子调研详情详见各方向页面。

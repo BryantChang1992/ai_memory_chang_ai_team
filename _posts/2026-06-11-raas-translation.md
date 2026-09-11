@@ -1,11 +1,16 @@
 ---
 title: "论文全文翻译：RaaS — 降低存储计算分离数据库系统中的尾延迟"
 date: 2026-06-11 08:00:00 +0800
-categories: [技术调研, 论文精读]
+categories: ["数据库与存储"]
 tags: [论文精读, RaaS, 全文翻译]
 description: >-
   SIGMOD 2026 论文 Reducing Tail Latency in Storage-Disaggregated Database Systems 的全文中文翻译。
+topic: "storage"
+content_type: "论文翻译"
 ---
+
+[先读论文解读]({{ '/posts/raas-paper/' | relative_url }})
+
 
 **XI PANG**, Purdue University, USA
 **JIANGUO WANG**, Purdue University, USA

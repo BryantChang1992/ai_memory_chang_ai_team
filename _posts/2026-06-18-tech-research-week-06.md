@@ -2,10 +2,14 @@
 title: "技术调研周报 — Week 06 (2026-06-18)"
 date: 2026-06-18 14:30:00 +0800
 permalink: /posts/tech-research/week-06/
-categories: [技术调研, 周报]
+categories: []
 tags: [AI Harness, AI Agent, Kafka, Fluss, AutoMQ, Iceberg, Hudi, Delta Lake, Agent论文, 顶会, Doris, 时序数据库, 存储引擎]
 description: >-
-  本周 6 方向全量追踪，63 条动态：Hudi 1.2 多模态 Lakehouse、AutoMQ 1.7.0 发布、LangGraph 1.2.5、KIP-1356~1359 集中讨论、12 篇 Agent 论文、顶会 Doris 合稿 (20 篇论文+动态)。
+  本周 6 方向全量追踪，63 条动态：Hudi 1.2 多模态 Lakehouse、AutoMQ 1.7.0 发布、LangGraph 1.2.5、KIP-1356~1359 集中讨论、12 篇 Agent 论文、顶会与存储系统的 20 条论文和动态。
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报"
+reading_title: "Agent、湖仓与存储系统动态"
 ---
 
 > 覆盖周期：2026-06-11 ~ 2026-06-18 | Week 06
@@ -14,7 +18,7 @@ description: >-
 
 ## 🧠 AI Harness · Agent 基础设施
 
-→ [子调研详情]({{ '/tech_research/ai_harness/week_06_2026-06-18.html' | relative_url }})
+→ [子调研详情]({{ '/posts/tech-research/week-06/ai-harness/' | relative_url }})
 
 本周 AI Agent 基础设施层持续迭代，共收录 11 条动态。
 
@@ -39,7 +43,7 @@ description: >-
 
 ## 🐘 Kafka / AutoMQ / Fluss 社区动态
 
-→ [子调研详情]({{ '/tech_research/kafka_research/week_06_2026-06-18.html' | relative_url }})
+→ [子调研详情]({{ '/posts/tech-research/week-06/kafka-fluss/' | relative_url }})
 
 本周三大流处理社区合计 13 条动态，**Fluss 活跃度持续攀升**。
 
@@ -67,7 +71,7 @@ Fluss 本周 PR 聚焦**生产可靠性**（校验、背压、安全脱敏、wat
 
 ## 💾 面向 AI 的数据平台建设
 
-→ [子调研详情]({{ '/tech_research/data_for_ai/week_06_2026-06-18.html' | relative_url }})
+→ [子调研详情]({{ '/posts/tech-research/week-06/data-for-ai/' | relative_url }})
 
 本周 Lakehouse 生态 7 条动态，**Hudi 1.2 多模态是最大亮点**。
 
@@ -91,7 +95,7 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 
 ## 📄 AI Agent 论文速览（12 篇）
 
-→ [子调研详情]({{ '/tech_research/ai_agent_papers/week_06_2026-06-18.html' | relative_url }})
+→ [子调研详情]({{ '/posts/tech-research/week-06/ai-agent-papers/' | relative_url }})
 
 本周收录 ArXiv + ICML 2026 论文 12 篇，覆盖规划、安全、记忆、协作四大类。
 
@@ -109,11 +113,11 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 
 ---
 
-## 🏛️🔬 顶会趋势 / Doris / 时序 / 存储引擎（合稿）
+## 顶会论文与数据库存储
 
-→ [子调研详情]({{ '/tech_research/wiki_synthesis/week_06_2026-06-18.html' | relative_url }})
+→ [顶会论文分稿]({{ '/posts/tech-research/week-06/conferences/' | relative_url }}) · [数据库与存储分稿]({{ '/posts/tech-research/week-06/doris-tsdb/' | relative_url }})
 
-本周将顶会趋势与 Doris/时序/存储引擎两个方向合并为一个合稿，共 20 条动态。
+本期从顶会论文与数据库存储两个方向梳理 20 条动态。
 
 ### 顶会论文（10 篇）
 - **Ghost Vectors**：HNSW 向量 DB 软删除 embedding 可恢复安全隐患
@@ -143,7 +147,7 @@ Delta Kernel Flink Connector 替代旧版、Catalog-Managed Table 成熟化。Da
 |------|:---:|
 | 追踪方向 | 6 |
 | 总动态条目 | 63 |
-| 子方向 | 7 (合稿1) |
+| 分方向报告 | 6 |
 | 论文收录 | 22 |
 | 新 KIP | 4 |
 | 版本发布 | 6+ |

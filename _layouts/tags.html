@@ -1,0 +1,22 @@
+---
+layout: page
+---
+{% assign sorted_tags = site.tags | sort_natural %}
+<p class="text-muted">选择标签，查看相关文章。</p>
+<div id="tags" class="d-flex flex-wrap mx-xl-2">
+  {% for tag in sorted_tags %}
+    {% if tag[1].size > 1 %}
+      <div><a class="tag" href="{{ tag[0] | slugify | url_encode | prepend: '/tags/' | append: '/' | relative_url }}">{{ tag[0] | escape }} <span class="text-muted">{{ tag[1].size }}</span></a></div>
+    {% endif %}
+  {% endfor %}
+</div>
+<details class="mt-4">
+  <summary>更多标签 · 仅关联一篇文章</summary>
+  <div class="d-flex flex-wrap mx-xl-2 mt-3 tag-overflow">
+    {% for tag in sorted_tags %}
+      {% if tag[1].size == 1 %}
+        <div><a class="post-tag d-inline-block me-2 mb-2" href="{{ tag[0] | slugify | url_encode | prepend: '/tags/' | append: '/' | relative_url }}">{{ tag[0] | escape }}</a></div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</details>

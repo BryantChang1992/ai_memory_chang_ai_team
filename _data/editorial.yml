@@ -1,0 +1,46 @@
+topics:
+  - id: streaming
+    name: 流式数据与消息系统
+    description: Kafka、AutoMQ、Fluss 的架构、源码与工程实践。
+  - id: storage
+    name: 数据库与存储
+    description: 存储引擎、查询执行与分布式一致性。
+  - id: ai
+    name: AI 基础设施与数据平台
+    description: Agent 运行环境、数据管道与湖仓架构。
+
+featured:
+  - /posts/fluss-architecture-comparison/
+  - /posts/doris-storage-engine/
+  - /posts/ai-data-pipeline/
+
+series:
+  - id: fluss
+    title: Fluss 源码分析
+    description: 从整体架构到存储、协调与湖仓集成。
+    topic: streaming
+    icon: fas fa-stream
+  - id: doris
+    title: Apache Doris 深度调研
+    description: 沿着架构演进，理解存储和查询执行。
+    topic: storage
+    icon: fas fa-database
+
+engineering:
+  - title: Kafka JBOD 坏盘处理方案
+    url: /tech_designs/zk-kafka-jbod-failure-handling.html
+    topic: streaming
+    description: ZooKeeper 模式下的故障检测、隔离与恢复。
+  - title: Agent 基础设施可观测性 Dashboard
+    url: /tech_designs/agent-infra/observability-dashboard.html
+    topic: ai
+    description: Agent 运行状态与任务执行过程的观测方案。
+
+weekly_sources:
+  ai_harness: Agent 基础设施
+  kafka_research: Kafka / AutoMQ / Fluss
+  data_for_ai: 面向 AI 的数据平台
+  ai_agent_papers: AI Agent 论文
+  conferences: 顶会论文趋势
+  doris: Doris 与存储系统
+  wiki_synthesis: 技术综述

@@ -1,10 +1,12 @@
 ---
-title: "Wiki Synthesize：LSM-Tree 存储引擎体系综述"
+title: "技术综述：LSM-Tree 存储引擎体系综述"
 date: 2026-06-14 22:30:00 +0800
-categories: [技术调研, Wiki Synthesize]
+categories: ["数据库与存储"]
 tags: [LSM-Tree, 存储引擎, 写放大, RUM猜想, 数据库]
 description: >-
   基于 VLDB Journal 2019 Survey，从 7 张 wiki 卡片提炼 LSM-Tree 存储引擎体系。以 RUM 猜想为理论框架，串联写放大、合并优化、硬件适配、自动调参、二级索引，5 个跨领域洞察。
+topic: "storage"
+content_type: "技术综述"
 ---
 
 > 本文是 **Wiki Synthesize（知识库领域提炼）** 首轮综述之一。完整报告见 [技术调研周报]({{ '/posts/tech-research/week-05/' | relative_url }}) 和 [子调研详情页]({{ '/tech_research/wiki_synthesis/week_01_2026-06-14.html' | relative_url }})。

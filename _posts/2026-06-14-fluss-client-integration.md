@@ -1,10 +1,15 @@
 ---
 title: "Fluss 源码分析：客户端与计算集成"
 date: 2026-06-14 08:00:00 +0800
-categories: [技术调研, Fluss 源码分析]
+categories: ["流式数据与消息系统"]
 tags: [Fluss, 客户端, 计算集成]
 description: >-
   Fluss Java Client 的 Writer/Scanner/Lookuper API、Flink Connector 集成、数据转换层以及 Lake Storage 湖存储层的完整分析。
+topic: "streaming"
+content_type: "源码分析"
+series: "fluss"
+series_order: 6
+reading_title: "客户端与计算集成"
 ---
 
 

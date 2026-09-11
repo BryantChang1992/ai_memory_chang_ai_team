@@ -1,0 +1,23 @@
+{% if page.content_type == '周报' or page.content_type == '周报分稿' %}
+  {% assign page_year = page.issue_date | date: '%Y' %}
+  {% for item in site.data.catalog.weekly %}
+    {% assign issue_year = item.overview.issue_date | date: '%Y' %}
+    {% if item.overview.issue == page.issue and issue_year == page_year %}
+      <div class="article-context">
+        {% if page.content_type == '周报' %}
+          <a href="{{ '/weekly/' | relative_url }}">← 全部周报</a>
+          {% if item.reports.size > 0 %}
+            <details><summary>本期分方向阅读 · {{ item.reports.size }} 篇</summary><ul>
+              {% for report in item.reports %}<li><a href="{{ report.url | relative_url }}">{{ report.title | escape }}</a></li>{% endfor %}
+            </ul></details>
+          {% endif %}
+        {% else %}
+          <a href="{{ item.overview.url | relative_url }}">← 返回 Week {{ page.issue | prepend: '0' | slice: -2, 2 }} 总览</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+{% elsif page.series %}
+  {% assign series = site.data.editorial.series | where: 'id', page.series | first %}
+  <nav class="article-context" aria-label="专题阅读"><a href="{{ '/library/' | append: '#' | append: page.series | relative_url }}">← {{ series.title }} · 完整目录</a></nav>
+{% endif %}

@@ -2,10 +2,15 @@
 title: "AI Agent 论文速览 — Week 06（12 篇）"
 date: 2026-06-18 14:00:00 +0800
 permalink: /posts/tech-research/week-06/ai-agent-papers/
-categories: [技术调研, AI Agent]
+categories: ["AI 基础设施与数据平台"]
 tags: [Agent, 论文, ArXiv, 规划, 安全, Memory]
 description: >-
   12 篇：APB 规划诊断 · OCL 安全治理 · Reward Hacking · Memory-R2 · Communication Policy Evolution
+issue: 6
+issue_date: "2026-06-18"
+content_type: "周报分稿"
+topic: "ai"
+reading_title: "AI Agent 论文"
 ---
 
 > 采集范围：ArXiv + 顶会（ICML 2026 / AAMAS 2026 / ICLR 2026 Workshop），共 12 篇。

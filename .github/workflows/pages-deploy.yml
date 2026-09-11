@@ -46,6 +46,7 @@ jobs:
       - name: Check category coverage and generated links
         run: |
           bundle exec ruby tests/category_tree_test.rb
+          bundle exec ruby tests/content_catalog_test.rb
           python3 scripts/check_site.py _site
 
       - name: Upload site artifact
