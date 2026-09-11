@@ -1,0 +1,363 @@
+{
+  "schedule": {
+    "startDate": "2026-09-13",
+    "intervalDays": 14,
+    "time": "21:00",
+    "timezone": "Asia/Shanghai",
+    "blogUrl": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/index.html",
+    "canonicalUrl": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/storage-lab",
+    "repositoryUrl": "https://github.com/BryantChang1992/ai_memory_chang_ai_team",
+    "author": "Bryant Chang"
+  },
+  "sessions": [
+    {
+      "id": 1,
+      "date": "2026-09-13",
+      "category": "基础 / DURABILITY",
+      "title": "单机持久化与 I/O 路径",
+      "summary": "WAL、刷盘、批量写、介质假设、崩溃恢复",
+      "outcome": "推演成功响应前后的崩溃点，估算 I/O 开销",
+      "status": "planned",
+      "focus": [
+        "容量与 I/O 预算",
+        "写入成功的承诺",
+        "刷盘与批量的代价"
+      ],
+      "brief": "起步诊断：设计支持 Put / Get / Delete 的持久化 KV 服务，先只有一个分片，每份数据保留三副本，分别位于三台服务器。用户数据量 100 GB，Value 平均 1 KB，读写比例 8:2，峰值合计 1 万请求／秒。以上均为练习假设，暂不讨论跨 Key 事务和范围扫描。\n\n要求：成功写入后，即使任意一台服务器永久损坏，该写入仍须保留，后续合法覆盖或删除除外。若成功写入完成后才发起 Get，且中间没有其他写入，则不能读到旧值。\n\n节点可能宕机或失联，网络可能延迟、丢包或分区；先不考虑恶意节点。多数副本互通且存储正常时，应能在故障检测和切换后恢复服务。请明确你对硬件持久化和刷盘效果的假设。\n\n我们先用诊断确定起点，再深入本期的单机持久化与 I/O 路径。",
+      "questions": [
+        "一次 Put 经历哪些步骤，到哪一步才能返回成功？区分内存、磁盘、副本与客户端状态。",
+        "成功返回后主节点立即宕机，后续 Get 怎样仍满足要求？",
+        "网络分成一台与两台两个分区，哪侧可以继续服务，需要满足什么前提？"
+      ],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": [
+        {
+          "title": "RocksDB · Write Ahead Log",
+          "url": "https://github.com/facebook/rocksdb/wiki/Write-Ahead-Log-%28WAL%29"
+        },
+        {
+          "title": "Raft · 作者网站与论文",
+          "url": "https://raft.github.io/"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "date": "2026-09-27",
+      "category": "引擎 / ENGINE",
+      "title": "存储引擎设计",
+      "summary": "LSM／B+Tree、索引、范围读、Compaction、读写空间放大",
+      "outcome": "在不同工作负载下比较引擎方案",
+      "status": "planned",
+      "focus": [
+        "数据与索引体积",
+        "恢复与快照边界",
+        "读写与空间放大"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 3,
+      "date": "2026-10-11",
+      "category": "复制 / REPLICATION",
+      "title": "三副本分布式存储",
+      "summary": "复制与提交、选主、脑裂防护、慢副本、重试",
+      "outcome": "画读写与故障时序，明确持久性和可用性",
+      "status": "planned",
+      "focus": [
+        "副本与网络预算",
+        "选主与已提交写入",
+        "慢副本与写入 P99"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 4,
+      "date": "2026-10-25",
+      "category": "语义 / CONSISTENCY",
+      "title": "一致性与读路径",
+      "summary": "线性一致性、陈旧读、Quorum、租约前提、多 Key 语义边界",
+      "outcome": "用并发历史评审；第一次回评",
+      "status": "planned",
+      "focus": [
+        "读流量分布",
+        "允许的读写历史",
+        "一致性与读延迟"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 5,
+      "date": "2026-11-08",
+      "category": "扩展 / PLACEMENT",
+      "title": "分片、放置与元数据",
+      "summary": "哈希／范围分片、热点、路由、版本、元数据规模",
+      "outcome": "把小集群扩展到千节点假设，找出瓶颈",
+      "status": "planned",
+      "focus": [
+        "分片与元数据规模",
+        "路由和版本切换",
+        "热点与负载均衡"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 6,
+      "date": "2026-11-22",
+      "category": "块 / BLOCK",
+      "title": "分布式块存储",
+      "summary": "卷与块映射、随机覆盖写、快照／克隆、写顺序、QoS",
+      "outcome": "设计低延迟卷，并推演快照与并发写",
+      "status": "planned",
+      "focus": [
+        "卷与块映射规模",
+        "写顺序与快照边界",
+        "随机 I/O 与隔离"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 7,
+      "date": "2026-12-06",
+      "category": "文件 / FILE",
+      "title": "分布式文件存储",
+      "summary": "目录／inode、rename、并发访问、小文件、元数据分区",
+      "outcome": "推演跨目录操作和元数据节点故障",
+      "status": "planned",
+      "focus": [
+        "命名空间与小文件",
+        "并发访问与 rename",
+        "元数据操作延迟"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 8,
+      "date": "2026-12-20",
+      "category": "对象 / OBJECT",
+      "title": "大规模对象存储",
+      "summary": "大／小对象、索引、覆盖与 LIST 语义、副本／纠删码",
+      "outcome": "比较容量效率与访问／修复成本；第二次回评",
+      "status": "planned",
+      "focus": [
+        "对象数量与有效容量",
+        "覆盖与 LIST 语义",
+        "访问与修复开销"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 9,
+      "date": "2027-01-03",
+      "category": "恢复 / RECOVERY",
+      "title": "扩容、迁移与故障修复",
+      "summary": "快照与增量、切换边界、校验、故障域、恢复带宽",
+      "outcome": "推演迁移中并发写和故障，约束业务干扰",
+      "status": "planned",
+      "focus": [
+        "迁移量与故障域",
+        "快照与增量切换",
+        "修复对业务的干扰"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 10,
+      "date": "2027-01-17",
+      "category": "分层 / TIERING",
+      "title": "缓存与分层存储",
+      "summary": "内存／SSD／HDD、冷热迁移、缓存失效、脏数据、GC",
+      "outcome": "解释命中率变化与尾延迟，证明语义仍成立",
+      "status": "planned",
+      "focus": [
+        "工作集与冷热分布",
+        "缓存与脏数据语义",
+        "命中率与尾延迟"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 11,
+      "date": "2027-01-31",
+      "category": "地域 / GEO",
+      "title": "跨可用区与跨地域存储",
+      "summary": "同步／异步复制、RPO／RTO、延迟、切换、备份恢复",
+      "outcome": "比较故障承诺、冲突处理和资源成本",
+      "status": "planned",
+      "focus": [
+        "跨地域资源成本",
+        "冲突与故障切换",
+        "网络延迟与复制"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    },
+    {
+      "id": 12,
+      "date": "2027-02-14",
+      "category": "综合 / DESIGN REVIEW",
+      "title": "综合设计与规模演进",
+      "summary": "接口、数据路径、控制面、上线迁移、故障处理、成本",
+      "outcome": "选真实或虚构需求，提交完整方案并接受规模／故障挑战",
+      "status": "planned",
+      "focus": [
+        "容量与规模演进",
+        "端到端正确性",
+        "服务目标与成本"
+      ],
+      "brief": "",
+      "questions": [],
+      "design": "",
+      "review": "",
+      "reflection": "",
+      "takeaways": [],
+      "scores": {
+        "scale": null,
+        "consistency": null,
+        "performance": null
+      },
+      "updatedAt": null,
+      "minutes": 0,
+      "references": []
+    }
+  ]
+}

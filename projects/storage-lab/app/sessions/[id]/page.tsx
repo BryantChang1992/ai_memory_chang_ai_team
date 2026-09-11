@@ -1,0 +1,19 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, ArrowUpRight, ArrowRight, CalendarDays, CheckCheck } from "lucide-react";
+import { sessions, schedule, statusLabels, sessionPath, displayDate } from "@/lib/training";
+import { SiteHeader } from "@/components/site-header";
+import { TrainingNotes } from "@/components/training-notes";
+export const dynamicParams = false;
+export function generateStaticParams(){return sessions.map(s=>({id:String(s.id).padStart(2,"0")}))}
+export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{const {id}=await params;const s=sessions.find(v=>String(v.id).padStart(2,"0")===id);if(!s)return {};return {title:s.title+" · Storage Lab",description:s.summary,alternates:{canonical:schedule.canonicalUrl+sessionPath(s.id)},openGraph:{title:s.title+" · Bryant 的存储设计手记",description:s.summary,url:schedule.canonicalUrl+sessionPath(s.id),type:"article"}};}
+export default async function SessionPage({params}:{params:Promise<{id:string}>}){
+const {id}=await params;const s=sessions.find(v=>String(v.id).padStart(2,"0")===id);if(!s)notFound();const next=sessions.find(v=>v.id===s.id+1);
+return <><SiteHeader/><main className="workspace detail-workspace"><Link href="/#training-route" className="back-link"><ArrowLeft size={16}/> 全部训练</Link><header className="detail-heading"><div><p className="eyebrow">{s.category}</p><h1>{s.title}</h1><p className="intro">{s.summary}</p><div className="detail-meta"><span className={"status-tag status-"+s.status}>{statusLabels[s.status]}</span><span><CalendarDays size={15}/>{displayDate(s.date)} · 计划开始</span><span>两周 / 约 2 小时</span></div></div><span className="large-index">{id}</span></header>
+<div className="detail-grid"><div><section className="detail-card"><p className="eyebrow">THE CHALLENGE</p><h2>{s.brief?"本期题目与约束":"本期讨论方向"}</h2>{s.brief?<div className="prose-note">{s.brief.split("\n\n").map((p,i)=><p key={i}>{p}</p>)}</div>:<><p className="prose-note">{s.outcome}</p><div className="planned-notice">具体题面将在本期训练开始时发布，并根据前一期的薄弱点调整。</div></>}{s.questions.length>0&&<div className="question-list"><h3>先从这三个问题开始</h3><ol>{s.questions.map(q=><li key={q}>{q}</li>)}</ol></div>}</section>
+<section className="detail-card"><div className="section-heading"><h2>设计档案</h2><span>{s.updatedAt?"更新于 "+displayDate(s.updatedAt):"等待第一份记录"}</span></div><TrainingNotes design={s.design} review={s.review} reflection={s.reflection}/></section>
+{s.takeaways.length>0&&<section className="detail-card"><h2>本期收获</h2><ul className="takeaways">{s.takeaways.map((t:string)=><li key={t}><CheckCheck size={18}/>{t}</li>)}</ul></section>}
+</div><aside className="detail-aside"><section className="detail-card"><p className="eyebrow">DESIGN LENSES</p><h2>三个观察维度</h2>{["规模","一致性","性能"].map((name,i)=><div className="dimension" key={name}><span>0{i+1}</span><div><h3>{name}</h3><p>{s.focus[i]}</p></div></div>)}</section><section className="detail-card"><h2>两周的节奏</h2><div className="week-step"><span>W1</span><div><strong>澄清与设计</strong><p>列假设，画读写路径，说明取舍。</p></div></div><div className="week-step"><span>W2</span><div><strong>评审与修订</strong><p>推演故障，比较方案，留下复盘。</p></div></div><p className="quiet-note">按实际进度推进，没完成就顺延。</p></section>{s.references.length>0&&<section className="detail-card"><h2>按需参考</h2>{s.references.map(r=><a key={r.url} className="reference-link" href={r.url} target="_blank" rel="noreferrer">{r.title}<ArrowUpRight size={16}/></a>)}</section>}</aside></div>
+<div className="detail-next"><Link href="/">返回训练总览 <ArrowLeft size={16}/></Link>{next&&<Link href={sessionPath(next.id)}>下一期：{next.title}<ArrowRight size={16}/></Link>}</div></main><footer><span>Bryant · Storage Lab</span><a href={schedule.blogUrl}>在博客继续阅读 <ArrowUpRight size={14}/></a></footer></>;
+}

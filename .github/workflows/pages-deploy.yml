@@ -40,6 +40,19 @@ jobs:
           ruby-version: 3.4
           bundler-cache: true
 
+      - name: Setup Node for Storage Lab
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: projects/storage-lab/package-lock.json
+
+      - name: Build Storage Lab
+        working-directory: projects/storage-lab
+        run: |
+          npm ci
+          npm run build:pages
+
       - name: Build site
         run: bash scripts/build_site.sh
 

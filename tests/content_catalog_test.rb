@@ -56,7 +56,7 @@ class ContentCatalogTest < Minitest::Test
 
   def test_home_and_navigation_use_the_curated_views
     home = page('index.html')
-    assert_equal %w[首页 专题 周报 关于], home.css('#sidebar .nav-link span').map { |e| e.text.strip }
+    assert_equal %w[首页 专题 存储训练 周报 关于], home.css('#sidebar .nav-link span').map { |e| e.text.strip }
     assert_equal @site.data['editorial']['featured'], urls(home.css('.featured-list .reading-link'))
     latest_issues = @catalog['weekly'].first(3).map { |item| item['overview'].data['issue'] }
     assert_equal latest_issues, home.css('main [data-weekly-issue]').map { |e| e['data-weekly-issue'].to_i }

@@ -8,3 +8,7 @@ __pycache__/
 
 # Raw research downloads stay local; curated sources and reviewed drafts are tracked.
 docs/drafts/weekly/*/evidence/
+
+# The app vendors its UI stylesheet and license as source.
+!projects/storage-lab/vendor/
+!projects/storage-lab/vendor/**
