@@ -87,7 +87,7 @@
     },
     {
       "file": "review.md",
-      "sha256": "b7b819e83efd51c2896623d272ea006358870e529de1cb613888daae258d689d"
+      "sha256": "db7271ccc5eb2c0f097b2a71061ac90fdeea863bca797a9c48a67ba62a6f3640"
     }
   ],
   "cjk_character_counts": {
@@ -108,5 +108,6 @@
     "browser_report": "visuals/page-validation.json"
   },
   "limits": "Evidence, editorial and local visual rendering checks. No upstream test/benchmark reproduction or public deployment; source coverage and release gaps remain stated in review.md.",
-  "publication_status": "pending_review_not_published"
+  "publication_status": "published_verified",
+  "publication_verification": "publication.json"
 }

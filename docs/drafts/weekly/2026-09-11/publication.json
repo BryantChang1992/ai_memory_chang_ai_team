@@ -1,5 +1,5 @@
 {
-  "status": "approved_for_publication",
+  "status": "published_verified",
   "approved_at": "2026-09-11T03:24:19+00:00",
   "approved_by": "Bryant",
   "approved_revision": 3,
@@ -42,7 +42,347 @@
       "url": "/posts/tech-research/week-11/ai-infra/"
     }
   ],
-  "verification": null,
+  "verification": {
+    "base": "https://bryantchang1992.github.io/ai_memory_chang_ai_team",
+    "verified_at": "2026-09-11T03:32:17.922Z",
+    "checks": [
+      {
+        "slug": "overview",
+        "mode": "desktop",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "技术调研周报 — Week 11 (2026-09-11)",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/",
+        "width": 1440,
+        "viewport": 1440,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1｜从“已复制”到“可安全回收”，中间还有读路径检查",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/weekly/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/ai-infra/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/distributed-storage/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/lakehouse/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/streaming/"
+        ]
+      },
+      {
+        "slug": "lakehouse",
+        "mode": "desktop",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "数据湖处理：页级跳读、向量语义与失败写入 — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/lakehouse/",
+        "width": 1440,
+        "viewport": 1440,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1：跳过页面，仍按原始行位置匹配删除",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2：值可以共用数组容器，类型语义仍需分别保存",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "streaming",
+        "mode": "desktop",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "流存储：一份日志何时才算写好，又何时可以删掉？ — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/streaming/",
+        "width": 1440,
+        "viewport": 1440,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1｜Fluss 先公布可读范围，再计算本地清理边界",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2｜新分区并发生产：为什么要先拒绝较晚的批次",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 3｜AutoMQ 元数据写入：版本门槛与压缩门槛分别判断",
+            "description": true,
+            "scale": 0.9999807409594854,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "distributed-storage",
+        "mode": "desktop",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "分布式存储：恢复成功以后，怎样证明数据和操作仍然正确？ — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/distributed-storage/",
+        "width": 1440,
+        "viewport": 1440,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1：分片方式改变，逻辑摘要保持一致",
+            "description": true,
+            "scale": 0.9999851480001782,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2：新 guard 安装成功后，旧在途写入被拒绝",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "ai-infra",
+        "mode": "desktop",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "AI Infra：推理准入、上下文缓存与数据重试 — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/ai-infra/",
+        "width": 1440,
+        "viewport": 1440,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1｜vLLM 容量准入与上游重试边界",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2｜缓存复用的身份与就绪检查：本文概念模型",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "overview",
+        "mode": "mobile",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "技术调研周报 — Week 11 (2026-09-11)",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/",
+        "width": 390,
+        "viewport": 390,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1｜从“已复制”到“可安全回收”，中间还有读路径检查",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/weekly/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/ai-infra/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/distributed-storage/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/lakehouse/",
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/streaming/"
+        ]
+      },
+      {
+        "slug": "lakehouse",
+        "mode": "mobile",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "数据湖处理：页级跳读、向量语义与失败写入 — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/lakehouse/",
+        "width": 390,
+        "viewport": 390,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1：跳过页面，仍按原始行位置匹配删除",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2：值可以共用数组容器，类型语义仍需分别保存",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "streaming",
+        "mode": "mobile",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "流存储：一份日志何时才算写好，又何时可以删掉？ — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/streaming/",
+        "width": 390,
+        "viewport": 390,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1｜Fluss 先公布可读范围，再计算本地清理边界",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2｜新分区并发生产：为什么要先拒绝较晚的批次",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 3｜AutoMQ 元数据写入：版本门槛与压缩门槛分别判断",
+            "description": true,
+            "scale": 0.9999807409594854,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "distributed-storage",
+        "mode": "mobile",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "分布式存储：恢复成功以后，怎样证明数据和操作仍然正确？ — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/distributed-storage/",
+        "width": 390,
+        "viewport": 390,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1：分片方式改变，逻辑摘要保持一致",
+            "description": true,
+            "scale": 0.9999851480001782,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2：新 guard 安装成功后，旧在途写入被拒绝",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      },
+      {
+        "slug": "ai-infra",
+        "mode": "mobile",
+        "status": "passed",
+        "http": 200,
+        "errors": [],
+        "title": "AI Infra：推理准入、上下文缓存与数据重试 — Week 11",
+        "canonical": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-11/ai-infra/",
+        "width": 390,
+        "viewport": 390,
+        "draftMarker": false,
+        "diagrams": [
+          {
+            "title": "图 1｜vLLM 容量准入与上游重试边界",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          },
+          {
+            "title": "图 2｜缓存复用的身份与就绪检查：本文概念模型",
+            "description": true,
+            "scale": 1,
+            "overflow": "auto"
+          }
+        ],
+        "links": [
+          "/ai_memory_chang_ai_team/posts/tech-research/week-11/"
+        ]
+      }
+    ],
+    "entries": [
+      {
+        "route": "/",
+        "status": "passed",
+        "http": 200,
+        "title": "BryantChang · Tech Insights",
+        "week11": true
+      },
+      {
+        "route": "/weekly/",
+        "status": "passed",
+        "http": 200,
+        "title": "周报 | BryantChang · Tech Insights",
+        "week11": true
+      },
+      {
+        "route": "/storage-lab/",
+        "status": "passed",
+        "http": 200,
+        "title": "Storage Lab · Bryant 的存储设计手记",
+        "week11": false
+      },
+      {
+        "route": "/storage-lab/sessions/01/",
+        "status": "passed",
+        "http": 200,
+        "title": "单机持久化与 I/O 路径 · Storage Lab",
+        "week11": false
+      },
+      {
+        "route": "/storage-lab/sessions/12/",
+        "status": "passed",
+        "http": 200,
+        "title": "综合设计与规模演进 · Storage Lab",
+        "week11": false
+      }
+    ]
+  },
   "local_validation": {
     "checked_at": "2026-09-11T03:29:02+00:00",
     "jekyll_build": "passed",
@@ -53,5 +393,13 @@
     "html_pages_checked": 273,
     "internal_references_checked": 8883,
     "approved_mermaid_sources_unchanged": true
+  },
+  "published_at": "2026-09-11T03:32:17.922Z",
+  "deployment": {
+    "run_id": 34558629017,
+    "url": "https://github.com/BryantChang1992/ai_memory_chang_ai_team/actions/runs/34558629017",
+    "commit": "f09cc3bf86b5370ec0cef44d3502c7779b782c9f",
+    "status": "success",
+    "checked_at": "2026-09-11T03:31:21+00:00"
   }
 }

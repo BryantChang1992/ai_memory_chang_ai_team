@@ -1,5 +1,12 @@
 # 从公开周报移入的维护记录
 
+## 2026-09-11 · Week 11 发布
+
+Bryant 批准第 3 版后发布一篇总览与四篇方向分稿，包含 10 幅 Mermaid 图。发布仅移除草稿标记、转换链接并补齐元数据；保留已确认的技术正文和图示。合并同期远程 Storage Lab 更新，导航与两套构建均保留。统一新稿 `kip` 标签，避免与既有标签生成相同归档地址。
+
+发布提交 `f09cc3bf86b5370ec0cef44d3502c7779b782c9f` 的 [GitHub Actions](https://github.com/BryantChang1992/ai_memory_chang_ai_team/actions/runs/34558629017) 成功；已回读五篇正式文章并检查桌面/手机图表，以及首页、周报和 Storage Lab 入口。发布前 14 项 Ruby 测试、546 个断言、273 页与 8,883 个站内引用检查通过。完整记录见 [本期发布核验](drafts/weekly/2026-09-11/publication.json)。
+
+
 ## Week 10
 
 ### 🔧 知识库 Schema V2 升级 + V2 全量升级

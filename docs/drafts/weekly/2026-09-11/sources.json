@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "draft_pending_review",
+  "status": "published",
   "timezone": "Asia/Shanghai",
   "window_start_inclusive": "2026-09-04T09:00:00+08:00",
   "window_end_exclusive": "2026-09-11T09:00:00+08:00",
@@ -1202,7 +1202,7 @@
     "examples": "正文明确标注的数字、时序和简化模型用于解释，不是本期实测结果。",
     "new_background_sources": [],
     "visual_manifest": "visuals/manifest.json",
-    "publication_status": "pending_review"
+    "publication_status": "published"
   },
   "revision_history": [
     {
@@ -1216,5 +1216,6 @@
       ],
       "publication_status": "pending_review"
     }
-  ]
+  ],
+  "publication_record": "publication.json"
 }
