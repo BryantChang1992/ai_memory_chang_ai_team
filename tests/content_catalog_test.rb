@@ -23,7 +23,11 @@ class ContentCatalogTest < Minitest::Test
   end
 
   def test_revised_week_nine_does_not_displace_week_ten
-    assert_equal [10, 9, 8, 6, 5, 4, 3, 2, 1], @catalog['weekly'].map { |issue| issue['overview'].data['issue'] }
+    post_class = Struct.new(:data, :date, :url, :content)
+    nine = post_class.new({ 'content_type' => '周报', 'issue' => 9 }, Time.new(2026, 7, 12), '/week-09/', '')
+    ten = post_class.new({ 'content_type' => '周报', 'issue' => 10 }, Time.new(2026, 7, 9), '/week-10/', '')
+    fixture = Struct.new(:posts, :data).new(Struct.new(:docs).new([ten, nine]), @site.data)
+    assert_equal [10, 9], ContentCatalog.build(fixture)['weekly'].map { |issue| issue['overview'].data['issue'] }
     @catalog['weekly'].each do |issue|
       links = issue['reports'].map { |report| report['url'] }
       assert_equal links.uniq, links
@@ -54,7 +58,8 @@ class ContentCatalogTest < Minitest::Test
     home = page('index.html')
     assert_equal %w[首页 专题 周报 关于], home.css('#sidebar .nav-link span').map { |e| e.text.strip }
     assert_equal @site.data['editorial']['featured'], urls(home.css('.featured-list .reading-link'))
-    assert_equal [10, 9, 8], home.css('main [data-weekly-issue]').map { |e| e['data-weekly-issue'].to_i }
+    latest_issues = @catalog['weekly'].first(3).map { |item| item['overview'].data['issue'] }
+    assert_equal latest_issues, home.css('main [data-weekly-issue]').map { |e| e['data-weekly-issue'].to_i }
     assert_equal 3, home.css('main .hub-section').size
   end
 

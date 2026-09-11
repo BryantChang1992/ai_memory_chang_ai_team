@@ -2,6 +2,8 @@
 
 主导航为首页、专题、周报、关于。归档和标签保留在页脚，旧分类链接自动转到对应入口。
 
+选题、四领域周报、来源核验和 review/发布流程以 [博客更新策略](editorial-strategy.md) 为准。每周五北京时间 09:00 生成草稿，review 后发布。
+
 ## 发布文章
 
 文章继续放在 `_posts`。保留原来的 `title`、`date`、`permalink`、`description` 和 `tags`，补充：
@@ -20,6 +22,8 @@
 每期只有一篇 `content_type: 周报` 总览，填整数 `issue`、`issue_date: YYYY-MM-DD` 和简短 `reading_title`。总览用 `categories: []`，跨主题内容通过分稿归类。
 
 分稿使用 `content_type: 周报分稿`，填相同 `issue`、`issue_date`，并选择 `topic` 和中文分类。周报页自动按年度和期号排序、关联同年度分稿；修订日期不会改变期号顺序。缺失期数不自动补造。
+
+四领域分稿映射：数据湖处理 → `storage` / 数据库与存储；流存储 → `streaming` / 流式数据与消息系统；分布式存储 → `storage` / 数据库与存储；AI Infra → `ai` / AI 基础设施与数据平台。通过 `reading_title` 和 `research_domain`（`lakehouse`、`streaming`、`distributed-storage`、`ai-infra`）区分调研领域，`research_domain` 暂只作为文章元数据保存。既有 DataForAI 历史分稿保留原分类。
 
 同一期不再另发内容重复的合稿。尚未迁移的 HTML 分稿继续从总览关联；后续迁移时更新 `_data/legacy_articles.json` 中的旧网址映射。
 

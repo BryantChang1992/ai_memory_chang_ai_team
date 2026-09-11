@@ -1,8 +1,14 @@
+# 历史规范说明
+
+本文保留旧版分类和页面设计记录。当前导航、分类、文章元数据与更新流程分别以 [内容维护约定](content-maintenance.md) 和 [博客更新策略](editorial-strategy.md) 为准；后续文章不要套用本文旧分类示例。
+
+---
+
 # GitPage 页面规范 v2.1
 
 ## 概述
 
-本规范定义 CHANG_AI_TEAM GitPage 项目（`ai_memory_chang_ai_team`）所有内容的统一样式标准与分类组织结构。所有 Agent 发布 GitPage 内容前，必须先行阅读完整的页面规范。
+本规范定义 CHANG_AI_TEAM GitPage 项目（`ai_memory_chang_ai_team`）所有内容的统一样式标准与分类组织结构。当前维护请使用上述替代文档。
 
 **版本**：v2.1（2026-06-14）
 **上次决策**：分类页客户端分页、ASCII 树形图禁止、Mermaid/SVG 图表规范、三级分类层级展示修复

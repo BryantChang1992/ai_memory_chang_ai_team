@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "timezone": "Asia/Shanghai",
+  "baseline_completed_at": null,
+  "last_successful_window_end": null,
+  "selection_topics": ["对象与分层存储", "存算分离", "复制与一致性", "元数据与故障恢复", "消费协议", "湖仓集成"],
+  "discovery_sources": [
+    {"project": "Kafka", "kind": "proposal_index", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/50859233/Kafka+Improvement+Proposals"},
+    {"project": "Fluss", "kind": "proposal_index", "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals"},
+    {"project": "AutoMQ", "kind": "issues", "url": "https://github.com/AutoMQ/automq/issues"},
+    {"project": "AutoMQ", "kind": "pull_requests", "url": "https://github.com/AutoMQ/automq/pulls"},
+    {"project": "AutoMQ", "kind": "releases", "url": "https://github.com/AutoMQ/automq/releases"}
+  ],
+  "seed_candidates": [
+    {"project": "Kafka", "id": "KIP-1163", "title": "Diskless Core", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core", "reason": "对象存储上的日志读写路径与成本/延迟取舍", "state": "baseline_required"},
+    {"project": "Kafka", "id": "KIP-1164", "title": "Diskless Coordinator", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator", "reason": "无盘日志元数据、顺序与协调机制", "state": "baseline_required"},
+    {"project": "Kafka", "id": "KIP-1183", "title": "Unified Shared Storage", "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage", "reason": "共享存储设计及 Kafka 与 AutoMQ 的实现关联", "state": "baseline_required"}
+  ],
+  "tracked_items": [],
+  "item_fields": ["project", "id", "title", "url", "reason", "source_status", "previous_status", "change_summary", "event_date", "checked_at", "discussion_urls", "vote_urls", "implementation_prs", "target_version", "released_version", "release_evidence", "upstream_kip", "implementation_difference", "follow_up", "history"],
+  "note": "种子是候选线索，尚未建立完整状态基线。首次调研必须补充 Fluss FIP 和 AutoMQ 官方 Issue/PR，并逐条核验；不要把 baseline_required 当作社区提案状态。"
+}
