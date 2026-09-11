@@ -24,7 +24,7 @@
       "draft": "streaming.md",
       "approved_draft_sha256": "7cc9f18154c77cc8cb7072a1a2531c87725a4e3f5c50e88a718f773d2f84f254",
       "post": "_posts/2026-09-11-tech-research-week-11-streaming.md",
-      "post_sha256": "92977ad8a2d3872f0e48d6b8e71c06daa6398493837d0611e06547b91f90e418",
+      "post_sha256": "b0809417839c19e7263897324a945383c2246dc1735ee4345fe264411ce6f1dd",
       "url": "/posts/tech-research/week-11/streaming/"
     },
     {
@@ -42,5 +42,16 @@
       "url": "/posts/tech-research/week-11/ai-infra/"
     }
   ],
-  "verification": null
+  "verification": null,
+  "local_validation": {
+    "checked_at": "2026-09-11T03:29:02+00:00",
+    "jekyll_build": "passed",
+    "storage_lab_build": "passed",
+    "ruby_tests": 14,
+    "ruby_assertions": 546,
+    "ruby_failures": 0,
+    "html_pages_checked": 273,
+    "internal_references_checked": 8883,
+    "approved_mermaid_sources_unchanged": true
+  }
 }

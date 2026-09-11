@@ -10,7 +10,7 @@ mermaid: true
 topic: "streaming"
 reading_title: "Kafka / AutoMQ / Fluss：写入与回收边界"
 description: "结合流程图与并发时序，分析 Fluss 回收水位、Kafka 首批消息竞态、AutoMQ 元数据格式，以及核心 KIP/FIP 的实现状态。"
-tags: ["Kafka", "AutoMQ", "Fluss", "KIP", "FIP", "分层存储"]
+tags: ["Kafka", "AutoMQ", "Fluss", "kip", "FIP", "分层存储"]
 research_domain: "streaming"
 ---
 
