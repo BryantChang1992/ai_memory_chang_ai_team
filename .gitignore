@@ -5,3 +5,7 @@ _site
 vendor
 .bundle
 __pycache__/
+
+# The app vendors its UI stylesheet and license as source.
+!projects/storage-lab/vendor/
+!projects/storage-lab/vendor/**
