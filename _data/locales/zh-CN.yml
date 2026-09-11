@@ -9,6 +9,7 @@ layout:
 
 # The tabs of sidebar
 tabs:
+  storage-lab: 存储训练
   home: 首页
   categories: 分类
   tags: 标签

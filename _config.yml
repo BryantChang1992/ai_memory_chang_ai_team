@@ -79,6 +79,7 @@ sass:
 #     envs: [development]
 
 exclude:
+  - projects
   - "*.gem"
   - "*.gemspec"
   - docs

@@ -72,7 +72,7 @@ def check(root, baseurl, origin):
                     errors.append(f'{relative}:{line}: missing anchor: {reference}')
 
     for required in ('index.html', 'categories/index.html', 'tags/index.html', 'archives/index.html',
-                     'library/index.html', 'assets/style.css', 'assets/js/category-pagination.js'):
+                     'library/index.html', 'storage-lab/index.html', 'storage-lab/sessions/01/index.html', 'storage-lab/sessions/12/index.html', 'assets/style.css', 'assets/js/category-pagination.js'):
         if not (root / required).is_file():
             errors.append(f'Missing required output: {required}')
     # Every generated article must remain discoverable from the archives page.
