@@ -259,6 +259,7 @@ invoke(proxy, method, args):
 ```
 
 **与 Kafka 的对比**：
+
 | 维度 | Fluss GatewayClientProxy | Kafka NetworkClient |
 |------|-------------------------|-------------------|
 | **调用方式** | JDK Dynamic Proxy (反射 methodName) | 显式调用 `send()` + `poll()` |
@@ -453,4 +454,4 @@ short v = apiKey.latestVersion() > 12 ? 12; // latest > 12 ? 12
 
 ---
 
-> **下一篇**：[[05-客户端与计算集成|05 - 客户端与计算集成]]
+> **下一篇**：[05 - 客户端与计算集成]({{ '/posts/fluss-client-integration/' | relative_url }})

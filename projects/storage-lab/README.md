@@ -47,7 +47,7 @@ npm ci
 npm run dev
 ```
 
-`npm run validate` 检查记录结构、双周节奏、问答历史、修订依据与完成状态。`node --test scripts/training-schema.test.mjs` 使用隔离样例检查误标完成、无依据评分等情况，样例不进入网站数据。`npm run build:pages` 生成 GitHub Pages 静态输出至 `out/`，每期有独立 URL、页面元数据和 canonical 链接。
+`npm run validate` 检查记录结构、双周节奏、问答历史、修订依据与完成状态。`npm test` 使用隔离样例检查误标完成、无依据评分等情况，样例不进入网站数据。`npm run lint` 检查代码，`npm run typecheck` 检查 TypeScript。类型检查会先重新生成 Next.js 路由类型，避免切换 Vinext / Next.js 构建后两种框架的生成文件混用。`npm run build:pages` 生成 GitHub Pages 静态输出至 `out/`，每期有独立 URL、页面元数据和 canonical 链接。
 
 ## 博客发布
 

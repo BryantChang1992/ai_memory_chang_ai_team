@@ -18,15 +18,6 @@ reading_title: "Agent 基础设施"
 
 ---
 
-## 📑 本期目录
-
-1. OpenAI Agent 动态 — Codex 生态爆发
-2. Anthropic Claude Agent 动态 — 安全前沿
-3. Agent 框架生态 — LangChain / AutoGen / CrewAI
-4. Agent 安全与评估 — 前沿论文与框架
-
----
-
 ## 🤖 一、OpenAI Agent 动态 — Codex 生态爆发
 
 本周 OpenAI 在 Agent 领域动作密集：Codex 被 Gartner 评为企业编码 Agent 领导者，移动端和远程环境全面打通，Windows 沙箱工程细节公开，GPT-5.5 加持下的工具使用和安全性持续强化。

@@ -18,18 +18,6 @@ reading_title: "Agent 基础设施"
 
 ---
 
-## 📑 目录
-
-1. [本周重磅](#-本周重磅)
-2. [OpenAI — GPT-5.5 Instant / GPT-Rosalind / GPT-6 传闻](#-openai)
-3. [Anthropic — Opus 4.7 / Claude Security / Agent SDK / Mythos](#-anthropic)
-4. [Agent 框架生态 — LangGraph / LangChain / 竞品格局](#-agent-框架生态)
-5. [Agent 安全 — 前沿模型攻防 / OWASP / 双用途模型](#️-agent-安全)
-6. [趋势观察](#-趋势观察)
-7. [信息来源](#-信息来源)
-
----
-
 ## 🔥 本周重磅
 
 **OpenAI GPT-5.5 Instant 上线：** 5月5日起取代 GPT-5 成为 ChatGPT 默认模型，内部评估在高风险提示词上幻觉减少 52.5%，不准确声张减少 37.3%。同时砍掉"过度使用 emoji"行为，回复风格更克制、更专业。

@@ -258,4 +258,4 @@ API:          Producer/Consumer          Writer/Scanner/Lookuper
 
 > **分析完成**。本文档基于 Fluss trunk 源码 (depth 1 clone) 与 Kafka 2.7.2 源码 (detached HEAD at 37a1cc3) 的逐文件对比分析。所有结论均有对应源码文件作证。
 > 
-> 返回首页：[[README|Fluss 源码分析总览]]
+> 返回首页：[Fluss 源码分析总览]({{ '/library/#fluss' | relative_url }})

@@ -149,6 +149,7 @@ ACM TOS 版本扩展为"Passive and Hybrid Data Persistence Scheme"，增加了 
 2026 年 4 月发布，是 Doris 向 AI 基础设施转型的标志性版本。
 
 **AI & Search 能力全面升级**：
+
 | 能力 | 4.0 状态 | 4.1 增强 |
 |------|----------|----------|
 | 向量索引类型 | HNSW | HNSW + **IVF + IVF_ON_DISK** |

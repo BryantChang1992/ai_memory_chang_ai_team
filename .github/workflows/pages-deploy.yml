@@ -51,7 +51,9 @@ jobs:
         working-directory: projects/storage-lab
         run: |
           npm ci
-          node --test scripts/training-schema.test.mjs
+          npm test
+          npm run lint
+          npm run typecheck
           npm run build:pages
 
       - name: Build site
@@ -59,6 +61,7 @@ jobs:
 
       - name: Check category coverage and generated links
         run: |
+          python3 tests/content_source_test.py
           bundle exec ruby tests/category_tree_test.rb
           bundle exec ruby tests/content_catalog_test.rb
           python3 scripts/check_site.py _site

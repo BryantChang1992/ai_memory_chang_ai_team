@@ -25,21 +25,6 @@ reading_title: "Agent 基础设施"
 
 ---
 
-## 📑 目录
-
-1. [🔥 本周亮点](#-本周亮点)
-2. [🧠 Claude Fable 5 & Mythos 5](#-claude-fable-5--mythos-5)
-3. [🔧 Anthropic 高级 Tool Use 平台](#-anthropic-高级-tool-use-平台)
-4. [🚨 OpenAI Assistants API 即将退役](#-openai-assistants-api-即将退役)
-5. [🛡️ Anthropic · Agent 容器化安全工程](#️-anthropic--agent-容器化安全工程)
-6. [🔗 Agent 框架生态更新](#-agent-框架生态更新)
-7. [🔒 Agent 安全态势](#-agent-安全态势)
-8. [📋 MCP 生态 & 托管 Agent 更新](#-mcp-生态--托管-agent-更新)
-9. [📈 趋势观察](#-趋势观察)
-10. [🔗 参考链接](#-参考链接)
-
----
-
 ## 🧠 Claude Fable 5 & Mythos 5
 
 *2026年6月9日，Anthropic 发布 Fable 5（广泛可用）和 Mythos 5（Glasswing 合作伙伴限定），这是自 Opus 4.8 以来的最大模型升级。*

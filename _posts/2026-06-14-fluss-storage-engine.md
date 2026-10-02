@@ -240,6 +240,7 @@ interface WalBuilder {
 ```
 
 三种实现：
+
 | 实现 | 适用场景 | 格式 |
 |------|----------|------|
 | `ArrowWalBuilder` | `LogFormat.ARROW` | Arrow 列式 WAL |
@@ -507,4 +508,4 @@ flowchart TD
 
 ---
 
-> **下一篇**：[[03-分布式协调|03 - 分布式协调层分析]]
+> **下一篇**：[03 - 分布式协调层分析]({{ '/posts/fluss-coordination/' | relative_url }})

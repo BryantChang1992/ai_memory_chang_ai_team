@@ -23,19 +23,6 @@ reading_title: "Agent 基础设施"
 
 ---
 
-## 📑 目录
-
-1. [🔥 本周亮点](#-本周亮点)
-2. [🧠 Anthropic · Natural Language Autoencoders](#-anthropic--natural-language-autoencoders)
-3. [🛡️ Project Glasswing 首批成果](#️-project-glasswing-首批成果)
-4. [🔗 LangGraph 密集发布](#-langgraph-密集发布)
-5. [📋 MCP 协议新 RC](#-mcp-协议新-rc)
-6. [📊 Anthropic · Coding Agents in Social Sciences](#-anthropic--coding-agents-in-social-sciences)
-7. [📈 趋势观察](#-趋势观察)
-8. [🔗 信息来源](#-信息来源)
-
----
-
 ## 🧠 Anthropic · Natural Language Autoencoders
 
 *将模型内部激活层转换为可读自然语言的突破性工具——AI 可解释性从学术探索走向工程应用。*

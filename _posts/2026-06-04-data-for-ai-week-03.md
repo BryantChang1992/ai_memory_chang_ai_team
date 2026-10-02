@@ -23,15 +23,6 @@ reading_title: "面向 AI 的数据平台"
 
 ---
 
-## 📑 本期目录
-
-1. [📌 本周综述](#-本周综述)
-2. [🔺 Delta Lake 4.2.0 发布](#-delta-lake-420--flink-connector--geospatial-ga)
-3. [🪶 Hudi RFC-100：非结构化数据存储](#-apache-hudi-rfc-100非结构化数据存储)
-4. [📊 Lakehouse 生态趋势](#-lakehouse-生态趋势多模态--流批一体--安全)
-
----
-
 ## 🔺 Delta Lake 4.2.0 — Flink Connector + Geospatial GA
 
 `MAJOR` `5月末发布`

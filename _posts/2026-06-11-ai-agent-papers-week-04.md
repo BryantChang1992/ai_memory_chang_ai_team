@@ -20,20 +20,6 @@ reading_title: "AI Agent 论文"
 |----------|----------|------------------|
 | 31 | 9 | 11 |
 
-## 📑 目录
-
-1. 多 Agent 协作与编排 (4 篇)
-2. Agent 推理与规划 (4 篇)
-3. Agent 工具使用 / Function Calling (4 篇)
-4. Agent 安全与对齐 (4 篇)
-5. Agent 记忆与上下文管理 (2 篇)
-6. Agent 评估基准 (4 篇)
-7. Agent 通信协议 (MCP / A2A / IoA) (3 篇)
-8. 代码生成 Agent / SWE-Agent (4 篇)
-9. 企业级 Agent 基础设施 (2 篇)
-
----
-
 ## 🤝 多 Agent 协作与编排 (4 篇)
 
 ### Decentralized Multi-Agent Systems with Shared Context

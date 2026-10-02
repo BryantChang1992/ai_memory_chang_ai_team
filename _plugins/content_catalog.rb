@@ -1,13 +1,21 @@
 # Build reader-facing views from article metadata. New weekly issues and series
 # chapters join their views automatically; editorial.yml only controls curation.
+require 'date'
+
 module ContentCatalog
+  # The issue's identity must not change when a post is revised next year.
+  # Use the same editorial date as the weekly page and reading-context links.
+  def self.issue_year(post)
+    Date.parse(post.data.fetch('issue_date', post.date.to_s).to_s).year
+  end
+
   def self.build(site)
     posts = site.posts.docs.reverse
     issues = posts.select { |p| p.data['content_type'] == '周报' }
-                  .sort_by { |p| [p.date.year, p.data.fetch('issue')] }.reverse
+                  .sort_by { |p| [issue_year(p), p.data.fetch('issue')] }.reverse
     weekly = issues.map do |overview|
       children = posts.select do |p|
-        p.data['content_type'] == '周报分稿' && p.data['issue'] == overview.data['issue'] && p.date.year == overview.date.year
+        p.data['content_type'] == '周报分稿' && p.data['issue'] == overview.data['issue'] && issue_year(p) == issue_year(overview)
       end.sort_by { |p| p.data['title'] }
       links = children.map { |p| { 'title' => p.data['reading_title'] || p.data['title'], 'url' => p.url } }
       # Later issues still contain unique HTML reports. Keep them reachable until

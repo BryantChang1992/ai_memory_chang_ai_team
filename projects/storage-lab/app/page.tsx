@@ -1,4 +1,4 @@
-import { Database, ArrowUpRight, ArrowRight, CalendarDays, BookOpen } from "lucide-react";
+import { ArrowUpRight, ArrowRight, CalendarDays, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";

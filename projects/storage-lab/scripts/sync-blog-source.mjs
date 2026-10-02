@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, basename } from "node:path";
 const source=resolve(import.meta.dirname,"..");
 const target=resolve(process.argv[2]||"../blog-publish/projects/storage-lab");

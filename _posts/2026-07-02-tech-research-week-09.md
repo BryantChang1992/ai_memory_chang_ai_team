@@ -71,6 +71,7 @@ HPE 在 Las Vegas Discover 2026 宣布面向 GreenLake 和 Morpheus 的 Agent AI
 社区将 Kafka 4.4.0 预计发布日期调至 2026 年 9 月，KIP freeze 截止 7/8。
 
 **活跃 KIP**：
+
 | 编号 | 标题 | 状态 |
 |------|------|------|
 | **KIP-1314** | Broker-side consumer group rebalance callback — 允许 broker 在 rebalance 时触发自定义回调 | 🔵 PR 活跃 |

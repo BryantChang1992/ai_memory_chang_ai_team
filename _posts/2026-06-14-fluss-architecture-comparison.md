@@ -181,4 +181,4 @@ Fluss 多个核心模块标注 `/* This file is based on source code of Apache K
 
 ---
 
-> **下一步**：逐模块深读 → [[02-存储引擎模块|02 - 存储引擎]] | [[03-分布式协调|03 - 分布式协调]] | [[04-数据面-网络与RPC|04 - 数据面]] | [[05-客户端与计算集成|05 - 客户端]]
+> **下一步**：逐模块深读 → [02 - 存储引擎]({{ '/posts/fluss-storage-engine/' | relative_url }}) | [03 - 分布式协调]({{ '/posts/fluss-coordination/' | relative_url }}) | [04 - 数据面]({{ '/posts/fluss-rpc-network/' | relative_url }}) | [05 - 客户端]({{ '/posts/fluss-client-integration/' | relative_url }})

@@ -334,4 +334,4 @@ flowchart TB
 
 ---
 
-> **下一篇（最终）**：[[07-模块对应关系总表|07 - 模块对应关系总表]]
+> **下一篇（最终）**：[07 - 模块对应关系总表]({{ '/posts/fluss-module-mapping/' | relative_url }})

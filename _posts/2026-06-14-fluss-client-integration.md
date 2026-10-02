@@ -467,4 +467,4 @@ flowchart TD
 
 ---
 
-> **下一篇**：[[06-Lake层与湖仓融合|06 - Lake 层与湖仓融合]] | [[07-模块对应关系总表|07 - 模块对应总表]]
+> **下一篇**：[06 - Lake 层与湖仓融合]({{ '/posts/fluss-lake-tiering/' | relative_url }}) | [07 - 模块对应总表]({{ '/posts/fluss-module-mapping/' | relative_url }})

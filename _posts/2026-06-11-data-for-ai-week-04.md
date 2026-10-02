@@ -23,17 +23,6 @@ Lakehouse 正在完成从 **"分析平台"到"AI 原生数据平台"** 的关键
 
 ---
 
-## 📑 本期目录
-
-1. [📌 本周综述](#-本周综述)
-2. [🪶 Apache Hudi 1.2 发布](#-apache-hudi-12-发布lakehouse-正式拥抱-ai-多模态数据)
-3. [🧊 Apache Iceberg 1.11.0](#-apache-iceberg-1110v3-spec-生产就绪--表级加密)
-4. [🏔️ Databricks Unity Catalog](#️-databricks-unity-catalogiceberg-全面-ga--跨引擎治理)
-5. [🌐 Apache Gravitino 1.2.1](#-apache-gravitino-121多-catalog-联邦治理持续完善)
-6. [📊 趋势分析](#-趋势分析ai-数据平台的关键转型点)
-
----
-
 ## 🪶 Apache Hudi 1.2 发布：Lakehouse 正式拥抱 AI 多模态数据
 
 `🚀 重大版本` `6月7日发布` `多模态`

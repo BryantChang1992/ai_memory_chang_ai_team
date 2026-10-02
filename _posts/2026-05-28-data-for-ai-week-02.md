@@ -45,16 +45,6 @@ reading_title: "面向 AI 的数据平台"
 
 ---
 
-## 📑 本期目录
-
-1. [🔥 本周重磅：Iceberg 1.11.0 正式发布](#-本周重磅iceberg-1110-正式发布)
-2. [🧊 Apache Iceberg 1.11.0 深度拆解](#-apache-iceberg-1110-深度拆解)
-3. [🏛️ Lakehouse 格式格局 2026](#️-lakehouse-格式格局-2026战争终结)
-4. [📋 统一 Catalog 演进](#-统一-catalog-演进polarisunity-与开放-api)
-5. [🤖 AI + 数据平台融合趋势](#-ai--数据平台融合趋势)
-
----
-
 ## 🧊 Apache Iceberg 1.11.0 深度拆解
 
 从**工程决策**和**架构演进**的视角深入拆解每个关键变更。

@@ -45,6 +45,29 @@ class ContentCatalogTest < Minitest::Test
     end
   end
 
+  def test_cross_year_revisions_keep_original_issue_and_children
+    post_class = Struct.new(:data, :date, :url, :content)
+    old = post_class.new({ 'content_type' => '周报', 'issue' => 11, 'issue_date' => '2026-09-11' }, Time.new(2027, 1, 10), '/old/', '')
+    report = post_class.new({ 'content_type' => '周报分稿', 'issue' => 11, 'issue_date' => '2026-09-11', 'title' => 'Report' }, Time.new(2026, 9, 11), '/report/', '')
+    recent = post_class.new({ 'content_type' => '周报', 'issue' => 1, 'issue_date' => '2027-01-01' }, Time.new(2027, 1, 1), '/new/', '')
+    fixture = Struct.new(:posts, :data).new(Struct.new(:docs).new([report, recent, old]), @site.data)
+    weekly = ContentCatalog.build(fixture)['weekly']
+    assert_equal ['/new/', '/old/'], weekly.map { |issue| issue['overview'].url }
+    assert_equal ['/report/'], weekly.last['reports'].map { |item| item['url'] }
+  end
+
+  def test_migrated_comparisons_render_as_tables
+    {
+      'posts/fluss-storage-engine/index.html' => 'ArrowWalBuilder',
+      'posts/fluss-rpc-network/index.html' => 'GatewayClientProxy',
+      'posts/tech-research/week-08/index.html' => '4.1 增强',
+      'posts/tech-research/week-09/index.html' => 'KIP-1314'
+    }.each do |path, text|
+      assert page(path).css('article .content table').any? { |table| table.text.include?(text) },
+             "Expected a real comparison table for #{text} in #{path}"
+    end
+  end
+
   def test_evergreen_articles_and_translations_remain_discoverable
     library_links = urls(page('library/index.html').css('main a[href]'))
     weekly_links = urls(page('weekly/index.html').css('main a[href]'))
