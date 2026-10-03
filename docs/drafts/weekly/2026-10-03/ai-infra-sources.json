@@ -1,0 +1,181 @@
+[
+  {
+    "id": "ai12-01",
+    "title": "SGLang v0.5.21 release",
+    "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.21",
+    "publisher": "SGLang",
+    "event_date": "2026-10-02T09:09:04+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "发布列入运行时 P/D 角色切换 #28403 与默认 Rust TreeCore #39627。"
+    ],
+    "window_classification": "main",
+    "access_notes": "已读 GitHub Release 正文；通过 https://api.github.com/repos/sgl-project/sglang/releases/tags/v0.5.21 确认 published_at=2026-10-02T01:09:04Z。未运行安装或 GPU 基准。"
+  },
+  {
+    "id": "ai12-02",
+    "title": "[PD] Introduce runtime role switching between prefill and decode #28403",
+    "url": "https://github.com/sgl-project/sglang/pull/28403",
+    "publisher": "SGLang contributors",
+    "event_date": "2026-09-18T01:45:13+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "默认关闭，外部触发，保留权重和 KV pool，仅重建角色专属结构；自动负载策略不在此 PR 范围。",
+      "PR 报告 MI300X、Qwen3-32B、TP8、1P1D、8192/1024 token、并发32验证与往返压力测试，均为作者报告。"
+    ],
+    "window_classification": "catchup-merge; main-release",
+    "access_notes": "已读 PR 的 Motivation、Design、Validation、Limitations 及合并状态；API merged_at=2026-09-17T17:45:13Z。PR 正文对 Mooncake 支持存在新旧描述，故以 v0.5.21 固定源码核对，不沿用“仅 mori”旧限制。原文 2×MI300X 与 TP8 的卡数/节点表述不够清晰，正文不推断 GPU 总数，不援引性能增益。未复现。"
+  },
+  {
+    "id": "ai12-03",
+    "title": "SGLang v0.5.21 role_switch.py",
+    "url": "https://github.com/sgl-project/sglang/blob/v0.5.21/python/sglang/srt/disaggregation/role_switch.py",
+    "publisher": "SGLang",
+    "event_date": "2026-10-02T09:09:04+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "要求完全空闲，保留物理 KV pool、清空前缀树和分配器状态。",
+      "首次 decode graph 捕获需要显存预算并预检查；staging buffer 被拒绝。",
+      "teardown/rebuild 失败标记 unhealthy、无原地回滚；graph capture 失败可退回 eager。"
+    ],
+    "window_classification": "main-release-code",
+    "access_notes": "通过 raw.githubusercontent.com 读取完整固定 tag 文件，重点阅读 handle_pd_role_switch、_reject_reason、teardown_disaggregation、_release_prefix_cache_for_role_switch。日期为承载该代码的版本发布日，不冒充文件首次提交日。未执行。"
+  },
+  {
+    "id": "ai12-04",
+    "title": "SGLang v0.5.21 mini_lb.py role-switch orchestration",
+    "url": "https://github.com/sgl-project/sglang/blob/v0.5.21/sgl-model-gateway/bindings/python/src/sglang_router/mini_lb.py#L306-L354",
+    "publisher": "SGLang",
+    "event_date": "2026-10-02T09:09:04+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "随附 mini LB 默认摘流后等待排空，成功后注册新角色；失败仅在 safe_to_restore 为真时恢复旧路由。"
+    ],
+    "window_classification": "main-release-code",
+    "access_notes": "读取固定版本 mini_lb.py 第294—354行及相邻上下文；没有把 mini LB 行为泛化到所有外部路由器。日期为版本日期。未执行。"
+  },
+  {
+    "id": "ai12-05",
+    "title": "[Radix Cache] Sync Rust TreeCore and make it the default #39627",
+    "url": "https://github.com/sgl-project/sglang/pull/39627",
+    "publisher": "SGLang contributors",
+    "event_date": "2026-09-29T10:18:58+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "Rust TreeCore 默认启用，不支持配置集中回退 Python。",
+      "迁移覆盖 SWA 布局、淘汰/写回、所有权；session 等仍有回退，验证重点为 NVIDIA。"
+    ],
+    "window_classification": "main",
+    "access_notes": "已读 PR 变更对照、Testing/Validation、CI 限制与合并状态；API merged_at=2026-09-29T02:18:58Z。没有将 CI 声称为全部平台通过，没有推断加速倍数。未复现。"
+  },
+  {
+    "id": "ai12-06",
+    "title": "Dynamo v1.5.0 official release documentation",
+    "url": "https://docs.dynamo.nvidia.com/dynamo/v1.5.0/reference/releases/v1-5-0",
+    "publisher": "NVIDIA",
+    "event_date": "2026-09-18",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "官方文档标注 GA Sep18,2026；版本包含 Mooncake 事件索引及 vLLM Disk 层路由。"
+    ],
+    "window_classification": "catchup",
+    "access_notes": "已读 Highlights、Router、Tiered KV Event Ingestion 与版本兼容页内说明。GA 标注与 GitHub Release 时间不同，两条证据均保留，不归并为单一日期。厂商发布材料，无独立性能验证。"
+  },
+  {
+    "id": "ai12-07",
+    "title": "Dynamo v1.5.0 GitHub Release",
+    "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0",
+    "publisher": "NVIDIA / ai-dynamo",
+    "event_date": "2026-09-22T04:21:52+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "GitHub Release 发布时间为北京时间9月22日04:21；列入 #11239、#11571。"
+    ],
+    "window_classification": "catchup",
+    "access_notes": "已读 GitHub Release Summary/Router；API https://api.github.com/repos/ai-dynamo/dynamo/releases/tags/v1.5.0 返回 published_at=2026-09-21T20:21:52Z。与 GA 文档双列。"
+  },
+  {
+    "id": "ai12-08",
+    "title": "route vLLM STORAGE KV events to Disk tier with locality gating #11571",
+    "url": "https://github.com/ai-dynamo/dynamo/pull/11571",
+    "publisher": "ai-dynamo contributors",
+    "event_date": "2026-07-31T06:36:14+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "STORAGE 事件进入 Disk 层；REMOTE/未知 locality 不进入 worker-local 路径；缺省/LOCAL 按本地。",
+      "完整 token/block 描述才产生有效可路由索引，占位事件成为 no-op。"
+    ],
+    "window_classification": "background-implementation; catchup-release",
+    "access_notes": "已读 PR Summary、Behavior 表、Design notes 与 Validation，核对合并状态；API merged_at=2026-07-30T22:36:14Z。正文按9月版本交付记录，不写为本期合并。Python/vLLM 合同测试作者也注明未执行；本报告未复现。"
+  },
+  {
+    "id": "ai12-09",
+    "title": "index Mooncake KV events #11239",
+    "url": "https://github.com/ai-dynamo/dynamo/pull/11239",
+    "publisher": "ai-dynamo contributors",
+    "event_date": "2026-08-01T05:28:40+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "本地事件索引移除路由热路径 HTTP 查询；逻辑页需要布局对应全部物理对象。",
+      "group_id 首次完整验证后缓存，相关事件失效；序列缺口保守失效；无快照/重放，晚订阅者暂时漏掉已有对象。"
+    ],
+    "window_classification": "background-implementation; catchup-release",
+    "access_notes": "已读作者 Summary、How This Was Implemented、State and ordering、Boundaries and limitations、Validation；API merged_at=2026-07-31T21:28:40Z。正文残留 Draft 警示，与正式 merged 状态及 release 列项分开；固定 v1.5.0 源码另核验。作者仅提供小模型 smoke test，本报告不引用其毫秒或百分比为端到端收益。"
+  },
+  {
+    "id": "ai12-10",
+    "title": "Dynamo v1.5.0 shared_cache.rs",
+    "url": "https://github.com/ai-dynamo/dynamo/blob/v1.5.0/lib/llm/src/kv_router/shared_cache.rs#L214-L370",
+    "publisher": "NVIDIA / ai-dynamo",
+    "event_date": "2026-09-22T04:21:52+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "apply_batch 在序号不连续时清理 present_keys/group_states；重复批次忽略；订阅重连前清理状态。",
+      "当前 shared-cache 查询默认 tenant，事件订阅中未提供快照或重放恢复。"
+    ],
+    "window_classification": "catchup-release-code",
+    "access_notes": "读取固定 tag 源码，重点 apply_batch、clear、run_subscriber 第198—375行，并全文检索 snapshot/replay/sequence/tenant。日期使用GitHub版本发布日。未执行故障注入。"
+  },
+  {
+    "id": "ai12-11",
+    "title": "Evaluating the accuracy of KV cache reuse techniques — arXiv record",
+    "url": "https://arxiv.org/abs/2609.31415",
+    "publisher": "arXiv / Samuel Cestola et al.",
+    "event_date": "2026-09-25T23:36:43+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "v1 提交时间为2026-09-25T15:36:43Z。研究位置无关 chunk KV 复用准确性；本文仅按预印本处理。"
+    ],
+    "window_classification": "catchup-preprint",
+    "access_notes": "已读摘要与 Submission history；未找到且未声称正式会议录用或发表。不是只看搜索摘要。"
+  },
+  {
+    "id": "ai12-12",
+    "title": "Evaluating the accuracy of KV cache reuse techniques — full text",
+    "url": "https://arxiv.org/html/2609.31415v1",
+    "publisher": "Samuel Cestola et al.",
+    "event_date": "2026-09-25T23:36:43+08:00",
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "第2节区分冷/暖、位置无关 chunk 复用及跨块注意力缺失。",
+      "第3节统一 Transformers 实现，主实验 Llama3.1-8B/Qwen3-8B/Mistral-7B，默认15%重算，部分扩展Qwen3-32B。",
+      "第4节提出过滤基线答错、无上下文即可作答、答案空间过小的混淆样本；第5节 Boxoffice 控制合成语料与预热缓存历史。"
+    ],
+    "window_classification": "catchup-preprint",
+    "access_notes": "已读全文第2、3、4、5节；补读附录C.5、G与 reproducibility statement。未独立复现，未直接验收生产版 LMCache 等项目；没有将论文结果泛化到精确前缀缓存。附录仅披露加速器性能/内存规格，未明确型号，正文不猜测。"
+  },
+  {
+    "id": "ai12-13",
+    "title": "Boxoffice1280 official artifact repository",
+    "url": "https://github.com/boxoffice1280/boxoffice1280",
+    "publisher": "Paper authors / boxoffice1280",
+    "event_date": null,
+    "checked_at": "2026-10-03T10:44:00+08:00",
+    "claims": [
+      "仓库提供方法、Boxoffice及LongBench复现包。",
+      "固定种子复现复用已发布 warm metadata；从头重建 metadata 可能产生不同下游种子；需自行匹配加速器后端。"
+    ],
+    "window_classification": "supporting-companion-artifact",
+    "access_notes": "已读完整README（Environment setup、BoxOffice notes、LongBench notes）；未独立确定仓库首次公开日期，因此不把读取时间当作发布事件。未下载模型、安装环境或运行评测。"
+  }
+]

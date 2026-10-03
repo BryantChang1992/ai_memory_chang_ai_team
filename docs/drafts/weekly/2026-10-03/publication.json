@@ -1,0 +1,42 @@
+{
+  "status": "prepared_for_direct_publication",
+  "issue": 12,
+  "authorization_scope": "用户授权每周日直接发布周报，并要求2026-10-03先执行一期。",
+  "prepared_at": "2026-10-03T02:53:50.360931+00:00",
+  "base_commit": "ac9424ff4147efc7248fa60b31aec210c0aa6ad4",
+  "articles": [
+    {
+      "post": "_posts/2026-10-03-tech-research-week-12-ai-infra.md",
+      "sha256": "a7a31531a656938917e3fd49345b919d10856ec9c1ac2fd92559c29de56510af"
+    },
+    {
+      "post": "_posts/2026-10-03-tech-research-week-12-distributed-storage.md",
+      "sha256": "6f5e69d690f8c378aff2df0175fa1aa1198f04a21dad9c8e67e34b6966d3b8cd"
+    },
+    {
+      "post": "_posts/2026-10-03-tech-research-week-12-lakehouse.md",
+      "sha256": "d015d8be743e43cba7e7270bd8501bdc79b4cc06fec6d0d01be383e81465df1a"
+    },
+    {
+      "post": "_posts/2026-10-03-tech-research-week-12-streaming.md",
+      "sha256": "87f14efb955e0c684f74c677ff21a1a6ead5c210e68f1f209f1da254dc18f78f"
+    },
+    {
+      "post": "_posts/2026-10-03-tech-research-week-12.md",
+      "sha256": "2f043da9a3da159dc8ac8bd72ec35eb65b5bb2106ff1030d25ce3d2014044de6"
+    }
+  ],
+  "local_checks": {
+    "ruby_tests": 16,
+    "ruby_assertions": 587,
+    "source_tests": 3,
+    "storage_lab_tests": 6,
+    "lint": "passed",
+    "typecheck": "passed",
+    "pages_export": "passed",
+    "jekyll_build": "passed",
+    "html_pages": 281,
+    "internal_references": 9331
+  },
+  "deployment_verification": "Track exact publication commit in GitHub Actions and verify public pages after push; prepared status is not a deployment success claim."
+}

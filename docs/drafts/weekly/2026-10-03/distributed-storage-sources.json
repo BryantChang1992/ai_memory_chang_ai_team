@@ -1,0 +1,283 @@
+[
+  {
+    "id": "storage-sosp26-schedule",
+    "title": "SOSP 2026 Conference Schedule",
+    "url": "https://sigops.org/s/conferences/sosp/2026/schedule.html",
+    "publisher": "ACM SIGOPS",
+    "event_date": "2026-09-29/2026-10-02",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "The conference includes workshops September 29 and technical sessions September 30 through October 2, 2026 in Prague.",
+      "Borges and Disk-Based LSMs (Prism) are scheduled September 30 in CXL and Memory Systems; schedule paper links point to publisher DOI records.",
+      "Validating a Production Cloud Object Store with Lightweight Formal Methods is scheduled October 1 in Verification and Formal Methods."
+    ],
+    "window_classification": "main_window",
+    "access_notes": "Read full official schedule and followed relevant publisher paper links. Main window is 2026-09-26T10:30:00+08:00 through 2026-10-03T10:30:00+08:00. Schedule dates use conference local dates; all discussed sessions fall within the main window. No inference that conference day equals first online publication date."
+  },
+  {
+    "id": "storage-sosp26-accepted",
+    "title": "SOSP 2026 Accepted Papers",
+    "url": "https://sigops.org/s/conferences/sosp/2026/accepted.html",
+    "publisher": "ACM SIGOPS",
+    "event_date": null,
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Lists Borges, Disk-Based LSMs, VoliStorM, object-store formal-methods work, and other papers.",
+      "The accepted-list preamble retains a shepherd-approval condition; the final schedule and paper publication metadata provide stronger evidence for the two case studies."
+    ],
+    "window_classification": "status_check_undated",
+    "access_notes": "Read official accepted list. The page exposes no verified acceptance-announcement date, so it is not assigned a main-window acceptance event."
+  },
+  {
+    "id": "storage-prism-paper",
+    "title": "Disk-Based LSMs: An Unexpectedly Good Index for Partly Coherent CXL Memory",
+    "url": "https://dassl-uiuc.github.io/pdfs/papers/prism.pdf",
+    "publisher": "Authors / ACM SOSP 2026",
+    "event_date": "2026-09-30",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "SOSP 2026 paper, DOI 10.1145/3830418.3843886; official September 30 schedule provides event attribution.",
+      "SCR hardware-coherent region and LNR noncoherent region expose a tradeoff between fine-grained version metadata capacity and coarse-grained false invalidation.",
+      "Prism bounds the updatable surface: a hot-key memtable in SCR, bounded updatable layer in LNR with versions in SCR, and immutable SSTables in LNR with manifest and monotonically increasing IDs.",
+      "New keys enter BUL and repeatedly written keys are promoted to the memtable; tier transitions make new location readable before removing old location.",
+      "Default evaluation emulates three hosts and shared memory on four-socket Xeon Gold 6418H, 128MB SCR, 100M 24-byte keys / 100-byte values, Zipf 0.99.",
+      "At 50% writes, peak microbenchmark throughput is up to 6.2x SC-BTree; SC-BTree wins short range scans at 5% writes.",
+      "Any host or memory device failure halts the full system; all data is volatile, recovery/durability outside scope.",
+      "Actual underlying hardware is coherent; incorrect cache-maintenance protocols require separate model checking to expose stale reads."
+    ],
+    "window_classification": "main_window_conference_paper",
+    "access_notes": "Downloaded full 18-page author-hosted publication-format PDF; read introduction and §§2–5.7, implementation, §§7.1–7.8 and failure model. First page includes ACM DOI, ISBN and SOSP 2026 reference; final official schedule links same DOI. The event_date is scheduled presentation September 30, not a claimed first PDF date. Experiments are author-reported, not independently reproduced. Python model checking of the protocol is finite testing evidence, not a new end-to-end durability proof."
+  },
+  {
+    "id": "storage-prism-doi",
+    "title": "Prism publisher DOI record",
+    "url": "https://dl.acm.org/doi/10.1145/3830418.3843886",
+    "publisher": "ACM",
+    "event_date": "2026-09-30",
+    "checked_at": "2026-10-03T10:47:57+08:00",
+    "claims": [
+      "Publisher identifier associated with Prism by official SOSP schedule and author-hosted publication-format PDF."
+    ],
+    "window_classification": "main_window_conference_paper",
+    "access_notes": "Followed the exact paper link from the official SOSP schedule; web tool returned an internal fetch error. ACM HTML was not used for technical claims. Publication metadata is verified in the author PDF instead. First-online date was not independently established."
+  },
+  {
+    "id": "storage-borges-paper",
+    "title": "Borges: A Low-Latency Distributed Shared Log on a CXL Memory/SSD Hybrid",
+    "url": "https://www.cs.utexas.edu/users/witchel/pubs/chen26sosp-borges.pdf",
+    "publisher": "Authors / ACM SOSP 2026",
+    "event_date": "2026-09-30",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "SOSP 2026 paper, DOI 10.1145/3830418.3843906; scheduled September 30.",
+      "Single-writer shared metadata avoids cross-host multi-writer atomics in noncoherent CXL; each append is replicated before being sequenced.",
+      "Sequencer consumes per-shard minimum replicated progress, constructs private back index, persists replicated global cut, then publishes corresponding reader-visible index/cut; acknowledgments follow publication.",
+      "RCU-style readers announce the chosen index then recheck it; writers wait for old readers before index reuse; leases handle failed readers.",
+      "Evaluation: Xeon 6761P with eight VMs, each 5 vCPU and 10GB DRAM, physical 1TB Samsung CMM-H on PCIe5 x8, 10GbE client/server TCP/IP.",
+      "Append setup uses 2 shards, 2 replicas, 100B payload. Table4 low-load P99 184.21us vs Scalog-CXL 528.57us; saturated throughput 161.91K vs 74.96K requests/s, using different client counts from low-load latency.",
+      "Scaling beyond six physical-testbed shard servers uses synthetic shard streams for 8,12,16; 16-shard data is not a real 16-host deployment.",
+      "Recovery tests kill a shard server and add a shard; no separate sequencer restart benchmark reported."
+    ],
+    "window_classification": "main_window_conference_paper",
+    "access_notes": "Downloaded full 18-page author-hosted published-format PDF; read §§1–3.8 (especially publication, replay, failure model), §4.1–4.3 and Tables3–4, §§4.8–4.10 and Table7. First page carries ACM DOI/ISBN and publication pages. Final official schedule links same DOI. Local eight-VM pod emulation with a real storage device does not independently establish real multi-host/multi-device failure-domain behavior. CMM-H persistence is a hardware model/premise of the paper; no independent power-loss test was performed here. event_date reflects presentation slot, not first release."
+  },
+  {
+    "id": "storage-borges-doi",
+    "title": "Borges publisher DOI record",
+    "url": "https://dl.acm.org/doi/10.1145/3830418.3843906",
+    "publisher": "ACM",
+    "event_date": "2026-09-30",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Official SOSP schedule resolves to this DOI; author-hosted full paper includes same DOI."
+    ],
+    "window_classification": "main_window_conference_paper",
+    "access_notes": "Direct web fetch returned HTTP403. Used official program plus author-hosted PDF; no claim to have read ACM HTML or verified its online-first date."
+  },
+  {
+    "id": "storage-dialsm-arxiv",
+    "title": "DiaLSM: Towards Write-Stall-Free Performance via Shard-based LSM-tree — arXiv metadata",
+    "url": "https://arxiv.org/abs/2609.14370",
+    "publisher": "arXiv / authors",
+    "event_date": "2026-09-13T08:04:23Z",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Version1 submitted September13 2026 at08:04:23UTC, corresponding to16:04:23Asia/Shanghai.",
+      "Author comments say accepted to ICDE2027. This is author-supplied acceptance evidence, not an independently confirmed official publication."
+    ],
+    "window_classification": "catchup_window",
+    "access_notes": "Read submission history and comments. Exact event falls in catchup 2026-09-11T09:00:00+08:00 through main-window start. No accepted-paper roster found on ICDE2027 homepage; article labels public preprint plus author acceptance claim."
+  },
+  {
+    "id": "storage-dialsm-paper",
+    "title": "DiaLSM: Towards Write-Stall-Free Performance via Shard-based LSM-tree — full paper",
+    "url": "https://arxiv.org/pdf/2609.14370",
+    "publisher": "Authors via arXiv",
+    "event_date": "2026-09-13T08:04:23Z",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Internal hash-sharded independent LSM pipelines with dynamic fallback to non-stalled shards, indexed by Clue Entries in the primary shard.",
+      "2MB reserved memtable space for ~100000 20-byte CEs; L0 capping and CE cache reduce indirection cost.",
+      "Rollback returns fallback values to primary; conflicts with newer foreground versions must be handled; CE threshold can stop new CEs and reintroduce stalls.",
+      "Implementation on RocksDB8.3.2; platform dual AMD EPYC7352,256GB DDR4,3.84TB Samsung Gen3x4 NVMe SSD,CentOS7/ext4.",
+      "Author reports FillRandom maximum2.4x throughput and94.3% stall reduction against ADOC.",
+      "Evaluation disables throttling thresholds,commit logging,and block cache; results cannot directly establish durable-production benefit.",
+      "Paper discusses shared-device bandwidth saturation, read/write/space amplification, recovery and shard-count deployment tradeoffs."
+    ],
+    "window_classification": "catchup_window",
+    "access_notes": "Downloaded full15-page PDF and extracted text. Read §II modeling assumptions, §III-A–F design/CE handling/rollback/range scans/failure recovery, §IV-A experimental setup including disabled logging and cache, performance discussion and §VI. No independent code execution or crash testing. Distinguish author-reported recovery design from empirically demonstrated power-loss durability. Do not interpret vacation-queue model as unconditional proof that every load necessarily stalls. No official ICDE2027 proceedings checked."
+  },
+  {
+    "id": "storage-icde27-status",
+    "title": "ICDE 2027 official website",
+    "url": "https://icde2027.github.io/",
+    "publisher": "IEEE ICDE",
+    "event_date": "2027-05-17/2027-05-21",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Conference planned Copenhagen May17–21 2027.",
+      "Visible homepage does not provide an accepted-paper list confirming DiaLSM as of checked_at."
+    ],
+    "window_classification": "future_venue_status_check",
+    "access_notes": "Read current official homepage. Future conference calendar is not evidence the preprint is already formally published."
+  },
+  {
+    "id": "storage-fast26-directory",
+    "title": "FAST26 Technical Sessions",
+    "url": "https://www.usenix.org/conference/fast26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": "2026-02-24/2026-02-26",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Official formal papers/proceedings available; event held February24–26 2026.",
+      "Directory includes Discard-Based Garbage Collection for Distributed Log-Structured Storage Systems in ByteDance and other storage papers; they are background rather than September publication events."
+    ],
+    "window_classification": "background_before_catchup",
+    "access_notes": "Read official directory. No deep-case claims extracted from abstracts. No verified relevant main-window/catchup update established; directory rereading is not a new publication event."
+  },
+  {
+    "id": "storage-osdi26-directory",
+    "title": "OSDI26 Technical Sessions",
+    "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": "2026-07-13/2026-07-15",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Proceedings publicly available from July13 2026; event July13–15.",
+      "MEGALON,WriteGuards,Duhu and other distributed-storage-related entries exist; July publication retained as background.",
+      "Week11 already discussed WriteGuards, so it is not repeated as a new September case."
+    ],
+    "window_classification": "background_before_catchup",
+    "access_notes": "Read technical sessions especially distributed-memory,distributed-consistency and storage sections. Previous Week11 distributed-storage article read locally for deduplication. No claimed new September event for these papers."
+  },
+  {
+    "id": "storage-nsdi26-directory",
+    "title": "NSDI26 Technical Sessions",
+    "url": "https://www.usenix.org/conference/nsdi26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": "2026-05-04/2026-05-06",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Official May2026 conference directory includes storage-related papers Sandook,XLL,UpFuzz and NVMe-oF comparison.",
+      "These are background; no main-window publication assigned by this report."
+    ],
+    "window_classification": "background_before_catchup",
+    "access_notes": "Read official directory and storage matches. Abstract-only candidate screening, not claimed full-paper reading or experiment verification."
+  },
+  {
+    "id": "storage-sigmod26-directory",
+    "title": "SIGMOD2026 Accepted Papers",
+    "url": "https://2026.sigmod.org/sigmod_papers.shtml",
+    "publisher": "ACM SIGMOD",
+    "event_date": "2026-05-31/2026-06-05",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Official accepted list links four research rounds to PACMMOD2025vol3issues4/6 and2026vol4issues1/3.",
+      "Conference labels do not establish a new late-September paper publication date."
+    ],
+    "window_classification": "background_and_coverage_gap",
+    "access_notes": "Read official accepted-paper list and followed Round4 publisher table of contents, which returned403 at https://dl.acm.org/toc/PACMMOD/2026/4/3 . Current PACMMOD issue-level coverage incomplete. Do not report no research activity from inaccessible content."
+  },
+  {
+    "id": "storage-sigmod26-program",
+    "title": "SIGMOD2026 Final Program Brochure",
+    "url": "https://2026.sigmod.org/pdf/sigmod_program_brochure.pdf",
+    "publisher": "ACM SIGMOD",
+    "event_date": "2026-05-31/2026-06-05",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Formal program contains High-Performance & Distributed Storage,Storage Engines,and Cloud-Native Distributed Databases sessions."
+    ],
+    "window_classification": "background_before_catchup",
+    "access_notes": "Read official20-page program PDF and relevant storage sessions; not a technical source for case-study results."
+  },
+  {
+    "id": "storage-pvldb20-frontmatter",
+    "title": "PVLDB Volume20 No1 Front Matter",
+    "url": "https://www.vldb.org/pvldb/vol20/FrontMatterVol20No1.pdf",
+    "publisher": "VLDB Endowment",
+    "event_date": "2026-09",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Issue formally dated September2026 and states its papers will be presented at VLDB2027,Athens.",
+      "Issue lists five papers including Prune Early,Intersect Fast: PRISM,a Prefix-based Radix Integer Set with Morphing Nodes,which differs from SOSP CXL Prism.",
+      "Month-only publication metadata does not determine whether an item belongs to the main or catchup day-level window."
+    ],
+    "window_classification": "month_only_unallocated",
+    "access_notes": "Read complete issue front matter (9pages), especially cover,publication notice and table of contents. Official volumes/19 and volumes/20 pages rendered only front-matter entries; used PDF to verify latest issue scope. No day-level release inferred."
+  },
+  {
+    "id": "storage-pvldb26-program",
+    "title": "VLDB2026 Conference Program",
+    "url": "https://vldb.org/2026/program.html",
+    "publisher": "VLDB Endowment",
+    "event_date": "2026-08-31/2026-09-04",
+    "checked_at": "2026-10-03T10:47:57+08:00",
+    "claims": [
+      "Official conference program includes LSM/compaction research such as ArceKV and S-RocksDB.",
+      "Program itself warns some Volume19 paper PDF links are still being uploaded; search crawl date is not publication date."
+    ],
+    "window_classification": "background_before_catchup",
+    "access_notes": "Read program for candidate discovery. No deep performance claim based only on program abstracts. ArceKVPDF first page inspected for identity; not included as a deep case or newSeptember event. Conference dates additionally verified at https://vldb.org/2026/ ."
+  },
+  {
+    "id": "storage-icde26-directory",
+    "title": "ICDE2026 Accepted Research Papers",
+    "url": "https://icde2026.github.io/accepted-papers.html",
+    "publisher": "IEEE ICDE",
+    "event_date": "2026-05-04/2026-05-08",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Official accepted list includes CSD-CoKV,Tetris,Query-Driven LSM Compactions,Resystance and other storage-engine papers."
+    ],
+    "window_classification": "background_before_catchup",
+    "access_notes": "Read official directory,conference homepage dates and LSM entries. No first-publication September date assigned,abstract/title screening only."
+  },
+  {
+    "id": "storage-atc-retirement",
+    "title": "Preserving the Legacy of USENIX ATC",
+    "url": "https://www.usenix.org/blog/preserving-legacy-usenix-atc",
+    "publisher": "USENIX",
+    "event_date": "2025-10-13",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "USENIX officially discontinued ATC after its final2025 edition; there is no USENIX ATC2026 paper collection to report."
+    ],
+    "window_classification": "background_venue_status",
+    "access_notes": "Read official USENIX statement and cross-checked2025 annual meeting report. Do not confuse IEEE conferences with the same ATC acronym."
+  },
+  {
+    "id": "storage-sosp-object-validation-gap",
+    "title": "Validating a Production Cloud Object Store with Lightweight Formal Methods",
+    "url": "https://dl.acm.org/doi/10.1145/3830418.3843899",
+    "publisher": "ACM SOSP2026",
+    "event_date": "2026-10-01",
+    "checked_at": "2026-10-03T10:44:28+08:00",
+    "claims": [
+      "Paper appears in official SOSP2026 October1 schedule with this DOI.",
+      "No mechanism or empirical result from the inaccessible full text is asserted in this report."
+    ],
+    "window_classification": "main_window_coverage_gap",
+    "access_notes": "Official paper link fetch returned403; no accessible full original located in this pass. Title/authors/status from official program only. Do not confuse with AmazonS3 ShardStore SOSP2021 paper."
+  }
+]

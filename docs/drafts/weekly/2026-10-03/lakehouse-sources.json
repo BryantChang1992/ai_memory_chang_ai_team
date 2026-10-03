@@ -1,0 +1,260 @@
+[
+  {
+    "id": "lakehouse-iceberg-release-notes",
+    "title": "Apache Iceberg 1.12.0 release notes",
+    "url": "https://iceberg.apache.org/releases/#1120-release",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29",
+    "checked_at": "2026-10-03T02:39:42Z",
+    "claims": [
+      "官方发布日期为 2026-09-29；1.12.0 移除 Spark 3.4 和 Flink 2.0 支持。",
+      "AWS SDK 默认 HTTP 客户端迁移到 Apache HttpClient 5，单独提供依赖需核对 apache5-client。",
+      "发行说明列出 #17947 的 keyed POST 重试行为。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "完整读取官方发行说明中 1.12.0 段；与 GitHub Release published_at 为不同日期字段，不把两者混为同一时刻。"
+  },
+  {
+    "id": "lakehouse-iceberg-release-record",
+    "title": "GitHub Release apache-iceberg-1.12.0",
+    "url": "https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.12.0",
+    "publisher": "Apache Iceberg on GitHub",
+    "event_date": "2026-09-30T01:52:18Z",
+    "checked_at": "2026-10-03T02:39:08Z",
+    "claims": [
+      "正式 Release published_at 为 2026-09-30T01:52:18Z，即北京时间 09:52；prerelease=false。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "已读取 https://api.github.com/repos/apache/iceberg/releases?per_page=3 的官方 API 元数据，以及 Releases 网页。版本发布日期另外遵循项目发行说明。"
+  },
+  {
+    "id": "lakehouse-iceberg-17947",
+    "title": "Core: Retry requests with an Idempotency-Key on retriable errors #17947",
+    "url": "https://github.com/apache/iceberg/pull/17947",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-11T01:52:09Z",
+    "checked_at": "2026-10-03T02:40:24Z",
+    "claims": [
+      "merged_at=2026-09-11T01:52:09Z，处于上期 09:00 截止之后，归为补查。",
+      "带 Idempotency-Key 的 POST 在可重试状态码及网络异常路径获得重试资格；无键 POST 保持原行为。"
+    ],
+    "window_classification": "catchup",
+    "access_notes": "通过官方 API /repos/apache/iceberg/pulls/17947 读取完整 body、state 与 merged_at；正文未把 PR 早期描述中的尚未合并状态当作当前状态。"
+  },
+  {
+    "id": "lakehouse-iceberg-18070",
+    "title": "Core: Bound Idempotency-Key retries to the advertised key lifetime #18070",
+    "url": "https://github.com/apache/iceberg/pull/18070",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29T06:15:56Z",
+    "checked_at": "2026-10-03T02:38:33Z",
+    "claims": [
+      "已合并，commit=7d6d369157f61be85add25aaf2dfcc78f456ccbc。",
+      "首次发送后耗时加下一次重试间隔达到服务端键有效期时停止带键请求的重试；覆盖响应及网络异常路径。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "读取 PR 网页及官方 API 的完整 body、merged_at；PR 原始 body 中关于前序未合并的历史备注不用于当前状态判断。"
+  },
+  {
+    "id": "lakehouse-iceberg-18070-implementation",
+    "title": "Iceberg #18070 implementation and tests",
+    "url": "https://github.com/apache/iceberg/pull/18070/files",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29T06:15:56Z",
+    "checked_at": "2026-10-03T02:40:43Z",
+    "claims": [
+      "HTTPClient 记录首次发送时间，RESTSessionCatalog 将配置有效期传入重试策略。",
+      "响应路径使用 Retry-After 或退避加最大抖动作为下一次等待上界。",
+      "零/负期限禁止带键重试，缺失/无效/超范围期限不启用期限约束。",
+      "新增配置解析、期限内外及两条重试路径相关测试；未在本报告独立运行。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "通过 https://api.github.com/repos/apache/iceberg/pulls/18070/files?per_page=100 读取全部五个文件 diff，并以 commit API 校验最终提交说明。"
+  },
+  {
+    "id": "lakehouse-iceberg-18070-commit",
+    "title": "Iceberg commit 7d6d369: Bound Idempotency-Key retries",
+    "url": "https://github.com/apache/iceberg/commit/7d6d369157f61be85add25aaf2dfcc78f456ccbc",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29T06:15:56Z",
+    "checked_at": "2026-10-03T02:41:46Z",
+    "claims": [
+      "最终提交明确键生存期约束以及等待上界动机。",
+      "本改动为客户端修复，不是服务端 exactly-once 实现证明。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "通过官方 commit API 读取提交说明和受影响文件清单；后一句为根据修改范围作出的工程边界判断。"
+  },
+  {
+    "id": "lakehouse-iceberg-1120-retry-source",
+    "title": "Iceberg 1.12.0 tagged retry strategy source",
+    "url": "https://github.com/apache/iceberg/blob/apache-iceberg-1.12.0/core/src/main/java/org/apache/iceberg/rest/ExponentialHttpRequestRetryStrategy.java",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29",
+    "checked_at": "2026-10-03T02:40:43Z",
+    "claims": [
+      "1.12.0 标签下的重试源码已有 IDEMPOTENCY_KEY_HEADER，但没有 keyLifetime 约束。"
+    ],
+    "window_classification": "main_window_release_boundary",
+    "access_notes": "直接读取相同 tag/path 的 raw.githubusercontent.com 官方仓库源码，与 #18070 diff 对照；不根据发布日猜测补丁包含关系。"
+  },
+  {
+    "id": "lakehouse-iceberg-1120-compare",
+    "title": "Compare #18070 merge commit with apache-iceberg-1.12.0",
+    "url": "https://github.com/apache/iceberg/compare/7d6d369157f61be85add25aaf2dfcc78f456ccbc...apache-iceberg-1.12.0",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29",
+    "checked_at": "2026-10-03T02:40:43Z",
+    "claims": [
+      "以 #18070 commit 为 base、1.12.0 tag 为 head，官方 compare 返回 behind，behind_by=21，ahead_by=0。",
+      "由提交祖先关系与 tag 源码共同确认 #18070 未进入 1.12.0。"
+    ],
+    "window_classification": "main_window_release_boundary",
+    "access_notes": "实际读取 https://api.github.com/repos/apache/iceberg/compare/7d6d369157f61be85add25aaf2dfcc78f456ccbc...apache-iceberg-1.12.0；正文未使用 commits 数量作为性能或重要性指标。"
+  },
+  {
+    "id": "lakehouse-paimon-9987",
+    "title": "Push down deletion vectors for merged data evolution groups #9987",
+    "url": "https://github.com/apache/paimon/pull/9987",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-09-24T09:41:22Z",
+    "checked_at": "2026-10-03T02:38:06Z",
+    "claims": [
+      "补查：已合并，commit=1b47fba765d11ad244d355dbad89041f751fef3d。",
+      "把文件索引候选与删除向量存活行结合，避免所有匹配均删除时仍打开合并组。"
+    ],
+    "window_classification": "catchup",
+    "access_notes": "读取官方 PR API 完整 body、merged_at 和 /files diff；说明中的概括顺序以最终 diff 为准。"
+  },
+  {
+    "id": "lakehouse-paimon-9987-files",
+    "title": "Paimon #9987 implementation and regression tests",
+    "url": "https://github.com/apache/paimon/pull/9987/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-09-24T09:41:22Z",
+    "checked_at": "2026-10-03T02:38:06Z",
+    "claims": [
+      "实际实现先用文件索引尝试排除，再按需读取 DV；复用已评估索引结果。",
+      "赢得字段值的最新文件决定可用于组级剪枝的索引，旧覆盖字段与 Blob/vector 文件不能错误否决全组。",
+      "32 位行位置能力存在范围限制；正文未声称对全部 DV 类型都进行了相同优化。"
+    ],
+    "window_classification": "catchup",
+    "access_notes": "通过 /repos/apache/paimon/pulls/9987/files?per_page=100 读取 FileIndexEvaluator、DataEvolutionSplitRead 与测试差异；未运行。"
+  },
+  {
+    "id": "lakehouse-paimon-10289",
+    "title": "Push down bitmap indexes for data evolution merged reads #10289",
+    "url": "https://github.com/apache/paimon/pull/10289",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-02T01:45:10Z",
+    "checked_at": "2026-10-03T02:38:56Z",
+    "claims": [
+      "本周合并到 master，commit=bfa0b36d267cd22ba65fa6624a20acc4926771a9。",
+      "共享位图逐行选择解决单一字段 reader 过滤可能破坏跨列位置对齐的问题。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "网页获取出现 cache miss；通过官方 PR API 完整 body、state 与 merged_at 核验，不依赖搜索摘要。"
+  },
+  {
+    "id": "lakehouse-paimon-10289-files",
+    "title": "Paimon #10289 shared bitmap selection and tests",
+    "url": "https://github.com/apache/paimon/pull/10289/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-02T01:45:10Z",
+    "checked_at": "2026-10-03T02:41:46Z",
+    "claims": [
+      "只对普通且 row-id range 一致的文件组启用共享选择；Blob/vector 或不同范围回退。",
+      "独立必要条件位图取交集，OR 在 FileIndexEvaluator 中作为整体结果；非位图结果不缩小集合。",
+      "测试断言单个命中、多字段交集、OR、删除向量组合与非位图对齐。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "通过 /repos/apache/paimon/pulls/10289/files?per_page=100 阅读全部生产代码与测试 diff；没有官方性能基准，正文示例属于教学推演。"
+  },
+  {
+    "id": "lakehouse-paimon-10324",
+    "title": "Treat a snapshot rename that throws but succeeded as committed #10324",
+    "url": "https://github.com/apache/paimon/pull/10324",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-02T01:39:03Z",
+    "checked_at": "2026-10-03T02:38:06Z",
+    "claims": [
+      "本周已合并，commit=0aa442b99cb3709028472eda86a377355ba2a16c。",
+      "PR 作者报告 S3-compatible/S3A 服务端 copy 成功但响应解析失败，重试成功却未刷新 LATEST。",
+      "只修复提示落后的一种来源，不涵盖持续 hint 写入失败。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "完整读取官方 PR API body 和合并时间；真实环境现象均归因于 PR 作者报告，未称独立复现或所有对象存储问题。"
+  },
+  {
+    "id": "lakehouse-paimon-10324-files",
+    "title": "Paimon #10324 RenamingSnapshotCommit implementation and tests",
+    "url": "https://github.com/apache/paimon/pull/10324/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-02T01:39:03Z",
+    "checked_at": "2026-10-03T02:38:06Z",
+    "claims": [
+      "捕获 IOException 后检查目标文件，不存在重新抛原异常；存在则沿用内容相等核对。",
+      "内容相等视为成功并更新 LATEST；内容不同返回 false；读取失败继续抛错。",
+      "新增 rename 已完成后抛错及未完成抛错两类故障注入测试。"
+    ],
+    "window_classification": "main_window",
+    "access_notes": "通过官方 /pulls/10324/files 读取两个文件全部 diff；测试由上游提供，未独立运行。"
+  },
+  {
+    "id": "lakehouse-paimon-10323",
+    "title": "Fall back to listing when the LATEST hint points to an expired snapshot #10323",
+    "url": "https://github.com/apache/paimon/pull/10323",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-09-30T07:51:41Z",
+    "checked_at": "2026-10-03T02:40:24Z",
+    "claims": [
+      "本次核验 state=open、merged_at=null；不能写成已交付修复。",
+      "陈旧提示指向 N、N+1 也已过期时，缺失 N+1 不能证明 N 为最新。",
+      "拟议修复在 SnapshotManager 读取提示快照失败的回退中列举目录，不在正常 findLatest 路径增加额外 I/O。"
+    ],
+    "window_classification": "main_window_proposed",
+    "access_notes": "通过官方 PR API 阅读完整 body，包括作者故障报告与方案、测试声明。未精读此未合并 PR 的完整 diff，正文仅描述提案，不保证实现最终保持此方案。"
+  },
+  {
+    "id": "lakehouse-paimon-release-coverage",
+    "title": "Apache Paimon releases",
+    "url": "https://github.com/apache/paimon/releases",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-08-07T04:30:12Z",
+    "checked_at": "2026-10-03T02:39:08Z",
+    "claims": [
+      "官方 Release API 所列最近 release 为 2.0.0，published_at=2026-08-07T04:30:12Z。",
+      "本次没有核验到包含本周 Paimon 补丁的稳定发行版；不以发布列表空缺断言社区无其他发布活动。"
+    ],
+    "window_classification": "older_baseline_coverage_only",
+    "access_notes": "读取网页及 https://api.github.com/repos/apache/paimon/releases?per_page=3。只用于明确本周 master 合并与稳定版证据分离，不作为本周新闻。"
+  },
+  {
+    "id": "lakehouse-iceberg-read-coverage",
+    "title": "Iceberg PR discovery and read coverage",
+    "url": "https://github.com/apache/iceberg/pulls",
+    "publisher": "Apache Iceberg",
+    "event_date": null,
+    "checked_at": "2026-10-03T02:46:49Z",
+    "claims": [
+      "Iceberg 已检查发布记录、按 updated 排序的最新 100 个 closed PR，并对入选条目逐项检查 merged_at 与代码。",
+      "网页搜索过滤入口出现 cache miss，部分网页快照滞后，改由官方 API 核对。"
+    ],
+    "window_classification": "coverage",
+    "access_notes": "主窗口 2026-09-26T02:30:00Z 至 2026-10-03T02:30:00Z；补查 2026-09-11T01:00:00Z 至 2026-09-26T02:30:00Z。日期型搜索为发现线索，精确纳入以事件时间为准。非全量穷尽；Hudi、Delta、Trino 与论文目录未同等深度覆盖。 已成功读取官方 Search API 日期型主窗口结果 53 项及补查首 100/109 项；这是发现覆盖而非全部正文精读，也不是精确 10:30 边界内统计。"
+  },
+  {
+    "id": "lakehouse-paimon-read-coverage",
+    "title": "Paimon PR discovery and read coverage",
+    "url": "https://github.com/apache/paimon/pulls",
+    "publisher": "Apache Paimon",
+    "event_date": null,
+    "checked_at": "2026-10-03T02:46:49Z",
+    "claims": [
+      "Paimon 已检查发布记录、按 updated 排序的最新 100 个 closed PR，并对核心条目读取 PR、diff、测试与合并时间。",
+      "例如网页快照将 #10282 显示为 open，官方 API 其后显示 closed 且 merged_at=null；正文没有将其当成合并动态。"
+    ],
+    "window_classification": "coverage",
+    "access_notes": "未列入正文的候选 #10282、#10300、#10339 用于排除未合并条目与选题比较。已成功读取官方 Search API 日期型主窗口结果 31 项、补查首 100/347 项；补查未翻完全部分页，不能声称全量穷尽。这是发现覆盖而非全部正文精读，也不是精确 10:30 边界内统计。"
+  }
+]

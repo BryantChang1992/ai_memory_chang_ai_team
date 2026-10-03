@@ -1,0 +1,1190 @@
+{
+  "schema_version": 1,
+  "issue": 12,
+  "timezone": "Asia/Shanghai",
+  "window_start_inclusive": "2026-09-26T10:30:00+08:00",
+  "window_end_exclusive": "2026-10-03T10:30:00+08:00",
+  "catchup_start_inclusive": "2026-09-11T09:00:00+08:00",
+  "catchup_end_exclusive": "2026-09-26T10:30:00+08:00",
+  "assembled_at": "2026-10-03T02:52:31.117729+00:00",
+  "date_rules": "PR使用实际merged_at，Release使用published_at并保留官方公告/GA日期差异；论文首次公开、会议场次和核验时间分别记录。月级日期不强行划入主窗口；本期不补造中间期数。",
+  "domains": [
+    {
+      "domain": "lakehouse",
+      "article": "lakehouse.md",
+      "source_ids": [
+        "lakehouse-iceberg-release-notes",
+        "lakehouse-iceberg-release-record",
+        "lakehouse-iceberg-17947",
+        "lakehouse-iceberg-18070",
+        "lakehouse-iceberg-18070-implementation",
+        "lakehouse-iceberg-18070-commit",
+        "lakehouse-iceberg-1120-retry-source",
+        "lakehouse-iceberg-1120-compare",
+        "lakehouse-paimon-9987",
+        "lakehouse-paimon-9987-files",
+        "lakehouse-paimon-10289",
+        "lakehouse-paimon-10289-files",
+        "lakehouse-paimon-10324",
+        "lakehouse-paimon-10324-files",
+        "lakehouse-paimon-10323",
+        "lakehouse-paimon-release-coverage",
+        "lakehouse-iceberg-read-coverage",
+        "lakehouse-paimon-read-coverage"
+      ]
+    },
+    {
+      "domain": "streaming",
+      "article": "streaming.md",
+      "source_ids": [
+        "stream-01",
+        "stream-02",
+        "stream-03",
+        "stream-04",
+        "stream-05",
+        "stream-06",
+        "stream-07",
+        "stream-08",
+        "stream-09",
+        "stream-10",
+        "stream-11",
+        "stream-12",
+        "stream-13",
+        "stream-14",
+        "stream-15",
+        "stream-16",
+        "stream-17",
+        "stream-18",
+        "stream-19",
+        "stream-20",
+        "stream-21",
+        "stream-22",
+        "stream-23",
+        "stream-24",
+        "stream-25",
+        "stream-26"
+      ]
+    },
+    {
+      "domain": "distributed-storage",
+      "article": "distributed-storage.md",
+      "source_ids": [
+        "storage-sosp26-schedule",
+        "storage-sosp26-accepted",
+        "storage-prism-paper",
+        "storage-prism-doi",
+        "storage-borges-paper",
+        "storage-borges-doi",
+        "storage-dialsm-arxiv",
+        "storage-dialsm-paper",
+        "storage-icde27-status",
+        "storage-fast26-directory",
+        "storage-osdi26-directory",
+        "storage-nsdi26-directory",
+        "storage-sigmod26-directory",
+        "storage-sigmod26-program",
+        "storage-pvldb20-frontmatter",
+        "storage-pvldb26-program",
+        "storage-icde26-directory",
+        "storage-atc-retirement",
+        "storage-sosp-object-validation-gap"
+      ]
+    },
+    {
+      "domain": "ai-infra",
+      "article": "ai-infra.md",
+      "source_ids": [
+        "ai12-01",
+        "ai12-02",
+        "ai12-03",
+        "ai12-04",
+        "ai12-05",
+        "ai12-06",
+        "ai12-07",
+        "ai12-08",
+        "ai12-09",
+        "ai12-10",
+        "ai12-11",
+        "ai12-12",
+        "ai12-13"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "lakehouse-iceberg-release-notes",
+      "title": "Apache Iceberg 1.12.0 release notes",
+      "url": "https://iceberg.apache.org/releases/#1120-release",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29",
+      "checked_at": "2026-10-03T02:39:42Z",
+      "claims": [
+        "官方发布日期为 2026-09-29；1.12.0 移除 Spark 3.4 和 Flink 2.0 支持。",
+        "AWS SDK 默认 HTTP 客户端迁移到 Apache HttpClient 5，单独提供依赖需核对 apache5-client。",
+        "发行说明列出 #17947 的 keyed POST 重试行为。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "完整读取官方发行说明中 1.12.0 段；与 GitHub Release published_at 为不同日期字段，不把两者混为同一时刻。"
+    },
+    {
+      "id": "lakehouse-iceberg-release-record",
+      "title": "GitHub Release apache-iceberg-1.12.0",
+      "url": "https://github.com/apache/iceberg/releases/tag/apache-iceberg-1.12.0",
+      "publisher": "Apache Iceberg on GitHub",
+      "event_date": "2026-09-30T01:52:18Z",
+      "checked_at": "2026-10-03T02:39:08Z",
+      "claims": [
+        "正式 Release published_at 为 2026-09-30T01:52:18Z，即北京时间 09:52；prerelease=false。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "已读取 https://api.github.com/repos/apache/iceberg/releases?per_page=3 的官方 API 元数据，以及 Releases 网页。版本发布日期另外遵循项目发行说明。"
+    },
+    {
+      "id": "lakehouse-iceberg-17947",
+      "title": "Core: Retry requests with an Idempotency-Key on retriable errors #17947",
+      "url": "https://github.com/apache/iceberg/pull/17947",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-11T01:52:09Z",
+      "checked_at": "2026-10-03T02:40:24Z",
+      "claims": [
+        "merged_at=2026-09-11T01:52:09Z，处于上期 09:00 截止之后，归为补查。",
+        "带 Idempotency-Key 的 POST 在可重试状态码及网络异常路径获得重试资格；无键 POST 保持原行为。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "通过官方 API /repos/apache/iceberg/pulls/17947 读取完整 body、state 与 merged_at；正文未把 PR 早期描述中的尚未合并状态当作当前状态。"
+    },
+    {
+      "id": "lakehouse-iceberg-18070",
+      "title": "Core: Bound Idempotency-Key retries to the advertised key lifetime #18070",
+      "url": "https://github.com/apache/iceberg/pull/18070",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29T06:15:56Z",
+      "checked_at": "2026-10-03T02:38:33Z",
+      "claims": [
+        "已合并，commit=7d6d369157f61be85add25aaf2dfcc78f456ccbc。",
+        "首次发送后耗时加下一次重试间隔达到服务端键有效期时停止带键请求的重试；覆盖响应及网络异常路径。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "读取 PR 网页及官方 API 的完整 body、merged_at；PR 原始 body 中关于前序未合并的历史备注不用于当前状态判断。"
+    },
+    {
+      "id": "lakehouse-iceberg-18070-implementation",
+      "title": "Iceberg #18070 implementation and tests",
+      "url": "https://github.com/apache/iceberg/pull/18070/files",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29T06:15:56Z",
+      "checked_at": "2026-10-03T02:40:43Z",
+      "claims": [
+        "HTTPClient 记录首次发送时间，RESTSessionCatalog 将配置有效期传入重试策略。",
+        "响应路径使用 Retry-After 或退避加最大抖动作为下一次等待上界。",
+        "零/负期限禁止带键重试，缺失/无效/超范围期限不启用期限约束。",
+        "新增配置解析、期限内外及两条重试路径相关测试；未在本报告独立运行。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "通过 https://api.github.com/repos/apache/iceberg/pulls/18070/files?per_page=100 读取全部五个文件 diff，并以 commit API 校验最终提交说明。"
+    },
+    {
+      "id": "lakehouse-iceberg-18070-commit",
+      "title": "Iceberg commit 7d6d369: Bound Idempotency-Key retries",
+      "url": "https://github.com/apache/iceberg/commit/7d6d369157f61be85add25aaf2dfcc78f456ccbc",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29T06:15:56Z",
+      "checked_at": "2026-10-03T02:41:46Z",
+      "claims": [
+        "最终提交明确键生存期约束以及等待上界动机。",
+        "本改动为客户端修复，不是服务端 exactly-once 实现证明。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "通过官方 commit API 读取提交说明和受影响文件清单；后一句为根据修改范围作出的工程边界判断。"
+    },
+    {
+      "id": "lakehouse-iceberg-1120-retry-source",
+      "title": "Iceberg 1.12.0 tagged retry strategy source",
+      "url": "https://github.com/apache/iceberg/blob/apache-iceberg-1.12.0/core/src/main/java/org/apache/iceberg/rest/ExponentialHttpRequestRetryStrategy.java",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29",
+      "checked_at": "2026-10-03T02:40:43Z",
+      "claims": [
+        "1.12.0 标签下的重试源码已有 IDEMPOTENCY_KEY_HEADER，但没有 keyLifetime 约束。"
+      ],
+      "window_classification": "main_window_release_boundary",
+      "access_notes": "直接读取相同 tag/path 的 raw.githubusercontent.com 官方仓库源码，与 #18070 diff 对照；不根据发布日猜测补丁包含关系。"
+    },
+    {
+      "id": "lakehouse-iceberg-1120-compare",
+      "title": "Compare #18070 merge commit with apache-iceberg-1.12.0",
+      "url": "https://github.com/apache/iceberg/compare/7d6d369157f61be85add25aaf2dfcc78f456ccbc...apache-iceberg-1.12.0",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29",
+      "checked_at": "2026-10-03T02:40:43Z",
+      "claims": [
+        "以 #18070 commit 为 base、1.12.0 tag 为 head，官方 compare 返回 behind，behind_by=21，ahead_by=0。",
+        "由提交祖先关系与 tag 源码共同确认 #18070 未进入 1.12.0。"
+      ],
+      "window_classification": "main_window_release_boundary",
+      "access_notes": "实际读取 https://api.github.com/repos/apache/iceberg/compare/7d6d369157f61be85add25aaf2dfcc78f456ccbc...apache-iceberg-1.12.0；正文未使用 commits 数量作为性能或重要性指标。"
+    },
+    {
+      "id": "lakehouse-paimon-9987",
+      "title": "Push down deletion vectors for merged data evolution groups #9987",
+      "url": "https://github.com/apache/paimon/pull/9987",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-09-24T09:41:22Z",
+      "checked_at": "2026-10-03T02:38:06Z",
+      "claims": [
+        "补查：已合并，commit=1b47fba765d11ad244d355dbad89041f751fef3d。",
+        "把文件索引候选与删除向量存活行结合，避免所有匹配均删除时仍打开合并组。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "读取官方 PR API 完整 body、merged_at 和 /files diff；说明中的概括顺序以最终 diff 为准。"
+    },
+    {
+      "id": "lakehouse-paimon-9987-files",
+      "title": "Paimon #9987 implementation and regression tests",
+      "url": "https://github.com/apache/paimon/pull/9987/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-09-24T09:41:22Z",
+      "checked_at": "2026-10-03T02:38:06Z",
+      "claims": [
+        "实际实现先用文件索引尝试排除，再按需读取 DV；复用已评估索引结果。",
+        "赢得字段值的最新文件决定可用于组级剪枝的索引，旧覆盖字段与 Blob/vector 文件不能错误否决全组。",
+        "32 位行位置能力存在范围限制；正文未声称对全部 DV 类型都进行了相同优化。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "通过 /repos/apache/paimon/pulls/9987/files?per_page=100 读取 FileIndexEvaluator、DataEvolutionSplitRead 与测试差异；未运行。"
+    },
+    {
+      "id": "lakehouse-paimon-10289",
+      "title": "Push down bitmap indexes for data evolution merged reads #10289",
+      "url": "https://github.com/apache/paimon/pull/10289",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-02T01:45:10Z",
+      "checked_at": "2026-10-03T02:38:56Z",
+      "claims": [
+        "本周合并到 master，commit=bfa0b36d267cd22ba65fa6624a20acc4926771a9。",
+        "共享位图逐行选择解决单一字段 reader 过滤可能破坏跨列位置对齐的问题。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "网页获取出现 cache miss；通过官方 PR API 完整 body、state 与 merged_at 核验，不依赖搜索摘要。"
+    },
+    {
+      "id": "lakehouse-paimon-10289-files",
+      "title": "Paimon #10289 shared bitmap selection and tests",
+      "url": "https://github.com/apache/paimon/pull/10289/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-02T01:45:10Z",
+      "checked_at": "2026-10-03T02:41:46Z",
+      "claims": [
+        "只对普通且 row-id range 一致的文件组启用共享选择；Blob/vector 或不同范围回退。",
+        "独立必要条件位图取交集，OR 在 FileIndexEvaluator 中作为整体结果；非位图结果不缩小集合。",
+        "测试断言单个命中、多字段交集、OR、删除向量组合与非位图对齐。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "通过 /repos/apache/paimon/pulls/10289/files?per_page=100 阅读全部生产代码与测试 diff；没有官方性能基准，正文示例属于教学推演。"
+    },
+    {
+      "id": "lakehouse-paimon-10324",
+      "title": "Treat a snapshot rename that throws but succeeded as committed #10324",
+      "url": "https://github.com/apache/paimon/pull/10324",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-02T01:39:03Z",
+      "checked_at": "2026-10-03T02:38:06Z",
+      "claims": [
+        "本周已合并，commit=0aa442b99cb3709028472eda86a377355ba2a16c。",
+        "PR 作者报告 S3-compatible/S3A 服务端 copy 成功但响应解析失败，重试成功却未刷新 LATEST。",
+        "只修复提示落后的一种来源，不涵盖持续 hint 写入失败。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "完整读取官方 PR API body 和合并时间；真实环境现象均归因于 PR 作者报告，未称独立复现或所有对象存储问题。"
+    },
+    {
+      "id": "lakehouse-paimon-10324-files",
+      "title": "Paimon #10324 RenamingSnapshotCommit implementation and tests",
+      "url": "https://github.com/apache/paimon/pull/10324/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-02T01:39:03Z",
+      "checked_at": "2026-10-03T02:38:06Z",
+      "claims": [
+        "捕获 IOException 后检查目标文件，不存在重新抛原异常；存在则沿用内容相等核对。",
+        "内容相等视为成功并更新 LATEST；内容不同返回 false；读取失败继续抛错。",
+        "新增 rename 已完成后抛错及未完成抛错两类故障注入测试。"
+      ],
+      "window_classification": "main_window",
+      "access_notes": "通过官方 /pulls/10324/files 读取两个文件全部 diff；测试由上游提供，未独立运行。"
+    },
+    {
+      "id": "lakehouse-paimon-10323",
+      "title": "Fall back to listing when the LATEST hint points to an expired snapshot #10323",
+      "url": "https://github.com/apache/paimon/pull/10323",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-09-30T07:51:41Z",
+      "checked_at": "2026-10-03T02:40:24Z",
+      "claims": [
+        "本次核验 state=open、merged_at=null；不能写成已交付修复。",
+        "陈旧提示指向 N、N+1 也已过期时，缺失 N+1 不能证明 N 为最新。",
+        "拟议修复在 SnapshotManager 读取提示快照失败的回退中列举目录，不在正常 findLatest 路径增加额外 I/O。"
+      ],
+      "window_classification": "main_window_proposed",
+      "access_notes": "通过官方 PR API 阅读完整 body，包括作者故障报告与方案、测试声明。未精读此未合并 PR 的完整 diff，正文仅描述提案，不保证实现最终保持此方案。"
+    },
+    {
+      "id": "lakehouse-paimon-release-coverage",
+      "title": "Apache Paimon releases",
+      "url": "https://github.com/apache/paimon/releases",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-08-07T04:30:12Z",
+      "checked_at": "2026-10-03T02:39:08Z",
+      "claims": [
+        "官方 Release API 所列最近 release 为 2.0.0，published_at=2026-08-07T04:30:12Z。",
+        "本次没有核验到包含本周 Paimon 补丁的稳定发行版；不以发布列表空缺断言社区无其他发布活动。"
+      ],
+      "window_classification": "older_baseline_coverage_only",
+      "access_notes": "读取网页及 https://api.github.com/repos/apache/paimon/releases?per_page=3。只用于明确本周 master 合并与稳定版证据分离，不作为本周新闻。"
+    },
+    {
+      "id": "lakehouse-iceberg-read-coverage",
+      "title": "Iceberg PR discovery and read coverage",
+      "url": "https://github.com/apache/iceberg/pulls",
+      "publisher": "Apache Iceberg",
+      "event_date": null,
+      "checked_at": "2026-10-03T02:46:49Z",
+      "claims": [
+        "Iceberg 已检查发布记录、按 updated 排序的最新 100 个 closed PR，并对入选条目逐项检查 merged_at 与代码。",
+        "网页搜索过滤入口出现 cache miss，部分网页快照滞后，改由官方 API 核对。"
+      ],
+      "window_classification": "coverage",
+      "access_notes": "主窗口 2026-09-26T02:30:00Z 至 2026-10-03T02:30:00Z；补查 2026-09-11T01:00:00Z 至 2026-09-26T02:30:00Z。日期型搜索为发现线索，精确纳入以事件时间为准。非全量穷尽；Hudi、Delta、Trino 与论文目录未同等深度覆盖。 已成功读取官方 Search API 日期型主窗口结果 53 项及补查首 100/109 项；这是发现覆盖而非全部正文精读，也不是精确 10:30 边界内统计。"
+    },
+    {
+      "id": "lakehouse-paimon-read-coverage",
+      "title": "Paimon PR discovery and read coverage",
+      "url": "https://github.com/apache/paimon/pulls",
+      "publisher": "Apache Paimon",
+      "event_date": null,
+      "checked_at": "2026-10-03T02:46:49Z",
+      "claims": [
+        "Paimon 已检查发布记录、按 updated 排序的最新 100 个 closed PR，并对核心条目读取 PR、diff、测试与合并时间。",
+        "例如网页快照将 #10282 显示为 open，官方 API 其后显示 closed 且 merged_at=null；正文没有将其当成合并动态。"
+      ],
+      "window_classification": "coverage",
+      "access_notes": "未列入正文的候选 #10282、#10300、#10339 用于排除未合并条目与选题比较。已成功读取官方 Search API 日期型主窗口结果 31 项、补查首 100/347 项；补查未翻完全部分页，不能声称全量穷尽。这是发现覆盖而非全部正文精读，也不是精确 10:30 边界内统计。"
+    },
+    {
+      "id": "stream-01",
+      "title": "KIP-1165: Object Consolidation for Diskless",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783996/KIP-1165+Object+Consolidation+for+Diskless",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-10-02T14:55:08Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "最新 version 21 状态 Under Discussion (Re-Opened)；2026-09-18 version19 已有强制 consolidation 重写稿，主窗口2026-09-30 version20 继续修订，10-02 version21 新增事务仍属后续工作。",
+        "无盘 WAL 异步物化为每分区 Kafka segment 并交由 KIP-405；不再以 WAL 对象合并为本 KIP 范围。",
+        "区分 G/W/T/C/L/D；数据、索引、producer snapshot 及 COPY_SEGMENT_FINISHED 和无洞检查在 WAL prune 之前；retention 先提交 G 后删除远端段。",
+        "原文限制 cleanup.policy=delete、事务后续设计、创建 CDT 并写新记录后不支持降级；仅提案，不是发布。"
+      ],
+      "window_classification": "main_with_catchup_design_context",
+      "access_notes": "通过 Confluence 公共 REST API 读取完整 body.storage、version，比较历史 version19→20→21。最新接口：https://cwiki.apache.org/confluence/rest/api/content/350783996?expand=body.storage,version 。历史版本查询使用 status=historical&version=19/20。未完整读取邮件线程，无通过投票或正式发布证据。"
+    },
+    {
+      "id": "stream-02",
+      "title": "feat(log): support elastic log truncation",
+      "url": "https://github.com/AutoMQ/automq/pull/3632",
+      "publisher": "AutoMQ/automq",
+      "event_date": "2026-09-29T07:18:05Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-29T07:18:05Z 合入 main。",
+        "逻辑截断移除目标后段、在底层完整批次边界封闭旧slice，并在请求offset创建新活动段；可能留下offset gap。",
+        "截断epoch阻止旧append回调推进confirmed offset；完整segment集合同步持久化后切换活动段；失败转IOException走分区fence路径。",
+        "逻辑最大时间戳及offset跨reload持久化；不改变底层stream末尾，不能推出对象立即回收。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-29T07:18:05Z；base=main；merge_commit_sha=4c5a313d65bf389d9e7dc17a684cbd68b19a3850。并读取 files 差异及相关回归测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-03",
+      "title": "feat(log): support elastic log truncation",
+      "url": "https://github.com/AutoMQ/automq/pull/3627",
+      "publisher": "AutoMQ/automq",
+      "event_date": "2026-09-29T06:40:21Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "同项 ElasticLog 逻辑截断合入1.8分支，2026-09-29T06:40:21Z；与main PR3632按同一能力去重。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-29T06:40:21Z；base=1.8；merge_commit_sha=dbd0f75cf7b3ce01320ab4fcb5ba3851827e4069。已读取 PR 正文；未独立运行测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-04",
+      "title": "[server] Advance historical WAL retention with lake progress",
+      "url": "https://github.com/apache/fluss/pull/4487",
+      "publisher": "apache/fluss",
+      "event_date": "2026-09-28T08:01:13Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-28T08:01:13Z 合入main；历史分区minRetainOffset卡在初始值导致WAL不回收。",
+        "LogTablet.updateLakeLogEndOffset 对历史分区推进 minRetainOffset，覆盖leader/follower，单调更新。",
+        "保留远端上传、完整segment及本地保留段数条件；测试覆盖部分湖覆盖、上传落后、重复迟到通知以及清理后切主恢复。",
+        "PR报告92项相关测试通过，完整server verify未成功走完；本文不声称独立验证。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-28T08:01:13Z；base=main；merge_commit_sha=7c590ccbba3557a83f66cc3f662b740a358be8af。并读取 files 差异及相关回归测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-05",
+      "title": "[server] Incrementally clean historical KV state",
+      "url": "https://github.com/apache/fluss/pull/4199",
+      "publisher": "apache/fluss",
+      "event_date": "2026-09-18T02:31:53Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-18T02:31:53Z 合入main；历史KV值和tombstone附带WAL offset，确认湖进度提供exclusive清理边界，普通RocksDB compaction逐步回收。",
+        "不在清理边界推进时额外调度full-range compaction；8字节tag为历史KV内部布局变化，lake值保持原布局；不能从合并时间推断已入1.0。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-18T02:31:53Z；base=main；merge_commit_sha=e2cf036ffeb01560bda7b26716819b2ea9a4a353。已读取 PR 正文；未独立运行测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-06",
+      "title": "fix(log): respect log start offset in timestamp lookup",
+      "url": "https://github.com/AutoMQ/automq/pull/3609",
+      "publisher": "AutoMQ/automq",
+      "event_date": "2026-09-21T02:31:14Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-21T02:31:14Z 合入main；timestamp lookup跳过完全低于log start offset的段、段内start=max(startingOffset,timeIndexOffset)，必要时继续后续段。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-21T02:31:14Z；base=main；merge_commit_sha=41cac15e26a4253fc64584f0d15e6d74bf2dc756。已读取 PR 正文；未独立运行测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-07",
+      "title": "KAFKA-21159: Clear next offsets to consume on task close to avoid stale commit after revive",
+      "url": "https://github.com/apache/kafka/pull/23584",
+      "publisher": "apache/kafka",
+      "event_date": "2026-09-29T14:03:07Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-29T14:03:07Z 合入trunk；StreamTask.close清空nextOffsetsAndMetadataToBeConsumed，避免任务revive后提交未重读分区的旧fallbackoffset。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-29T14:03:07Z；base=trunk；merge_commit_sha=7a6029541a0538d8529ad69e2bce6012cc1fb229。并读取 files 差异及相关回归测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-08",
+      "title": "KAFKA-21161: Checkpoint consumed offset over produced offset for source-topic changelog stores",
+      "url": "https://github.com/apache/kafka/pull/23585",
+      "publisher": "apache/kafka",
+      "event_date": "2026-09-29T14:02:30Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-29T14:02:30Z 合入trunk；source-topic changelog同时被该任务读写时，checkpoint采用consumedOffsets覆盖producedOffsets；专用changelog仍保留生产位置。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过 GitHub connector 读取原始 PR JSON；merged_at=2026-09-29T14:02:30Z；base=trunk；merge_commit_sha=c28702c8a1cca89211b0bf6c0281943e6430e38a。并读取 files 差异及相关回归测试。 正式发行归属以单独 release 证据为准。"
+    },
+    {
+      "id": "stream-09",
+      "title": "Apache Kafka 4.2.2 Release Announcement",
+      "url": "https://kafka.apache.org/blog/2026/09/29/apache-kafka-4.2.2-release-announcement/",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-09-29",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "Kafka 4.2.2 正式发布；与本期 trunk PR 的合并是不同事件。"
+      ],
+      "window_classification": "main",
+      "access_notes": "已打开官方公告原文及其官方 release notes、upgrade notes 链接。"
+    },
+    {
+      "id": "stream-10",
+      "title": "Release Notes - Kafka - Version 4.2.2",
+      "url": "https://downloads.apache.org/kafka/4.2.2/RELEASE_NOTES.html",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-09-29",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "已核对4.2.2列出的JIRA；含KAFKA-20685、20845等，不含本文新合并的KAFKA-21159/21161。"
+      ],
+      "window_classification": "main",
+      "access_notes": "已读取原始正文。"
+    },
+    {
+      "id": "stream-11",
+      "title": "Upgrading to Kafka 4.2.2",
+      "url": "https://kafka.apache.org/42/getting-started/upgrade/",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-09-29",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "4.2.2包括恢复完成后checkpoint文件留在RUNNING导致非正常崩溃后state wipe被跳过的EOS问题修复，以及大classic成员元数据下消费组降级问题修复。"
+      ],
+      "window_classification": "main",
+      "access_notes": "已读取原始正文。"
+    },
+    {
+      "id": "stream-12",
+      "title": "KIP-1163: Diskless Core",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-07-09T00:35:28Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "Current state=Under Discussion；本次无确认到状态变化。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "已打开官方页面，并用实时Confluence REST原文复核。1164 web检索缓存显示旧日期，实时API及历史版本为准。未完整读取讨论邮件，不把状态重读当作投票变化。"
+    },
+    {
+      "id": "stream-13",
+      "title": "KIP-1164: Diskless Coordinator",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-09-30T12:44:30Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "Current state=Under Discussion；version22（2026-02-27）到version24文本diff只有作者增加，不列作实质机制改动。"
+      ],
+      "window_classification": "main_non_substantive_edit",
+      "access_notes": "已打开官方页面，并用实时Confluence REST原文复核。1164 web检索缓存显示旧日期，实时API及历史版本为准。未完整读取讨论邮件，不把状态重读当作投票变化。"
+    },
+    {
+      "id": "stream-14",
+      "title": "KIP-1183: Unified Shared Storage",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage",
+      "publisher": "Apache Kafka",
+      "event_date": "2025-05-16",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "Current state=Under Discussion；未发现本窗口状态改变或正式发布证据。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "已打开官方页面，并用实时Confluence REST原文复核。1164 web检索缓存显示旧日期，实时API及历史版本为准。未完整读取讨论邮件，不把状态重读当作投票变化。"
+    },
+    {
+      "id": "stream-15",
+      "title": "FIP-3: Support tiering Fluss data to Iceberg",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214340/FIP-3+Support+tiering+Fluss+data+to+Iceberg",
+      "publisher": "Apache Fluss",
+      "event_date": "2025-10-21T15:43:11Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "原文metadata.labels仍为accepted；FIP-3官方目录亦列Accepted。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "已通过官方Confluence REST读取完整body.storage、labels、version。FIP3/9网页工具访问失败后，公共REST成功，不记为原文缺失。Release字段：占位符<Fluss Version>；发行证据单列。"
+    },
+    {
+      "id": "stream-16",
+      "title": "FIP-6: Decouple Flink union read with paimon",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214598/FIP-6+Decouple+Flink+union+read+with+paimon",
+      "publisher": "Apache Fluss",
+      "event_date": "2025-12-28T06:52:38Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "原文metadata.labels仍为accepted；FIP-6官方目录亦列Accepted。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "已通过官方Confluence REST读取完整body.storage、labels、version。FIP3/9网页工具访问失败后，公共REST成功，不记为原文缺失。Release字段：占位符<Fluss Version>；发行证据单列。"
+    },
+    {
+      "id": "stream-17",
+      "title": "FIP-9: Support CoordinatorServer High Availability",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/373886089/FIP-9+Support+CoordinatorServer+High+Availability",
+      "publisher": "Apache Fluss",
+      "event_date": "2026-04-09T11:44:58Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "原文metadata.labels仍为accepted；FIP-9官方目录亦列Accepted。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "已通过官方Confluence REST读取完整body.storage、labels、version。FIP3/9网页工具访问失败后，公共REST成功，不记为原文缺失。Release字段：1.0；发行证据单列。"
+    },
+    {
+      "id": "stream-18",
+      "title": "Apache Fluss 1.0.0",
+      "url": "https://github.com/apache/fluss/releases/tag/v1.0.0",
+      "publisher": "Apache Fluss",
+      "event_date": "2026-09-22T14:00:33Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "1.0.0 GitHub release发布时间2026-09-22T14:00:33Z。",
+        "明确列出Coordinator HA、election与epochfencing（bbc445a/c49b848/#2781）。",
+        "明确列出Week11 #4254 remote log offsets before local cleanup、#3675 Flink2.x bucket-basedlookupshuffle，补齐发行证据。",
+        "此发行不能自动覆盖发布之后合并的#4487。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "GitHub connector读取完整release正文；prerelease=false。未逐条审计每个发布commit。"
+    },
+    {
+      "id": "stream-19",
+      "title": "Announcing Apache Fluss 1.0",
+      "url": "https://fluss.apache.org/blog/releases/1.0/",
+      "publisher": "Apache Fluss",
+      "event_date": "2026-09-21",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "官方发布博客页面标注September21,2026；日期与GitHubrelease发布时间分别记录。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "已读取原始正文。"
+    },
+    {
+      "id": "stream-20",
+      "title": "Apache Fluss 0.8.0-incubating",
+      "url": "https://github.com/apache/fluss/releases/tag/v0.8.0-incubating",
+      "publisher": "Apache Fluss",
+      "event_date": "2025-11-06T04:00:20Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "0.8.0于2025-11-06发布，列有IcebergLakeStorage/writer/committer及Icebergtiering相关PR。",
+        "明确列出#1527 log-table union read decouple、#1543 primary-keyunionreaddecouple。FIP3/6页面标签仍Accepted，记录实现交付证据，不伪称wiki已Released。"
+      ],
+      "window_classification": "background_baseline_completion",
+      "access_notes": "通过connector读取完整官方release正文；FIP3/6相关Issue452/1141也已关闭，但不以issue关闭代替release证据。"
+    },
+    {
+      "id": "stream-21",
+      "title": "1.7.5-rc1",
+      "url": "https://github.com/AutoMQ/automq/releases/tag/1.7.5-rc1",
+      "publisher": "AutoMQ",
+      "event_date": "2026-09-24T04:24:02Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "2026-09-24T04:24:02Z 发布1.7.5-rc1；明确列出#3575、#3610、#3619等。",
+        "虽GitHubprerelease字段为false，但tag和preparePR均表明rc1，按候选版处理，不能称稳定版。",
+        "#3575仅此候选版证据，本期未核实后续稳定版。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "通过connector读取完整release正文并读取prepare1.7.5-rc1原始PR #3622搜索结果；未把候选版本误认为正式稳定版本。"
+    },
+    {
+      "id": "stream-22",
+      "title": "KIP-1379: Make server-side rack-aware assignment opt-in",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/451979127/KIP-1379+Make+server-side+rack-aware+assignment+opt-in",
+      "publisher": "Apache Kafka",
+      "event_date": "2026-10-02T12:12:19Z",
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "原文version1状态UnderDiscussion；建议新broker静态布尔配置默认false，为consumer组显式启用rack-awareassignment。",
+        "share/streams组不为未使用的partitionrack信息计算hash；自定义consumerassignor需要显式启用才能获取rack；滚动升降级可能触发额外rebalance。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过实时Confluence REST读取全文及version；未验证投票、实现或发布。"
+    },
+    {
+      "id": "stream-23",
+      "title": "Fluss Improvement Proposals",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214312/Fluss+Improvement+Proposals",
+      "publisher": "Apache Fluss",
+      "event_date": null,
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "读取当前目录，FIP3/6/9仍Accepted；扫描新条目，未从目录排序或高编号推断本周新建。"
+      ],
+      "window_classification": "discovery_status_recheck",
+      "access_notes": "web及实时Confluence REST body.view均已读取。"
+    },
+    {
+      "id": "stream-24",
+      "title": "Kafka KIP modified-page discovery",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/50859233/Kafka+Improvement+Proposals",
+      "publisher": "Apache Kafka",
+      "event_date": null,
+      "checked_at": "2026-10-03T10:46:00+08:00",
+      "claims": [
+        "公开REST CQL查询 space=KAFKA,type=page,title~KIP,lastmodified>=2026-09-11 返回18条，无next页；定位KIP1165与1379原文。"
+      ],
+      "window_classification": "discovery",
+      "access_notes": "目录web抓取超时；使用官方Confluence公开REST search替代发现，已打开选中原文。Github主窗口merged PR搜索分别Kafka62、Fluss14条；较长补查窗口结果达到100条，不声称全量穷尽。"
+    },
+    {
+      "id": "stream-25",
+      "title": "AutoMQ #3632 file changes and regression tests",
+      "url": "https://github.com/AutoMQ/automq/pull/3632/files",
+      "publisher": "AutoMQ/automq",
+      "event_date": "2026-09-29T07:18:05Z",
+      "checked_at": "2026-10-03T10:51:00+08:00",
+      "claims": [
+        "截断epoch在appendcallback中隔离旧确认；DefaultElasticStreamSlice.fetch以sealedend约束可见范围；ElasticLogFileRecords按底层batch边界截断。",
+        "对应本稿截断机制及恢复测试。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过GitHub connector原始API https://api.github.com/repos/AutoMQ/automq/pulls/3632/files?per_page=100 已完整读取filechanges与patch；此URL是对应用户可读的原始差异页。未独立运行上游测试。"
+    },
+    {
+      "id": "stream-26",
+      "title": "Fluss #4487 file changes and regression tests",
+      "url": "https://github.com/apache/fluss/pull/4487/files",
+      "publisher": "apache/fluss",
+      "event_date": "2026-09-28T08:01:13Z",
+      "checked_at": "2026-10-03T10:51:00+08:00",
+      "claims": [
+        "LogTablet.updateLakeLogEndOffset对historicalpartition推进minRetainOffset。",
+        "回归测试覆盖湖进度15、30及远端20、40等边界，并验证follower清理后升leader的湖回退、新WAL值与tombstone恢复。"
+      ],
+      "window_classification": "main",
+      "access_notes": "通过GitHub connector原始API https://api.github.com/repos/apache/fluss/pulls/4487/files?per_page=100 已完整读取filechanges与patch；此URL是对应用户可读的原始差异页。未独立运行上游测试。"
+    },
+    {
+      "id": "storage-sosp26-schedule",
+      "title": "SOSP 2026 Conference Schedule",
+      "url": "https://sigops.org/s/conferences/sosp/2026/schedule.html",
+      "publisher": "ACM SIGOPS",
+      "event_date": "2026-09-29/2026-10-02",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "The conference includes workshops September 29 and technical sessions September 30 through October 2, 2026 in Prague.",
+        "Borges and Disk-Based LSMs (Prism) are scheduled September 30 in CXL and Memory Systems; schedule paper links point to publisher DOI records.",
+        "Validating a Production Cloud Object Store with Lightweight Formal Methods is scheduled October 1 in Verification and Formal Methods."
+      ],
+      "window_classification": "main_window",
+      "access_notes": "Read full official schedule and followed relevant publisher paper links. Main window is 2026-09-26T10:30:00+08:00 through 2026-10-03T10:30:00+08:00. Schedule dates use conference local dates; all discussed sessions fall within the main window. No inference that conference day equals first online publication date."
+    },
+    {
+      "id": "storage-sosp26-accepted",
+      "title": "SOSP 2026 Accepted Papers",
+      "url": "https://sigops.org/s/conferences/sosp/2026/accepted.html",
+      "publisher": "ACM SIGOPS",
+      "event_date": null,
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Lists Borges, Disk-Based LSMs, VoliStorM, object-store formal-methods work, and other papers.",
+        "The accepted-list preamble retains a shepherd-approval condition; the final schedule and paper publication metadata provide stronger evidence for the two case studies."
+      ],
+      "window_classification": "status_check_undated",
+      "access_notes": "Read official accepted list. The page exposes no verified acceptance-announcement date, so it is not assigned a main-window acceptance event."
+    },
+    {
+      "id": "storage-prism-paper",
+      "title": "Disk-Based LSMs: An Unexpectedly Good Index for Partly Coherent CXL Memory",
+      "url": "https://dassl-uiuc.github.io/pdfs/papers/prism.pdf",
+      "publisher": "Authors / ACM SOSP 2026",
+      "event_date": "2026-09-30",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "SOSP 2026 paper, DOI 10.1145/3830418.3843886; official September 30 schedule provides event attribution.",
+        "SCR hardware-coherent region and LNR noncoherent region expose a tradeoff between fine-grained version metadata capacity and coarse-grained false invalidation.",
+        "Prism bounds the updatable surface: a hot-key memtable in SCR, bounded updatable layer in LNR with versions in SCR, and immutable SSTables in LNR with manifest and monotonically increasing IDs.",
+        "New keys enter BUL and repeatedly written keys are promoted to the memtable; tier transitions make new location readable before removing old location.",
+        "Default evaluation emulates three hosts and shared memory on four-socket Xeon Gold 6418H, 128MB SCR, 100M 24-byte keys / 100-byte values, Zipf 0.99.",
+        "At 50% writes, peak microbenchmark throughput is up to 6.2x SC-BTree; SC-BTree wins short range scans at 5% writes.",
+        "Any host or memory device failure halts the full system; all data is volatile, recovery/durability outside scope.",
+        "Actual underlying hardware is coherent; incorrect cache-maintenance protocols require separate model checking to expose stale reads."
+      ],
+      "window_classification": "main_window_conference_paper",
+      "access_notes": "Downloaded full 18-page author-hosted publication-format PDF; read introduction and §§2–5.7, implementation, §§7.1–7.8 and failure model. First page includes ACM DOI, ISBN and SOSP 2026 reference; final official schedule links same DOI. The event_date is scheduled presentation September 30, not a claimed first PDF date. Experiments are author-reported, not independently reproduced. Python model checking of the protocol is finite testing evidence, not a new end-to-end durability proof."
+    },
+    {
+      "id": "storage-prism-doi",
+      "title": "Prism publisher DOI record",
+      "url": "https://dl.acm.org/doi/10.1145/3830418.3843886",
+      "publisher": "ACM",
+      "event_date": "2026-09-30",
+      "checked_at": "2026-10-03T10:47:57+08:00",
+      "claims": [
+        "Publisher identifier associated with Prism by official SOSP schedule and author-hosted publication-format PDF."
+      ],
+      "window_classification": "main_window_conference_paper",
+      "access_notes": "Followed the exact paper link from the official SOSP schedule; web tool returned an internal fetch error. ACM HTML was not used for technical claims. Publication metadata is verified in the author PDF instead. First-online date was not independently established."
+    },
+    {
+      "id": "storage-borges-paper",
+      "title": "Borges: A Low-Latency Distributed Shared Log on a CXL Memory/SSD Hybrid",
+      "url": "https://www.cs.utexas.edu/users/witchel/pubs/chen26sosp-borges.pdf",
+      "publisher": "Authors / ACM SOSP 2026",
+      "event_date": "2026-09-30",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "SOSP 2026 paper, DOI 10.1145/3830418.3843906; scheduled September 30.",
+        "Single-writer shared metadata avoids cross-host multi-writer atomics in noncoherent CXL; each append is replicated before being sequenced.",
+        "Sequencer consumes per-shard minimum replicated progress, constructs private back index, persists replicated global cut, then publishes corresponding reader-visible index/cut; acknowledgments follow publication.",
+        "RCU-style readers announce the chosen index then recheck it; writers wait for old readers before index reuse; leases handle failed readers.",
+        "Evaluation: Xeon 6761P with eight VMs, each 5 vCPU and 10GB DRAM, physical 1TB Samsung CMM-H on PCIe5 x8, 10GbE client/server TCP/IP.",
+        "Append setup uses 2 shards, 2 replicas, 100B payload. Table4 low-load P99 184.21us vs Scalog-CXL 528.57us; saturated throughput 161.91K vs 74.96K requests/s, using different client counts from low-load latency.",
+        "Scaling beyond six physical-testbed shard servers uses synthetic shard streams for 8,12,16; 16-shard data is not a real 16-host deployment.",
+        "Recovery tests kill a shard server and add a shard; no separate sequencer restart benchmark reported."
+      ],
+      "window_classification": "main_window_conference_paper",
+      "access_notes": "Downloaded full 18-page author-hosted published-format PDF; read §§1–3.8 (especially publication, replay, failure model), §4.1–4.3 and Tables3–4, §§4.8–4.10 and Table7. First page carries ACM DOI/ISBN and publication pages. Final official schedule links same DOI. Local eight-VM pod emulation with a real storage device does not independently establish real multi-host/multi-device failure-domain behavior. CMM-H persistence is a hardware model/premise of the paper; no independent power-loss test was performed here. event_date reflects presentation slot, not first release."
+    },
+    {
+      "id": "storage-borges-doi",
+      "title": "Borges publisher DOI record",
+      "url": "https://dl.acm.org/doi/10.1145/3830418.3843906",
+      "publisher": "ACM",
+      "event_date": "2026-09-30",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Official SOSP schedule resolves to this DOI; author-hosted full paper includes same DOI."
+      ],
+      "window_classification": "main_window_conference_paper",
+      "access_notes": "Direct web fetch returned HTTP403. Used official program plus author-hosted PDF; no claim to have read ACM HTML or verified its online-first date."
+    },
+    {
+      "id": "storage-dialsm-arxiv",
+      "title": "DiaLSM: Towards Write-Stall-Free Performance via Shard-based LSM-tree — arXiv metadata",
+      "url": "https://arxiv.org/abs/2609.14370",
+      "publisher": "arXiv / authors",
+      "event_date": "2026-09-13T08:04:23Z",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Version1 submitted September13 2026 at08:04:23UTC, corresponding to16:04:23Asia/Shanghai.",
+        "Author comments say accepted to ICDE2027. This is author-supplied acceptance evidence, not an independently confirmed official publication."
+      ],
+      "window_classification": "catchup_window",
+      "access_notes": "Read submission history and comments. Exact event falls in catchup 2026-09-11T09:00:00+08:00 through main-window start. No accepted-paper roster found on ICDE2027 homepage; article labels public preprint plus author acceptance claim."
+    },
+    {
+      "id": "storage-dialsm-paper",
+      "title": "DiaLSM: Towards Write-Stall-Free Performance via Shard-based LSM-tree — full paper",
+      "url": "https://arxiv.org/pdf/2609.14370",
+      "publisher": "Authors via arXiv",
+      "event_date": "2026-09-13T08:04:23Z",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Internal hash-sharded independent LSM pipelines with dynamic fallback to non-stalled shards, indexed by Clue Entries in the primary shard.",
+        "2MB reserved memtable space for ~100000 20-byte CEs; L0 capping and CE cache reduce indirection cost.",
+        "Rollback returns fallback values to primary; conflicts with newer foreground versions must be handled; CE threshold can stop new CEs and reintroduce stalls.",
+        "Implementation on RocksDB8.3.2; platform dual AMD EPYC7352,256GB DDR4,3.84TB Samsung Gen3x4 NVMe SSD,CentOS7/ext4.",
+        "Author reports FillRandom maximum2.4x throughput and94.3% stall reduction against ADOC.",
+        "Evaluation disables throttling thresholds,commit logging,and block cache; results cannot directly establish durable-production benefit.",
+        "Paper discusses shared-device bandwidth saturation, read/write/space amplification, recovery and shard-count deployment tradeoffs."
+      ],
+      "window_classification": "catchup_window",
+      "access_notes": "Downloaded full15-page PDF and extracted text. Read §II modeling assumptions, §III-A–F design/CE handling/rollback/range scans/failure recovery, §IV-A experimental setup including disabled logging and cache, performance discussion and §VI. No independent code execution or crash testing. Distinguish author-reported recovery design from empirically demonstrated power-loss durability. Do not interpret vacation-queue model as unconditional proof that every load necessarily stalls. No official ICDE2027 proceedings checked."
+    },
+    {
+      "id": "storage-icde27-status",
+      "title": "ICDE 2027 official website",
+      "url": "https://icde2027.github.io/",
+      "publisher": "IEEE ICDE",
+      "event_date": "2027-05-17/2027-05-21",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Conference planned Copenhagen May17–21 2027.",
+        "Visible homepage does not provide an accepted-paper list confirming DiaLSM as of checked_at."
+      ],
+      "window_classification": "future_venue_status_check",
+      "access_notes": "Read current official homepage. Future conference calendar is not evidence the preprint is already formally published."
+    },
+    {
+      "id": "storage-fast26-directory",
+      "title": "FAST26 Technical Sessions",
+      "url": "https://www.usenix.org/conference/fast26/technical-sessions",
+      "publisher": "USENIX",
+      "event_date": "2026-02-24/2026-02-26",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Official formal papers/proceedings available; event held February24–26 2026.",
+        "Directory includes Discard-Based Garbage Collection for Distributed Log-Structured Storage Systems in ByteDance and other storage papers; they are background rather than September publication events."
+      ],
+      "window_classification": "background_before_catchup",
+      "access_notes": "Read official directory. No deep-case claims extracted from abstracts. No verified relevant main-window/catchup update established; directory rereading is not a new publication event."
+    },
+    {
+      "id": "storage-osdi26-directory",
+      "title": "OSDI26 Technical Sessions",
+      "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+      "publisher": "USENIX",
+      "event_date": "2026-07-13/2026-07-15",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Proceedings publicly available from July13 2026; event July13–15.",
+        "MEGALON,WriteGuards,Duhu and other distributed-storage-related entries exist; July publication retained as background.",
+        "Week11 already discussed WriteGuards, so it is not repeated as a new September case."
+      ],
+      "window_classification": "background_before_catchup",
+      "access_notes": "Read technical sessions especially distributed-memory,distributed-consistency and storage sections. Previous Week11 distributed-storage article read locally for deduplication. No claimed new September event for these papers."
+    },
+    {
+      "id": "storage-nsdi26-directory",
+      "title": "NSDI26 Technical Sessions",
+      "url": "https://www.usenix.org/conference/nsdi26/technical-sessions",
+      "publisher": "USENIX",
+      "event_date": "2026-05-04/2026-05-06",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Official May2026 conference directory includes storage-related papers Sandook,XLL,UpFuzz and NVMe-oF comparison.",
+        "These are background; no main-window publication assigned by this report."
+      ],
+      "window_classification": "background_before_catchup",
+      "access_notes": "Read official directory and storage matches. Abstract-only candidate screening, not claimed full-paper reading or experiment verification."
+    },
+    {
+      "id": "storage-sigmod26-directory",
+      "title": "SIGMOD2026 Accepted Papers",
+      "url": "https://2026.sigmod.org/sigmod_papers.shtml",
+      "publisher": "ACM SIGMOD",
+      "event_date": "2026-05-31/2026-06-05",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Official accepted list links four research rounds to PACMMOD2025vol3issues4/6 and2026vol4issues1/3.",
+        "Conference labels do not establish a new late-September paper publication date."
+      ],
+      "window_classification": "background_and_coverage_gap",
+      "access_notes": "Read official accepted-paper list and followed Round4 publisher table of contents, which returned403 at https://dl.acm.org/toc/PACMMOD/2026/4/3 . Current PACMMOD issue-level coverage incomplete. Do not report no research activity from inaccessible content."
+    },
+    {
+      "id": "storage-sigmod26-program",
+      "title": "SIGMOD2026 Final Program Brochure",
+      "url": "https://2026.sigmod.org/pdf/sigmod_program_brochure.pdf",
+      "publisher": "ACM SIGMOD",
+      "event_date": "2026-05-31/2026-06-05",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Formal program contains High-Performance & Distributed Storage,Storage Engines,and Cloud-Native Distributed Databases sessions."
+      ],
+      "window_classification": "background_before_catchup",
+      "access_notes": "Read official20-page program PDF and relevant storage sessions; not a technical source for case-study results."
+    },
+    {
+      "id": "storage-pvldb20-frontmatter",
+      "title": "PVLDB Volume20 No1 Front Matter",
+      "url": "https://www.vldb.org/pvldb/vol20/FrontMatterVol20No1.pdf",
+      "publisher": "VLDB Endowment",
+      "event_date": "2026-09",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Issue formally dated September2026 and states its papers will be presented at VLDB2027,Athens.",
+        "Issue lists five papers including Prune Early,Intersect Fast: PRISM,a Prefix-based Radix Integer Set with Morphing Nodes,which differs from SOSP CXL Prism.",
+        "Month-only publication metadata does not determine whether an item belongs to the main or catchup day-level window."
+      ],
+      "window_classification": "month_only_unallocated",
+      "access_notes": "Read complete issue front matter (9pages), especially cover,publication notice and table of contents. Official volumes/19 and volumes/20 pages rendered only front-matter entries; used PDF to verify latest issue scope. No day-level release inferred."
+    },
+    {
+      "id": "storage-pvldb26-program",
+      "title": "VLDB2026 Conference Program",
+      "url": "https://vldb.org/2026/program.html",
+      "publisher": "VLDB Endowment",
+      "event_date": "2026-08-31/2026-09-04",
+      "checked_at": "2026-10-03T10:47:57+08:00",
+      "claims": [
+        "Official conference program includes LSM/compaction research such as ArceKV and S-RocksDB.",
+        "Program itself warns some Volume19 paper PDF links are still being uploaded; search crawl date is not publication date."
+      ],
+      "window_classification": "background_before_catchup",
+      "access_notes": "Read program for candidate discovery. No deep performance claim based only on program abstracts. ArceKVPDF first page inspected for identity; not included as a deep case or newSeptember event. Conference dates additionally verified at https://vldb.org/2026/ ."
+    },
+    {
+      "id": "storage-icde26-directory",
+      "title": "ICDE2026 Accepted Research Papers",
+      "url": "https://icde2026.github.io/accepted-papers.html",
+      "publisher": "IEEE ICDE",
+      "event_date": "2026-05-04/2026-05-08",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Official accepted list includes CSD-CoKV,Tetris,Query-Driven LSM Compactions,Resystance and other storage-engine papers."
+      ],
+      "window_classification": "background_before_catchup",
+      "access_notes": "Read official directory,conference homepage dates and LSM entries. No first-publication September date assigned,abstract/title screening only."
+    },
+    {
+      "id": "storage-atc-retirement",
+      "title": "Preserving the Legacy of USENIX ATC",
+      "url": "https://www.usenix.org/blog/preserving-legacy-usenix-atc",
+      "publisher": "USENIX",
+      "event_date": "2025-10-13",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "USENIX officially discontinued ATC after its final2025 edition; there is no USENIX ATC2026 paper collection to report."
+      ],
+      "window_classification": "background_venue_status",
+      "access_notes": "Read official USENIX statement and cross-checked2025 annual meeting report. Do not confuse IEEE conferences with the same ATC acronym."
+    },
+    {
+      "id": "storage-sosp-object-validation-gap",
+      "title": "Validating a Production Cloud Object Store with Lightweight Formal Methods",
+      "url": "https://dl.acm.org/doi/10.1145/3830418.3843899",
+      "publisher": "ACM SOSP2026",
+      "event_date": "2026-10-01",
+      "checked_at": "2026-10-03T10:44:28+08:00",
+      "claims": [
+        "Paper appears in official SOSP2026 October1 schedule with this DOI.",
+        "No mechanism or empirical result from the inaccessible full text is asserted in this report."
+      ],
+      "window_classification": "main_window_coverage_gap",
+      "access_notes": "Official paper link fetch returned403; no accessible full original located in this pass. Title/authors/status from official program only. Do not confuse with AmazonS3 ShardStore SOSP2021 paper."
+    },
+    {
+      "id": "ai12-01",
+      "title": "SGLang v0.5.21 release",
+      "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.21",
+      "publisher": "SGLang",
+      "event_date": "2026-10-02T09:09:04+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "发布列入运行时 P/D 角色切换 #28403 与默认 Rust TreeCore #39627。"
+      ],
+      "window_classification": "main",
+      "access_notes": "已读 GitHub Release 正文；通过 https://api.github.com/repos/sgl-project/sglang/releases/tags/v0.5.21 确认 published_at=2026-10-02T01:09:04Z。未运行安装或 GPU 基准。"
+    },
+    {
+      "id": "ai12-02",
+      "title": "[PD] Introduce runtime role switching between prefill and decode #28403",
+      "url": "https://github.com/sgl-project/sglang/pull/28403",
+      "publisher": "SGLang contributors",
+      "event_date": "2026-09-18T01:45:13+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "默认关闭，外部触发，保留权重和 KV pool，仅重建角色专属结构；自动负载策略不在此 PR 范围。",
+        "PR 报告 MI300X、Qwen3-32B、TP8、1P1D、8192/1024 token、并发32验证与往返压力测试，均为作者报告。"
+      ],
+      "window_classification": "catchup-merge; main-release",
+      "access_notes": "已读 PR 的 Motivation、Design、Validation、Limitations 及合并状态；API merged_at=2026-09-17T17:45:13Z。PR 正文对 Mooncake 支持存在新旧描述，故以 v0.5.21 固定源码核对，不沿用“仅 mori”旧限制。原文 2×MI300X 与 TP8 的卡数/节点表述不够清晰，正文不推断 GPU 总数，不援引性能增益。未复现。"
+    },
+    {
+      "id": "ai12-03",
+      "title": "SGLang v0.5.21 role_switch.py",
+      "url": "https://github.com/sgl-project/sglang/blob/v0.5.21/python/sglang/srt/disaggregation/role_switch.py",
+      "publisher": "SGLang",
+      "event_date": "2026-10-02T09:09:04+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "要求完全空闲，保留物理 KV pool、清空前缀树和分配器状态。",
+        "首次 decode graph 捕获需要显存预算并预检查；staging buffer 被拒绝。",
+        "teardown/rebuild 失败标记 unhealthy、无原地回滚；graph capture 失败可退回 eager。"
+      ],
+      "window_classification": "main-release-code",
+      "access_notes": "通过 raw.githubusercontent.com 读取完整固定 tag 文件，重点阅读 handle_pd_role_switch、_reject_reason、teardown_disaggregation、_release_prefix_cache_for_role_switch。日期为承载该代码的版本发布日，不冒充文件首次提交日。未执行。"
+    },
+    {
+      "id": "ai12-04",
+      "title": "SGLang v0.5.21 mini_lb.py role-switch orchestration",
+      "url": "https://github.com/sgl-project/sglang/blob/v0.5.21/sgl-model-gateway/bindings/python/src/sglang_router/mini_lb.py#L306-L354",
+      "publisher": "SGLang",
+      "event_date": "2026-10-02T09:09:04+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "随附 mini LB 默认摘流后等待排空，成功后注册新角色；失败仅在 safe_to_restore 为真时恢复旧路由。"
+      ],
+      "window_classification": "main-release-code",
+      "access_notes": "读取固定版本 mini_lb.py 第294—354行及相邻上下文；没有把 mini LB 行为泛化到所有外部路由器。日期为版本日期。未执行。"
+    },
+    {
+      "id": "ai12-05",
+      "title": "[Radix Cache] Sync Rust TreeCore and make it the default #39627",
+      "url": "https://github.com/sgl-project/sglang/pull/39627",
+      "publisher": "SGLang contributors",
+      "event_date": "2026-09-29T10:18:58+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "Rust TreeCore 默认启用，不支持配置集中回退 Python。",
+        "迁移覆盖 SWA 布局、淘汰/写回、所有权；session 等仍有回退，验证重点为 NVIDIA。"
+      ],
+      "window_classification": "main",
+      "access_notes": "已读 PR 变更对照、Testing/Validation、CI 限制与合并状态；API merged_at=2026-09-29T02:18:58Z。没有将 CI 声称为全部平台通过，没有推断加速倍数。未复现。"
+    },
+    {
+      "id": "ai12-06",
+      "title": "Dynamo v1.5.0 official release documentation",
+      "url": "https://docs.dynamo.nvidia.com/dynamo/v1.5.0/reference/releases/v1-5-0",
+      "publisher": "NVIDIA",
+      "event_date": "2026-09-18",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "官方文档标注 GA Sep18,2026；版本包含 Mooncake 事件索引及 vLLM Disk 层路由。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "已读 Highlights、Router、Tiered KV Event Ingestion 与版本兼容页内说明。GA 标注与 GitHub Release 时间不同，两条证据均保留，不归并为单一日期。厂商发布材料，无独立性能验证。"
+    },
+    {
+      "id": "ai12-07",
+      "title": "Dynamo v1.5.0 GitHub Release",
+      "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0",
+      "publisher": "NVIDIA / ai-dynamo",
+      "event_date": "2026-09-22T04:21:52+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "GitHub Release 发布时间为北京时间9月22日04:21；列入 #11239、#11571。"
+      ],
+      "window_classification": "catchup",
+      "access_notes": "已读 GitHub Release Summary/Router；API https://api.github.com/repos/ai-dynamo/dynamo/releases/tags/v1.5.0 返回 published_at=2026-09-21T20:21:52Z。与 GA 文档双列。"
+    },
+    {
+      "id": "ai12-08",
+      "title": "route vLLM STORAGE KV events to Disk tier with locality gating #11571",
+      "url": "https://github.com/ai-dynamo/dynamo/pull/11571",
+      "publisher": "ai-dynamo contributors",
+      "event_date": "2026-07-31T06:36:14+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "STORAGE 事件进入 Disk 层；REMOTE/未知 locality 不进入 worker-local 路径；缺省/LOCAL 按本地。",
+        "完整 token/block 描述才产生有效可路由索引，占位事件成为 no-op。"
+      ],
+      "window_classification": "background-implementation; catchup-release",
+      "access_notes": "已读 PR Summary、Behavior 表、Design notes 与 Validation，核对合并状态；API merged_at=2026-07-30T22:36:14Z。正文按9月版本交付记录，不写为本期合并。Python/vLLM 合同测试作者也注明未执行；本报告未复现。"
+    },
+    {
+      "id": "ai12-09",
+      "title": "index Mooncake KV events #11239",
+      "url": "https://github.com/ai-dynamo/dynamo/pull/11239",
+      "publisher": "ai-dynamo contributors",
+      "event_date": "2026-08-01T05:28:40+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "本地事件索引移除路由热路径 HTTP 查询；逻辑页需要布局对应全部物理对象。",
+        "group_id 首次完整验证后缓存，相关事件失效；序列缺口保守失效；无快照/重放，晚订阅者暂时漏掉已有对象。"
+      ],
+      "window_classification": "background-implementation; catchup-release",
+      "access_notes": "已读作者 Summary、How This Was Implemented、State and ordering、Boundaries and limitations、Validation；API merged_at=2026-07-31T21:28:40Z。正文残留 Draft 警示，与正式 merged 状态及 release 列项分开；固定 v1.5.0 源码另核验。作者仅提供小模型 smoke test，本报告不引用其毫秒或百分比为端到端收益。"
+    },
+    {
+      "id": "ai12-10",
+      "title": "Dynamo v1.5.0 shared_cache.rs",
+      "url": "https://github.com/ai-dynamo/dynamo/blob/v1.5.0/lib/llm/src/kv_router/shared_cache.rs#L214-L370",
+      "publisher": "NVIDIA / ai-dynamo",
+      "event_date": "2026-09-22T04:21:52+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "apply_batch 在序号不连续时清理 present_keys/group_states；重复批次忽略；订阅重连前清理状态。",
+        "当前 shared-cache 查询默认 tenant，事件订阅中未提供快照或重放恢复。"
+      ],
+      "window_classification": "catchup-release-code",
+      "access_notes": "读取固定 tag 源码，重点 apply_batch、clear、run_subscriber 第198—375行，并全文检索 snapshot/replay/sequence/tenant。日期使用GitHub版本发布日。未执行故障注入。"
+    },
+    {
+      "id": "ai12-11",
+      "title": "Evaluating the accuracy of KV cache reuse techniques — arXiv record",
+      "url": "https://arxiv.org/abs/2609.31415",
+      "publisher": "arXiv / Samuel Cestola et al.",
+      "event_date": "2026-09-25T23:36:43+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "v1 提交时间为2026-09-25T15:36:43Z。研究位置无关 chunk KV 复用准确性；本文仅按预印本处理。"
+      ],
+      "window_classification": "catchup-preprint",
+      "access_notes": "已读摘要与 Submission history；未找到且未声称正式会议录用或发表。不是只看搜索摘要。"
+    },
+    {
+      "id": "ai12-12",
+      "title": "Evaluating the accuracy of KV cache reuse techniques — full text",
+      "url": "https://arxiv.org/html/2609.31415v1",
+      "publisher": "Samuel Cestola et al.",
+      "event_date": "2026-09-25T23:36:43+08:00",
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "第2节区分冷/暖、位置无关 chunk 复用及跨块注意力缺失。",
+        "第3节统一 Transformers 实现，主实验 Llama3.1-8B/Qwen3-8B/Mistral-7B，默认15%重算，部分扩展Qwen3-32B。",
+        "第4节提出过滤基线答错、无上下文即可作答、答案空间过小的混淆样本；第5节 Boxoffice 控制合成语料与预热缓存历史。"
+      ],
+      "window_classification": "catchup-preprint",
+      "access_notes": "已读全文第2、3、4、5节；补读附录C.5、G与 reproducibility statement。未独立复现，未直接验收生产版 LMCache 等项目；没有将论文结果泛化到精确前缀缓存。附录仅披露加速器性能/内存规格，未明确型号，正文不猜测。"
+    },
+    {
+      "id": "ai12-13",
+      "title": "Boxoffice1280 official artifact repository",
+      "url": "https://github.com/boxoffice1280/boxoffice1280",
+      "publisher": "Paper authors / boxoffice1280",
+      "event_date": null,
+      "checked_at": "2026-10-03T10:44:00+08:00",
+      "claims": [
+        "仓库提供方法、Boxoffice及LongBench复现包。",
+        "固定种子复现复用已发布 warm metadata；从头重建 metadata 可能产生不同下游种子；需自行匹配加速器后端。"
+      ],
+      "window_classification": "supporting-companion-artifact",
+      "access_notes": "已读完整README（Environment setup、BoxOffice notes、LongBench notes）；未独立确定仓库首次公开日期，因此不把读取时间当作发布事件。未下载模型、安装环境或运行评测。"
+    }
+  ]
+}
