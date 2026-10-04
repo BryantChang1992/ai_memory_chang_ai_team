@@ -33,11 +33,11 @@
 .series-card p { font-size: .925rem; }
 .series-card .series-action { font-size: .9rem; padding-top: 1rem; margin-top: auto; }
 .series-card:hover { background: #edf2fa; }
-.weekly-row { display: grid; grid-template-columns: 3.5rem 1fr auto; align-items: center; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--hub-line); }
+.weekly-row { display: grid; grid-template-columns: minmax(3.5rem, max-content) minmax(0, 1fr) auto; align-items: center; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--hub-line); }
 .weekly-row strong { display: block; font-size: 1rem; line-height: 1.7; color: var(--heading-color); font-weight: 550; }
 .weekly-row .reading-meta { display: block; margin-top: .2rem; }
 .weekly-row:hover strong { color: var(--hub-accent); }
-.issue-label { font-size: .95rem; font-weight: 650; letter-spacing: .02em; color: var(--hub-accent); font-variant-numeric: tabular-nums; }
+.issue-label { white-space: nowrap; font-size: .95rem; font-weight: 650; letter-spacing: .02em; color: var(--hub-accent); font-variant-numeric: tabular-nums; }
 .row-arrow { color: var(--hub-muted); }
 .content-hub .topic-nav { display: flex; flex-wrap: wrap; gap: .6rem; margin: .25rem 0 2rem; }
 .topic-nav a { padding: .45rem .8rem; background: #f0f4fa; border-radius: .3rem; font-size: .925rem; }
@@ -71,6 +71,6 @@
   .content-hub .section-heading { gap: .5rem; }
   .content-hub h1, .content-hub h2 { font-size: 1.35rem; }
   .featured-list .reading-link h3 { font-size: 1.12rem; }
-  .weekly-row { grid-template-columns: 2.7rem 1fr auto; gap: .55rem; }
+  .weekly-row { grid-template-columns: minmax(2.7rem, max-content) minmax(0, 1fr) auto; gap: .55rem; }
   .footer-browse { margin: .6rem 0; }
 }

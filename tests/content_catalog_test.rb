@@ -98,6 +98,46 @@ class ContentCatalogTest < Minitest::Test
     assert_includes combined, '/posts/tech-research/week-06/doris-tsdb/'
   end
 
+  def test_combined_week_twelve_thirteen_has_one_reader_entry
+    combined_url = '/posts/tech-research/week-12-13/'
+    combined = @catalog['weekly'].select { |item| item['overview'].url == combined_url }
+    assert_equal 1, combined.size
+    assert_equal 13, combined.first['overview'].data['issue']
+    assert_equal [12, 13], combined.first['overview'].data['covered_issues']
+    assert_empty combined.first['reports']
+    assert_includes page('index.html').at_css('main [data-weekly-issue="13"]').text, 'W12–13'
+    weekly = page('weekly/index.html')
+    assert_includes weekly.at_css('[data-weekly-issue="13"] .reading-meta').text, 'Week 12–13'
+    assert_empty weekly.css('[data-weekly-issue="12"]')
+
+    search = JSON.parse(File.read(File.join(@destination, 'assets/js/data/search.json')))
+    all_urls = search.map { |item| item['url'].delete_prefix(@site.config.fetch('baseurl', '')) }
+    assert_equal 1, all_urls.count(combined_url)
+    old_urls = ['/posts/tech-research/week-12/', '/posts/tech-research/week-13/'] +
+               %w[lakehouse streaming distributed-storage ai-infra].map { |domain| "/posts/tech-research/week-12/#{domain}/" }
+    old_urls.each { |url| refute_includes all_urls, url }
+  end
+
+  def test_combined_issue_preserves_old_urls_and_section_destinations
+    combined_url = '/posts/tech-research/week-12-13/'
+    domains = %w[lakehouse streaming distributed-storage ai-infra]
+    destinations = { 'week-12/' => combined_url, 'week-13/' => combined_url }
+    domains.each { |domain| destinations["week-12/#{domain}/"] = "#{combined_url}##{domain}" }
+    destinations.each do |old_path, destination|
+      old_page = page("posts/tech-research/#{old_path}index.html")
+      assert_equal @site.config['url'] + @site.config['baseurl'] + combined_url,
+                   old_page.at_css('link[rel=canonical]')['href']
+      assert_equal 'noindex', old_page.at_css('meta[name=robots]')['content']
+      link = old_page.at_css('#content-destination')
+      assert_equal @site.config['baseurl'] + destination, link['href']
+      assert_equal 'false', link['data-preserve-hash']
+    end
+    combined = page('posts/tech-research/week-12-13/index.html')
+    domains.each { |domain| assert combined.at_css("h2##{domain}"), "Missing section #{domain}" }
+    assert_equal 1, combined.css('article h1').size
+    refute_includes combined.css('article').text, '审阅稿'
+  end
+
   def test_legacy_engineering_pages_share_the_four_navigation_destinations
     %w[tech_designs/zk-kafka-jbod-failure-handling.html tech_designs/agent-infra/observability-dashboard.html].each do |path|
       assert_equal %w[首页 专题 周报 关于], page(path).css('.global-nav .nav-link').map(&:text)

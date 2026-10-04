@@ -1,0 +1,74 @@
+{
+  "publication_type": "approved_combined_issue",
+  "issue": 13,
+  "issue_label": "12–13",
+  "covered_issues": [
+    12,
+    13
+  ],
+  "base_commit": "8aea7a43aa2eadfd830ea8e9bc5731ac8349d355",
+  "article": {
+    "path": "_posts/2026-10-04-tech-research-week-12-13.md",
+    "url": "/posts/tech-research/week-12-13/",
+    "sha256": "9f9ef662359bfbf0ea499581edb22b8455a42c7a42efd67cdeaca78e2b323b72"
+  },
+  "unique_source_urls": 75,
+  "sosp": {
+    "main_sessions": 11,
+    "main_papers": 62,
+    "priority_readings": 11,
+    "extended_readings": 5,
+    "full_text_unavailable": [
+      "S3 production object storage verification",
+      "Amazon Bedrock workload management"
+    ]
+  },
+  "compatibility": [
+    {
+      "url": "/posts/tech-research/week-12/ai-infra/",
+      "destination": "/posts/tech-research/week-12-13/#ai-infra",
+      "source_archive": "docs/archive/weekly-week-12-13/2026-10-03-tech-research-week-12-ai-infra.md"
+    },
+    {
+      "url": "/posts/tech-research/week-12/distributed-storage/",
+      "destination": "/posts/tech-research/week-12-13/#distributed-storage",
+      "source_archive": "docs/archive/weekly-week-12-13/2026-10-03-tech-research-week-12-distributed-storage.md"
+    },
+    {
+      "url": "/posts/tech-research/week-12/lakehouse/",
+      "destination": "/posts/tech-research/week-12-13/#lakehouse",
+      "source_archive": "docs/archive/weekly-week-12-13/2026-10-03-tech-research-week-12-lakehouse.md"
+    },
+    {
+      "url": "/posts/tech-research/week-12/streaming/",
+      "destination": "/posts/tech-research/week-12-13/#streaming",
+      "source_archive": "docs/archive/weekly-week-12-13/2026-10-03-tech-research-week-12-streaming.md"
+    },
+    {
+      "url": "/posts/tech-research/week-12/",
+      "destination": "/posts/tech-research/week-12-13/",
+      "source_archive": "docs/archive/weekly-week-12-13/2026-10-03-tech-research-week-12.md"
+    },
+    {
+      "url": "/posts/tech-research/week-13/",
+      "destination": "/posts/tech-research/week-12-13/",
+      "source_archive": "docs/archive/weekly-week-12-13/2026-10-04-tech-research-week-13.md"
+    }
+  ],
+  "validation": {
+    "approved_body": "unchanged except publication title/date packaging and four stable section anchors",
+    "original_archives": "six byte-identical originals",
+    "source_tests": 3,
+    "redirect_behavior_tests": 3,
+    "ruby_tests": 18,
+    "ruby_assertions": 616,
+    "storage_lab_tests": 6,
+    "lint": "passed",
+    "typecheck": "passed",
+    "storage_lab_export": "passed",
+    "jekyll_build": "passed",
+    "html_pages": 282,
+    "internal_references": 9129
+  },
+  "deployment_verification": "Verify exact remote commit, Build and Deploy workflow, combined page, catalog/search, and all six old URLs after publication."
+}

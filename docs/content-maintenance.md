@@ -26,7 +26,7 @@
 
 四领域分稿映射：数据湖处理 → `storage` / 数据库与存储；流存储 → `streaming` / 流式数据与消息系统；分布式存储 → `storage` / 数据库与存储；AI Infra → `ai` / AI 基础设施与数据平台。通过 `reading_title` 和 `research_domain`（`lakehouse`、`streaming`、`distributed-storage`、`ai-infra`）区分调研领域，`research_domain` 暂只作为文章元数据保存。既有 DataForAI 历史分稿保留原分类。
 
-同一期不再另发内容重复的合稿。尚未迁移的 HTML 分稿继续从总览关联；后续迁移时更新 `_data/legacy_articles.json` 中的旧网址映射。
+同一期不再另发内容重复的合稿。已确认将多期或总览/分稿合并为单篇时，只保留一篇公开周报：`issue` 使用覆盖范围内的最新期号排序，`issue_label` 写展示范围（如 `12–13`），`covered_issues` 保存覆盖期号。旧正文移到 `docs/archive/`，旧 URL 使用不进入搜索和订阅的兼容页指向合刊或对应章节；未知旧锚点不继续带入新正文。首页与周报目录都应显示合刊范围。尚未迁移的 HTML 分稿继续从总览关联；后续迁移时更新 `_data/legacy_articles.json` 中的旧网址映射。
 
 ## 调整首页
 

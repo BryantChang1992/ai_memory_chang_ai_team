@@ -34,7 +34,7 @@ layout: default
     {% for issue in site.data.catalog.weekly limit: 3 %}
       {% assign post = issue.overview %}
       <a class="weekly-row" href="{{ post.url | relative_url }}" data-weekly-issue="{{ post.issue }}">
-        <span class="issue-label">W{{ post.issue | prepend: '0' | slice: -2, 2 }}</span>
+        <span class="issue-label">W{% if post.issue_label %}{{ post.issue_label | escape }}{% else %}{{ post.issue | prepend: '0' | slice: -2, 2 }}{% endif %}</span>
         <span><strong>{{ post.reading_title | escape }}</strong><span class="reading-meta">{{ post.issue_date | date: '%Y.%m.%d' }}</span></span>
         <span class="row-arrow" aria-hidden="true">→</span>
       </a>
