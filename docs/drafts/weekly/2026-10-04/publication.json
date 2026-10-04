@@ -1,12 +1,12 @@
 {
   "status": "prepared_for_direct_publication",
   "issue": 13,
-  "base_commit": "58408e414d006e8c5812eb549ab90cffd79901ee",
+  "base_commit": "9d991f056ff2c27f2e1e73fdf2798c7f329fb595",
   "prepared_at": "2026-10-04T00:21:45.096554+00:00",
   "articles": [
     {
       "post": "_posts/2026-10-04-tech-research-week-13.md",
-      "sha256": "05101ce84d854a5d9fe947ae8eee6cd301d56330ec18488a7e2a9f2d1b0d9a9d"
+      "sha256": "6e1a29fca45801f47362931f62f87073b6269bd0b3f5fb24bec82c82738ea22f"
     }
   ],
   "source_records": 74,
@@ -25,5 +25,13 @@
     "independent_editorial_review": "passed after four corrections",
     "local_browser_preview": "blocked by cloud browser ERR_BLOCKED_BY_CLIENT on localhost; production page to be checked after deploy"
   },
-  "deployment_verification": "Exact commit Actions/Pages and public content must be verified after non-force ref update."
+  "deployment_verification": "Exact commit Actions/Pages and public content must be verified after non-force ref update.",
+  "previous_verified_publication": {
+    "commit": "9d991f056ff2c27f2e1e73fdf2798c7f329fb595",
+    "workflow_run": 37164774351,
+    "build": "success",
+    "deploy": "success",
+    "public_article": "verified"
+  },
+  "revision": "Explicit experimental router scope and release boundary in AI section"
 }
