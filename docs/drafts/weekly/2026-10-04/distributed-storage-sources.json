@@ -1,0 +1,197 @@
+[
+  {
+    "id": "sunday-storage-sosp26-schedule",
+    "title": "SOSP 2026 Conference Schedule",
+    "url": "https://sigops.org/s/conferences/sosp/2026/schedule.html",
+    "publisher": "ACM SIGOPS",
+    "event_date": "2026-09-29/2026-10-02",
+    "publication_status": "正式会议日程，论文链接指向 ACM DOI",
+    "claims": [
+      "CXL 与文件存储场次为 9 月 30 日，生产云对象存储验证工作为 10 月 1 日。",
+      "日程没有为本窗口建立新增论文或实质修订的日期证据。"
+    ],
+    "window_classification": "prior_event_status_recheck",
+    "access_notes": "完整官方日程可访问；原始场次日期与检索时间分开。未逐篇重新下载或比较 PDF 版本，不宣称没有任何未标记改动。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-sosp26-home",
+    "title": "SOSP 2026 Homepage",
+    "url": "https://sigops.org/s/conferences/sosp/2026/",
+    "publisher": "ACM SIGOPS",
+    "event_date": "2026-09-29/2026-10-02",
+    "publication_status": "官方会议信息",
+    "claims": [
+      "首页显示布拉格会议日期为 9 月 29 日至 10 月 2 日。",
+      "本次可见首页的 Best Paper 与 Distinguished Artifact 奖项仍为 TBD。"
+    ],
+    "window_classification": "status_check_not_new_research",
+    "access_notes": "已读官方首页；TBD 仅是网页可见状态，不能用来断言未实际颁奖。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-object-validation-gap",
+    "title": "Validating a Production Cloud Object Store with Lightweight Formal Methods",
+    "url": "https://dl.acm.org/doi/10.1145/3830418.3843899",
+    "publisher": "ACM SOSP 2026",
+    "event_date": "2026-10-01",
+    "publication_status": "官方正式日程列出并链接 ACM DOI；本轮原文未读取",
+    "claims": [
+      "本轮未消除昨日对象存储验证原文访问缺口。"
+    ],
+    "window_classification": "prior_window_coverage_gap",
+    "access_notes": "直接打开准确 DOI 失败；仅以官方日程确认题名与场次。不借作者社交帖补造机制、实验或新的发表日期，亦不混同 SOSP 2021 ShardStore。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-fast26-directory",
+    "title": "FAST '26 Technical Sessions",
+    "url": "https://www.usenix.org/conference/fast26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": "2026-02-24",
+    "publication_status": "正式会议论文集已向公众开放",
+    "claims": [
+      "技术日程明确说明论文从 2 月 24 日向所有人开放。",
+      "目录链接一份 FAST 2026 Errata Slip #1。"
+    ],
+    "window_classification": "background_status_recheck",
+    "access_notes": "已读官方技术日程与论文集入口，未重新精读整册论文。2 月 24 日是官网所述公众开放日，不能把本轮读取日期当发表日期。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-fast26-acos-erratum",
+    "title": "FAST '26 Errata Slip #1: McQueen / ACOS",
+    "url": "https://www.usenix.org/system/files/fast26_errata_baron.pdf",
+    "publisher": "USENIX",
+    "event_date": null,
+    "publication_status": "正式论文集勘误；公开原文未给勘误发布日期",
+    "claims": [
+      "勘误将标题中的 McQueen 改为 ACOS，摘要中的系统名称同步修改。",
+      "一页勘误没有提供新机制、基准或可证明属于增量窗口的发布日期。"
+    ],
+    "window_classification": "undated_bibliographic_correction_not_window_news",
+    "access_notes": "完整 1 页 PDF、56 行内容已读。原论文会议公开日为 2026-02-24；该日期不冒充勘误发布日期。检索服务抓取时间不当作发布证据。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-osdi26-home",
+    "title": "OSDI '26",
+    "url": "https://www.usenix.org/conference/osdi26",
+    "publisher": "USENIX",
+    "event_date": "2026-07-13/2026-07-15",
+    "publication_status": "正式会议论文集，官网确认免费公开",
+    "claims": [
+      "官网将技术日程作为公开论文集入口。"
+    ],
+    "window_classification": "background_status_recheck",
+    "access_notes": "官方首页可读；会议日期由官方 CFP https://www.usenix.org/conference/osdi26/call-for-papers 与官方会议列表交叉确认。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-osdi26-directory-gap",
+    "title": "OSDI '26 Technical Sessions",
+    "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+    "publisher": "USENIX",
+    "event_date": "2026-07-13",
+    "publication_status": "官方搜索返回说明论文集从 7 月 13 日公开",
+    "claims": [
+      "官方页面的搜索返回列有 Errata Slip #1、#2、#3。",
+      "没有取得勘误原文、逐篇版本日期，不能排除其中存在本窗口新增修订。"
+    ],
+    "window_classification": "background_and_current_coverage_gap",
+    "access_notes": "直接 open 与从首页点击多次超时（400 Timeout fetching）；搜索取得该官方页面内容。只用于出版状态、目录入口核查，未从搜索中混合截断的论文摘要提取技术结论。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-sigmod26-directory",
+    "title": "SIGMOD 2026 Accepted Papers",
+    "url": "https://2026.sigmod.org/sigmod_papers.shtml",
+    "publisher": "ACM SIGMOD",
+    "event_date": null,
+    "publication_status": "官方录用目录；四轮链接 PACMMOD 正式卷期",
+    "claims": [
+      "四轮链接依次为 PACMMOD 2025 3(4)、3(6)，2026 4(1)、4(3)。",
+      "名单本身未提供本窗口新增存储论文的发表时间证据。"
+    ],
+    "window_classification": "status_recheck_coverage_gap",
+    "access_notes": "完整录用名单可读；https://dl.acm.org/toc/PACMMOD/2026/4/3 与 https://dl.acm.org/journal/pacmmod/latest 打开失败。没有以这些失败推出无新增研究。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-pvldb20-directory",
+    "title": "PVLDB Volume 20, 2026–2027",
+    "url": "https://www.vldb.org/pvldb/volumes/20/",
+    "publisher": "VLDB Endowment",
+    "event_date": null,
+    "publication_status": "正式期刊卷目录",
+    "claims": [
+      "本轮可访问的页面仅列 Volume 20, No.1 及 Front Matter。"
+    ],
+    "window_classification": "current_directory_status_not_release_date",
+    "access_notes": "页面直接可读；结果限定为页面当前可见条目，不声称穷尽未公开、未索引或未渲染条目。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-pvldb20-frontmatter",
+    "title": "PVLDB Volume 20 No.1 Front Matter",
+    "url": "https://www.vldb.org/pvldb/vol20/FrontMatterVol20No1.pdf",
+    "publisher": "VLDB Endowment",
+    "event_date": "2026-09",
+    "publication_status": "正式 2026 年 9 月期，论文将在 VLDB 2027 展示",
+    "claims": [
+      "封面与版权页均标为 September 2026。",
+      "月级出版日期不足以把条目放进 10 月 3 日 10:30 之后的增量窗口。"
+    ],
+    "window_classification": "month_only_prior_period",
+    "access_notes": "打开完整 9 页 PDF 并查看封面、出版声明、目录；未精读该期各论文，未把将来展示日期当当前期刊发表日期。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  },
+  {
+    "id": "sunday-storage-atc-announcement",
+    "title": "USENIX ATC Announcement",
+    "url": "https://www.usenix.org/blog/usenix-atc-announcement",
+    "publisher": "USENIX",
+    "event_date": "2025-05-06",
+    "publication_status": "官方停办公告",
+    "claims": [
+      "USENIX 宣布 ATC 于 2025 届之后结束。",
+      "本报告不创建 USENIX ATC 2026 论文集。"
+    ],
+    "window_classification": "historical_venue_status",
+    "access_notes": "官方搜索结果返回完整公告含日期；直接原页请求 403。并交叉查看 2025-10-13 后续官方说明 https://www.usenix.org/blog/preserving-legacy-usenix-atc 。USENIX 与其他组织同名活动区分。",
+    "checked_at": "2026-10-04T08:09:25+08:00",
+    "requested_window_start": "2026-10-03T10:30:00+08:00",
+    "requested_window_end": "2026-10-04T08:15:00+08:00",
+    "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+  }
+]

@@ -1,0 +1,351 @@
+[
+  {
+    "id": "ai-sun-releases-vllm",
+    "title": "vllm-project/vllm 最近三个 GitHub Releases",
+    "url": "https://github.com/vllm-project/vllm/releases",
+    "api_url": "https://api.github.com/repos/vllm-project/vllm/releases?per_page=3",
+    "publisher": "vllm-project/vllm",
+    "event_date": "2026-09-22T05:20:54Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "release-list-rechecked",
+    "window_classification": "background-recheck",
+    "claims": [
+      "最近三个发布记录中未出现 2026-10-03 10:30 至本次检查时的新 GitHub Release。"
+    ],
+    "releases": [
+      {
+        "tag": "v0.30.0",
+        "published_at": "2026-09-22T05:20:54Z",
+        "updated_at": "2026-09-22T05:20:54Z",
+        "prerelease": false,
+        "url": "https://github.com/vllm-project/vllm/releases/tag/v0.30.0"
+      },
+      {
+        "tag": "v0.29.0",
+        "published_at": "2026-09-09T08:54:49Z",
+        "updated_at": "2026-09-10T23:53:36Z",
+        "prerelease": false,
+        "url": "https://github.com/vllm-project/vllm/releases/tag/v0.29.0"
+      },
+      {
+        "tag": "v0.28.0",
+        "published_at": "2026-08-26T09:46:30Z",
+        "updated_at": "2026-08-26T10:17:05Z",
+        "prerelease": false,
+        "url": "https://github.com/vllm-project/vllm/releases/tag/v0.28.0"
+      }
+    ],
+    "access_notes": "通过 GitHub connector GET 原始 Releases API 核对 published_at、updated_at、prerelease；另读官方 GitHub Releases 页面。此记录用于状态界定，不作为当日新增新闻。"
+  },
+  {
+    "id": "ai-sun-releases-sglang",
+    "title": "sgl-project/sglang 最近三个 GitHub Releases",
+    "url": "https://github.com/sgl-project/sglang/releases",
+    "api_url": "https://api.github.com/repos/sgl-project/sglang/releases?per_page=3",
+    "publisher": "sgl-project/sglang",
+    "event_date": "2026-10-02T01:09:04Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "release-list-rechecked",
+    "window_classification": "background-recheck",
+    "claims": [
+      "最近三个发布记录中未出现 2026-10-03 10:30 至本次检查时的新 GitHub Release。"
+    ],
+    "releases": [
+      {
+        "tag": "v0.5.21",
+        "published_at": "2026-10-02T01:09:04Z",
+        "updated_at": "2026-10-02T19:42:55Z",
+        "prerelease": false,
+        "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.21"
+      },
+      {
+        "tag": "v0.5.20",
+        "published_at": "2026-09-18T22:41:33Z",
+        "updated_at": "2026-09-18T22:41:33Z",
+        "prerelease": false,
+        "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.20"
+      },
+      {
+        "tag": "v0.5.19",
+        "published_at": "2026-09-05T02:27:42Z",
+        "updated_at": "2026-09-05T02:27:42Z",
+        "prerelease": false,
+        "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.19"
+      }
+    ],
+    "access_notes": "通过 GitHub connector GET 原始 Releases API 核对 published_at、updated_at、prerelease；另读官方 GitHub Releases 页面。此记录用于状态界定，不作为当日新增新闻。"
+  },
+  {
+    "id": "ai-sun-releases-dynamo",
+    "title": "ai-dynamo/dynamo 最近三个 GitHub Releases",
+    "url": "https://github.com/ai-dynamo/dynamo/releases",
+    "api_url": "https://api.github.com/repos/ai-dynamo/dynamo/releases?per_page=3",
+    "publisher": "ai-dynamo/dynamo",
+    "event_date": "2026-10-02T00:11:20Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "release-list-rechecked",
+    "window_classification": "background-recheck",
+    "claims": [
+      "最近三个发布记录中未出现 2026-10-03 10:30 至本次检查时的新 GitHub Release。"
+    ],
+    "releases": [
+      {
+        "tag": "v1.5.0-motif-3-dev.1",
+        "published_at": "2026-10-02T00:11:20Z",
+        "updated_at": "2026-10-02T00:11:20Z",
+        "prerelease": true,
+        "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0-motif-3-dev.1"
+      },
+      {
+        "tag": "v1.5.0",
+        "published_at": "2026-09-21T20:21:52Z",
+        "updated_at": "2026-09-21T20:21:52Z",
+        "prerelease": false,
+        "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0"
+      },
+      {
+        "tag": "v1.4.1-k-exaone-2.0-750b-post.1",
+        "published_at": "2026-09-17T19:53:45Z",
+        "updated_at": "2026-09-17T19:53:45Z",
+        "prerelease": true,
+        "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.4.1-k-exaone-2.0-750b-post.1"
+      }
+    ],
+    "access_notes": "通过 GitHub connector GET 原始 Releases API 核对 published_at、updated_at、prerelease；另读官方 GitHub Releases 页面。此记录用于状态界定，不作为当日新增新闻。"
+  },
+  {
+    "id": "ai-sun-42274",
+    "title": "Advertise the KV-event replay endpoint in /server_info",
+    "url": "https://github.com/sgl-project/sglang/pull/42274",
+    "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/42274",
+    "publisher": "sgl-project/sglang",
+    "event_date": "2026-10-03T20:42:34Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "merged-not-newly-released",
+    "window_classification": "incremental-main-merge",
+    "merge_commit": "aaf7ebe0779f4eb8898fc396ee56ddf850253a83",
+    "head_commit": "59d64213600ab19a43f150f5fa26d9cdd716d034",
+    "created_at": "2026-10-02T22:20:23Z",
+    "claims": [
+      "主干合并时间 2026-10-04 04:42:34 Asia/Shanghai。",
+      "server_info 的 kv_events 描述公开 TCP replay_endpoint_port_base；按 base+dp_rank 寻址，重放需配置，默认历史为10,000批。"
+    ],
+    "read_scope": "读 PR 正文及原始状态；配套变更通过 #42275 叠加 diff 的 runtime_context 与文档部分复核。",
+    "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+    "code_links": []
+  },
+  {
+    "id": "ai-sun-42275",
+    "title": "[sgl-router] Repair KV-event sequence gaps from the engine's replay socket",
+    "url": "https://github.com/sgl-project/sglang/pull/42275",
+    "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/42275",
+    "publisher": "sgl-project/sglang",
+    "event_date": "2026-10-03T20:43:18Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "merged-not-newly-released",
+    "window_classification": "incremental-main-merge",
+    "merge_commit": "fd5e68f99e552b98d1086e543b2a958899e8632b",
+    "head_commit": "6a373e0ab59d1e504618c40d4d4afb30796e9687",
+    "created_at": "2026-10-02T22:20:37Z",
+    "claims": [
+      "主干合并时间 2026-10-04 04:43:18 Asia/Shanghai；改动属于 experimental/sgl-router。",
+      "每 worker/rank 跟踪序号，跳号时先拉取缺失事件再转发实时批次；非零后退序号触发发布者重置；batch 0 交给 pump 按流起点处理。",
+      "补账超时2秒，已收到的补回批次保留；历史不足/失败留下的缺口仍计为丢失；不构成可靠队列或全量恢复。",
+      "新增 repaired/incomplete/failed 重放指标；初连持续重试、死socket重建。"
+    ],
+    "read_scope": "读 PR 全文；重点深读 subscriber.rs 的 sequence/fill_gap/fetch_replay、README 的10,000批保留/端口范围，以及固定merge commit index.rs 的publisher reset与pump上下文。全repo未遍历。作者声明cargo test/clippy通过，PR自动CI栏Base为pass、Extra为fail，两者未混同；未诊断Extra日志，未运行测试。",
+    "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+    "code_links": [
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/docs/docs/advanced_features/server_arguments.mdx",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/README.md",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/monitoring/README.md",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/server/routes/metrics.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/discovery.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/index.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/index/tests.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/mod.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/subscriber.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/tally.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/workers/introspect.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/tests/component/policies/kv_events_two_subscribers.rs",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/python/sglang/srt/arg_groups/fields/observability.py",
+      "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/python/sglang/srt/runtime_context.py"
+    ],
+    "verification_note": "独立复核最终subscriber.rs：仅 seq <= last 且 seq != STREAM_ORIGIN_SEQ 时 PublisherReset；batch 0 交给 pump，不泛化为所有序号回退都重置。"
+  },
+  {
+    "id": "ai-sun-42276",
+    "title": "[sgl-router] Credit routed prompts before their KV events arrive",
+    "url": "https://github.com/sgl-project/sglang/pull/42276",
+    "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/42276",
+    "publisher": "sgl-project/sglang",
+    "event_date": "2026-10-03T21:57:50Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "merged-not-newly-released",
+    "window_classification": "incremental-main-merge",
+    "merge_commit": "07064fd4a486aeef6c4c648a1895389e0ae96880",
+    "head_commit": "ba1acf42708617c84c03ec848497edbe15ad3b19",
+    "created_at": "2026-10-02T22:20:52Z",
+    "claims": [
+      "主干合并时间 2026-10-04 05:57:50 Asia/Shanghai；experimental/sgl-router 默认关闭的 pending prefix TTL。",
+      "本地cache_aware路径把预测与事件树分开存储，查询按每worker取最大深度；仅worker URL粒度，不是DP rank精度。",
+      "最终 pending.rs/tree.rs 代码支持过期、容量上限与 clear_worker 时 forget_worker；不能沿用PR正文“只按TTL删除、不随移除清除”的过时描述。",
+      "作者有n=8冷前缀路由聚集测试，明确尚未端到端测量，不承诺性能提升。"
+    ],
+    "read_scope": "读 PR 全文与 pending.rs 全量新增代码、prefix_provider.rs、tree.rs 的 clear_worker、CLI/测试变更；最终代码覆盖正文中的旧描述。作者cargo test/clippy声明不代表全部平台CI通过，未执行。",
+    "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+    "code_links": [
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/README.md",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/monitoring/README.md",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/config/cli.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/config/types.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/main.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies/mod.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies/prefix_provider.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies/selection.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies_reorg/cache_aware.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/server/routes/chat.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/server/routes/chat/reorg.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/server/routes/metrics.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/state/kv_events/mod.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/state/kv_events/pending.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/state/kv_events/tree.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/tests/proxy/common/cache_aware_fixture.rs",
+      "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/tests/proxy/radix_tree_routing.rs"
+    ]
+  },
+  {
+    "id": "ai-sun-59504",
+    "title": "[Bugfix][Core] Exempt exactly the blocks an async KV load writes from zeroing",
+    "url": "https://github.com/vllm-project/vllm/pull/59504",
+    "api_url": "https://api.github.com/repos/vllm-project/vllm/pulls/59504",
+    "publisher": "vllm-project/vllm",
+    "event_date": "2026-10-03T06:26:13Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "merged-not-newly-released",
+    "window_classification": "incremental-main-merge",
+    "merge_commit": "ca0df1f1227cdd993835a4d2a62861dd3bd2e893",
+    "head_commit": "e3ffb5e0c2e0cf91e3eb20fb52fc40d56941f026",
+    "created_at": "2026-09-30T22:28:11Z",
+    "claims": [
+      "主干合并时间 2026-10-03 14:26:13 Asia/Shanghai。",
+      "connector 声明装载KV group，分配器只为异步载入会写的新块跳过清零，避免清零与异步外部写竞态；同步/未装载组维持清零。",
+      "默认组为可前缀缓存组；NIXL/Mooncake P/D报告全部传输组，MultiConnector按请求转派。"
+    ],
+    "read_scope": "读 PR 全文与 connector基类、NIXL/Mooncake/MultiConnector、scheduler、coordinator及单类型allocator补丁；未执行单元测试或GPU模型评估。作者最新649单测与早期模型结果分开，早期模型评估未为最终API重构重跑，正文不引用其分数为收益。",
+    "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+    "code_links": [
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/base.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/multi_connector.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/nixl/connector.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/kv_cache_coordinator.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/kv_cache_manager.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/sched/scheduler.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/single_type_kv_cache_manager.py",
+      "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/kv_offload/cpu/gpu_worker.py"
+    ]
+  },
+  {
+    "id": "ai-sun-40703",
+    "title": "[PD] Add opt-in prefill-complete decode KV allocation",
+    "url": "https://github.com/sgl-project/sglang/pull/40703",
+    "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/40703",
+    "publisher": "sgl-project/sglang",
+    "event_date": "2026-10-03T13:03:09Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "merged-not-newly-released",
+    "window_classification": "incremental-main-merge",
+    "merge_commit": "5b5d72123935dc2a3fb341790796ec1a987d31ce",
+    "head_commit": "f375919c971a0c7a367744ef6df44edef150dfea",
+    "created_at": "2026-09-22T06:52:27Z",
+    "claims": [
+      "主干合并时间 2026-10-03 21:03:09 Asia/Shanghai。",
+      "prefill_complete延后每请求decode目标KV预留，early仍默认，源端KV保留更久且失去chunked prefill与传输重叠。",
+      "初始Mooncake、Python bootstrap、每attention rank TP/CP/PP1；多项互斥功能含runtime role switching；最新rebase CPU/GPU仍有未完成验证。",
+      "为控制稿件主线未收入正文；历史性能报告不是本次独立复现。"
+    ],
+    "read_scope": "读 PR 全文、合并状态、pd_disaggregation文档与配置校验diff；未审阅19个改动文件全部细节，未执行。旧硬件测量存在ITL尾延迟变差且最新rebase验证未完成，不用于简报性能结论。",
+    "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。仅保留研究记录，未收入稿件。",
+    "code_links": [
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/docs/docs/advanced_features/pd_disaggregation.mdx",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/docs/docs/advanced_features/server_arguments.mdx",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/arg_groups/fields/disagg.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/arg_groups/pd_disaggregation_hook.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/arg_groups/serving_hook.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/base/conn.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/common/bootstrap.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/common/conn.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/decode.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/fake/conn.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/mooncake/conn.py",
+      "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/prefill.py"
+    ]
+  },
+  {
+    "id": "ai-sun-15602",
+    "title": "fix(sglang-sidecar): report engine cached tokens in usage",
+    "url": "https://github.com/ai-dynamo/dynamo/pull/15602",
+    "api_url": "https://api.github.com/repos/ai-dynamo/dynamo/pulls/15602",
+    "publisher": "ai-dynamo/dynamo",
+    "event_date": "2026-10-03T23:38:29Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "merged-not-newly-released",
+    "window_classification": "incremental-main-merge",
+    "merge_commit": "e61319d830c2fe41cb9913eec89b9f37c5aa3a84",
+    "head_commit": "c6f304820faf3bd418c503b8920e33c3928b2818",
+    "created_at": "2026-10-03T22:18:30Z",
+    "claims": [
+      "主干合并时间 2026-10-04 07:38:29 Asia/Shanghai。",
+      "SGLang sidecar从meta_info读取cached_tokens并限制不超过prompt_tokens，补入终止usage；无字段则不填。",
+      "作者尚未对live SGLang worker做端到端修复验证；为控制简报篇幅未收入正文。"
+    ],
+    "read_scope": "读 PR 全文、合并状态和唯一 protocol.rs 补丁；缺失字段与clamp行为经代码核对。未执行，未独立验证作者的故障发生率或修复端到端结果。",
+    "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。仅保留研究记录，未收入稿件。",
+    "code_links": [
+      "https://github.com/ai-dynamo/dynamo/blob/e61319d830c2fe41cb9913eec89b9f37c5aa3a84/lib/sidecar/sglang/src/protocol.rs"
+    ]
+  },
+  {
+    "id": "ai-sun-search",
+    "title": "三仓库窗口内已合并 PR 查询",
+    "url": "https://github.com/search?q=repo%3Avllm-project%2Fvllm+repo%3Asgl-project%2Fsglang+repo%3Aai-dynamo%2Fdynamo+is%3Apr+merged%3A2026-10-03T02%3A30%3A00Z..2026-10-04T00%3A15%3A00Z&type=pullrequests",
+    "event_date": null,
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "search-scan",
+    "claims": [
+      "查询上界08:15为任务给定边界，实际读取截至08:11；没有声称覆盖未来几分钟。",
+      "API total_count=61, incomplete_results=false；已读取61条标题，选择6项阅读全文并分别确认 merged_at。"
+    ],
+    "access_notes": "没有逐条全文审阅61个PR，不推断未入选的改动不重要；训练数据链路、Agent运行时及新论文并非穷尽扫描。"
+  },
+  {
+    "id": "ai-sun-arxiv-recheck",
+    "title": "Evaluating the accuracy of KV cache reuse techniques arXiv 记录复核",
+    "url": "https://arxiv.org/abs/2609.31415",
+    "publisher": "arXiv / authors",
+    "event_date": "2026-09-25T15:36:43Z",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "preprint-v1-unchanged",
+    "window_classification": "background-recheck",
+    "claims": [
+      "当前Submission history仍仅显示9月25日v1，没有本次窗口新版本。"
+    ],
+    "access_notes": "本次复核摘要与Submission history，不重做昨日全文分析；不把旧论文重复当新增。"
+  },
+  {
+    "id": "ai-sun-dynamo-doc-recheck",
+    "title": "Dynamo v1.5.0 官方版本页复核",
+    "url": "https://docs.dynamo.nvidia.com/dynamo/v1.5.0/reference/releases/v1-5-0",
+    "publisher": "NVIDIA",
+    "event_date": "2026-09-18",
+    "checked_at": "2026-10-04T08:11:40+08:00",
+    "status": "released-background",
+    "window_classification": "background-recheck",
+    "claims": [
+      "官方当前稳定版本页面仍为v1.5.0。",
+      "昨日Mooncake共享缓存索引的无重放边界，不会因今日SGLang实验路由重放而自动改变。"
+    ],
+    "access_notes": "复核版本导航与发布说明；第二条为跨项目实现边界推断，非厂商声称。没有独立复核全部Dynamo主干共享缓存实现。"
+  }
+]

@@ -1,0 +1,462 @@
+[
+  {
+    "id": "sun-stream-4536",
+    "title": "[rust] Pace metadata refreshes for buckets without a leader",
+    "url": "https://github.com/apache/fluss/pull/4536",
+    "event_date": "2026-10-03T15:27:58Z",
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Merged; release unverified",
+    "window_classification": "delta",
+    "claims": [
+      "已合入main；Rust Sender对未知leader的metadata refresh，在上次refresh完成后等待writer_retry_backoff_ms（默认100ms），防止tablet server故障时的紧密轮询。",
+      "这约束下一次metadata refresh的启动，不延迟已找回leader后的正常发送。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+  },
+  {
+    "id": "sun-stream-4527",
+    "title": "[rust] Route partitions by their own bucket count",
+    "url": "https://github.com/apache/fluss/pull/4527",
+    "event_date": "2026-10-03T16:37:55Z",
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Merged; release unverified",
+    "window_classification": "delta",
+    "claims": [
+      "已合入main；分区保留创建时的bucket count，Rust读写须按各分区布局路由，不可假设最新表级bucket.num适用于旧分区。",
+      "缓存per-partition bucket count和table epoch；RPC携带routing_bucket_count；错路由的keyed batch失败并重新读取布局；keyless batch仅在原bucket仍存在时重标。",
+      "InvalidBucketRouting拒绝未写入的批次时回收其sequence，即使retries=0；加入跨rescale读写、stale writer、prefix lookup及扫描边界测试。",
+      "已读原始diff与回归测试；未独立运行。没有证据表明进入既有1.0.0 release。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+  },
+  {
+    "id": "sun-stream-23685",
+    "title": "[DRAFT] KAFKA-21046 Kafka Streams KIP-909 DNS resolutoion config",
+    "url": "https://github.com/apache/kafka/pull/23685",
+    "event_date": "2026-10-03T11:58:19Z",
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Open; unmerged",
+    "window_classification": "delta",
+    "claims": [
+      "本窗口新建的KIP-909 Streams PoC，open、未合并；标题为[DRAFT]，虽GitHub draft字段为false，仍按作者明确标注的PoC处理。",
+      "拟取消Streams对bootstrap.resolve.timeout.ms强制置0，并识别BootstrapResolutionException，在内部主题管理、恢复和线程错误路径快速失败。",
+      "作者明确表示暂未加测试，目标是先讨论行为，不能称已支持或已发布。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+  },
+  {
+    "id": "sun-stream-23688",
+    "title": "KAFKA-20292 [14/N]: Implement assignor offloading for consumer groups",
+    "url": "https://github.com/apache/kafka/pull/23688",
+    "event_date": "2026-10-03T17:28:45Z",
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Open; unmerged",
+    "window_classification": "delta",
+    "claims": [
+      "本窗口新建、open、未合并的consumer group assignor offloading实现PR。",
+      "拟将分配器放到协调器后台线程，新分配在后续heartbeat返回；追踪in-flight epoch并取消回滚后重用epoch的旧异步计算，避免只按epoch判断失效。",
+      "已读GroupMetadataManager主要diff与测试列表；不是正式发行。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+  },
+  {
+    "id": "sun-stream-23684",
+    "title": "KAFKA-19277: Add ConsumerGroupMessageFormatter for the console consumer",
+    "url": "https://github.com/apache/kafka/pull/23684",
+    "event_date": "2026-10-03T19:20:15Z",
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Merged; release unverified",
+    "window_classification": "delta",
+    "claims": [
+      "已合入trunk；为console consumer新增ConsumerGroupMessageFormatter，可查看新consumer protocol写入__consumer_offsets的ConsumerGroup记录，包括旧版日志可能残留的deprecated partition metadata。",
+      "原PR报告加入ConsoleConsumerTest集成测试；未独立运行，未核验发行归属。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON。正文核验。"
+  },
+  {
+    "id": "sun-stream-kip1368",
+    "title": "KIP-1368: Client framework name and version",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/440304679/KIP-1368+Client+framework+name+and+version",
+    "event_date": "2026-10-03T20:23:04.000Z",
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Under discussion",
+    "window_classification": "delta",
+    "claims": [
+      "10/3 08:06:34Z的v16在name/version之外增加framework ID，区分Streams process及Connect connector上下文，并扩展telemetry selectors和labels。",
+      "10/3 20:23:04Z的v17细化Connect ID：类名+空格+plugin version后URL编码，截到249字符；新增telemetry上下文clientFrameworkId访问器并调整合法字符规则。",
+      "对比v15（9/24）→v16→v17原文。仍是讨论中的提案；没有通过/实现/发行证据。"
+    ],
+    "access_notes": "Confluence公共REST原始body.storage与version；版本历史status=historical&version=15/16。"
+  },
+  {
+    "id": "sun-recheck-kip-909",
+    "title": "KIP-909",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/240884528/KIP-909+DNS+Resolution+Failure+Should+Not+Fail+the+Clients",
+    "event_date": "2026-09-08T16:29:19.000Z",
+    "checked_at": "2026-10-04T00:08:55.158857+00:00",
+    "source_status": "Accepted",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本37，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-kip-939",
+    "title": "KIP-939",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/255071659/KIP-939+Support+Participation+in+2PC",
+    "event_date": "2024-07-23T16:21:32.000Z",
+    "checked_at": "2026-10-04T00:08:55.273291+00:00",
+    "source_status": "Accepted",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本28，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-kip-1163",
+    "title": "KIP-1163",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core",
+    "event_date": "2026-07-09T00:35:28.000Z",
+    "checked_at": "2026-10-04T00:08:54.757826+00:00",
+    "source_status": "Under Discussion",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本23，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-kip-1164",
+    "title": "KIP-1164",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator",
+    "event_date": "2026-09-30T12:44:30.000Z",
+    "checked_at": "2026-10-04T00:08:55.172222+00:00",
+    "source_status": "Under Discussion",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本24，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-kip-1183",
+    "title": "KIP-1183",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage",
+    "event_date": "2025-05-16T05:18:06.000Z",
+    "checked_at": "2026-10-04T00:08:55.144980+00:00",
+    "source_status": "Under Discussion",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本10，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-fip-3",
+    "title": "FIP-3",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214340/FIP-3+Support+tiering+Fluss+data+to+Iceberg",
+    "event_date": "2025-10-21T15:43:11.000Z",
+    "checked_at": "2026-10-04T00:08:55.135445+00:00",
+    "source_status": "Accepted (official directory and page label)",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本25，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-fip-6",
+    "title": "FIP-6",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214598/FIP-6+Decouple+Flink+union+read+with+paimon",
+    "event_date": "2025-12-28T06:52:38.000Z",
+    "checked_at": "2026-10-04T00:08:55.220397+00:00",
+    "source_status": "Accepted (official directory and page label)",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本12，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-fip-9",
+    "title": "FIP-9",
+    "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/373886089/FIP-9+Support+CoordinatorServer+High+Availability",
+    "event_date": "2026-04-09T11:44:58.000Z",
+    "checked_at": "2026-10-04T00:08:54.651850+00:00",
+    "source_status": "Accepted (official directory and page label)",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本10，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-kip-1165",
+    "title": "KIP-1165",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783996/KIP-1165+Object+Consolidation+for+Diskless",
+    "event_date": "2026-10-02T14:55:08.000Z",
+    "checked_at": "2026-10-04T00:08:55.139045+00:00",
+    "source_status": "Under Discussion (Re-Opened)",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本21，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-kip-1379",
+    "title": "KIP-1379",
+    "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/451979127/KIP-1379+Make+server-side+rack-aware+assignment+opt-in",
+    "event_date": "2026-10-02T12:12:19.000Z",
+    "checked_at": "2026-10-04T00:08:55.030932+00:00",
+    "source_status": "Under Discussion",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次原文版本1，最近页面修订早于短窗口；页面状态未变。"
+    ],
+    "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+  },
+  {
+    "id": "sun-recheck-AutoMQ-automq-3576",
+    "title": "feat: encode ElasticLogMeta with Avro",
+    "url": "https://github.com/AutoMQ/automq/pull/3576",
+    "event_date": "2026-09-04T09:20:52Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-04T09:20:54Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-AutoMQ-automq-3575",
+    "title": "fix(metadata): clear pending topic configs on replay",
+    "url": "https://github.com/AutoMQ/automq/pull/3575",
+    "event_date": "2026-09-04T13:04:18Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; included in 1.7.5-rc1; stable release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-04T13:04:21Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-AutoMQ-automq-3584",
+    "title": "feat: merge apache kafka 3.9.2",
+    "url": "https://github.com/AutoMQ/automq/pull/3584",
+    "event_date": "2026-09-08T08:27:44Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-08T08:27:47Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-AutoMQ-automq-3632",
+    "title": "feat(log): support elastic log truncation",
+    "url": "https://github.com/AutoMQ/automq/pull/3632",
+    "event_date": "2026-09-29T07:18:05Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-29T07:18:07Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-apache-fluss-4254",
+    "title": "[server] Update remote log offsets before local segment cleanup",
+    "url": "https://github.com/apache/fluss/pull/4254",
+    "event_date": "2026-09-10T12:49:30Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Released in 1.0.0 (existing baseline)",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-10T12:49:31Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-apache-fluss-3675",
+    "title": "[flink] Support custom lookup shuffle by bucket for Flink 2.x",
+    "url": "https://github.com/apache/fluss/pull/3675",
+    "event_date": "2026-09-10T02:05:36Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Released in 1.0.0 (existing baseline)",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-10T02:05:36Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-apache-fluss-4487",
+    "title": "[server] Advance historical WAL retention with lake progress",
+    "url": "https://github.com/apache/fluss/pull/4487",
+    "event_date": "2026-09-28T08:01:13Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-28T08:01:13Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-apache-fluss-4199",
+    "title": "[server] Incrementally clean historical KV state",
+    "url": "https://github.com/apache/fluss/pull/4199",
+    "event_date": "2026-09-18T02:31:53Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-18T02:31:53Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-apache-kafka-23584",
+    "title": "KAFKA-21159: Clear next offsets to consume on task close to avoid stale commit after revive",
+    "url": "https://github.com/apache/kafka/pull/23584",
+    "event_date": "2026-09-29T14:03:07Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-29T14:03:58Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-recheck-apache-kafka-23585",
+    "title": "KAFKA-21161: Checkpoint consumed offset over produced offset for source-topic changelog stores",
+    "url": "https://github.com/apache/kafka/pull/23585",
+    "event_date": "2026-09-29T14:02:30Z",
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Merged; release unverified",
+    "window_classification": "status_recheck",
+    "claims": [
+      "原始PR最近updated_at=2026-09-29T14:02:45Z，本窗口无该PR状态变化。"
+    ],
+    "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+  },
+  {
+    "id": "sun-release-AutoMQ-automq",
+    "title": "AutoMQ/automq recent releases",
+    "url": "https://github.com/AutoMQ/automq/releases",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Release collection recheck",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次读取最近3条release：nightly (2024-08-23T02:46:29Z), 1.7.5-rc1 (2026-09-24T04:24:02Z), 1.7.5-rc0 (2026-09-02T13:21:04Z)",
+      "AutoMQ nightly在10/3 20:50:51Z例行更新，但不可充当新的稳定发行或确定某PR稳定交付的证据。"
+    ],
+    "access_notes": "GitHub releases REST per_page=3原始JSON。"
+  },
+  {
+    "id": "sun-release-apache-fluss",
+    "title": "apache/fluss recent releases",
+    "url": "https://github.com/apache/fluss/releases",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Release collection recheck",
+    "window_classification": "status_recheck",
+    "claims": [
+      "本次读取最近3条release：v1.0.0 (2026-09-22T14:00:33Z), v0.9.1-incubating (2026-05-04T09:49:13Z), v0.9.0-incubating (2026-03-02T09:46:07Z)",
+      "最新仍为v1.0.0，发布/更新时间均为9/22；本窗口新增main合并不能归入该既有版本。"
+    ],
+    "access_notes": "GitHub releases REST per_page=3原始JSON。"
+  },
+  {
+    "id": "sun-release-kafka",
+    "title": "Kafka official blog",
+    "url": "https://kafka.apache.org/blog/",
+    "event_date": null,
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Release index recheck",
+    "window_classification": "status_recheck",
+    "claims": [
+      "官方blog最新发布公告仍为2026-09-29 Kafka 4.2.2，未见本短窗口新版本公告。"
+    ],
+    "access_notes": "官网原文已打开；GitHub releases集合为空，因此不凭该空集合判断Kafka无发布。"
+  },
+  {
+    "id": "sun-discovery-apache-kafka",
+    "title": "apache/kafka window PR discovery",
+    "url": "https://github.com/apache/kafka/pulls",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Discovery check",
+    "window_classification": "discovery",
+    "claims": [
+      "updated:>=2026-10-03T02:30:00Z检索33条；merged相同起点检索3条。",
+      "已按正文、合并状态及影响挑选，测试清理/注释变化未展开为重大动态。"
+    ],
+    "access_notes": "检索为候选发现；正文所用主项均另读原始PR JSON和适用diff。非对全部开放PR代码变更的穷尽审计。"
+  },
+  {
+    "id": "sun-discovery-AutoMQ-automq",
+    "title": "AutoMQ/automq window PR discovery",
+    "url": "https://github.com/AutoMQ/automq/pulls",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Discovery check",
+    "window_classification": "discovery",
+    "claims": [
+      "updated:>=2026-10-03T02:30:00Z检索2条；merged相同起点检索0条。",
+      "本窗口无合并；两个updated旧PR #3429/#3422为closed、merged_at=null，不能把关闭误报成功能交付。"
+    ],
+    "access_notes": "检索为候选发现；正文所用主项均另读原始PR JSON和适用diff。非对全部开放PR代码变更的穷尽审计。"
+  },
+  {
+    "id": "sun-discovery-apache-fluss",
+    "title": "apache/fluss window PR discovery",
+    "url": "https://github.com/apache/fluss/pulls",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:10:58.479Z",
+    "source_status": "Discovery check",
+    "window_classification": "discovery",
+    "claims": [
+      "updated:>=2026-10-03T02:30:00Z检索8条；merged相同起点检索3条。",
+      "已按正文、合并状态及影响挑选，测试清理/注释变化未展开为重大动态。"
+    ],
+    "access_notes": "检索为候选发现；正文所用主项均另读原始PR JSON和适用diff。非对全部开放PR代码变更的穷尽审计。"
+  },
+  {
+    "id": "sun-proposal-discovery",
+    "title": "Confluence KAFKA/FLUSS recent modification search",
+    "url": "https://cwiki.apache.org/confluence/",
+    "event_date": null,
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Discovery check",
+    "window_classification": "discovery",
+    "claims": [
+      "CQL space=KAFKA/FLUSS and type=page and lastmodified >= 2026-10-03；Kafka返回KIP-1368，Fluss返回0条。"
+    ],
+    "access_notes": "Confluence公共REST content/search成功；无next分页链接；日期过滤按服务端解释，候选再核验精确version.when。检索时间2026-10-04T00:09:50Z。"
+  },
+  {
+    "id": "sun-access-gap",
+    "title": "Fallback and scope limitations",
+    "url": "https://cwiki.apache.org/confluence/rest/api/content/350783996?expand=body.storage,version",
+    "event_date": null,
+    "checked_at": "2026-10-04T08:12:05+08:00",
+    "source_status": "Recovered access failure / scope limits",
+    "window_classification": "access_notes",
+    "claims": [
+      "web工具不能打开该Confluence REST URL，但通过公共HTTPS REST成功读取，不再作为未核验缺口。",
+      "Kafka /community/news/ 打开失败，已用官方/blog/发布索引核验。",
+      "未逐封读取邮件列表或投票讨论；未独立运行上游测试；不声称商业发行/全部分支tag/临时nightly均被穷尽。"
+    ],
+    "access_notes": "保留失败与替代验证路径；实际证据上界=2026-10-04T08:12:05+08:00"
+  }
+]

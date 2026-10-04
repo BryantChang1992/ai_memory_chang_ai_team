@@ -1,0 +1,253 @@
+[
+  {
+    "id": "sunday-paimon-10339",
+    "title": "[core] Support composite BTree equality queries for data evolution tables",
+    "url": "https://github.com/apache/paimon/pull/10339",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-02T14:38:01Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:10:28.061781+00:00",
+    "claims": [
+      "前序完整键等值查询 merged_at=2026-10-02T14:38:01Z，属于窗口前背景，不算本次新增。"
+    ],
+    "window_classification": "before_window_context",
+    "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+  },
+  {
+    "id": "sunday-paimon-10345",
+    "title": "[flink][spark] Support composite BTree global index creation",
+    "url": "https://github.com/apache/paimon/pull/10345",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T06:05:25Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:19.827170+00:00",
+    "claims": [
+      "merged_at=2026-10-03T06:05:25Z，base=master。",
+      "Flink/Spark sys.create_global_index 支持按声明顺序传入多列；Python 复合支持仍 deferred。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+  },
+  {
+    "id": "sunday-paimon-10345-files",
+    "title": "[flink][spark] Support composite BTree global index creation — implementation and tests",
+    "url": "https://github.com/apache/paimon/pull/10345/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T06:05:25Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:20.056141+00:00",
+    "claims": [
+      "Flink/Spark sys.create_global_index 支持按声明顺序传入多列；Python 复合支持仍 deferred。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 /pulls/10345/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+  },
+  {
+    "id": "sunday-paimon-10346",
+    "title": "[core] Support composite BTree prefix and range queries",
+    "url": "https://github.com/apache/paimon/pull/10346",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T08:35:33Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:19.869175+00:00",
+    "claims": [
+      "merged_at=2026-10-03T08:35:33Z，base=master。",
+      "复合键支持等值左前缀与首个非等值列范围；后续键条件保留为数据过滤。",
+      "任一组候选文件超预算则拒绝整个复合定义；完整键点查不受扫描预算约束。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+  },
+  {
+    "id": "sunday-paimon-10346-files",
+    "title": "[core] Support composite BTree prefix and range queries — implementation and tests",
+    "url": "https://github.com/apache/paimon/pull/10346/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T08:35:33Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:20.075489+00:00",
+    "claims": [
+      "复合键支持等值左前缀与首个非等值列范围；后续键条件保留为数据过滤。",
+      "任一组候选文件超预算则拒绝整个复合定义；完整键点查不受扫描预算约束。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 /pulls/10346/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+  },
+  {
+    "id": "sunday-paimon-10347",
+    "title": "[core] Support composite BTree IN and NULL queries",
+    "url": "https://github.com/apache/paimon/pull/10347",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T09:55:06Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:19.889797+00:00",
+    "claims": [
+      "merged_at=2026-10-03T09:55:06Z，base=master。",
+      "IN/IS NULL 离散前缀与 IS NOT NULL 范围；每列交集和类型去重后最多展开 256 区间；超限回退。",
+      "IN 中 NULL 不匹配 NULL 键；共享文件预算仅计算一次；Python 仍 deferred。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+  },
+  {
+    "id": "sunday-paimon-10347-files",
+    "title": "[core] Support composite BTree IN and NULL queries — implementation and tests",
+    "url": "https://github.com/apache/paimon/pull/10347/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T09:55:06Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:19.959397+00:00",
+    "claims": [
+      "IN/IS NULL 离散前缀与 IS NOT NULL 范围；每列交集和类型去重后最多展开 256 区间；超限回退。",
+      "IN 中 NULL 不匹配 NULL 键；共享文件预算仅计算一次；Python 仍 deferred。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 /pulls/10347/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+  },
+  {
+    "id": "sunday-paimon-10349",
+    "title": "[core] Compare composite BTree keys directly from slices",
+    "url": "https://github.com/apache/paimon/pull/10349",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T11:17:59Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:19.925207+00:00",
+    "claims": [
+      "merged_at=2026-10-03T11:17:59Z，base=master。",
+      "通过 KeySerializer.createSliceComparator 对复合序列化键直接比较，保留文件格式。",
+      "测试断言跨块点查在元数据打开后无新增完整行反序列化；没有吞吐倍数证据。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+  },
+  {
+    "id": "sunday-paimon-10349-files",
+    "title": "[core] Compare composite BTree keys directly from slices — implementation and tests",
+    "url": "https://github.com/apache/paimon/pull/10349/files",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T11:17:59Z",
+    "event_date_kind": "merged_at",
+    "checked_at": "2026-10-04T00:09:19.980072+00:00",
+    "claims": [
+      "通过 KeySerializer.createSliceComparator 对复合序列化键直接比较，保留文件格式。",
+      "测试断言跨块点查在元数据打开后无新增完整行反序列化；没有吞吐倍数证据。"
+    ],
+    "window_classification": "delta_merged_master",
+    "access_notes": "官方 /pulls/10349/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+  },
+  {
+    "id": "sunday-paimon-btree-doc",
+    "title": "Composite BTree documentation pinned at 9489f9a3",
+    "url": "https://github.com/apache/paimon/blob/9489f9a3eb094fc4bbec6b93b22dd85a95903d66/docs/docs/multimodal-table/global-index/btree.mdx",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-10-03T09:55:06Z",
+    "event_date_kind": "last_selected_document_change_merge_10347",
+    "checked_at": "2026-10-04T00:10:28.149263+00:00",
+    "claims": [
+      "文档核对列序、左前缀、256 区间、NULL 语义、共享文件预算、FULL/DETAIL 未覆盖行回退及更新后的重建。"
+    ],
+    "window_classification": "delta_documentation",
+    "access_notes": "读取官方仓库固定提交的完整 raw 文档；链接 commit 为稍后 #10349，文档变更来自 #10347。"
+  },
+  {
+    "id": "sunday-paimon-10323-status",
+    "title": "[core] Fall back to listing when the LATEST hint points to an expired snapshot",
+    "url": "https://github.com/apache/paimon/pull/10323",
+    "publisher": "Apache Paimon",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:08:33.773597+00:00",
+    "claims": [
+      "state=open、merged_at=null；不能写成已合并或已交付。"
+    ],
+    "window_classification": "existing_open_status",
+    "access_notes": "通过官方 PR API 核对当前状态；正文 body 仍是旧读侧提案，与新增评审分开描述。"
+  },
+  {
+    "id": "sunday-paimon-10323-review",
+    "title": "Review requests an expiration-prefix cap and conservative hint-read handling",
+    "url": "https://github.com/apache/paimon/pull/10323#issuecomment-5965917048",
+    "publisher": "Apache Paimon PR review discussion",
+    "event_date": "2026-10-03T05:23:20Z",
+    "event_date_kind": "comment_created_at",
+    "checked_at": "2026-10-04T00:08:33.646778+00:00",
+    "claims": [
+      "新增评审支持回到过期端保护从提示起的连续快照后缀，撤回读侧恢复。",
+      "提示读取失败不能被当成不存在；边界不可确定时保守不删除。",
+      "评审明确当前 d8ef8b9 head 仍有此前重放问题，新方向不是更新实现的验证。"
+    ],
+    "window_classification": "delta_review_not_merged",
+    "access_notes": "读取全部 4 条 issue comments；旧 10/2 重放故障与方案不重复计为本次事件；未独立复现。"
+  },
+  {
+    "id": "sunday-iceberg-releases",
+    "title": "Apache Iceberg releases",
+    "url": "https://github.com/apache/iceberg/releases",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-30T01:52:18Z",
+    "event_date_kind": "latest_release_published_at",
+    "checked_at": "2026-10-04T00:08:33.837474+00:00",
+    "claims": [
+      "官方 Release API 最新条目 apache-iceberg-1.12.0，published_at=2026-09-30T01:52:18Z，prerelease=false。",
+      "本次未发现更新的正式 Release，不能据此把 master 补丁写成稳定版交付。"
+    ],
+    "window_classification": "release_boundary",
+    "access_notes": "https://api.github.com/repos/apache/iceberg/releases?per_page=5"
+  },
+  {
+    "id": "sunday-iceberg-discovery",
+    "title": "Apache Iceberg merged PR discovery",
+    "url": "https://github.com/apache/iceberg/pulls",
+    "publisher": "Apache Iceberg",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:08:34.536426+00:00",
+    "claims": [
+      "官方 Search API merged:2026-10-03..2026-10-04 返回 0 项，incomplete_results=false；随后用最新 100 个 closed PR 的 merged_at 核对精确边界。",
+      "Iceberg 无精确窗口内合并；Paimon 为 33 项候选，只有选定主线精读。"
+    ],
+    "window_classification": "coverage",
+    "access_notes": "https://api.github.com/search/issues?q=repo%3Aapache%2Ficeberg+is%3Apr+merged%3A2026-10-03..2026-10-04&per_page=100 ; https://api.github.com/repos/apache/iceberg/pulls?state=closed&sort=updated&direction=desc&per_page=100。网页工具入口失败后成功读取官方 API 原地址；检索上界按真实获取时间，不声称覆盖 08:15。"
+  },
+  {
+    "id": "sunday-paimon-releases",
+    "title": "Apache Paimon releases",
+    "url": "https://github.com/apache/paimon/releases",
+    "publisher": "Apache Paimon",
+    "event_date": "2026-08-07T04:30:12Z",
+    "event_date_kind": "latest_release_published_at",
+    "checked_at": "2026-10-04T00:08:33.630046+00:00",
+    "claims": [
+      "官方 Release API 最新条目 release-2.0.0，published_at=2026-08-07T04:30:12Z，prerelease=false。",
+      "本次未发现更新的正式 Release，不能据此把 master 补丁写成稳定版交付。"
+    ],
+    "window_classification": "release_boundary",
+    "access_notes": "https://api.github.com/repos/apache/paimon/releases?per_page=5"
+  },
+  {
+    "id": "sunday-paimon-discovery",
+    "title": "Apache Paimon merged PR discovery",
+    "url": "https://github.com/apache/paimon/pulls",
+    "publisher": "Apache Paimon",
+    "event_date": null,
+    "checked_at": "2026-10-04T00:08:34.186042+00:00",
+    "claims": [
+      "官方 Search API merged:2026-10-03..2026-10-04 返回 33 项，incomplete_results=false；随后用最新 100 个 closed PR 的 merged_at 核对精确边界。",
+      "Iceberg 无精确窗口内合并；Paimon 为 33 项候选，只有选定主线精读。"
+    ],
+    "window_classification": "coverage",
+    "access_notes": "https://api.github.com/search/issues?q=repo%3Aapache%2Fpaimon+is%3Apr+merged%3A2026-10-03..2026-10-04&per_page=100 ; https://api.github.com/repos/apache/paimon/pulls?state=closed&sort=updated&direction=desc&per_page=100。网页工具入口失败后成功读取官方 API 原地址；检索上界按真实获取时间，不声称覆盖 08:15。"
+  },
+  {
+    "id": "sunday-iceberg-release-doc",
+    "title": "Apache Iceberg release notes",
+    "url": "https://iceberg.apache.org/releases/#1120-release",
+    "publisher": "Apache Iceberg",
+    "event_date": "2026-09-29",
+    "event_date_kind": "official_release_date",
+    "checked_at": "2026-10-04T00:10:28.381515+00:00",
+    "claims": [
+      "发行说明仍列 1.12.0；本次没有可核验的窗口内新版事件。"
+    ],
+    "window_classification": "release_boundary",
+    "access_notes": "打开官方发行说明并取回 HTML；不把旧版本重新当作新闻。"
+  }
+]

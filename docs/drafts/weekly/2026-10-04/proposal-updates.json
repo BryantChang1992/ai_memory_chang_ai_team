@@ -1,0 +1,282 @@
+{
+  "window_start": "2026-10-03T10:30:00+08:00",
+  "verified_through": "2026-10-04T08:12:05+08:00",
+  "updates": [
+    {
+      "project": "Kafka",
+      "id": "KIP-909",
+      "checked_at": "2026-10-04T00:08:55.158857+00:00",
+      "event_date": "2026-10-03T11:58:19Z",
+      "source_status": "Accepted",
+      "change_summary": "页面仍Accepted、v37未变；本窗口新建Streams PoC #23685，拟尊重bootstrap.resolve.timeout.ms并识别BootstrapResolutionException快速失败。作者明确暂未加测试，未合并。",
+      "window_classification": "implementation_proposal",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。",
+      "implementation_prs": [
+        "https://github.com/apache/kafka/pull/23364",
+        "https://github.com/apache/kafka/pull/23685"
+      ],
+      "follow_up": "等待Streams异常处理语义评审、测试、合并与明确发行归属；不能从基础client已实现推断Streams已交付。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-939",
+      "checked_at": "2026-10-04T00:08:55.273291+00:00",
+      "event_date": "2024-07-23T16:21:32.000Z",
+      "source_status": "Accepted",
+      "change_summary": "重查原始页面v28，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1163",
+      "checked_at": "2026-10-04T00:08:54.757826+00:00",
+      "event_date": "2026-07-09T00:35:28.000Z",
+      "source_status": "Under Discussion",
+      "change_summary": "重查原始页面v23，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1164",
+      "checked_at": "2026-10-04T00:08:55.172222+00:00",
+      "event_date": "2026-09-30T12:44:30.000Z",
+      "source_status": "Under Discussion",
+      "change_summary": "重查原始页面v24，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1183",
+      "checked_at": "2026-10-04T00:08:55.144980+00:00",
+      "event_date": "2025-05-16T05:18:06.000Z",
+      "source_status": "Under Discussion",
+      "change_summary": "重查原始页面v10，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Fluss",
+      "id": "FIP-3",
+      "checked_at": "2026-10-04T00:08:55.135445+00:00",
+      "event_date": "2025-10-21T15:43:11.000Z",
+      "source_status": "Accepted (official directory and page label)",
+      "change_summary": "重查原始页面v25，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Fluss",
+      "id": "FIP-6",
+      "checked_at": "2026-10-04T00:08:55.220397+00:00",
+      "event_date": "2025-12-28T06:52:38.000Z",
+      "source_status": "Accepted (official directory and page label)",
+      "change_summary": "重查原始页面v12，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Fluss",
+      "id": "FIP-9",
+      "checked_at": "2026-10-04T00:08:54.651850+00:00",
+      "event_date": "2026-04-09T11:44:58.000Z",
+      "source_status": "Accepted (official directory and page label)",
+      "change_summary": "重查原始页面v10，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1165",
+      "checked_at": "2026-10-04T00:08:55.139045+00:00",
+      "event_date": "2026-10-02T14:55:08.000Z",
+      "source_status": "Under Discussion (Re-Opened)",
+      "change_summary": "重查原始页面v21，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1379",
+      "checked_at": "2026-10-04T00:08:55.030932+00:00",
+      "event_date": "2026-10-02T12:12:19.000Z",
+      "source_status": "Under Discussion",
+      "change_summary": "重查原始页面v1，状态与昨日一致；本窗口无页面修订。",
+      "window_classification": "status_recheck",
+      "verification_limits": "已读取页面正文与版本；FIP另核对accepted label；未逐封核验邮件投票。"
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3576",
+      "source_status": "Merged; release unverified",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3575",
+      "source_status": "Merged; included in 1.7.5-rc1; stable release unverified",
+      "event_date": "2026-09-24T04:24:02Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3584",
+      "source_status": "Merged; release unverified",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "AutoMQ",
+      "id": "#3632",
+      "source_status": "Merged; release unverified",
+      "event_date": "2026-09-29T07:18:05Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Fluss",
+      "id": "#4254",
+      "source_status": "Released in 1.0.0 (explicit release notes)",
+      "event_date": "2026-09-22T14:00:33Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Fluss",
+      "id": "#3675",
+      "source_status": "Released in 1.0.0 (explicit release notes)",
+      "event_date": "2026-09-22T14:00:33Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Fluss",
+      "id": "#4487",
+      "source_status": "Merged; release unverified",
+      "event_date": "2026-09-28T08:01:13Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Fluss",
+      "id": "#4199",
+      "source_status": "Merged; release unverified",
+      "event_date": "2026-09-18T02:31:53Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Kafka",
+      "id": "#23584",
+      "source_status": "Merged; release unverified",
+      "event_date": "2026-09-29T14:03:07Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Kafka",
+      "id": "#23585",
+      "source_status": "Merged; release unverified",
+      "event_date": "2026-09-29T14:02:30Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "window_classification": "status_recheck",
+      "change_summary": "重查PR原始JSON，merged_at及updated_at均早于本窗口；近期公开release未带来新的发行归属证据。"
+    },
+    {
+      "project": "Fluss",
+      "id": "#4536",
+      "title": "[rust] Pace metadata refreshes for buckets without a leader",
+      "url": "https://github.com/apache/fluss/pull/4536",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "已合入main；Rust Sender对未知leader的metadata refresh，在上次refresh完成后等待writer_retry_backoff_ms（默认100ms），防止tablet server故障时的紧密轮询。；这约束下一次metadata refresh的启动，不延迟已找回leader后的正常发送。",
+      "event_date": "2026-10-03T15:27:58Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "window_classification": "main_delta",
+      "implementation_prs": [
+        "https://github.com/apache/fluss/pull/4536"
+      ],
+      "branches": [
+        "main"
+      ],
+      "released_version": null,
+      "release_evidence": [],
+      "follow_up": "核对后续实现审查、回归与正式发行；区分open、merged及released。"
+    },
+    {
+      "project": "Fluss",
+      "id": "#4527",
+      "title": "[rust] Route partitions by their own bucket count",
+      "url": "https://github.com/apache/fluss/pull/4527",
+      "source_status": "Merged; release unverified",
+      "previous_status": null,
+      "change_summary": "已合入main；分区保留创建时的bucket count，Rust读写须按各分区布局路由，不可假设最新表级bucket.num适用于旧分区。；缓存per-partition bucket count和table epoch；RPC携带routing_bucket_count；错路由的keyed batch失败并重新读取布局；keyless batch仅在原bucket仍存在时重标。",
+      "event_date": "2026-10-03T16:37:55Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "window_classification": "main_delta",
+      "implementation_prs": [
+        "https://github.com/apache/fluss/pull/4527"
+      ],
+      "branches": [
+        "main"
+      ],
+      "released_version": null,
+      "release_evidence": [],
+      "follow_up": "核对后续实现审查、回归与正式发行；区分open、merged及released。"
+    },
+    {
+      "project": "Kafka",
+      "id": "#23688",
+      "title": "KAFKA-20292 [14/N]: Implement assignor offloading for consumer groups",
+      "url": "https://github.com/apache/kafka/pull/23688",
+      "source_status": "Open; unmerged",
+      "previous_status": null,
+      "change_summary": "本窗口新建、open、未合并的consumer group assignor offloading实现PR。；拟将分配器放到协调器后台线程，新分配在后续heartbeat返回；追踪in-flight epoch并取消回滚后重用epoch的旧异步计算，避免只按epoch判断失效。",
+      "event_date": "2026-10-03T17:28:45Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "window_classification": "main_delta",
+      "implementation_prs": [
+        "https://github.com/apache/kafka/pull/23688"
+      ],
+      "branches": [
+        "trunk"
+      ],
+      "released_version": null,
+      "release_evidence": [],
+      "follow_up": "核对后续实现审查、回归与正式发行；区分open、merged及released。"
+    },
+    {
+      "project": "Kafka",
+      "id": "KIP-1368",
+      "title": "Client framework name and version",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/440304679/KIP-1368+Client+framework+name+and+version",
+      "source_status": "Under discussion",
+      "previous_status": null,
+      "change_summary": "本窗口v16增加client.framework.id；v17细化URL编码、249字符限制和telemetry上下文访问器。仍为提案。",
+      "event_date": "2026-10-03T20:23:04.000Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "window_classification": "main_delta",
+      "implementation_prs": [],
+      "released_version": null,
+      "release_evidence": [],
+      "follow_up": "观察投票及协议、telemetry选择器的实际实现；确认框架ID规范和高基数观测成本。"
+    }
+  ],
+  "merge_note": "仅按project+id合并真正核验条目；保持历史history、未检查字段与未检查条目checked_at。上述并非全量重置。",
+  "window_end": "2026-10-04T08:00:00+08:00"
+}

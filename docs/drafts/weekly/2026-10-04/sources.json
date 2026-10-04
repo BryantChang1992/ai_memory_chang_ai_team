@@ -1,0 +1,1363 @@
+{
+  "schema_version": 1,
+  "issue": 13,
+  "timezone": "Asia/Shanghai",
+  "window_start_inclusive": "2026-10-03T10:30:00+08:00",
+  "window_end_exclusive": "2026-10-04T08:00:00+08:00",
+  "coverage_note": "本期为上一日Week12之后增补；来源保留各自真实检索上界，原计划08:15不作为已覆盖证据。入选新增事件均在08:00前；旧事件和不定日期勘误为背景。",
+  "previous_issue_url": "https://bryantchang1992.github.io/ai_memory_chang_ai_team/posts/tech-research/week-12/",
+  "assembled_at": "2026-10-04T00:16:49.044320+00:00",
+  "domains": [
+    {
+      "domain": "lakehouse",
+      "source_ids": [
+        "sunday-paimon-10339",
+        "sunday-paimon-10345",
+        "sunday-paimon-10345-files",
+        "sunday-paimon-10346",
+        "sunday-paimon-10346-files",
+        "sunday-paimon-10347",
+        "sunday-paimon-10347-files",
+        "sunday-paimon-10349",
+        "sunday-paimon-10349-files",
+        "sunday-paimon-btree-doc",
+        "sunday-paimon-10323-status",
+        "sunday-paimon-10323-review",
+        "sunday-iceberg-releases",
+        "sunday-iceberg-discovery",
+        "sunday-paimon-releases",
+        "sunday-paimon-discovery",
+        "sunday-iceberg-release-doc"
+      ]
+    },
+    {
+      "domain": "streaming",
+      "source_ids": [
+        "sun-stream-4536",
+        "sun-stream-4527",
+        "sun-stream-23685",
+        "sun-stream-23688",
+        "sun-stream-23684",
+        "sun-stream-kip1368",
+        "sun-recheck-kip-909",
+        "sun-recheck-kip-939",
+        "sun-recheck-kip-1163",
+        "sun-recheck-kip-1164",
+        "sun-recheck-kip-1183",
+        "sun-recheck-fip-3",
+        "sun-recheck-fip-6",
+        "sun-recheck-fip-9",
+        "sun-recheck-kip-1165",
+        "sun-recheck-kip-1379",
+        "sun-recheck-AutoMQ-automq-3576",
+        "sun-recheck-AutoMQ-automq-3575",
+        "sun-recheck-AutoMQ-automq-3584",
+        "sun-recheck-AutoMQ-automq-3632",
+        "sun-recheck-apache-fluss-4254",
+        "sun-recheck-apache-fluss-3675",
+        "sun-recheck-apache-fluss-4487",
+        "sun-recheck-apache-fluss-4199",
+        "sun-recheck-apache-kafka-23584",
+        "sun-recheck-apache-kafka-23585",
+        "sun-release-AutoMQ-automq",
+        "sun-release-apache-fluss",
+        "sun-release-kafka",
+        "sun-discovery-apache-kafka",
+        "sun-discovery-AutoMQ-automq",
+        "sun-discovery-apache-fluss",
+        "sun-proposal-discovery",
+        "sun-access-gap"
+      ]
+    },
+    {
+      "domain": "distributed-storage",
+      "source_ids": [
+        "sunday-storage-sosp26-schedule",
+        "sunday-storage-sosp26-home",
+        "sunday-storage-object-validation-gap",
+        "sunday-storage-fast26-directory",
+        "sunday-storage-fast26-acos-erratum",
+        "sunday-storage-osdi26-home",
+        "sunday-storage-osdi26-directory-gap",
+        "sunday-storage-sigmod26-directory",
+        "sunday-storage-pvldb20-directory",
+        "sunday-storage-pvldb20-frontmatter",
+        "sunday-storage-atc-announcement"
+      ]
+    },
+    {
+      "domain": "ai-infra",
+      "source_ids": [
+        "ai-sun-releases-vllm",
+        "ai-sun-releases-sglang",
+        "ai-sun-releases-dynamo",
+        "ai-sun-42274",
+        "ai-sun-42275",
+        "ai-sun-42276",
+        "ai-sun-59504",
+        "ai-sun-40703",
+        "ai-sun-15602",
+        "ai-sun-search",
+        "ai-sun-arxiv-recheck",
+        "ai-sun-dynamo-doc-recheck"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "sunday-paimon-10339",
+      "title": "[core] Support composite BTree equality queries for data evolution tables",
+      "url": "https://github.com/apache/paimon/pull/10339",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-02T14:38:01Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:10:28.061781+00:00",
+      "claims": [
+        "前序完整键等值查询 merged_at=2026-10-02T14:38:01Z，属于窗口前背景，不算本次新增。"
+      ],
+      "window_classification": "before_window_context",
+      "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+    },
+    {
+      "id": "sunday-paimon-10345",
+      "title": "[flink][spark] Support composite BTree global index creation",
+      "url": "https://github.com/apache/paimon/pull/10345",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T06:05:25Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:19.827170+00:00",
+      "claims": [
+        "merged_at=2026-10-03T06:05:25Z，base=master。",
+        "Flink/Spark sys.create_global_index 支持按声明顺序传入多列；Python 复合支持仍 deferred。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+    },
+    {
+      "id": "sunday-paimon-10345-files",
+      "title": "[flink][spark] Support composite BTree global index creation — implementation and tests",
+      "url": "https://github.com/apache/paimon/pull/10345/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T06:05:25Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:20.056141+00:00",
+      "claims": [
+        "Flink/Spark sys.create_global_index 支持按声明顺序传入多列；Python 复合支持仍 deferred。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 /pulls/10345/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+    },
+    {
+      "id": "sunday-paimon-10346",
+      "title": "[core] Support composite BTree prefix and range queries",
+      "url": "https://github.com/apache/paimon/pull/10346",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T08:35:33Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:19.869175+00:00",
+      "claims": [
+        "merged_at=2026-10-03T08:35:33Z，base=master。",
+        "复合键支持等值左前缀与首个非等值列范围；后续键条件保留为数据过滤。",
+        "任一组候选文件超预算则拒绝整个复合定义；完整键点查不受扫描预算约束。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+    },
+    {
+      "id": "sunday-paimon-10346-files",
+      "title": "[core] Support composite BTree prefix and range queries — implementation and tests",
+      "url": "https://github.com/apache/paimon/pull/10346/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T08:35:33Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:20.075489+00:00",
+      "claims": [
+        "复合键支持等值左前缀与首个非等值列范围；后续键条件保留为数据过滤。",
+        "任一组候选文件超预算则拒绝整个复合定义；完整键点查不受扫描预算约束。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 /pulls/10346/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+    },
+    {
+      "id": "sunday-paimon-10347",
+      "title": "[core] Support composite BTree IN and NULL queries",
+      "url": "https://github.com/apache/paimon/pull/10347",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T09:55:06Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:19.889797+00:00",
+      "claims": [
+        "merged_at=2026-10-03T09:55:06Z，base=master。",
+        "IN/IS NULL 离散前缀与 IS NOT NULL 范围；每列交集和类型去重后最多展开 256 区间；超限回退。",
+        "IN 中 NULL 不匹配 NULL 键；共享文件预算仅计算一次；Python 仍 deferred。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+    },
+    {
+      "id": "sunday-paimon-10347-files",
+      "title": "[core] Support composite BTree IN and NULL queries — implementation and tests",
+      "url": "https://github.com/apache/paimon/pull/10347/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T09:55:06Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:19.959397+00:00",
+      "claims": [
+        "IN/IS NULL 离散前缀与 IS NOT NULL 范围；每列交集和类型去重后最多展开 256 区间；超限回退。",
+        "IN 中 NULL 不匹配 NULL 键；共享文件预算仅计算一次；Python 仍 deferred。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 /pulls/10347/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+    },
+    {
+      "id": "sunday-paimon-10349",
+      "title": "[core] Compare composite BTree keys directly from slices",
+      "url": "https://github.com/apache/paimon/pull/10349",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T11:17:59Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:19.925207+00:00",
+      "claims": [
+        "merged_at=2026-10-03T11:17:59Z，base=master。",
+        "通过 KeySerializer.createSliceComparator 对复合序列化键直接比较，保留文件格式。",
+        "测试断言跨块点查在元数据打开后无新增完整行反序列化；没有吞吐倍数证据。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 PR API 原文；已核对 state/merged_at/base，旧 body 描述不替代当前状态。"
+    },
+    {
+      "id": "sunday-paimon-10349-files",
+      "title": "[core] Compare composite BTree keys directly from slices — implementation and tests",
+      "url": "https://github.com/apache/paimon/pull/10349/files",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T11:17:59Z",
+      "event_date_kind": "merged_at",
+      "checked_at": "2026-10-04T00:09:19.980072+00:00",
+      "claims": [
+        "通过 KeySerializer.createSliceComparator 对复合序列化键直接比较，保留文件格式。",
+        "测试断言跨块点查在元数据打开后无新增完整行反序列化；没有吞吐倍数证据。"
+      ],
+      "window_classification": "delta_merged_master",
+      "access_notes": "官方 /pulls/10349/files?per_page=100 已取回完整文件清单；精读相关生产 diff、文档及关键回归测试；未复跑。"
+    },
+    {
+      "id": "sunday-paimon-btree-doc",
+      "title": "Composite BTree documentation pinned at 9489f9a3",
+      "url": "https://github.com/apache/paimon/blob/9489f9a3eb094fc4bbec6b93b22dd85a95903d66/docs/docs/multimodal-table/global-index/btree.mdx",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-10-03T09:55:06Z",
+      "event_date_kind": "last_selected_document_change_merge_10347",
+      "checked_at": "2026-10-04T00:10:28.149263+00:00",
+      "claims": [
+        "文档核对列序、左前缀、256 区间、NULL 语义、共享文件预算、FULL/DETAIL 未覆盖行回退及更新后的重建。"
+      ],
+      "window_classification": "delta_documentation",
+      "access_notes": "读取官方仓库固定提交的完整 raw 文档；链接 commit 为稍后 #10349，文档变更来自 #10347。"
+    },
+    {
+      "id": "sunday-paimon-10323-status",
+      "title": "[core] Fall back to listing when the LATEST hint points to an expired snapshot",
+      "url": "https://github.com/apache/paimon/pull/10323",
+      "publisher": "Apache Paimon",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:08:33.773597+00:00",
+      "claims": [
+        "state=open、merged_at=null；不能写成已合并或已交付。"
+      ],
+      "window_classification": "existing_open_status",
+      "access_notes": "通过官方 PR API 核对当前状态；正文 body 仍是旧读侧提案，与新增评审分开描述。"
+    },
+    {
+      "id": "sunday-paimon-10323-review",
+      "title": "Review requests an expiration-prefix cap and conservative hint-read handling",
+      "url": "https://github.com/apache/paimon/pull/10323#issuecomment-5965917048",
+      "publisher": "Apache Paimon PR review discussion",
+      "event_date": "2026-10-03T05:23:20Z",
+      "event_date_kind": "comment_created_at",
+      "checked_at": "2026-10-04T00:08:33.646778+00:00",
+      "claims": [
+        "新增评审支持回到过期端保护从提示起的连续快照后缀，撤回读侧恢复。",
+        "提示读取失败不能被当成不存在；边界不可确定时保守不删除。",
+        "评审明确当前 d8ef8b9 head 仍有此前重放问题，新方向不是更新实现的验证。"
+      ],
+      "window_classification": "delta_review_not_merged",
+      "access_notes": "读取全部 4 条 issue comments；旧 10/2 重放故障与方案不重复计为本次事件；未独立复现。"
+    },
+    {
+      "id": "sunday-iceberg-releases",
+      "title": "Apache Iceberg releases",
+      "url": "https://github.com/apache/iceberg/releases",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-30T01:52:18Z",
+      "event_date_kind": "latest_release_published_at",
+      "checked_at": "2026-10-04T00:08:33.837474+00:00",
+      "claims": [
+        "官方 Release API 最新条目 apache-iceberg-1.12.0，published_at=2026-09-30T01:52:18Z，prerelease=false。",
+        "本次未发现更新的正式 Release，不能据此把 master 补丁写成稳定版交付。"
+      ],
+      "window_classification": "release_boundary",
+      "access_notes": "https://api.github.com/repos/apache/iceberg/releases?per_page=5"
+    },
+    {
+      "id": "sunday-iceberg-discovery",
+      "title": "Apache Iceberg merged PR discovery",
+      "url": "https://github.com/apache/iceberg/pulls",
+      "publisher": "Apache Iceberg",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:08:34.536426+00:00",
+      "claims": [
+        "官方 Search API merged:2026-10-03..2026-10-04 返回 0 项，incomplete_results=false；随后用最新 100 个 closed PR 的 merged_at 核对精确边界。",
+        "Iceberg 无精确窗口内合并；Paimon 为 33 项候选，只有选定主线精读。"
+      ],
+      "window_classification": "coverage",
+      "access_notes": "https://api.github.com/search/issues?q=repo%3Aapache%2Ficeberg+is%3Apr+merged%3A2026-10-03..2026-10-04&per_page=100 ; https://api.github.com/repos/apache/iceberg/pulls?state=closed&sort=updated&direction=desc&per_page=100。网页工具入口失败后成功读取官方 API 原地址；检索上界按真实获取时间，不声称覆盖 08:15。"
+    },
+    {
+      "id": "sunday-paimon-releases",
+      "title": "Apache Paimon releases",
+      "url": "https://github.com/apache/paimon/releases",
+      "publisher": "Apache Paimon",
+      "event_date": "2026-08-07T04:30:12Z",
+      "event_date_kind": "latest_release_published_at",
+      "checked_at": "2026-10-04T00:08:33.630046+00:00",
+      "claims": [
+        "官方 Release API 最新条目 release-2.0.0，published_at=2026-08-07T04:30:12Z，prerelease=false。",
+        "本次未发现更新的正式 Release，不能据此把 master 补丁写成稳定版交付。"
+      ],
+      "window_classification": "release_boundary",
+      "access_notes": "https://api.github.com/repos/apache/paimon/releases?per_page=5"
+    },
+    {
+      "id": "sunday-paimon-discovery",
+      "title": "Apache Paimon merged PR discovery",
+      "url": "https://github.com/apache/paimon/pulls",
+      "publisher": "Apache Paimon",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:08:34.186042+00:00",
+      "claims": [
+        "官方 Search API merged:2026-10-03..2026-10-04 返回 33 项，incomplete_results=false；随后用最新 100 个 closed PR 的 merged_at 核对精确边界。",
+        "Iceberg 无精确窗口内合并；Paimon 为 33 项候选，只有选定主线精读。"
+      ],
+      "window_classification": "coverage",
+      "access_notes": "https://api.github.com/search/issues?q=repo%3Aapache%2Fpaimon+is%3Apr+merged%3A2026-10-03..2026-10-04&per_page=100 ; https://api.github.com/repos/apache/paimon/pulls?state=closed&sort=updated&direction=desc&per_page=100。网页工具入口失败后成功读取官方 API 原地址；检索上界按真实获取时间，不声称覆盖 08:15。"
+    },
+    {
+      "id": "sunday-iceberg-release-doc",
+      "title": "Apache Iceberg release notes",
+      "url": "https://iceberg.apache.org/releases/#1120-release",
+      "publisher": "Apache Iceberg",
+      "event_date": "2026-09-29",
+      "event_date_kind": "official_release_date",
+      "checked_at": "2026-10-04T00:10:28.381515+00:00",
+      "claims": [
+        "发行说明仍列 1.12.0；本次没有可核验的窗口内新版事件。"
+      ],
+      "window_classification": "release_boundary",
+      "access_notes": "打开官方发行说明并取回 HTML；不把旧版本重新当作新闻。"
+    },
+    {
+      "id": "sun-stream-4536",
+      "title": "[rust] Pace metadata refreshes for buckets without a leader",
+      "url": "https://github.com/apache/fluss/pull/4536",
+      "event_date": "2026-10-03T15:27:58Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Merged; release unverified",
+      "window_classification": "delta",
+      "claims": [
+        "已合入main；Rust Sender对未知leader的metadata refresh，在上次refresh完成后等待writer_retry_backoff_ms（默认100ms），防止tablet server故障时的紧密轮询。",
+        "这约束下一次metadata refresh的启动，不延迟已找回leader后的正常发送。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+    },
+    {
+      "id": "sun-stream-4527",
+      "title": "[rust] Route partitions by their own bucket count",
+      "url": "https://github.com/apache/fluss/pull/4527",
+      "event_date": "2026-10-03T16:37:55Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Merged; release unverified",
+      "window_classification": "delta",
+      "claims": [
+        "已合入main；分区保留创建时的bucket count，Rust读写须按各分区布局路由，不可假设最新表级bucket.num适用于旧分区。",
+        "缓存per-partition bucket count和table epoch；RPC携带routing_bucket_count；错路由的keyed batch失败并重新读取布局；keyless batch仅在原bucket仍存在时重标。",
+        "InvalidBucketRouting拒绝未写入的批次时回收其sequence，即使retries=0；加入跨rescale读写、stale writer、prefix lookup及扫描边界测试。",
+        "已读原始diff与回归测试；未独立运行。没有证据表明进入既有1.0.0 release。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+    },
+    {
+      "id": "sun-stream-23685",
+      "title": "[DRAFT] KAFKA-21046 Kafka Streams KIP-909 DNS resolutoion config",
+      "url": "https://github.com/apache/kafka/pull/23685",
+      "event_date": "2026-10-03T11:58:19Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Open; unmerged",
+      "window_classification": "delta",
+      "claims": [
+        "本窗口新建的KIP-909 Streams PoC，open、未合并；标题为[DRAFT]，虽GitHub draft字段为false，仍按作者明确标注的PoC处理。",
+        "拟取消Streams对bootstrap.resolve.timeout.ms强制置0，并识别BootstrapResolutionException，在内部主题管理、恢复和线程错误路径快速失败。",
+        "作者明确表示暂未加测试，目标是先讨论行为，不能称已支持或已发布。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+    },
+    {
+      "id": "sun-stream-23688",
+      "title": "KAFKA-20292 [14/N]: Implement assignor offloading for consumer groups",
+      "url": "https://github.com/apache/kafka/pull/23688",
+      "event_date": "2026-10-03T17:28:45Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Open; unmerged",
+      "window_classification": "delta",
+      "claims": [
+        "本窗口新建、open、未合并的consumer group assignor offloading实现PR。",
+        "拟将分配器放到协调器后台线程，新分配在后续heartbeat返回；追踪in-flight epoch并取消回滚后重用epoch的旧异步计算，避免只按epoch判断失效。",
+        "已读GroupMetadataManager主要diff与测试列表；不是正式发行。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON。同时读取files差异。"
+    },
+    {
+      "id": "sun-stream-23684",
+      "title": "KAFKA-19277: Add ConsumerGroupMessageFormatter for the console consumer",
+      "url": "https://github.com/apache/kafka/pull/23684",
+      "event_date": "2026-10-03T19:20:15Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Merged; release unverified",
+      "window_classification": "delta",
+      "claims": [
+        "已合入trunk；为console consumer新增ConsumerGroupMessageFormatter，可查看新consumer protocol写入__consumer_offsets的ConsumerGroup记录，包括旧版日志可能残留的deprecated partition metadata。",
+        "原PR报告加入ConsoleConsumerTest集成测试；未独立运行，未核验发行归属。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON。正文核验。"
+    },
+    {
+      "id": "sun-stream-kip1368",
+      "title": "KIP-1368: Client framework name and version",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/440304679/KIP-1368+Client+framework+name+and+version",
+      "event_date": "2026-10-03T20:23:04.000Z",
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Under discussion",
+      "window_classification": "delta",
+      "claims": [
+        "10/3 08:06:34Z的v16在name/version之外增加framework ID，区分Streams process及Connect connector上下文，并扩展telemetry selectors和labels。",
+        "10/3 20:23:04Z的v17细化Connect ID：类名+空格+plugin version后URL编码，截到249字符；新增telemetry上下文clientFrameworkId访问器并调整合法字符规则。",
+        "对比v15（9/24）→v16→v17原文。仍是讨论中的提案；没有通过/实现/发行证据。"
+      ],
+      "access_notes": "Confluence公共REST原始body.storage与version；版本历史status=historical&version=15/16。"
+    },
+    {
+      "id": "sun-recheck-kip-909",
+      "title": "KIP-909",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/240884528/KIP-909+DNS+Resolution+Failure+Should+Not+Fail+the+Clients",
+      "event_date": "2026-09-08T16:29:19.000Z",
+      "checked_at": "2026-10-04T00:08:55.158857+00:00",
+      "source_status": "Accepted",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本37，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-kip-939",
+      "title": "KIP-939",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/255071659/KIP-939+Support+Participation+in+2PC",
+      "event_date": "2024-07-23T16:21:32.000Z",
+      "checked_at": "2026-10-04T00:08:55.273291+00:00",
+      "source_status": "Accepted",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本28，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-kip-1163",
+      "title": "KIP-1163",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783976/KIP-1163+Diskless+Core",
+      "event_date": "2026-07-09T00:35:28.000Z",
+      "checked_at": "2026-10-04T00:08:54.757826+00:00",
+      "source_status": "Under Discussion",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本23，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-kip-1164",
+      "title": "KIP-1164",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783984/KIP-1164+Diskless+Coordinator",
+      "event_date": "2026-09-30T12:44:30.000Z",
+      "checked_at": "2026-10-04T00:08:55.172222+00:00",
+      "source_status": "Under Discussion",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本24，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-kip-1183",
+      "title": "KIP-1183",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/357960226/KIP-1183+Unified+Shared+Storage",
+      "event_date": "2025-05-16T05:18:06.000Z",
+      "checked_at": "2026-10-04T00:08:55.144980+00:00",
+      "source_status": "Under Discussion",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本10，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-fip-3",
+      "title": "FIP-3",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214340/FIP-3+Support+tiering+Fluss+data+to+Iceberg",
+      "event_date": "2025-10-21T15:43:11.000Z",
+      "checked_at": "2026-10-04T00:08:55.135445+00:00",
+      "source_status": "Accepted (official directory and page label)",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本25，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-fip-6",
+      "title": "FIP-6",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/372214598/FIP-6+Decouple+Flink+union+read+with+paimon",
+      "event_date": "2025-12-28T06:52:38.000Z",
+      "checked_at": "2026-10-04T00:08:55.220397+00:00",
+      "source_status": "Accepted (official directory and page label)",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本12，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-fip-9",
+      "title": "FIP-9",
+      "url": "https://cwiki.apache.org/confluence/spaces/FLUSS/pages/373886089/FIP-9+Support+CoordinatorServer+High+Availability",
+      "event_date": "2026-04-09T11:44:58.000Z",
+      "checked_at": "2026-10-04T00:08:54.651850+00:00",
+      "source_status": "Accepted (official directory and page label)",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本10，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-kip-1165",
+      "title": "KIP-1165",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/350783996/KIP-1165+Object+Consolidation+for+Diskless",
+      "event_date": "2026-10-02T14:55:08.000Z",
+      "checked_at": "2026-10-04T00:08:55.139045+00:00",
+      "source_status": "Under Discussion (Re-Opened)",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本21，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-kip-1379",
+      "title": "KIP-1379",
+      "url": "https://cwiki.apache.org/confluence/spaces/KAFKA/pages/451979127/KIP-1379+Make+server-side+rack-aware+assignment+opt-in",
+      "event_date": "2026-10-02T12:12:19.000Z",
+      "checked_at": "2026-10-04T00:08:55.030932+00:00",
+      "source_status": "Under Discussion",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次原文版本1，最近页面修订早于短窗口；页面状态未变。"
+      ],
+      "access_notes": "读取Confluence原始body.storage与version。FIP-3/6/9另读label API确认accepted；不声称已穷尽邮件列表投票。"
+    },
+    {
+      "id": "sun-recheck-AutoMQ-automq-3576",
+      "title": "feat: encode ElasticLogMeta with Avro",
+      "url": "https://github.com/AutoMQ/automq/pull/3576",
+      "event_date": "2026-09-04T09:20:52Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-04T09:20:54Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-AutoMQ-automq-3575",
+      "title": "fix(metadata): clear pending topic configs on replay",
+      "url": "https://github.com/AutoMQ/automq/pull/3575",
+      "event_date": "2026-09-04T13:04:18Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; included in 1.7.5-rc1; stable release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-04T13:04:21Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-AutoMQ-automq-3584",
+      "title": "feat: merge apache kafka 3.9.2",
+      "url": "https://github.com/AutoMQ/automq/pull/3584",
+      "event_date": "2026-09-08T08:27:44Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-08T08:27:47Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-AutoMQ-automq-3632",
+      "title": "feat(log): support elastic log truncation",
+      "url": "https://github.com/AutoMQ/automq/pull/3632",
+      "event_date": "2026-09-29T07:18:05Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-29T07:18:07Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-apache-fluss-4254",
+      "title": "[server] Update remote log offsets before local segment cleanup",
+      "url": "https://github.com/apache/fluss/pull/4254",
+      "event_date": "2026-09-10T12:49:30Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Released in 1.0.0 (existing baseline)",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-10T12:49:31Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-apache-fluss-3675",
+      "title": "[flink] Support custom lookup shuffle by bucket for Flink 2.x",
+      "url": "https://github.com/apache/fluss/pull/3675",
+      "event_date": "2026-09-10T02:05:36Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Released in 1.0.0 (existing baseline)",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-10T02:05:36Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-apache-fluss-4487",
+      "title": "[server] Advance historical WAL retention with lake progress",
+      "url": "https://github.com/apache/fluss/pull/4487",
+      "event_date": "2026-09-28T08:01:13Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-28T08:01:13Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-apache-fluss-4199",
+      "title": "[server] Incrementally clean historical KV state",
+      "url": "https://github.com/apache/fluss/pull/4199",
+      "event_date": "2026-09-18T02:31:53Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-18T02:31:53Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-apache-kafka-23584",
+      "title": "KAFKA-21159: Clear next offsets to consume on task close to avoid stale commit after revive",
+      "url": "https://github.com/apache/kafka/pull/23584",
+      "event_date": "2026-09-29T14:03:07Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-29T14:03:58Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-recheck-apache-kafka-23585",
+      "title": "KAFKA-21161: Checkpoint consumed offset over produced offset for source-topic changelog stores",
+      "url": "https://github.com/apache/kafka/pull/23585",
+      "event_date": "2026-09-29T14:02:30Z",
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Merged; release unverified",
+      "window_classification": "status_recheck",
+      "claims": [
+        "原始PR最近updated_at=2026-09-29T14:02:45Z，本窗口无该PR状态变化。"
+      ],
+      "access_notes": "GitHub connector读取原始PR JSON；发行边界另用release集合确认，不把当前主干等同已发布。"
+    },
+    {
+      "id": "sun-release-AutoMQ-automq",
+      "title": "AutoMQ/automq recent releases",
+      "url": "https://github.com/AutoMQ/automq/releases",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Release collection recheck",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次读取最近3条release：nightly (2024-08-23T02:46:29Z), 1.7.5-rc1 (2026-09-24T04:24:02Z), 1.7.5-rc0 (2026-09-02T13:21:04Z)",
+        "AutoMQ nightly在10/3 20:50:51Z例行更新，但不可充当新的稳定发行或确定某PR稳定交付的证据。"
+      ],
+      "access_notes": "GitHub releases REST per_page=3原始JSON。"
+    },
+    {
+      "id": "sun-release-apache-fluss",
+      "title": "apache/fluss recent releases",
+      "url": "https://github.com/apache/fluss/releases",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Release collection recheck",
+      "window_classification": "status_recheck",
+      "claims": [
+        "本次读取最近3条release：v1.0.0 (2026-09-22T14:00:33Z), v0.9.1-incubating (2026-05-04T09:49:13Z), v0.9.0-incubating (2026-03-02T09:46:07Z)",
+        "最新仍为v1.0.0，发布/更新时间均为9/22；本窗口新增main合并不能归入该既有版本。"
+      ],
+      "access_notes": "GitHub releases REST per_page=3原始JSON。"
+    },
+    {
+      "id": "sun-release-kafka",
+      "title": "Kafka official blog",
+      "url": "https://kafka.apache.org/blog/",
+      "event_date": null,
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Release index recheck",
+      "window_classification": "status_recheck",
+      "claims": [
+        "官方blog最新发布公告仍为2026-09-29 Kafka 4.2.2，未见本短窗口新版本公告。"
+      ],
+      "access_notes": "官网原文已打开；GitHub releases集合为空，因此不凭该空集合判断Kafka无发布。"
+    },
+    {
+      "id": "sun-discovery-apache-kafka",
+      "title": "apache/kafka window PR discovery",
+      "url": "https://github.com/apache/kafka/pulls",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Discovery check",
+      "window_classification": "discovery",
+      "claims": [
+        "updated:>=2026-10-03T02:30:00Z检索33条；merged相同起点检索3条。",
+        "已按正文、合并状态及影响挑选，测试清理/注释变化未展开为重大动态。"
+      ],
+      "access_notes": "检索为候选发现；正文所用主项均另读原始PR JSON和适用diff。非对全部开放PR代码变更的穷尽审计。"
+    },
+    {
+      "id": "sun-discovery-AutoMQ-automq",
+      "title": "AutoMQ/automq window PR discovery",
+      "url": "https://github.com/AutoMQ/automq/pulls",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Discovery check",
+      "window_classification": "discovery",
+      "claims": [
+        "updated:>=2026-10-03T02:30:00Z检索2条；merged相同起点检索0条。",
+        "本窗口无合并；两个updated旧PR #3429/#3422为closed、merged_at=null，不能把关闭误报成功能交付。"
+      ],
+      "access_notes": "检索为候选发现；正文所用主项均另读原始PR JSON和适用diff。非对全部开放PR代码变更的穷尽审计。"
+    },
+    {
+      "id": "sun-discovery-apache-fluss",
+      "title": "apache/fluss window PR discovery",
+      "url": "https://github.com/apache/fluss/pulls",
+      "event_date": null,
+      "checked_at": "2026-10-04T00:10:58.479Z",
+      "source_status": "Discovery check",
+      "window_classification": "discovery",
+      "claims": [
+        "updated:>=2026-10-03T02:30:00Z检索8条；merged相同起点检索3条。",
+        "已按正文、合并状态及影响挑选，测试清理/注释变化未展开为重大动态。"
+      ],
+      "access_notes": "检索为候选发现；正文所用主项均另读原始PR JSON和适用diff。非对全部开放PR代码变更的穷尽审计。"
+    },
+    {
+      "id": "sun-proposal-discovery",
+      "title": "Confluence KAFKA/FLUSS recent modification search",
+      "url": "https://cwiki.apache.org/confluence/",
+      "event_date": null,
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Discovery check",
+      "window_classification": "discovery",
+      "claims": [
+        "CQL space=KAFKA/FLUSS and type=page and lastmodified >= 2026-10-03；Kafka返回KIP-1368，Fluss返回0条。"
+      ],
+      "access_notes": "Confluence公共REST content/search成功；无next分页链接；日期过滤按服务端解释，候选再核验精确version.when。检索时间2026-10-04T00:09:50Z。"
+    },
+    {
+      "id": "sun-access-gap",
+      "title": "Fallback and scope limitations",
+      "url": "https://cwiki.apache.org/confluence/rest/api/content/350783996?expand=body.storage,version",
+      "event_date": null,
+      "checked_at": "2026-10-04T08:12:05+08:00",
+      "source_status": "Recovered access failure / scope limits",
+      "window_classification": "access_notes",
+      "claims": [
+        "web工具不能打开该Confluence REST URL，但通过公共HTTPS REST成功读取，不再作为未核验缺口。",
+        "Kafka /community/news/ 打开失败，已用官方/blog/发布索引核验。",
+        "未逐封读取邮件列表或投票讨论；未独立运行上游测试；不声称商业发行/全部分支tag/临时nightly均被穷尽。"
+      ],
+      "access_notes": "保留失败与替代验证路径；实际证据上界=2026-10-04T08:12:05+08:00"
+    },
+    {
+      "id": "sunday-storage-sosp26-schedule",
+      "title": "SOSP 2026 Conference Schedule",
+      "url": "https://sigops.org/s/conferences/sosp/2026/schedule.html",
+      "publisher": "ACM SIGOPS",
+      "event_date": "2026-09-29/2026-10-02",
+      "publication_status": "正式会议日程，论文链接指向 ACM DOI",
+      "claims": [
+        "CXL 与文件存储场次为 9 月 30 日，生产云对象存储验证工作为 10 月 1 日。",
+        "日程没有为本窗口建立新增论文或实质修订的日期证据。"
+      ],
+      "window_classification": "prior_event_status_recheck",
+      "access_notes": "完整官方日程可访问；原始场次日期与检索时间分开。未逐篇重新下载或比较 PDF 版本，不宣称没有任何未标记改动。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-sosp26-home",
+      "title": "SOSP 2026 Homepage",
+      "url": "https://sigops.org/s/conferences/sosp/2026/",
+      "publisher": "ACM SIGOPS",
+      "event_date": "2026-09-29/2026-10-02",
+      "publication_status": "官方会议信息",
+      "claims": [
+        "首页显示布拉格会议日期为 9 月 29 日至 10 月 2 日。",
+        "本次可见首页的 Best Paper 与 Distinguished Artifact 奖项仍为 TBD。"
+      ],
+      "window_classification": "status_check_not_new_research",
+      "access_notes": "已读官方首页；TBD 仅是网页可见状态，不能用来断言未实际颁奖。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-object-validation-gap",
+      "title": "Validating a Production Cloud Object Store with Lightweight Formal Methods",
+      "url": "https://dl.acm.org/doi/10.1145/3830418.3843899",
+      "publisher": "ACM SOSP 2026",
+      "event_date": "2026-10-01",
+      "publication_status": "官方正式日程列出并链接 ACM DOI；本轮原文未读取",
+      "claims": [
+        "本轮未消除昨日对象存储验证原文访问缺口。"
+      ],
+      "window_classification": "prior_window_coverage_gap",
+      "access_notes": "直接打开准确 DOI 失败；仅以官方日程确认题名与场次。不借作者社交帖补造机制、实验或新的发表日期，亦不混同 SOSP 2021 ShardStore。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-fast26-directory",
+      "title": "FAST '26 Technical Sessions",
+      "url": "https://www.usenix.org/conference/fast26/technical-sessions",
+      "publisher": "USENIX",
+      "event_date": "2026-02-24",
+      "publication_status": "正式会议论文集已向公众开放",
+      "claims": [
+        "技术日程明确说明论文从 2 月 24 日向所有人开放。",
+        "目录链接一份 FAST 2026 Errata Slip #1。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "已读官方技术日程与论文集入口，未重新精读整册论文。2 月 24 日是官网所述公众开放日，不能把本轮读取日期当发表日期。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-fast26-acos-erratum",
+      "title": "FAST '26 Errata Slip #1: McQueen / ACOS",
+      "url": "https://www.usenix.org/system/files/fast26_errata_baron.pdf",
+      "publisher": "USENIX",
+      "event_date": null,
+      "publication_status": "正式论文集勘误；公开原文未给勘误发布日期",
+      "claims": [
+        "勘误将标题中的 McQueen 改为 ACOS，摘要中的系统名称同步修改。",
+        "一页勘误没有提供新机制、基准或可证明属于增量窗口的发布日期。"
+      ],
+      "window_classification": "undated_bibliographic_correction_not_window_news",
+      "access_notes": "完整 1 页 PDF、56 行内容已读。原论文会议公开日为 2026-02-24；该日期不冒充勘误发布日期。检索服务抓取时间不当作发布证据。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-osdi26-home",
+      "title": "OSDI '26",
+      "url": "https://www.usenix.org/conference/osdi26",
+      "publisher": "USENIX",
+      "event_date": "2026-07-13/2026-07-15",
+      "publication_status": "正式会议论文集，官网确认免费公开",
+      "claims": [
+        "官网将技术日程作为公开论文集入口。"
+      ],
+      "window_classification": "background_status_recheck",
+      "access_notes": "官方首页可读；会议日期由官方 CFP https://www.usenix.org/conference/osdi26/call-for-papers 与官方会议列表交叉确认。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-osdi26-directory-gap",
+      "title": "OSDI '26 Technical Sessions",
+      "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+      "publisher": "USENIX",
+      "event_date": "2026-07-13",
+      "publication_status": "官方搜索返回说明论文集从 7 月 13 日公开",
+      "claims": [
+        "官方页面的搜索返回列有 Errata Slip #1、#2、#3。",
+        "没有取得勘误原文、逐篇版本日期，不能排除其中存在本窗口新增修订。"
+      ],
+      "window_classification": "background_and_current_coverage_gap",
+      "access_notes": "直接 open 与从首页点击多次超时（400 Timeout fetching）；搜索取得该官方页面内容。只用于出版状态、目录入口核查，未从搜索中混合截断的论文摘要提取技术结论。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-sigmod26-directory",
+      "title": "SIGMOD 2026 Accepted Papers",
+      "url": "https://2026.sigmod.org/sigmod_papers.shtml",
+      "publisher": "ACM SIGMOD",
+      "event_date": null,
+      "publication_status": "官方录用目录；四轮链接 PACMMOD 正式卷期",
+      "claims": [
+        "四轮链接依次为 PACMMOD 2025 3(4)、3(6)，2026 4(1)、4(3)。",
+        "名单本身未提供本窗口新增存储论文的发表时间证据。"
+      ],
+      "window_classification": "status_recheck_coverage_gap",
+      "access_notes": "完整录用名单可读；https://dl.acm.org/toc/PACMMOD/2026/4/3 与 https://dl.acm.org/journal/pacmmod/latest 打开失败。没有以这些失败推出无新增研究。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-pvldb20-directory",
+      "title": "PVLDB Volume 20, 2026–2027",
+      "url": "https://www.vldb.org/pvldb/volumes/20/",
+      "publisher": "VLDB Endowment",
+      "event_date": null,
+      "publication_status": "正式期刊卷目录",
+      "claims": [
+        "本轮可访问的页面仅列 Volume 20, No.1 及 Front Matter。"
+      ],
+      "window_classification": "current_directory_status_not_release_date",
+      "access_notes": "页面直接可读；结果限定为页面当前可见条目，不声称穷尽未公开、未索引或未渲染条目。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-pvldb20-frontmatter",
+      "title": "PVLDB Volume 20 No.1 Front Matter",
+      "url": "https://www.vldb.org/pvldb/vol20/FrontMatterVol20No1.pdf",
+      "publisher": "VLDB Endowment",
+      "event_date": "2026-09",
+      "publication_status": "正式 2026 年 9 月期，论文将在 VLDB 2027 展示",
+      "claims": [
+        "封面与版权页均标为 September 2026。",
+        "月级出版日期不足以把条目放进 10 月 3 日 10:30 之后的增量窗口。"
+      ],
+      "window_classification": "month_only_prior_period",
+      "access_notes": "打开完整 9 页 PDF 并查看封面、出版声明、目录；未精读该期各论文，未把将来展示日期当当前期刊发表日期。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "sunday-storage-atc-announcement",
+      "title": "USENIX ATC Announcement",
+      "url": "https://www.usenix.org/blog/usenix-atc-announcement",
+      "publisher": "USENIX",
+      "event_date": "2025-05-06",
+      "publication_status": "官方停办公告",
+      "claims": [
+        "USENIX 宣布 ATC 于 2025 届之后结束。",
+        "本报告不创建 USENIX ATC 2026 论文集。"
+      ],
+      "window_classification": "historical_venue_status",
+      "access_notes": "官方搜索结果返回完整公告含日期；直接原页请求 403。并交叉查看 2025-10-13 后续官方说明 https://www.usenix.org/blog/preserving-legacy-usenix-atc 。USENIX 与其他组织同名活动区分。",
+      "checked_at": "2026-10-04T08:09:25+08:00",
+      "requested_window_start": "2026-10-03T10:30:00+08:00",
+      "requested_window_end": "2026-10-04T08:15:00+08:00",
+      "coverage_end_actual": "2026-10-04T08:09:25+08:00"
+    },
+    {
+      "id": "ai-sun-releases-vllm",
+      "title": "vllm-project/vllm 最近三个 GitHub Releases",
+      "url": "https://github.com/vllm-project/vllm/releases",
+      "api_url": "https://api.github.com/repos/vllm-project/vllm/releases?per_page=3",
+      "publisher": "vllm-project/vllm",
+      "event_date": "2026-09-22T05:20:54Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "release-list-rechecked",
+      "window_classification": "background-recheck",
+      "claims": [
+        "最近三个发布记录中未出现 2026-10-03 10:30 至本次检查时的新 GitHub Release。"
+      ],
+      "releases": [
+        {
+          "tag": "v0.30.0",
+          "published_at": "2026-09-22T05:20:54Z",
+          "updated_at": "2026-09-22T05:20:54Z",
+          "prerelease": false,
+          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.30.0"
+        },
+        {
+          "tag": "v0.29.0",
+          "published_at": "2026-09-09T08:54:49Z",
+          "updated_at": "2026-09-10T23:53:36Z",
+          "prerelease": false,
+          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.29.0"
+        },
+        {
+          "tag": "v0.28.0",
+          "published_at": "2026-08-26T09:46:30Z",
+          "updated_at": "2026-08-26T10:17:05Z",
+          "prerelease": false,
+          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.28.0"
+        }
+      ],
+      "access_notes": "通过 GitHub connector GET 原始 Releases API 核对 published_at、updated_at、prerelease；另读官方 GitHub Releases 页面。此记录用于状态界定，不作为当日新增新闻。"
+    },
+    {
+      "id": "ai-sun-releases-sglang",
+      "title": "sgl-project/sglang 最近三个 GitHub Releases",
+      "url": "https://github.com/sgl-project/sglang/releases",
+      "api_url": "https://api.github.com/repos/sgl-project/sglang/releases?per_page=3",
+      "publisher": "sgl-project/sglang",
+      "event_date": "2026-10-02T01:09:04Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "release-list-rechecked",
+      "window_classification": "background-recheck",
+      "claims": [
+        "最近三个发布记录中未出现 2026-10-03 10:30 至本次检查时的新 GitHub Release。"
+      ],
+      "releases": [
+        {
+          "tag": "v0.5.21",
+          "published_at": "2026-10-02T01:09:04Z",
+          "updated_at": "2026-10-02T19:42:55Z",
+          "prerelease": false,
+          "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.21"
+        },
+        {
+          "tag": "v0.5.20",
+          "published_at": "2026-09-18T22:41:33Z",
+          "updated_at": "2026-09-18T22:41:33Z",
+          "prerelease": false,
+          "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.20"
+        },
+        {
+          "tag": "v0.5.19",
+          "published_at": "2026-09-05T02:27:42Z",
+          "updated_at": "2026-09-05T02:27:42Z",
+          "prerelease": false,
+          "url": "https://github.com/sgl-project/sglang/releases/tag/v0.5.19"
+        }
+      ],
+      "access_notes": "通过 GitHub connector GET 原始 Releases API 核对 published_at、updated_at、prerelease；另读官方 GitHub Releases 页面。此记录用于状态界定，不作为当日新增新闻。"
+    },
+    {
+      "id": "ai-sun-releases-dynamo",
+      "title": "ai-dynamo/dynamo 最近三个 GitHub Releases",
+      "url": "https://github.com/ai-dynamo/dynamo/releases",
+      "api_url": "https://api.github.com/repos/ai-dynamo/dynamo/releases?per_page=3",
+      "publisher": "ai-dynamo/dynamo",
+      "event_date": "2026-10-02T00:11:20Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "release-list-rechecked",
+      "window_classification": "background-recheck",
+      "claims": [
+        "最近三个发布记录中未出现 2026-10-03 10:30 至本次检查时的新 GitHub Release。"
+      ],
+      "releases": [
+        {
+          "tag": "v1.5.0-motif-3-dev.1",
+          "published_at": "2026-10-02T00:11:20Z",
+          "updated_at": "2026-10-02T00:11:20Z",
+          "prerelease": true,
+          "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0-motif-3-dev.1"
+        },
+        {
+          "tag": "v1.5.0",
+          "published_at": "2026-09-21T20:21:52Z",
+          "updated_at": "2026-09-21T20:21:52Z",
+          "prerelease": false,
+          "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0"
+        },
+        {
+          "tag": "v1.4.1-k-exaone-2.0-750b-post.1",
+          "published_at": "2026-09-17T19:53:45Z",
+          "updated_at": "2026-09-17T19:53:45Z",
+          "prerelease": true,
+          "url": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.4.1-k-exaone-2.0-750b-post.1"
+        }
+      ],
+      "access_notes": "通过 GitHub connector GET 原始 Releases API 核对 published_at、updated_at、prerelease；另读官方 GitHub Releases 页面。此记录用于状态界定，不作为当日新增新闻。"
+    },
+    {
+      "id": "ai-sun-42274",
+      "title": "Advertise the KV-event replay endpoint in /server_info",
+      "url": "https://github.com/sgl-project/sglang/pull/42274",
+      "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/42274",
+      "publisher": "sgl-project/sglang",
+      "event_date": "2026-10-03T20:42:34Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "merged-not-newly-released",
+      "window_classification": "incremental-main-merge",
+      "merge_commit": "aaf7ebe0779f4eb8898fc396ee56ddf850253a83",
+      "head_commit": "59d64213600ab19a43f150f5fa26d9cdd716d034",
+      "created_at": "2026-10-02T22:20:23Z",
+      "claims": [
+        "主干合并时间 2026-10-04 04:42:34 Asia/Shanghai。",
+        "server_info 的 kv_events 描述公开 TCP replay_endpoint_port_base；按 base+dp_rank 寻址，重放需配置，默认历史为10,000批。"
+      ],
+      "read_scope": "读 PR 正文及原始状态；配套变更通过 #42275 叠加 diff 的 runtime_context 与文档部分复核。",
+      "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+      "code_links": []
+    },
+    {
+      "id": "ai-sun-42275",
+      "title": "[sgl-router] Repair KV-event sequence gaps from the engine's replay socket",
+      "url": "https://github.com/sgl-project/sglang/pull/42275",
+      "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/42275",
+      "publisher": "sgl-project/sglang",
+      "event_date": "2026-10-03T20:43:18Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "merged-not-newly-released",
+      "window_classification": "incremental-main-merge",
+      "merge_commit": "fd5e68f99e552b98d1086e543b2a958899e8632b",
+      "head_commit": "6a373e0ab59d1e504618c40d4d4afb30796e9687",
+      "created_at": "2026-10-02T22:20:37Z",
+      "claims": [
+        "主干合并时间 2026-10-04 04:43:18 Asia/Shanghai；改动属于 experimental/sgl-router。",
+        "每 worker/rank 跟踪序号，跳号时先拉取缺失事件再转发实时批次；非零后退序号触发发布者重置；batch 0 交给 pump 按流起点处理。",
+        "补账超时2秒，已收到的补回批次保留；历史不足/失败留下的缺口仍计为丢失；不构成可靠队列或全量恢复。",
+        "新增 repaired/incomplete/failed 重放指标；初连持续重试、死socket重建。"
+      ],
+      "read_scope": "读 PR 全文；重点深读 subscriber.rs 的 sequence/fill_gap/fetch_replay、README 的10,000批保留/端口范围，以及固定merge commit index.rs 的publisher reset与pump上下文。全repo未遍历。作者声明cargo test/clippy通过，PR自动CI栏Base为pass、Extra为fail，两者未混同；未诊断Extra日志，未运行测试。",
+      "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+      "code_links": [
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/docs/docs/advanced_features/server_arguments.mdx",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/README.md",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/monitoring/README.md",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/server/routes/metrics.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/discovery.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/index.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/index/tests.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/mod.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/subscriber.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/state/kv_events/tally.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/src/workers/introspect.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/experimental/sgl-router/tests/component/policies/kv_events_two_subscribers.rs",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/python/sglang/srt/arg_groups/fields/observability.py",
+        "https://github.com/sgl-project/sglang/blob/fd5e68f99e552b98d1086e543b2a958899e8632b/python/sglang/srt/runtime_context.py"
+      ],
+      "verification_note": "独立复核最终subscriber.rs：仅 seq <= last 且 seq != STREAM_ORIGIN_SEQ 时 PublisherReset；batch 0 交给 pump，不泛化为所有序号回退都重置。"
+    },
+    {
+      "id": "ai-sun-42276",
+      "title": "[sgl-router] Credit routed prompts before their KV events arrive",
+      "url": "https://github.com/sgl-project/sglang/pull/42276",
+      "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/42276",
+      "publisher": "sgl-project/sglang",
+      "event_date": "2026-10-03T21:57:50Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "merged-not-newly-released",
+      "window_classification": "incremental-main-merge",
+      "merge_commit": "07064fd4a486aeef6c4c648a1895389e0ae96880",
+      "head_commit": "ba1acf42708617c84c03ec848497edbe15ad3b19",
+      "created_at": "2026-10-02T22:20:52Z",
+      "claims": [
+        "主干合并时间 2026-10-04 05:57:50 Asia/Shanghai；experimental/sgl-router 默认关闭的 pending prefix TTL。",
+        "本地cache_aware路径把预测与事件树分开存储，查询按每worker取最大深度；仅worker URL粒度，不是DP rank精度。",
+        "最终 pending.rs/tree.rs 代码支持过期、容量上限与 clear_worker 时 forget_worker；不能沿用PR正文“只按TTL删除、不随移除清除”的过时描述。",
+        "作者有n=8冷前缀路由聚集测试，明确尚未端到端测量，不承诺性能提升。"
+      ],
+      "read_scope": "读 PR 全文与 pending.rs 全量新增代码、prefix_provider.rs、tree.rs 的 clear_worker、CLI/测试变更；最终代码覆盖正文中的旧描述。作者cargo test/clippy声明不代表全部平台CI通过，未执行。",
+      "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+      "code_links": [
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/README.md",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/monitoring/README.md",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/config/cli.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/config/types.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/main.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies/mod.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies/prefix_provider.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies/selection.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/policies_reorg/cache_aware.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/server/routes/chat.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/server/routes/chat/reorg.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/server/routes/metrics.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/state/kv_events/mod.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/state/kv_events/pending.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/src/state/kv_events/tree.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/tests/proxy/common/cache_aware_fixture.rs",
+        "https://github.com/sgl-project/sglang/blob/07064fd4a486aeef6c4c648a1895389e0ae96880/experimental/sgl-router/tests/proxy/radix_tree_routing.rs"
+      ]
+    },
+    {
+      "id": "ai-sun-59504",
+      "title": "[Bugfix][Core] Exempt exactly the blocks an async KV load writes from zeroing",
+      "url": "https://github.com/vllm-project/vllm/pull/59504",
+      "api_url": "https://api.github.com/repos/vllm-project/vllm/pulls/59504",
+      "publisher": "vllm-project/vllm",
+      "event_date": "2026-10-03T06:26:13Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "merged-not-newly-released",
+      "window_classification": "incremental-main-merge",
+      "merge_commit": "ca0df1f1227cdd993835a4d2a62861dd3bd2e893",
+      "head_commit": "e3ffb5e0c2e0cf91e3eb20fb52fc40d56941f026",
+      "created_at": "2026-09-30T22:28:11Z",
+      "claims": [
+        "主干合并时间 2026-10-03 14:26:13 Asia/Shanghai。",
+        "connector 声明装载KV group，分配器只为异步载入会写的新块跳过清零，避免清零与异步外部写竞态；同步/未装载组维持清零。",
+        "默认组为可前缀缓存组；NIXL/Mooncake P/D报告全部传输组，MultiConnector按请求转派。"
+      ],
+      "read_scope": "读 PR 全文与 connector基类、NIXL/Mooncake/MultiConnector、scheduler、coordinator及单类型allocator补丁；未执行单元测试或GPU模型评估。作者最新649单测与早期模型结果分开，早期模型评估未为最终API重构重跑，正文不引用其分数为收益。",
+      "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。",
+      "code_links": [
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/base.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/multi_connector.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/distributed/kv_transfer/kv_connector/v1/nixl/connector.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/kv_cache_coordinator.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/kv_cache_manager.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/sched/scheduler.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/core/single_type_kv_cache_manager.py",
+        "https://github.com/vllm-project/vllm/blob/ca0df1f1227cdd993835a4d2a62861dd3bd2e893/vllm/v1/kv_offload/cpu/gpu_worker.py"
+      ]
+    },
+    {
+      "id": "ai-sun-40703",
+      "title": "[PD] Add opt-in prefill-complete decode KV allocation",
+      "url": "https://github.com/sgl-project/sglang/pull/40703",
+      "api_url": "https://api.github.com/repos/sgl-project/sglang/pulls/40703",
+      "publisher": "sgl-project/sglang",
+      "event_date": "2026-10-03T13:03:09Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "merged-not-newly-released",
+      "window_classification": "incremental-main-merge",
+      "merge_commit": "5b5d72123935dc2a3fb341790796ec1a987d31ce",
+      "head_commit": "f375919c971a0c7a367744ef6df44edef150dfea",
+      "created_at": "2026-09-22T06:52:27Z",
+      "claims": [
+        "主干合并时间 2026-10-03 21:03:09 Asia/Shanghai。",
+        "prefill_complete延后每请求decode目标KV预留，early仍默认，源端KV保留更久且失去chunked prefill与传输重叠。",
+        "初始Mooncake、Python bootstrap、每attention rank TP/CP/PP1；多项互斥功能含runtime role switching；最新rebase CPU/GPU仍有未完成验证。",
+        "为控制稿件主线未收入正文；历史性能报告不是本次独立复现。"
+      ],
+      "read_scope": "读 PR 全文、合并状态、pd_disaggregation文档与配置校验diff；未审阅19个改动文件全部细节，未执行。旧硬件测量存在ITL尾延迟变差且最新rebase验证未完成，不用于简报性能结论。",
+      "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。仅保留研究记录，未收入稿件。",
+      "code_links": [
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/docs/docs/advanced_features/pd_disaggregation.mdx",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/docs/docs/advanced_features/server_arguments.mdx",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/arg_groups/fields/disagg.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/arg_groups/pd_disaggregation_hook.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/arg_groups/serving_hook.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/base/conn.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/common/bootstrap.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/common/conn.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/decode.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/fake/conn.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/mooncake/conn.py",
+        "https://github.com/sgl-project/sglang/blob/5b5d72123935dc2a3fb341790796ec1a987d31ce/python/sglang/srt/disaggregation/prefill.py"
+      ]
+    },
+    {
+      "id": "ai-sun-15602",
+      "title": "fix(sglang-sidecar): report engine cached tokens in usage",
+      "url": "https://github.com/ai-dynamo/dynamo/pull/15602",
+      "api_url": "https://api.github.com/repos/ai-dynamo/dynamo/pulls/15602",
+      "publisher": "ai-dynamo/dynamo",
+      "event_date": "2026-10-03T23:38:29Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "merged-not-newly-released",
+      "window_classification": "incremental-main-merge",
+      "merge_commit": "e61319d830c2fe41cb9913eec89b9f37c5aa3a84",
+      "head_commit": "c6f304820faf3bd418c503b8920e33c3928b2818",
+      "created_at": "2026-10-03T22:18:30Z",
+      "claims": [
+        "主干合并时间 2026-10-04 07:38:29 Asia/Shanghai。",
+        "SGLang sidecar从meta_info读取cached_tokens并限制不超过prompt_tokens，补入终止usage；无字段则不填。",
+        "作者尚未对live SGLang worker做端到端修复验证；为控制简报篇幅未收入正文。"
+      ],
+      "read_scope": "读 PR 全文、合并状态和唯一 protocol.rs 补丁；缺失字段与clamp行为经代码核对。未执行，未独立验证作者的故障发生率或修复端到端结果。",
+      "access_notes": "阅读使用原始GitHub API及/files补丁；发布状态与主干合并分开。仅保留研究记录，未收入稿件。",
+      "code_links": [
+        "https://github.com/ai-dynamo/dynamo/blob/e61319d830c2fe41cb9913eec89b9f37c5aa3a84/lib/sidecar/sglang/src/protocol.rs"
+      ]
+    },
+    {
+      "id": "ai-sun-search",
+      "title": "三仓库窗口内已合并 PR 查询",
+      "url": "https://github.com/search?q=repo%3Avllm-project%2Fvllm+repo%3Asgl-project%2Fsglang+repo%3Aai-dynamo%2Fdynamo+is%3Apr+merged%3A2026-10-03T02%3A30%3A00Z..2026-10-04T00%3A15%3A00Z&type=pullrequests",
+      "event_date": null,
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "search-scan",
+      "claims": [
+        "查询上界08:15为任务给定边界，实际读取截至08:11；没有声称覆盖未来几分钟。",
+        "API total_count=61, incomplete_results=false；已读取61条标题，选择6项阅读全文并分别确认 merged_at。"
+      ],
+      "access_notes": "没有逐条全文审阅61个PR，不推断未入选的改动不重要；训练数据链路、Agent运行时及新论文并非穷尽扫描。"
+    },
+    {
+      "id": "ai-sun-arxiv-recheck",
+      "title": "Evaluating the accuracy of KV cache reuse techniques arXiv 记录复核",
+      "url": "https://arxiv.org/abs/2609.31415",
+      "publisher": "arXiv / authors",
+      "event_date": "2026-09-25T15:36:43Z",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "preprint-v1-unchanged",
+      "window_classification": "background-recheck",
+      "claims": [
+        "当前Submission history仍仅显示9月25日v1，没有本次窗口新版本。"
+      ],
+      "access_notes": "本次复核摘要与Submission history，不重做昨日全文分析；不把旧论文重复当新增。"
+    },
+    {
+      "id": "ai-sun-dynamo-doc-recheck",
+      "title": "Dynamo v1.5.0 官方版本页复核",
+      "url": "https://docs.dynamo.nvidia.com/dynamo/v1.5.0/reference/releases/v1-5-0",
+      "publisher": "NVIDIA",
+      "event_date": "2026-09-18",
+      "checked_at": "2026-10-04T08:11:40+08:00",
+      "status": "released-background",
+      "window_classification": "background-recheck",
+      "claims": [
+        "官方当前稳定版本页面仍为v1.5.0。",
+        "昨日Mooncake共享缓存索引的无重放边界，不会因今日SGLang实验路由重放而自动改变。"
+      ],
+      "access_notes": "复核版本导航与发布说明；第二条为跨项目实现边界推断，非厂商声称。没有独立复核全部Dynamo主干共享缓存实现。"
+    }
+  ]
+}

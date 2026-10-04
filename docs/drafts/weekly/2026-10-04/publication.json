@@ -1,0 +1,29 @@
+{
+  "status": "prepared_for_direct_publication",
+  "issue": 13,
+  "base_commit": "58408e414d006e8c5812eb549ab90cffd79901ee",
+  "prepared_at": "2026-10-04T00:21:45.096554+00:00",
+  "articles": [
+    {
+      "post": "_posts/2026-10-04-tech-research-week-13.md",
+      "sha256": "05101ce84d854a5d9fe947ae8eee6cd301d56330ec18488a7e2a9f2d1b0d9a9d"
+    }
+  ],
+  "source_records": 74,
+  "proposal_updates": 24,
+  "local_checks": {
+    "ruby_tests": 16,
+    "ruby_assertions": 592,
+    "source_tests": 3,
+    "storage_lab_tests": 6,
+    "lint": "passed",
+    "typecheck": "passed",
+    "pages_export": "passed",
+    "jekyll_build": "passed",
+    "html_pages": 282,
+    "internal_references": 9399,
+    "independent_editorial_review": "passed after four corrections",
+    "local_browser_preview": "blocked by cloud browser ERR_BLOCKED_BY_CLIENT on localhost; production page to be checked after deploy"
+  },
+  "deployment_verification": "Exact commit Actions/Pages and public content must be verified after non-force ref update."
+}
