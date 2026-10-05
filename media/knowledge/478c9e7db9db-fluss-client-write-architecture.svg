@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 950">
+  <style>
+    text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif; }
+    .title { font-size: 20px; font-weight: 700; fill: #111827; }
+    .layer-label { font-size: 11px; fill: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+    .node-label { font-size: 14px; fill: #111827; font-weight: 600; }
+    .node-sub { font-size: 11px; fill: #6b7280; }
+    .node-box { fill: #ffffff; stroke: #d1d5db; stroke-width: 1.5; rx: 8; }
+    .node-accent { fill: #eff6ff; stroke: #93c5fd; stroke-width: 1.5; rx: 8; }
+    .layer-bg { fill: none; stroke: #e5e7eb; stroke-width: 1; stroke-dasharray: 6 4; rx: 8; }
+    .legend-text { font-size: 12px; fill: #6b7280; }
+    .arrow-label { font-size: 11px; fill: #6b7280; }
+  </style>
+
+  <defs>
+    <marker id="a-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/></marker>
+    <marker id="a-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#dc2626"/></marker>
+    <marker id="a-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9333ea"/></marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="550" y="36" text-anchor="middle" class="title">Fluss 客户端写入引擎 — 组件架构图</text>
+
+  <!-- ===== LAYERS (extra room for arrow routing) ===== -->
+  <!-- APP LAYER -->
+  <rect x="30" y="56" width="1040" height="100" class="layer-bg"/>
+  <text x="48" y="76" class="layer-label">APPLICATION</text>
+
+  <!-- Gap: 156-176 = inter-layer routing corridor -->
+  <!-- TABLE API LAYER -->
+  <rect x="30" y="176" width="1040" height="100" class="layer-bg"/>
+  <text x="48" y="196" class="layer-label">TABLE API</text>
+
+  <!-- Gap: 276-310 = inter-layer routing corridor (bigger for routing space) -->
+  <!-- WRITE ENGINE LAYER -->
+  <rect x="30" y="310" width="1040" height="340" class="layer-bg"/>
+  <text x="48" y="330" class="layer-label">WRITE ENGINE</text>
+
+  <!-- Gap: 650-680 = inter-layer routing corridor -->
+  <!-- RPC TRANSPORT -->
+  <rect x="30" y="680" width="1040" height="66" class="layer-bg"/>
+  <text x="48" y="700" class="layer-label">RPC TRANSPORT</text>
+
+  <!-- SERVER SIDE -->
+  <rect x="30" y="760" width="1040" height="110" class="layer-bg"/>
+  <text x="48" y="780" class="layer-label">SERVER SIDE</text>
+
+  <!-- ===== NODE LAYOUT ===== -->
+  <!-- Col centers: L=155, C1=380, C2=600, R=850. → wider spread for routing -->
+  <!-- Col widths: L=190, C1=210, C2=210, R=190 -->
+
+  <!-- APP LAYER (y=76..156) -->
+  <rect x="60"  y="76"  width="190" height="56" class="node-box"/>
+  <text x="155" y="100" text-anchor="middle" class="node-label">User Code</text>
+  <text x="155" y="118" text-anchor="middle" class="node-sub">append() · flush()</text>
+
+  <rect x="370" y="76"  width="210" height="56" class="node-box"/>
+  <text x="475" y="100" text-anchor="middle" class="node-label">Connection</text>
+  <text x="475" y="118" text-anchor="middle" class="node-sub">FlussConnection</text>
+
+  <rect x="750" y="76"  width="190" height="56" class="node-box"/>
+  <text x="845" y="100" text-anchor="middle" class="node-label">ConnectionFactory</text>
+  <text x="845" y="118" text-anchor="middle" class="node-sub">bootstrap.servers → RpcClient</text>
+
+  <!-- TABLE API LAYER (y=196..276) -->
+  <rect x="60"  y="196" width="190" height="64" class="node-box"/>
+  <text x="155" y="220" text-anchor="middle" class="node-label">Table</text>
+  <text x="155" y="236" text-anchor="middle" class="node-sub">FlussTable</text>
+  <text x="155" y="250" text-anchor="middle" class="node-sub">conn.getTable(path)</text>
+
+  <rect x="370" y="196" width="210" height="64" class="node-accent"/>
+  <text x="475" y="220" text-anchor="middle" class="node-label">AppendWriterImpl</text>
+  <text x="475" y="236" text-anchor="middle" class="node-sub">IndexedRow / Arrow encoder</text>
+  <text x="475" y="250" text-anchor="middle" class="node-sub">append(row) → WriteRecord</text>
+
+  <rect x="750" y="196" width="190" height="64" class="node-accent"/>
+  <text x="845" y="220" text-anchor="middle" class="node-label">UpsertWriterImpl</text>
+  <text x="845" y="236" text-anchor="middle" class="node-sub">KeyEncoder + RowEncoder</text>
+  <text x="845" y="250" text-anchor="middle" class="node-sub">upsert(row, key) → WriteRecord</text>
+
+  <!-- WRITE ENGINE Row 1 (y=330..406) -->
+  <rect x="370" y="330" width="210" height="76" class="node-accent"/>
+  <text x="475" y="354" text-anchor="middle" class="node-label">WriterClient</text>
+  <text x="475" y="372" text-anchor="middle" class="node-sub">doSend() · flush() · close()</text>
+  <text x="475" y="388" text-anchor="middle" class="node-sub">全局写入协调中枢</text>
+
+  <rect x="750" y="330" width="190" height="76" class="node-accent"/>
+  <text x="845" y="354" text-anchor="middle" class="node-label">Sender (IO Thread)</text>
+  <text x="845" y="372" text-anchor="middle" class="node-sub">单线程 · runOnce()</text>
+  <text x="845" y="388" text-anchor="middle" class="node-sub">ready → drain → send → handle</text>
+
+  <!-- WRITE ENGINE Row 2 (y=426..502) -->
+  <rect x="60"  y="426" width="190" height="76" class="node-box"/>
+  <text x="155" y="450" text-anchor="middle" class="node-label">BucketAssigner</text>
+  <text x="155" y="468" text-anchor="middle" class="node-sub">Hash / RoundRobin / Sticky</text>
+  <text x="155" y="484" text-anchor="middle" class="node-sub">assignBucket() → bucketId</text>
+
+  <rect x="370" y="426" width="210" height="76" class="node-box"/>
+  <text x="475" y="450" text-anchor="middle" class="node-label">RecordAccumulator</text>
+  <text x="475" y="468" text-anchor="middle" class="node-sub">Deque&lt;WriteBatch&gt; per bucket</text>
+  <text x="475" y="484" text-anchor="middle" class="node-sub">Arrow memory pool · ready() · drain()</text>
+
+  <rect x="750" y="426" width="190" height="76" class="node-box"/>
+  <text x="845" y="450" text-anchor="middle" class="node-label">IdempotenceManager</text>
+  <text x="845" y="468" text-anchor="middle" class="node-sub">writerId / batchSequence</text>
+  <text x="845" y="484" text-anchor="middle" class="node-sub">inflight tracking</text>
+
+  <!-- WRITE ENGINE Row 3 (y=522..598) -->
+  <rect x="370" y="540" width="210" height="76" class="node-box"/>
+  <text x="475" y="564" text-anchor="middle" class="node-label">MetadataUpdater</text>
+  <text x="475" y="582" text-anchor="middle" class="node-sub">Cluster · BucketLocation</text>
+  <text x="475" y="598" text-anchor="middle" class="node-sub">coordinatorGateway · tabletServerGateway</text>
+
+  <rect x="750" y="540" width="190" height="76" class="node-box"/>
+  <text x="845" y="564" text-anchor="middle" class="node-label">DynamicPartitionCreator</text>
+  <text x="845" y="582" text-anchor="middle" class="node-sub">checkAndCreatePartitionAsync()</text>
+  <text x="845" y="598" text-anchor="middle" class="node-sub">异步分区创建 · inflight 去重</text>
+
+  <!-- RPC TRANSPORT (y=702..746) -->
+  <rect x="370" y="702" width="210" height="44" class="node-box"/>
+  <text x="475" y="722" text-anchor="middle" class="node-label">RpcClient (Netty)</text>
+  <text x="475" y="738" text-anchor="middle" class="node-sub">TabletServerGateway · CoordinatorGateway</text>
+
+  <!-- SERVER SIDE (y=780..870) -->
+  <rect x="370" y="790" width="210" height="56" class="node-accent"/>
+  <text x="475" y="814" text-anchor="middle" class="node-label">TabletServer</text>
+  <text x="475" y="830" text-anchor="middle" class="node-sub">ProduceLog / PutKv 处理</text>
+
+  <rect x="750" y="790" width="190" height="56" class="node-box"/>
+  <text x="845" y="814" text-anchor="middle" class="node-label">Coordinator</text>
+  <text x="845" y="830" text-anchor="middle" class="node-sub">InitWriter · Metadata 存储</text>
+
+  <!-- ===== ARROWS (all routed through corridors, never through boxes) ===== -->
+
+  <!-- Gutter channels used:
+       - Layer gap 1: y=283..310 (between Table API and Write Engine)
+       - Layer gap 2: y=646..680 (between Write Engine and RPC)
+       - Left column gap: x=250..370
+       - Mid column gap: x=580..750
+       - Outside left: x=30..60
+       - Outside right: x=940..1070
+  -->
+
+  <!-- 1. ConnFactory → Connection (same layer, leftwards) -->
+  <line x1="750" y1="104" x2="585" y2="104" stroke="#2563eb" stroke-width="1.5" marker-end="url(#a-blue)"/>
+  <text x="668" y="98" text-anchor="middle" class="arrow-label">create()</text>
+
+  <!-- 2. Connection → Table (down through left corridor, then left into Table) -->
+  <path d="M 370 104 L 310 104 L 310 228 L 255 228" stroke="#2563eb" stroke-width="1.5" fill="none" marker-end="url(#a-blue)"/>
+  <text x="310" y="168" text-anchor="end" class="arrow-label">getTable(path)</text>
+
+  <!-- 3. Table → AppendWriterImpl (right across column gap) -->
+  <line x1="250" y1="228" x2="365" y2="228" stroke="#2563eb" stroke-width="1.5" marker-end="url(#a-blue)"/>
+  <text x="308" y="222" text-anchor="middle" class="arrow-label">.newAppend()</text>
+
+  <!-- 4. Table → UpsertWriterImpl (down into layer gap 1, then right, then up — AVOIDS AppendWriterImpl!) -->
+  <path d="M 155 260 L 155 295 L 845 295 L 845 260" stroke="#2563eb" stroke-width="1.5" fill="none" marker-end="url(#a-blue)"/>
+  <text x="500" y="290" text-anchor="middle" class="arrow-label">.newUpsert().createWriter()</text>
+
+  <!-- 5. AppendWriterImpl → WriterClient (straight down) -->
+  <line x1="475" y1="260" x2="475" y2="325" stroke="#2563eb" stroke-width="1.5" marker-end="url(#a-blue)"/>
+  <text x="483" y="296" class="arrow-label">send(record, cb)</text>
+
+  <!-- 6. UpsertWriterImpl → WriterClient (down then left through layer gap 1) -->
+  <path d="M 845 260 L 845 295 L 580 295 L 580 325" stroke="#2563eb" stroke-width="1.5" fill="none" marker-end="url(#a-blue)"/>
+  <text x="713" y="290" text-anchor="middle" class="arrow-label">send(record, cb)</text>
+
+  <!-- ===== WRITE ENGINE ARROWS ===== -->
+
+  <!-- 7. WriterClient → BucketAssigner (left through mid corridor, then down into BucketAssigner) -->
+  <path d="M 370 368 L 310 368 L 310 425" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="310" y="396" text-anchor="end" class="arrow-label">assignBucket(key)</text>
+
+  <!-- 8. BucketAssigner → RecordAccumulator (up through left corridor, then right) -->
+  <path d="M 155 426 L 155 406 L 310 406 L 370 406" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="263" y="400" text-anchor="middle" class="arrow-label">bucketId</text>
+
+  <!-- 9. WriterClient → RecordAccumulator (straight down) -->
+  <line x1="475" y1="406" x2="475" y2="421" stroke="#dc2626" stroke-width="1.5" marker-end="url(#a-red)"/>
+  <text x="483" y="416" class="arrow-label">append(record, cb, bucketId)</text>
+
+  <!-- 10. WriterClient → MetadataUpdater (down through spaces between Row1→Row2→Row3, NEVER through RecordAccumulator!) -->
+  <!-- Route: left out of WriterClient, down through left corridor, right into MetadataUpdater -->
+  <path d="M 370 368 L 310 368 L 310 578 L 365 578" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="310" y="480" text-anchor="end" class="arrow-label">updateMetadata()</text>
+
+  <!-- 11. WriterClient → DynamicPartitionCreator (right out, down through right corridor, right in) -->
+  <path d="M 580 368 L 660 368 L 660 578 L 745 578" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="660" y="480" text-anchor="start" class="arrow-label">checkAndCreatePartitionAsync()</text>
+
+  <!-- 12. RecordAccumulator → Sender (right through mid corridor, then up) -->
+  <path d="M 580 464 L 660 464 L 660 368 L 745 368" stroke="#2563eb" stroke-width="1.5" fill="none" marker-end="url(#a-blue)"/>
+  <text x="660" y="418" text-anchor="start" class="arrow-label">drain() · batches by node</text>
+
+  <!-- 13. MetadataUpdater → Sender (up through right corridor) -->
+  <path d="M 580 578 L 660 578 L 660 368 L 745 368" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="660" y="476" text-anchor="start" class="arrow-label">getCluster()</text>
+
+  <!-- 14. IdempotenceManager → Sender (straight up, same column) -->
+  <line x1="845" y1="426" x2="845" y2="411" stroke="#dc2626" stroke-width="1.5" marker-end="url(#a-red)"/>
+  <text x="853" y="421" class="arrow-label">writerId · sequence</text>
+
+  <!-- 15. Sender → WriterClient (callback, left across layer gap) -->
+  <path d="M 750 368 L 585 368" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#a-purple)"/>
+  <text x="668" y="362" text-anchor="middle" class="arrow-label">callback</text>
+
+  <!-- 16. Sender → RpcClient (down right corridor, then left — NEVER through IdempotenceManager/DynamicPartitionCreator!) -->
+  <path d="M 845 406 L 845 420 L 980 420 L 980 724 L 585 724" stroke="#2563eb" stroke-width="1.5" fill="none" marker-end="url(#a-blue)"/>
+  <text x="980" y="570" text-anchor="start" class="arrow-label">ProduceLog / PutKv</text>
+
+  <!-- 17. DynamicPartitionCreator → RpcClient (down through right corridor, then left through layer gap 2) -->
+  <path d="M 750 578 L 700 578 L 700 646 L 585 646" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="700" y="612" text-anchor="end" class="arrow-label">admin.createPartition()</text>
+
+  <!-- 18. RpcClient → TabletServer (straight down) -->
+  <line x1="475" y1="746" x2="475" y2="785" stroke="#2563eb" stroke-width="1.5" marker-end="url(#a-blue)"/>
+
+  <!-- 19. RpcClient → Coordinator (right across layer gap 2, then down) -->
+  <path d="M 585 724 L 845 724 L 845 785" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#a-red)"/>
+  <text x="715" y="718" text-anchor="middle" class="arrow-label">initWriter · metadata query</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="60" y="790" width="210" height="88" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="78" y="814" font-size="12" font-weight="700" fill="#111827">图例</text>
+  <line x1="78" y1="834" x2="118" y2="834" stroke="#2563eb" stroke-width="1.5" marker-end="url(#a-blue)"/>
+  <text x="126" y="838" class="legend-text">数据流</text>
+  <line x1="78" y1="858" x2="118" y2="858" stroke="#dc2626" stroke-width="1.5" marker-end="url(#a-red)"/>
+  <text x="126" y="862" class="legend-text">控制流 / 元数据</text>
+  <line x1="168" y1="858" x2="208" y2="858" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a-purple)"/>
+  <text x="216" y="862" class="legend-text">异步</text>
+</svg>

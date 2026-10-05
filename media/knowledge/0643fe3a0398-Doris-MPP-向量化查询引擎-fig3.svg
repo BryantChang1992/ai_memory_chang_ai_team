@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 65" width="650" height="65">
+  <style>
+    text { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', 'Microsoft YaHei', 'SimHei', monospace; }
+  </style>
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0f1a"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+    </marker>
+    <marker id="arrow-green-up" markerWidth="6" markerHeight="8" refX="3" refY="0" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <polygon points="0 8, 3 0, 6 8" fill="#10b981"/>
+    </marker>
+  </defs>
+  <rect width="650" height="65" fill="url(#bg-grad)"/>
+  <rect x="10" y="10" width="48" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="34" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Scan</text>
+  <rect x="68" y="10" width="48" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="92" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Filter</text>
+  <rect x="126" y="10" width="52" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="152" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Project</text>
+  <rect x="188" y="10" width="42" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="209" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Join</text>
+  <rect x="240" y="10" width="40" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="260" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Agg</text>
+  <rect x="290" y="10" width="42" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="311" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Sort</text>
+  <rect x="342" y="10" width="42" height="24" rx="4" fill="#052e16" stroke="#059669" stroke-width="1"/>
+  <text x="363" y="24" font-size="11" fill="#e2e8f0" text-anchor="middle">Sink</text>
+  <line x1="58" y1="22" x2="66" y2="22" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="116" y1="22" x2="124" y2="22" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="178" y1="22" x2="186" y2="22" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="230" y1="22" x2="238" y2="22" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="280" y1="22" x2="288" y2="22" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="332" y1="22" x2="340" y2="22" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="92" y1="34" x2="92" y2="44" stroke="#10b981" stroke-width="1" marker-end="url(#arrow-green-up)"/>
+  <text x="92" y="58" font-size="9" fill="#94a3b8" text-anchor="middle">SIMD (SSE/AVX2)</text>
+  <line x1="340" y1="34" x2="340" y2="44" stroke="#10b981" stroke-width="1" marker-end="url(#arrow-green-up)"/>
+  <text x="340" y="58" font-size="9" fill="#94a3b8" text-anchor="middle">内存池管理 (避免碎片)</text>
+  <line x1="363" y1="34" x2="363" y2="44" stroke="#10b981" stroke-width="1" marker-end="url(#arrow-green-up)"/>
+  <text x="363" y="58" font-size="9" fill="#94a3b8" text-anchor="middle">Batch Output</text>
+</svg>

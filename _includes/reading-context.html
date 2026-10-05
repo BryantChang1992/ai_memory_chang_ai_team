@@ -1,3 +1,9 @@
+{% if page.knowledge_source %}
+  <div class="article-context">
+    <a href="{{ '/knowledge/' | relative_url }}">← 技术知识库</a>
+    <span class="reading-meta">研究笔记{% if page.knowledge_status == 'draft' %} · 初稿{% elsif page.knowledge_status == 'reviewed' %} · 已审阅{% elsif page.knowledge_status == 'final' %} · 定稿{% endif %}</span>
+  </div>
+{% endif %}
 {% if page.content_type == '周报' or page.content_type == '周报分稿' %}
   {% assign page_year = page.issue_date | date: '%Y' %}
   {% for item in site.data.catalog.weekly %}
