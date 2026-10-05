@@ -16,25 +16,46 @@ permalink: /knowledge/Log-as-the-Database-模式/
 knowledge_source: 知识库/wiki/Log-as-the-Database-模式.md
 knowledge_status: draft
 knowledge_synced_at: '2026-10-05'
-description: Log-as-the-Database 模式：机制、设计取舍与关联阅读。
+description: Log-as-the-Database 模式：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: frontmatter
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
+mermaid: true
 ---
-
-## Log-as-the-Database 模式
 
 > **来源**：*Reducing Tail Latency in Storage-Disaggregated Database Systems* — SIGMOD 2026，Purdue University  
 > **一句话**：存储计算分离数据库只通过网络传输 redo log，不传数据页——这是架构的核心优势，也是 [tail latency]({{ '/knowledge/存储计算分离数据库的-Tail-Latency/' | relative_url }}) 的结构性根因。
 
 ---
 
-![log-as-the-database](/media/knowledge/30801f281d1b-log-as-the-database.svg)
+
+```mermaid
+flowchart TD
+  C[计算节点] --> L[持久化 redo 日志]
+  L --> R[回放并物化数据页]
+  R --> P[存储层数据页]
+  Q[页面读取] --> P
+  Q -. 所需版本尚未物化 .-> R
+```
+
 ## 1. 什么是 Log-as-the-Database？
 
 在传统单机数据库中，WAL（Write-Ahead Log）只是持久化的第一站——数据页最终会被刷入磁盘。WAL 是"保险"，不是"真相来源"。
 
 在存储计算分离架构（Aurora、Socrates、AlloyDB、Neon）中，**redo log 上升为唯一的数据传输载体**：
 
-![Log-as-the-Database-模式-fig](/media/knowledge/7eac95745d6c-Log-as-the-Database-模式-fig.svg)
+
+```mermaid
+sequenceDiagram
+  participant C as 计算节点
+  participant S as 存储节点
+  C->>S: 发送 redo 日志
+  S-->>C: 按协议确认持久化
+  C->>S: 请求目标版本的数据页
+  S->>S: 必要时回放尚未物化的日志
+  S-->>C: 返回页面
+```
+
 
 
 ### 核心差异
@@ -85,7 +106,7 @@ Crash recovery 时只需从最后一个 checkpoint 开始回放 log，无需传�
 1. **前台**：响应读请求（GetPage@LSN），需要 on-the-fly replay
 2. **后台**：持续回放积压日志，物化数据页
 
-当 workload burst 时，后台回放吃掉 43% CPU，前台查询只剩 49.4%（参见 [存储计算分离数据库的-Tail-Latency]({{ '/knowledge/存储计算分离数据库的-Tail-Latency/' | relative_url }})），直接导致 tail latency 暴涨。
+当 workload burst 时，后台回放吃掉 43% CPU，前台查询只剩 49.4%（参见 [存储计算分离数据库的尾延迟：日志链与后台竞争]({{ '/knowledge/存储计算分离数据库的-Tail-Latency/' | relative_url }})），直接导致 tail latency 暴涨。
 
 ---
 
@@ -130,9 +151,7 @@ Kafka 的 log compaction 同样是 CPU 密集型的后台任务，在分离式�
 
 ## 来源与关联阅读
 
-- [知识库/sources/papers/RaaS/RaaS-SIGMOD2026.pdf]({{ '/media/knowledge/7b761d5ad70a-RaaS-SIGMOD2026.pdf' | relative_url }})
-- [知识库/sources/papers/RaaS/精读分析]({{ '/posts/raas-paper/' | relative_url }})
-- [知识库/sources/papers/RaaS/全文翻译]({{ '/posts/raas-translation/' | relative_url }})
-- [知识库/wiki/存储计算分离数据库的-Tail-Latency]({{ '/knowledge/存储计算分离数据库的-Tail-Latency/' | relative_url }})
-- [知识库/wiki/RaaS-Replay-as-a-Service]({{ '/knowledge/RaaS-Replay-as-a-Service/' | relative_url }})
-- [知识库/wiki/事务模型深度调研]({{ '/posts/transaction-model-survey/' | relative_url }})
+- [RaaS-SIGMOD2026]({{ '/media/knowledge/7b761d5ad70a-RaaS-SIGMOD2026.pdf' | relative_url }})
+- [论文精读：RaaS — 存储计算分离数据库的 Tail Latency 缓解]({{ '/posts/raas-paper/' | relative_url }})
+- [论文中文译述：RaaS — 降低存储计算分离数据库系统中的尾延迟]({{ '/posts/raas-translation/' | relative_url }})
+- [事务模型深度调研：从 ACID 到全球分布式事务]({{ '/posts/transaction-model-survey/' | relative_url }})

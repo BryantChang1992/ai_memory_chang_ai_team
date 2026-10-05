@@ -1,17 +1,25 @@
 ---
-title: "Fluss 源码分析：客户端与计算集成"
+title: Fluss 源码分析：客户端与计算集成
 date: 2026-06-14 08:00:00 +0800
-categories: ["流式数据与消息系统"]
-tags: [Fluss, 客户端, 计算集成]
-description: >-
-  Fluss Java Client 的 Writer/Scanner/Lookuper API、Flink Connector 集成、数据转换层以及 Lake Storage 湖存储层的完整分析。
-topic: "streaming"
-content_type: "源码分析"
-series: "fluss"
+categories:
+- 流式数据与消息系统
+tags:
+- Fluss
+- 客户端
+- 计算集成
+description: Fluss 源码分析：客户端与计算集成：修订后的机制、证据边界与关联阅读。
+topic: streaming
+content_type: 源码分析
+series: fluss
 series_order: 6
-reading_title: "客户端与计算集成"
+reading_title: 客户端与计算集成
+knowledge_source: 项目文档/Fluss源码分析/05-客户端与计算集成.md
+knowledge_synced_at: '2026-10-05'
+last_modified_at: '2026-10-05'
+mermaid: true
 ---
 
+> 源码范围：这是历史阅读记录，原稿未固定 Fluss commit。本次只整理已知概念矛盾与表达，未逐类核对当前上游；下文数量、接口及插件状态不作为当前版本保证。架构职责以 [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }}) 为入口。
 
 ## 5.1 客户端架构概览
 
@@ -21,14 +29,14 @@ graph TB
         subgraph Admin["Admin 管理客户端"]
             FA[FlussAdmin<br/>表/DB/分区管理]
         end
-        
+
         subgraph TableAPI["Table API 层"]
             FT[FlussTable<br/>统一表访问]
             W[Writer - Append / Upsert]
             S[Scanner - Log / KV / Batch]
             LK[Lookuper - PK / Prefix]
         end
-        
+
         subgraph WriteEngine["写入引擎"]
             WC[WriterClient]
             RA[RecordAccumulator<br/>批量缓冲]
@@ -36,7 +44,7 @@ graph TB
             SE[Sender<br/>网络发送线程]
             IM[IdempotenceManager<br/>幂等写入]
         end
-        
+
         subgraph ScanEngine["读取引擎"]
             LS[LogScanner]
             LF[LogFetcher<br/>拉取线程]
@@ -44,14 +52,14 @@ graph TB
             LB[LimitBatchScanner]
             RL[RemoteLogDownloader]
         end
-        
+
         subgraph RPC["RPC 通信"]
             FC[FlussConnection]
             NW[NettyClient]
             MU[MetadataUpdater]
         end
     end
-    
+
     FT --> W
     FT --> S
     FT --> LK
@@ -117,14 +125,14 @@ sequenceDiagram
     participant BA as BucketAssigner
     participant SE as Sender
     participant TS as TabletServer
-    
+
     User->>AW: append(row)
     AW->>BA: assignBucket(row)
     BA->>BA: hash(key) % bucketCount
     BA-->>AW: TableBucket
     AW->>RA: append(bucket, batch)
     Note over RA: 按 bucket 聚合批次<br/>达到 batch.size 或 linger.ms
-    
+
     SE->>RA: drain() 获取就绪批次
     loop 每个就绪批次
         SE->>TS: ProduceLogRequest(bucket, records)
@@ -150,7 +158,7 @@ IdempotenceManager {
     - IdempotenceBucketMap bucketMap
     - long writerId
     - int nextSequence → 类似 Kafka ProducerIdManager
-    
+
     保证：同一 Writer 的同一 offset 只会写入一次
     实现机制：writerId + sequenceNumber + bucket-based tracking
 }
@@ -202,7 +210,7 @@ flowchart TD
 ```
 CompositeBatchScanner:
   = KvBatchScanner + KvSnapshotBatchScanner（组合）
-  
+
 KvBatchScanner:
   1. 获取 KV 快照列表 (GetLatestKvSnapshots)
   2. 下载快照文件 (从远程存储)
@@ -228,10 +236,10 @@ sequenceDiagram
     participant TS as TabletServer
     participant RL as RemoteLogDownloader
     participant Remote as S3/HDFS
-    
+
     User->>LS: poll(records)
     LS->>LF: fetch(bucket)
-    
+
     alt 本地有数据
         LF->>TS: FetchLogRequest(bucket, startOffset)
         TS-->>LF: FetchLogResponse(records)
@@ -242,7 +250,7 @@ sequenceDiagram
         RL->>Remote: GET
         Remote-->>RL: log segments
     end
-    
+
     LF-->>LS: CompletedFetch
     LS-->>User: Iterator<ScanRecord>
 ```
@@ -337,19 +345,19 @@ graph LR
         LT[LogTablet]
         KT[KvTablet]
     end
-    
+
     subgraph TieringJob["Flink Tiering Job"]
         TS[TieringSource<br/>读取 Tablet 数据]
         LW[LakeWriter<br/>写入 Lake Storage]
         TC[TieringCommitter<br/>提交 Snapshot]
     end
-    
+
     subgraph Lakehouse
         Ice[(Iceberg)]
         Pai[(Paimon)]
         Lan[(Lance)]
     end
-    
+
     LT --> TS
     KT --> TS
     TS --> LW

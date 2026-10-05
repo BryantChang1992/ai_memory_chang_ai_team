@@ -1,17 +1,25 @@
 ---
-title: "Fluss 源码分析：存储引擎模块"
+title: Fluss 源码分析：存储引擎模块
 date: 2026-06-14 08:00:00 +0800
-categories: ["流式数据与消息系统"]
-tags: [Fluss, 存储引擎, 流存储]
-description: >-
-  Fluss 三层存储模型（本地 Log + KV Store + 远程分层）的深度分析，与 Kafka 2.7.2 单层存储的逐类对比。
-topic: "streaming"
-content_type: "源码分析"
-series: "fluss"
+categories:
+- 流式数据与消息系统
+tags:
+- Fluss
+- 存储引擎
+- 流存储
+description: Fluss 源码分析：存储引擎模块：修订后的机制、证据边界与关联阅读。
+topic: streaming
+content_type: 源码分析
+series: fluss
 series_order: 4
-reading_title: "存储引擎模块"
+reading_title: 存储引擎模块
+knowledge_source: 项目文档/Fluss源码分析/02-存储引擎模块.md
+knowledge_synced_at: '2026-10-05'
+last_modified_at: '2026-10-05'
+mermaid: true
 ---
 
+> 源码范围：这是历史阅读记录，原稿未固定 Fluss commit。本次只整理已知概念矛盾与表达，未逐类核对当前上游；下文数量、接口及插件状态不作为当前版本保证。架构职责以 [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }}) 为入口。
 
 ## 2.1 整体架构概览
 
@@ -22,11 +30,11 @@ graph TB
         LM[LogManager]
         KM[KvManager]
         RLM[RemoteLogManager]
-        
+
         RM --> LM
         RM --> KM
         RM --> RLM
-        
+
         subgraph LogSubsystem["Log 子系统"]
             LT[LogTablet]
             LL[LocalLog]
@@ -36,7 +44,7 @@ graph TB
             LL --> LS
             LL --> LCP
         end
-        
+
         subgraph KVSubsystem["KV 子系统"]
             KT[KvTablet]
             RK[RocksDBKv]
@@ -48,16 +56,16 @@ graph TB
             KT --> SNAP
             KT --> MERGE
         end
-        
+
         LM --> LT
         KM --> KT
     end
-    
+
     subgraph Remote["远程存储"]
         S3[(S3/HDFS/OSS)]
         Lake[(Lakehouse<br/>Iceberg/Paimon)]
     end
-    
+
     RLM --> S3
     LT -.-> S3
     KT -.-> S3
@@ -184,7 +192,7 @@ graph TB
         AUTO[AutoIncrementManager<br/>自增 ID 管理]
         PARTUP[PartialUpdater<br/>部分更新]
         PREW[KvPreWriteBuffer<br/>预写缓冲区]
-        
+
         KM --> KT
         KT --> RDB
         KT --> WAL
@@ -288,7 +296,7 @@ classDiagram
     class AggregateRowMerger {
         聚合（SUM / MAX / MIN / COUNT...）
     }
-    
+
     RowMerger <|.. DefaultRowMerger
     RowMerger <|.. FirstRowRowMerger
     RowMerger <|.. VersionedRowMerger

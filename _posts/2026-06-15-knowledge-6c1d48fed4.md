@@ -14,9 +14,14 @@ permalink: /knowledge/Fluss-Kafka兼容层/
 knowledge_source: 知识库/wiki/Fluss-Kafka兼容层.md
 knowledge_status: draft
 knowledge_synced_at: '2026-10-05'
-description: Fluss Kafka 兼容层：机制、设计取舍与关联阅读。
+description: Fluss Kafka 兼容层：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: frontmatter
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
+mermaid: true
 ---
+
+> 版本边界：本文源于未固定 commit 的历史源码阅读。组件职责已对照 [Fluss 架构文档](https://fluss.apache.org/docs/concepts/architecture/)；类名、数量、接口和兼容能力应在指定 release/commit 上复核，不能视为当前版本保证。图示为职责概括。
 
 ## Fluss Kafka 兼容层
 
@@ -28,7 +33,16 @@ Fluss 的 Kafka 兼容层是通过 `NetworkProtocolPlugin` 接口实现的**协�
 
 
 
-![Fluss-Kafka兼容层-fig2](/media/knowledge/30fce154cc72-Fluss-Kafka兼容层-fig2.svg)
+
+```mermaid
+flowchart TD
+  C[Kafka 客户端请求] --> D[协议解析入口]
+  D --> H[逐 API 适配处理]
+  H --> S[Fluss 数据与控制服务]
+  H --> V[按版本验证兼容语义]
+  V --> E[错误码、事务、消费位点等]
+```
+
 
 ## 双协议枚举
 
@@ -85,6 +99,6 @@ Fluss 不打算用 Kafka 协议作为内部实现——原生 Fluss API（61 个
 
 ## 来源与关联阅读
 
-- [参考来源](https://github.com/BryantChang1992/ai_memory_chang_ai_team/blob/master/tech_research/fluss/04-数据面-网络与RPC.html)
-- [知识库/wiki/Fluss-RPC与网络]({{ '/knowledge/Fluss-RPC与网络/' | relative_url }})
-- [知识库/wiki/Fluss-整体架构]({{ '/knowledge/Fluss-整体架构/' | relative_url }})
+- [原始来源](https://github.com/BryantChang1992/ai_memory_chang_ai_team/blob/master/tech_research/fluss/04-数据面-网络与RPC.html)
+- [Fluss RPC 与网络层分析]({{ '/knowledge/Fluss-RPC与网络/' | relative_url }})
+- [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }})

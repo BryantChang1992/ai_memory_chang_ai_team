@@ -1,5 +1,5 @@
 ---
-title: InfluxDB 写入与查询路径
+title: InfluxDB 写入与查询：先区分产品形态
 date: 2026-06-14 08:00:00 +0800
 categories:
 - 数据库与存储
@@ -17,107 +17,79 @@ permalink: /knowledge/InfluxDB-写入与查询路径/
 knowledge_source: 知识库/wiki/InfluxDB-写入与查询路径.md
 knowledge_status: final
 knowledge_synced_at: '2026-10-05'
-description: InfluxDB 写入与查询路径：机制、设计取舍与关联阅读。
+description: InfluxDB 写入与查询：先区分产品形态：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: frontmatter
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
+mermaid: true
 ---
 
-## InfluxDB 写入与查询路径
+TSM 是 v1/v2 的引擎路线；InfluxDB 3 Core 与 Clustered 虽共享列式技术方向，其进程拓扑和 WAL 持久化路径不能混画。以下比较的是官方文档描述的默认路径，部署时还需核对版本和配置。
 
-![influxdb-read-write-path](/media/knowledge/3f27ed3298af-influxdb-read-write-path.svg)
-## 一、写入路径对比
+## v1/v2：WAL、Cache、TSM
 
-### v1/v2 写入路径 (Go)
-
-```svg
-
-![[diagram/InfluxDB-写入与查询路径-fig1.svg]]
-
-
-
+```mermaid
+flowchart TD
+  W[写入请求] --> L[追加 WAL 并持久化]
+  L --> M[更新内存 Cache]
+  M --> ACK[确认写入]
+  M --> T[后台快照生成不可变 TSM]
+  T --> C[Compaction 生成新的 TSM]
+  Q[查询] --> M
+  Q --> T
+  Q --> R[合并内存和磁盘结果]
 ```
 
-**关键细节**：
-- **WAL 和 Cache 同时写入**：WAL 确保持久性（与 [事务模型深度调研]({{ '/posts/transaction-model-survey/' | relative_url }}) 中 WAL 机制同源），Cache 确保立即可查
-- **WAL 分段压缩**：每个 batch 用 Snappy 压缩后 append 到 WAL 文件
-- **Cache Flush 触发条件**：Cache 大小超过阈值 (25MB) 或定时触发 (10min)
-- **Compaction 层级**：每级文件大小递增，类似 [LSM-Tree]({{ '/knowledge/LSM-Tree/' | relative_url }}) 的 Leveling 策略
+查询合并 Cache 和 TSM；WAL 用于恢复 Cache，不是普通查询扫描的数据源。TSM compaction 写新文件，因此不能说 TSM 文件可变、只有 Parquet 才不可变。
 
-**写放大问题**：同一条数据被反复读写——WAL(1x) → Cache → TSM L0(flush) → L0→L1(compact) → L1→L2...
+## InfluxDB 3 Core：对象存储 WAL 与内存可查询数据
 
-### v3 写入路径 (Rust)
-
-```svg
-
-![[diagram/InfluxDB-写入与查询路径-fig2.svg]]
-
-
-
+```mermaid
+flowchart TD
+  W[校验写入并更新写缓冲] --> L[WAL 刷到配置的对象存储]
+  L --> A[默认同步模式确认]
+  L --> M[内存数据进入可查询状态]
+  M --> P[后台写 Parquet]
+  Q[DataFusion 查询] --> M
+  Q --> P
+  W -. no_sync 提前返回 .-> N[接受尚未持久化时故障丢失的风险]
 ```
 
-**关键优化**：
-1. **Cardinality-Aware Sort**：按基数最低的列优先排序，最大化 Parquet 压缩效率
-2. **单次写入**：数据直接写成 Parquet，无多级 Compaction 写放大
-3. **毫秒级延迟**：不等待 Compaction，写入 Object Store + Catalog Update 后立即可查
-4. **WAL 语义简化**：仅用于 crash recovery，不参与查询路径
+`no_sync=true` 改变确认边界；不能套用默认同步模式的数据耐久性结论。文件尚未变成 Parquet，不代表数据不可查询。
 
-### 写入路径总览
+## InfluxDB Clustered：Router、Ingester、Querier
 
-```
-v1/v2: HTTP → WAL + Cache → TSI → Cache Flush → TSM L0 → Compaction L1→L2 (多次 I/O)
-v3:    HTTP → Ingest Router → Ingester (校验/分区/排序/去重) → Parquet (单次写入)
-```
-
-## 二、查询路径对比
-
-### v1/v2 查询路径 — Iterator 模型
-
-```svg
-
-![[diagram/InfluxDB-写入与查询路径-fig3.svg]]
-
-
-
+```mermaid
+flowchart TD
+  W[Router 校验与路由] --> I1[Ingester 1：本地 WAL 与内存]
+  W --> I2[Ingester 2：本地 WAL 与内存]
+  I1 --> P[对象存储 Parquet]
+  I2 --> P
+  Q[Querier] --> I1
+  Q --> I2
+  Q --> CAT[Catalog：schema、partition、文件元数据]
+  Q --> P
 ```
 
-**Iterator 模型的核心缺陷**：
-- **O(N) per Series**：每个 Series 一个独立 Iterator，N 个 Series = N 个 Iterator
-- **无向量化**：逐点处理，无 SIMD 加速
-- **TSM Block 解码**：每次查询都需解码 TSM Block
-- **单线程执行**：v1/v2 查询引擎为单线程模型
+Clustered 默认把写入复制到多个 Ingester，WAL 在各 Ingester 本地持久化。Querier 需要最近写入数据时会访问 Ingester，并按 Catalog 信息读取已持久化文件。它不是“所有组件只通过对象存储通信”。
 
-### v3 查询路径 — DataFusion 向量化
+## 调优前先定位瓶颈
 
-```svg
+把写入确认延迟、内存可见延迟、Parquet 持久化延迟、compaction 积压分别观测。对查询区分最近数据和历史扫描，记录时间范围、过滤选择性、并发及冷热缓存；仅比较文件格式无法解释端到端延迟。
 
-![[diagram/InfluxDB-写入与查询路径-fig4.svg]]
+关联：[InfluxDB TSM 存储引擎]({{ '/knowledge/InfluxDB-TSM存储引擎/' | relative_url }})、[InfluxDB 3 的列式引擎：格式、执行与部署]({{ '/knowledge/InfluxDB-3-列存引擎/' | relative_url }})、[InfluxDB 耐久性与高可用：确认边界和故障边界]({{ '/knowledge/InfluxDB-多副本与高可用/' | relative_url }})。
 
-```
 
-**核心突破**：
-1. **无索引查找**：Parquet Statistics (Min/Max) 直接跳过不相关文件
-2. **Predicate + Projection Pushdown**：存储层就完成过滤和列选择
-3. **向量化执行**：4096 行 Batch，利用 SIMD 指令加速
-4. **Per-Partition 并行**：每个 Partition 独立并行扫描
-5. **仅重叠文件去重**：非重叠文件直接 stream，避免不必要排序
+## 核验来源
 
-**关键结论**：查询延迟不再随 Series 基数线性增长——DataFusion 的批量处理模型从根本上消除了 v1/v2 Iterator 模型的 O(N) 瓶颈。
-
-### 查询路径总览
-
-```
-v1/v2: Iterator Model · O(N) per Series · 逐点处理 · 无向量化
-v3:    DataFusion Physical Plan · 批量 4096 行 · SIMD · 并行 · 仅重叠去重
-```
-
----
-
-*参考: "InfluxDB Internals 101: Data Model & Write Path" — Ryan Betts; InfluxData 官方文档*
+- [OSS v2 存储引擎](https://docs.influxdata.com/influxdb/v2/reference/internals/storage-engine/)
+- [3 Core 数据耐久性](https://docs.influxdata.com/influxdb3/core/reference/internals/durability/)
+- [Clustered 存储架构](https://docs.influxdata.com/influxdb3/clustered/reference/internals/storage-engine/)
+- [Clustered 数据耐久性](https://docs.influxdata.com/influxdb3/clustered/reference/internals/durability/)
 
 ## 来源与关联阅读
 
-- [技术文章/InfluxDB调研/03-写入与查询路径]({{ '/knowledge/InfluxDB调研-03-写入与查询路径/' | relative_url }})
-- [知识库/wiki/InfluxDB深度调研]({{ '/knowledge/InfluxDB深度调研/' | relative_url }})
-- [知识库/wiki/InfluxDB-TSM存储引擎]({{ '/knowledge/InfluxDB-TSM存储引擎/' | relative_url }})
-- [知识库/wiki/InfluxDB-3-列存引擎]({{ '/knowledge/InfluxDB-3-列存引擎/' | relative_url }})
-- [知识库/wiki/事务模型深度调研]({{ '/posts/transaction-model-survey/' | relative_url }})
-- [知识库/wiki/LSM-Tree]({{ '/knowledge/LSM-Tree/' | relative_url }})
+- [InfluxDB 写入与查询：先区分产品形态]({{ '/knowledge/InfluxDB调研-03-写入与查询路径/' | relative_url }})
+- [InfluxDB 深度调研导航]({{ '/knowledge/InfluxDB深度调研/' | relative_url }})
+- [事务模型深度调研：从 ACID 到全球分布式事务]({{ '/posts/transaction-model-survey/' | relative_url }})
+- [LSM-Tree (Log-Structured Merge-Tree)]({{ '/knowledge/LSM-Tree/' | relative_url }})

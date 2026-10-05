@@ -1,17 +1,25 @@
 ---
-title: "Fluss 源码分析：数据面 — 网络与 RPC"
+title: Fluss 源码分析：数据面 — 网络与 RPC
 date: 2026-06-14 08:00:00 +0800
-categories: ["流式数据与消息系统"]
-tags: [Fluss, 网络, RPC]
-description: >-
-  Fluss RPC 框架的 Netty 传输层、Protobuf 序列化、双协议引擎（Fluss + Kafka）、Gateway 动态代理和 Kafka 协议兼容层的深度分析。
-topic: "streaming"
-content_type: "源码分析"
-series: "fluss"
+categories:
+- 流式数据与消息系统
+tags:
+- Fluss
+- 网络
+- RPC
+description: Fluss 源码分析：数据面 — 网络与 RPC：修订后的机制、证据边界与关联阅读。
+topic: streaming
+content_type: 源码分析
+series: fluss
 series_order: 3
-reading_title: "数据面 — 网络与 RPC"
+reading_title: 数据面 — 网络与 RPC
+knowledge_source: 项目文档/Fluss源码分析/04-数据面-网络与RPC.md
+knowledge_synced_at: '2026-10-05'
+last_modified_at: '2026-10-05'
+mermaid: true
 ---
 
+> 源码范围：这是历史阅读记录，原稿未固定 Fluss commit。本次只整理已知概念矛盾与表达，未逐类核对当前上游；下文数量、接口及插件状态不作为当前版本保证。架构职责以 [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }}) 为入口。
 
 ## 4.1 整体架构概览
 
@@ -24,7 +32,7 @@ graph TB
             SC[ServerConnection]
             CC[ClientChannelInitializer]
         end
-        
+
         subgraph Server["服务端"]
             NS[NettyServer]
             SC2[ServerChannelInitializer]
@@ -33,13 +41,13 @@ graph TB
             FH[FlussRequestHandler]
             KH[KafkaRequestHandler]
         end
-        
+
         subgraph Protocol["协议层"]
             AM[ApiManager<br/>管理 ApiKeys + method dispatch]
             MC[MessageCodec<br/>Protobuf 编解码]
             NP[NetworkProtocolPlugin<br/>多协议支持]
         end
-        
+
         GC --> NC
         NC --> SC
         NS --> SC2
@@ -162,7 +170,7 @@ graph LR
         HC --> FH[FlussRequestHandler]
         HC --> KH[KafkaRequestHandler]
     end
-    
+
     subgraph "协议检测"
         Magic[Fluss Magic Bytes 检测]
         KafkaDecoder[Kafka Protocol Decoder]
@@ -237,7 +245,7 @@ classDiagram
         +getClusterConfigs()
         ...
     }
-    
+
     RpcGatewayService <|-- RpcGateway
     RpcGateway <|-- TabletServerGateway
     RpcGateway <|-- CoordinatorGateway

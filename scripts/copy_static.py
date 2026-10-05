@@ -21,6 +21,14 @@ def relative_link(source, url):
 
 
 def organize_legacy_html(source):
+    canonical = canonical_pages.get(source.relative_to(root).as_posix())
+    if canonical:
+        href = html.escape(relative_link(source, canonical), quote=True)
+        return ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+                '<meta name="viewport" content="width=device-width,initial-scale=1">'
+                '<meta http-equiv="refresh" content="0;url=' + href + '">'
+                '<title>文章已更新</title></head><body><p>文章已合并到修订后的入口：'
+                '<a href="' + href + '">阅读当前版本</a></p></body></html>')
     text = source.read_text(encoding='utf-8')
     links = [('/', '首页'), ('/library/', '专题'), ('/weekly/', '周报'), ('/about/', '关于')]
     navigation = '<nav class="global-nav" aria-label="主导航">'

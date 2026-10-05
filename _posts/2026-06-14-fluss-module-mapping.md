@@ -1,17 +1,23 @@
 ---
-title: "Fluss 源码分析：模块对应关系总表"
+title: Fluss 源码分析：模块对应关系总表
 date: 2026-06-14 08:00:00 +0800
-categories: ["流式数据与消息系统"]
-tags: [Fluss, 模块总结]
-description: >-
-  Fluss 所有模块与 Kafka 2.7.2 的完整对照表，包含 100+ 类的逐一对比、独家能力矩阵和代码复用度统计。
-topic: "streaming"
-content_type: "源码分析"
-series: "fluss"
+categories:
+- 流式数据与消息系统
+tags:
+- Fluss
+- 模块总结
+description: Fluss 源码分析：模块对应关系总表：修订后的机制、证据边界与关联阅读。
+topic: streaming
+content_type: 源码分析
+series: fluss
 series_order: 2
-reading_title: "模块对应关系总表"
+reading_title: 模块对应关系总表
+knowledge_source: 项目文档/Fluss源码分析/07-模块对应关系总表.md
+knowledge_synced_at: '2026-10-05'
+last_modified_at: '2026-10-05'
 ---
 
+> 源码范围：这是历史阅读记录，原稿未固定 Fluss commit。本次只整理已知概念矛盾与表达，未逐类核对当前上游；下文数量、接口及插件状态不作为当前版本保证。架构职责以 [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }}) 为入口。
 
 ## 7.1 Maven 模块 → Kafka Sub-Project 映射
 
@@ -220,7 +226,7 @@ reading_title: "模块对应关系总表"
 | **Kafka 协议兼容** | ⚠️ (骨架阶段) | ✅ (原生) | 未来可期 |
 | **存算分离** | ✅ (TabletServer 独立) | ❌ (Broker 存算耦合) | **Fluss 更灵活** |
 | **ZK 依赖** | ✅ | ✅ | 持平 |
-| **KRaft 去 ZK** | ❌ | ✅ (KIP-500 实验) | Kafka 领先 |
+| **KRaft 去 ZK** | ❌ | ❌（2.7.2 不含可用 KRaft 部署） | Kafka 领先 |
 
 ---
 
@@ -258,4 +264,4 @@ API:          Producer/Consumer          Writer/Scanner/Lookuper
 
 > **分析完成**。本文档基于 Fluss trunk 源码 (depth 1 clone) 与 Kafka 2.7.2 源码 (detached HEAD at 37a1cc3) 的逐文件对比分析。所有结论均有对应源码文件作证。
 > 
-> 返回首页：[Fluss 源码分析总览]({{ '/library/#fluss' | relative_url }})
+> 返回首页：[Fluss 源码分析总览](https://bryantchang1992.github.io/ai_memory_chang_ai_team/library/#fluss)

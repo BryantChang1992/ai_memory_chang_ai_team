@@ -1,5 +1,5 @@
 ---
-title: Qwen 3.6 模型发布 — 精读分析
+title: Qwen 3.6：27B Dense 与 35B-A3B MoE
 date: 2026-07-03 08:00:00 +0800
 categories:
 - AI 基础设施与数据平台
@@ -9,43 +9,43 @@ topic: ai
 content_type: 深度调研
 permalink: /knowledge/qwen-3.6-精读分析/
 knowledge_source: 知识库/sources/web/qwen-3.6/精读分析.md
-knowledge_status: historical
+knowledge_status: draft
 knowledge_synced_at: '2026-10-05'
-description: Qwen 3.6 模型发布 — 精读分析：机制、设计取舍与关联阅读。
+description: Qwen 3.6：27B Dense 与 35B-A3B MoE：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: document
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
+mermaid: true
 ---
 
-## Qwen 3.6 模型发布 — 精读分析
+本页按模型发布方的模型卡记录架构与评估边界。结果是发布方报告，未在本知识库独立复现。
 
-## 基本信息
+| 模型 | 参数口径 | 架构区别 |
+|---|---|---|
+| Qwen3.6-27B | 27B | Dense；混合线性注意力与标准注意力 |
+| Qwen3.6-35B-A3B | 总参数 35B，激活约 3B | MoE；不能称为 35B Dense |
 
-| 维度 | 内容 |
-|------|------|
-| 来源 | Alibaba Qwen 团队官方发布 |
-| 类型 | LLM 模型版本发布 |
-| 分析日期 | 2026-07-03 |
-| 归档日期 | 2026-07-03 |
+激活参数影响每 token 计算，但部署仍需要存放专家权重，并承担 KV cache、运行时缓冲和并发的成本。不能由 A3B 推断只需装载 3B 权重，或承诺固定 20GB 显存即可满足所有长度和吞吐需求。
 
-## 核心内容
+## 如何阅读成绩
 
-Alibaba Qwen 3.6 系列于 2026 年 6 月底发布，核心看点是在模型参数效率上的重大突破：
+27B 模型卡在 SWE-bench Verified 给出 77.2，与同表 Qwen3.5-397B-A17B 的 76.2 接近；这个比较只适用于该基准和发布方设置，不等于 27B 在所有任务达到近 400B 模型水平。模型卡还说明工具 harness、采样、上下文和部分基准的专门评测方式。
 
-### 关键模型
+本地选择模型应固定代码仓库、工具权限、上下文预算、量化方式和重试次数；同时观察任务成功率、延迟、显存及失败类型。原生上下文上限也不是推荐每个请求都填满的长度。
 
-| 模型 | 参数量 | 核心亮点 |
-|------|--------|----------|
-| Qwen 3.6 27B | 27B 密集模型 | 匹配前代 400B 模型精度，仅 1/16 参数 |
-| Qwen 3.6 35B | 35B | ~20GB 内存可运行，超越 120B 级前代模型 |
+```mermaid
+flowchart TD
+  T[真实任务集] --> H[固定工具与评测设置]
+  H --> D[27B Dense]
+  H --> M[35B-A3B MoE]
+  D --> E[质量、延迟、显存、成本]
+  M --> E
+```
 
-### 生态意义
+关联：[Agent Harness Engineering 综述]({{ '/knowledge/Agent-Harness-Engineering-Survey综述/' | relative_url }})、[Model Neutrality — 模型中立与反锁定]({{ '/knowledge/Model-Neutrality-模型中立与反锁定/' | relative_url }})。
 
-1. **Agent 本地部署的里程碑**：27B/35B 级别模型在消费级硬件上即可运行，Nvidia 推荐 DGX Spark (128GB) + Qwen 3.6 作为 "always-on agentic computer"
-2. **Hermes Agent 的理想运行时**：Hermes Agent 声称 30B 参数级模型即可稳定运行，Qwen 3.6 恰好在此区间
-3. **参数效率革命**：1/16 参数达到同等精度 → 推理成本大幅下降，适合 Agent 场景下频繁的长上下文推理
 
-### 与 Agent 框架的关系
+## 核验来源
 
-Qwen 3.6 作为"小而精"的密集模型，特别适合以下 Agent 场景：
-- **本地 Agent**：在 DGX Spark / M4 Ultra / 高端工作站上运行 24x7 Agent
-- **子 Agent 推理**：Hermes 的 Contained Sub-Agents 可以以小模型执行子任务
-- **低延迟交互**：密集模型推理延迟可控，适合实时 Agent 对话
+- [Qwen3.6-27B 模型卡](https://huggingface.co/Qwen/Qwen3.6-27B)
+- [Qwen3.6-35B-A3B 模型卡](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)

@@ -1,17 +1,25 @@
 ---
-title: "Fluss 源码分析：Lake 层与湖仓融合"
+title: Fluss 源码分析：Lake 层与湖仓融合
 date: 2026-06-14 08:00:00 +0800
-categories: ["流式数据与消息系统"]
-tags: [Fluss, Lake层, 湖仓融合]
-description: >-
-  Fluss Lake 层架构：Iceberg/Paimon/Hudi/Lance 四种后端实现、Flink Tiering 独立作业、与 Kafka KIP-405 的差异对比。
-topic: "streaming"
-content_type: "源码分析"
-series: "fluss"
+categories:
+- 流式数据与消息系统
+tags:
+- Fluss
+- Lake层
+- 湖仓融合
+description: Fluss 源码分析：Lake 层与湖仓融合：修订后的机制、证据边界与关联阅读。
+topic: streaming
+content_type: 源码分析
+series: fluss
 series_order: 7
-reading_title: "Lake 层与湖仓融合"
+reading_title: Lake 层与湖仓融合
+knowledge_source: 项目文档/Fluss源码分析/06-Lake层与湖仓融合.md
+knowledge_synced_at: '2026-10-05'
+last_modified_at: '2026-10-05'
+mermaid: true
 ---
 
+> 源码范围：这是历史阅读记录，原稿未固定 Fluss commit。本次只整理已知概念矛盾与表达，未逐类核对当前上游；下文数量、接口及插件状态不作为当前版本保证。架构职责以 [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }}) 为入口。
 
 ## 6.1 概述
 
@@ -24,32 +32,32 @@ graph TB
         SC[Scanner]
         LK[Lookuper]
     end
-    
+
     subgraph Server["Fluss Server"]
         TS[TabletServer]
         CO[CoordinatorServer]
-        
+
         subgraph Local["本地存储"]
             LOG[LogTablet]
             KV[KvTablet]
         end
-        
+
         RL[RemoteLogManager]
     end
-    
+
     subgraph Lakehouse["Lakehouse 数据湖"]
         ICE[(Apache Iceberg)]
         PAI[(Apache Paimon)]
         HUD[(Apache Hudi)]
         LAN[(Lance)]
     end
-    
+
     subgraph Tiering["分层写入 (Tiering)"]
         TJ[Flink Tiering Job]
         TW[LakeWriter]
         TC[LakeCommitter]
     end
-    
+
     WT --> TS
     SC --> TS
     TS --> LOG
@@ -218,22 +226,22 @@ sequenceDiagram
     participant LW as LakeWriter
     participant LC as LakeCommitter
     participant LH as Lakehouse
-    
+
     TS->>CO: lakeTieringHeartbeat(bucket)
     CO->>CO: 判断是否需要 Tiering
-    
+
     TJ->>CO: 轮询 tiering tasks
     CO-->>TJ: TableBucket + offsetRange
-    
+
     TJ->>TS: FetchLog / GetBucketLog → 读取本地日志
     TS-->>TJ: records
-    
+
     TJ->>LW: write(records)
     LW->>LH: write Parquet/Arrow files
-    
+
     TJ->>LC: commit(snapshot)
     LC->>LH: commit snapshot
-    
+
     TJ->>CO: commitLakeTableSnapshot(bucket, offset)
     CO->>TS: notifyLakeTableOffset(bucket, offset)
     TS->>TS: 更新 local lake log start offset

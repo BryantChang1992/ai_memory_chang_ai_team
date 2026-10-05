@@ -1,5 +1,5 @@
 ---
-title: ByteHouse 统一表引擎 — 两阶段写入与多模态存储
+title: ByteHouse 统一表引擎
 date: 2026-06-15 08:00:00 +0800
 categories:
 - 数据库与存储
@@ -18,11 +18,12 @@ permalink: /knowledge/ByteHouse-统一表引擎/
 knowledge_source: 知识库/wiki/ByteHouse-统一表引擎.md
 knowledge_status: draft
 knowledge_synced_at: '2026-10-05'
-description: ByteHouse 统一表引擎 — 两阶段写入与多模态存储：机制、设计取舍与关联阅读。
+description: ByteHouse 统一表引擎：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: frontmatter
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
+mermaid: true
 ---
-
-## ByteHouse 统一表引擎
 
 ## 定义
 
@@ -30,7 +31,17 @@ ByteHouse 的 Unified Table Engine 将结构化 OLAP、增量刷新、多模态�
 
 ## 逻辑表设计 — Document/Chunk 两级抽象
 
-![bytehouse-doc-chunk](/media/knowledge/30d36fdd3c2f-bytehouse-doc-chunk.svg)
+```mermaid
+flowchart TB
+  Doc[Document] --> C1[Chunk 1：结构化列和向量]
+  Doc --> C2[Chunk 2：结构化列和向量]
+  C1 --> Key[复合标识 document_id 与 chunk_id]
+  C2 --> Key
+  Key --> MVCC[快照可见性]
+  MVCC --> Delta[Delta：近期更新]
+  MVCC --> Stable[Stable：不可变列存]
+  Delta -->|后台merge| Stable
+```
 
 - 复合主键: `(document_id, chunk_id)`
 - 同一个表中既有结构化列（数值/字符串）又有向量列（embedding）
@@ -61,7 +72,7 @@ ByteHouse 的 Unified Table Engine 将结构化 OLAP、增量刷新、多模态�
 
 α 低 (N_Δ ≈ N*) → 保守压缩，避免 write amplification
 α 高 (N_Δ >> N*) → 激进压缩，恢复扫描局部性
-线性单调控制 → 平滑过渡，防止振荡
+线性限幅控制让强度随积压平滑增加；完整系统是否振荡仍取决于反馈时延和参数
 
 ## 两阶段写入流水线
 
@@ -72,13 +83,13 @@ ByteHouse 的 Unified Table Engine 将结构化 OLAP、增量刷新、多模态�
 
 - Staging 阶段：WAL 保证持久化 + 原子性
 - Flush 阶段：schema evolution + 版本可见性保留
-- 与 [Log-as-the-Database-模式]({{ '/knowledge/Log-as-the-Database-模式/' | relative_url }}) 思路一致：先写 WAL 再物化
+- 与 [Log-as-the-Database 模式]({{ '/knowledge/Log-as-the-Database-模式/' | relative_url }}) 思路一致：先写 WAL 再物化
 
 ## Sniffer 自描述文件格式
 
 - 数据、索引（Min-Max/Bloom）、元数据 **colocate 在同一文件中**
-- 消除外部元数据依赖（对比 Iceberg manifest/Snowflake FDN）
-- **关键优势**：点查路径单次 I/O 完成 data+index+metadata 读取
+- 减少文件级索引/元数据分散导致的额外访问；系统仍需要catalog
+- **关键优势**：索引、数据与文件元数据共置，减少点查访问；实际I/O数依赖索引缓存和所需数据块
 
 ## CrossCache — SSD 集群缓存
 
@@ -96,21 +107,19 @@ ByteHouse 的 Unified Table Engine 将结构化 OLAP、增量刷新、多模态�
 
 Alignment-aware region management + buffer 编排。
 
-## 与 LSM-Tree 和 Doris Compaction 的比较
+## 对比边界
 
-| 维度 | ByteHouse | Doris (MOB) | LSM-Tree |
-|------|-----------|-------------|----------|
-| 写路径 | staging KV → flush | 内存 MemTable → flush | MemTable → SST |
-| 读路径 | stable segments 直接读 | base + delta 合并读 | 多层 SST 合并 |
-| Compaction | 自适应 α 控制 | 调度触发 | 层级/通用合并 |
-| 唯一性 | 多模态统一表 | 数据模型 (D/A/U) | 纯 KV |
+本卡描述论文版本的ByteHouse。删除未逐一验证的当前竞品能力矩阵；比较Doris、ClickHouse或Snowflake应固定版本、部署模式和相同工作负载。
+
+
+## 证据与适用条件
+
+核验本地PDF：§2–3（页2–6）架构与存储，§4–6（页6–10）执行和优化，§7（页10–12）实验。ClickBench 43查询各跑5次取最快，较ClickHouse总延迟降低25.4%；向量实验为99%召回、1%标量过滤；CrossCache对照含无缓存、100%/50%本地命中。不同实验不能混为统一收益。细节见[精读分析]({{ '/knowledge/ByteHouse-精读分析/' | relative_url }})。
 
 ## 来源与关联阅读
 
-- [知识库/sources/papers/ByteHouse/ByteHouse-SIGMOD2026.pdf]({{ '/media/knowledge/3dcf012f0842-ByteHouse-SIGMOD2026.pdf' | relative_url }})
-- [知识库/sources/papers/ByteHouse/精读分析]({{ '/knowledge/ByteHouse-精读分析/' | relative_url }})
-- [知识库/wiki/ByteHouse-架构与设计]({{ '/knowledge/ByteHouse-架构与设计/' | relative_url }})
-- [知识库/wiki/ByteHouse-多模态查询优化]({{ '/knowledge/ByteHouse-多模态查询优化/' | relative_url }})
-- [知识库/wiki/Log-as-the-Database-模式]({{ '/knowledge/Log-as-the-Database-模式/' | relative_url }})
-- [知识库/wiki/LSM-Tree]({{ '/knowledge/LSM-Tree/' | relative_url }})
-- [知识库/wiki/Doris-Compaction-策略]({{ '/knowledge/Doris-Compaction-策略/' | relative_url }})
+- [ByteHouse-SIGMOD2026]({{ '/media/knowledge/3dcf012f0842-ByteHouse-SIGMOD2026.pdf' | relative_url }})
+- [ByteHouse 整体架构 — 三层存算分离]({{ '/knowledge/ByteHouse-架构与设计/' | relative_url }})
+- [ByteHouse 多模态查询优化]({{ '/knowledge/ByteHouse-多模态查询优化/' | relative_url }})
+- [LSM-Tree (Log-Structured Merge-Tree)]({{ '/knowledge/LSM-Tree/' | relative_url }})
+- [Doris Compaction：选哪些文件与怎样合并]({{ '/knowledge/Doris-Compaction-策略/' | relative_url }})

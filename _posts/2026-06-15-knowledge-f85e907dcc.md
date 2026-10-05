@@ -15,9 +15,13 @@ permalink: /knowledge/Fluss-存储引擎/
 knowledge_source: 知识库/wiki/Fluss-存储引擎.md
 knowledge_status: draft
 knowledge_synced_at: '2026-10-05'
-description: Fluss 存储引擎模块分析：机制、设计取舍与关联阅读。
+description: Fluss 存储引擎模块分析：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: frontmatter
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
 ---
+
+> 版本边界：本文源于未固定 commit 的历史源码阅读。组件职责已对照 [Fluss 架构文档](https://fluss.apache.org/docs/concepts/architecture/)；类名、数量、接口和兼容能力应在指定 release/commit 上复核，不能视为当前版本保证。图示为职责概括。
 
 ## Fluss 存储引擎模块分析
 
@@ -54,7 +58,7 @@ LogFormat 枚举：`ARROW` / `COMPACTED` / `INDEXED`。其中 `COMPACTED` 和 `I
 
 ## KV 存储子系统（Fluss 最大差异化模块）
 
-详见 [Fluss-KV存储-RocksDB]({{ '/knowledge/Fluss-KV存储-RocksDB/' | relative_url }})。核心架构：
+详见 [Fluss KV 存储（RocksDB）]({{ '/knowledge/Fluss-KV存储-RocksDB/' | relative_url }})。核心架构：
 
 **关键设计决策**：Fluss KV 的 WAL 不是额外文件——它**直接复用 changelog LogTablet 的 segment**。这意味着 KV 恢复时不是读 WAL 文件，而是**重放 changelog LogTablet**。这实现了 Write-Once Read-Multiple 的架构模式。
 
@@ -88,8 +92,7 @@ ISR 协议一致，延时操作框架（DelayedWrite/DelayedFetchLog）完全复
 
 ## 来源与关联阅读
 
-- [参考来源](https://github.com/BryantChang1992/ai_memory_chang_ai_team/blob/master/tech_research/fluss/02-存储引擎模块.html)
-- [知识库/wiki/Fluss-整体架构]({{ '/knowledge/Fluss-整体架构/' | relative_url }})
-- [知识库/wiki/Fluss-KV存储-RocksDB]({{ '/knowledge/Fluss-KV存储-RocksDB/' | relative_url }})
-- [知识库/wiki/Fluss-Arrow列式记录格式]({{ '/knowledge/Fluss-Arrow列式记录格式/' | relative_url }})
-- [知识库/wiki/LSM-Tree]({{ '/knowledge/LSM-Tree/' | relative_url }})
+- [原始来源](https://github.com/BryantChang1992/ai_memory_chang_ai_team/blob/master/tech_research/fluss/02-存储引擎模块.html)
+- [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }})
+- [Fluss Arrow 列式记录格式]({{ '/knowledge/Fluss-Arrow列式记录格式/' | relative_url }})
+- [LSM-Tree (Log-Structured Merge-Tree)]({{ '/knowledge/LSM-Tree/' | relative_url }})

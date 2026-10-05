@@ -1,5 +1,5 @@
 ---
-title: Hermes Agent — 自进化 Agent 框架
+title: Hermes Agent：持久记忆、技能与执行循环
 date: 2026-07-03 08:00:00 +0800
 categories:
 - AI 基础设施与数据平台
@@ -14,85 +14,55 @@ permalink: /knowledge/Hermes-Agent-自进化Agent框架/
 knowledge_source: 知识库/wiki/Hermes-Agent-自进化Agent框架.md
 knowledge_status: draft
 knowledge_synced_at: '2026-10-05'
-description: Hermes Agent — 自进化 Agent 框架：机制、设计取舍与关联阅读。
+description: Hermes Agent：持久记忆、技能与执行循环：修订后的机制、证据边界与关联阅读。
 knowledge_date_source: frontmatter
+last_modified_at: '2026-10-05'
+knowledge_reviewed_at: '2026-10-05'
+mermaid: true
 ---
 
-## Hermes Agent — 自进化 Agent 框架
+Hermes 的“自进化”主要指从交互中维护记忆、复用或更新技能文件，不能理解为每次会话自动训练基础模型权重。本文按官方文档区分功能与工程推论。
 
-## 一句话定义
+```mermaid
+flowchart TD
+  U[任务与用户输入] --> C[模型与工具循环]
+  M[持久记忆] --> C
+  S[可复用技能] --> C
+  C --> T[工具执行及结果]
+  T --> C
+  C --> R[任务总结与候选经验]
+  R --> G[按配置处理写入与审批]
+  G --> M
+  G --> S
+```
 
-由 Nous Research 构建的自进化 AI Agent 框架，首创内建学习循环，2026 年 7 月达到 140k+ GitHub Stars，被 OpenRouter 列为全球使用量最高的 Agent 应用。
+## 机制与边界
 
-## 核心差异化
+官方文档把有限容量的 MEMORY/USER 文件与技能、历史会话检索区分开。持久化能跨会话保存信息，也会引入过期事实、错误总结和不可信内容污染；读取与更新策略应接受评估。
 
-### 1. Self-Evolving Skills（自进化 Skill）
+代码执行可把多个工具调用放进一次程序逻辑，减少模型往返，但工具结果、程序和反馈仍占上下文与运行资源。“零上下文成本”不成立。子代理拥有独立上下文也不等于天然可信，应按权限与共享状态设计边界。
 
-基于 ICLR 2026 Oral 论文 DSPy + GEPA 框架，遇到复杂任务后自动将经验保存为可复用 Skill。Skills 在使用过程中自我改进，兼容 [agentskills.io](https://agentskills.io) 开放标准。
+记忆/技能写入审批是可配置能力，不能当作所有安装的默认安全保证。本文不再保留 GitHub 排名、固定模型尺寸即可稳定胜任所有任务等缺乏可重复证据的判断。
 
-**机制链**：Agent-curated memory → periodic nudges → autonomous skill creation → self-improvement during use → FTS5 session search + LLM summarization → cross-session recall → Honcho dialectic user modeling。
+## 建议验证
 
-与 [Custom-Agent-Harness-Middleware架构]({{ '/knowledge/Custom-Agent-Harness-Middleware架构/' | relative_url }}) 中的 Middleware 层不同，Hermes 的 Skill 不是预定义的静态工具链，而是**从经验中动态生长**的过程性记忆。
+用重复任务检查技能复用是否真的减少失败；故意加入过期偏好检查记忆纠正；测试工具异常、中断恢复和并发实例写同一目录。记录质量提升与新增风险，避免只统计执行次数。
 
-### 2. Contained Sub-Agents（隔离子 Agent）
+关联：[Agent Memory Survey 2026 — 机制、评估与边界]({{ '/knowledge/Agent-Memory-Survey-2026综述/' | relative_url }})、[Custom Agent Harness — Middleware 架构]({{ '/knowledge/Custom-Agent-Harness-Middleware架构/' | relative_url }})、[Agent Fault Tolerance — 容错设计]({{ '/knowledge/Agent-Fault-Tolerance-容错设计/' | relative_url }})。
 
-子 Agent 在短生命周期隔离环境中运行，通过 RPC 与主 Agent 通信。支持并行 spawn 多个子 Agent，将 multi-step pipeline 压缩为近乎零上下文开销的轮次。
 
-与 [Agent-Harness-Lifecycle-Orchestration编排]({{ '/knowledge/Agent-Harness-Lifecycle-Orchestration编排/' | relative_url }}) 的三层编排模型对比：
-- Hermes 子 Agent 是 **Task-Scoped Isolated Workers**，比 L2（会话级 Orchestrator）更轻量
-- RPC 通信替代了 L3（Tool-level Router）的 function call 模式
+## 核验来源
 
-### 3. Reliability by Design（设计可靠性）
-
-Nous Research 对每个内置 skill/tool/plugin 进行压力测试。声称 **30B 参数级模型即可稳定运行**（推荐搭配 Qwen 3.6 27B/35B 本地部署）。
-
-### 4. Active Orchestration Layer（主动编排层）
-
-不是薄 wrapper——主动编排层使得同一模型在不同框架下，Hermes 表现一致更强。Provider-agnostic（Anthropic / OpenAI / Google / DeepSeek / Ollama）。
-
-## 生态与技术栈
-
-| 维度 | 实现 |
-|------|------|
-| **模型供应商** | Anthropic, OpenAI, Google, DeepSeek, Nous Portal, OpenRouter, Ollama |
-| **消息平台** | Telegram, Discord, Slack, WhatsApp, Signal, Email, CLI |
-| **终端后端** | Local, Docker, SSH, Singularity, Modal, Daytona (serverless) |
-| **记忆系统** | FTS5 + LLM summarization + Honcho dialectic user modeling |
-| **任务调度** | 内建 cron scheduler + 多平台交付 |
-| **安全** | Command approval, DM pairing, container isolation |
-| **MCP** | 原生支持 Model Context Protocol |
-| **工具生态** | 40+ tools + toolset system + agentskills.io 开放标准 |
-
-## Nvidia 战略合作
-
-Nvidia 官方推荐 **DGX Spark**（128GB 统一内存）作为 "always-on agentic computer"，搭配 **Qwen 3.6 27B/35B** 本地部署。将 Hermes 与 RTX 硬件生态绑定推广。
-
-## 与 OpenClaw 的关系
-
-Hermes 提供 `hermes claw migrate` 命令，可自动从 OpenClaw 导入配置、记忆、Skills、API keys 等。
-
-## 行业意义
-
-Hermes 标志着 Agent 框架从"胶水代码时代"进入"编排引擎时代"：
-
-1. **自进化能力** → 打破"能力天花板由 prompt 决定"的瓶颈
-2. **隔离子 Agent + RPC** → 与 Microsoft CodeAct 的"模型写代码替代逐轮 tool call"形成互补
-3. **OpenRouter #1** → 证明自进化 Agent 在真实用户中需求远高于链式工具调用
-
-## 待深入
-
-- DSPy + GEPA 框架在 Hermes 中的具体实现细节
-- 自进化 Skill 的质量控制与退化检测
-- 子 Agent RPC 通信的安全性边界
-- 30B 参数模型稳定性声称的实验验证
+- [Hermes 功能概览](https://hermes-agent.nousresearch.com/docs/user-guide/features/overview)
+- [持久记忆](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory/)
+- [配置与审批](https://hermes-agent.nousresearch.com/docs/user-guide/configuration/)
 
 ## 来源与关联阅读
 
-- [知识库/sources/web/hermes-agent/精读分析]({{ '/knowledge/hermes-agent-精读分析/' | relative_url }})
-- [参考来源](https://github.com/NousResearch/hermes-agent)
-- [知识库/wiki/Agent-Harness-Engineering-Survey综述]({{ '/knowledge/Agent-Harness-Engineering-Survey综述/' | relative_url }})
-- [知识库/wiki/Agent-Harness-Execution-Environment执行环境]({{ '/knowledge/Agent-Harness-Execution-Environment执行环境/' | relative_url }})
-- [知识库/wiki/Agent-Harness-Lifecycle-Orchestration编排]({{ '/knowledge/Agent-Harness-Lifecycle-Orchestration编排/' | relative_url }})
-- [知识库/wiki/Custom-Agent-Harness-Middleware架构]({{ '/knowledge/Custom-Agent-Harness-Middleware架构/' | relative_url }})
-- [知识库/wiki/Qwen-3.6-模型发布]({{ '/knowledge/Qwen-3.6-模型发布/' | relative_url }})
-- [知识库/wiki/Agent-框架-2026-全景对比]({{ '/knowledge/Agent-框架-2026-全景对比/' | relative_url }})
+- [Hermes Agent：持久记忆、技能与执行循环]({{ '/knowledge/hermes-agent-精读分析/' | relative_url }})
+- [原始来源](https://github.com/NousResearch/hermes-agent)
+- [Agent Harness Engineering 综述]({{ '/knowledge/Agent-Harness-Engineering-Survey综述/' | relative_url }})
+- [Agent Harness: Execution Environment & Sandbox (E)]({{ '/knowledge/Agent-Harness-Execution-Environment执行环境/' | relative_url }})
+- [Agent Harness: Lifecycle & Orchestration (L)]({{ '/knowledge/Agent-Harness-Lifecycle-Orchestration编排/' | relative_url }})
+- [Qwen 3.6：27B Dense 与 35B-A3B MoE]({{ '/knowledge/Qwen-3.6-模型发布/' | relative_url }})
+- [Agent 框架 2026 — 能力与选型对照]({{ '/knowledge/Agent-框架-2026-全景对比/' | relative_url }})

@@ -1,17 +1,25 @@
 ---
-title: "Fluss 源码分析：分布式协调层"
+title: Fluss 源码分析：分布式协调层
 date: 2026-06-14 08:00:00 +0800
-categories: ["流式数据与消息系统"]
-tags: [Fluss, 分布式协调, 流存储]
-description: >-
-  Fluss Coordinator Server 分布式协调层架构分析：事件驱动模型、双状态机设计、重平衡、租约管理、Producer ID 管理及 ZK 集成。
-topic: "streaming"
-content_type: "源码分析"
-series: "fluss"
+categories:
+- 流式数据与消息系统
+tags:
+- Fluss
+- 分布式协调
+- 流存储
+description: Fluss 源码分析：分布式协调层：修订后的机制、证据边界与关联阅读。
+topic: streaming
+content_type: 源码分析
+series: fluss
 series_order: 5
-reading_title: "分布式协调层"
+reading_title: 分布式协调层
+knowledge_source: 项目文档/Fluss源码分析/03-分布式协调.md
+knowledge_synced_at: '2026-10-05'
+last_modified_at: '2026-10-05'
+mermaid: true
 ---
 
+> 源码范围：这是历史阅读记录，原稿未固定 Fluss commit。本次只整理已知概念矛盾与表达，未逐类核对当前上游；下文数量、接口及插件状态不作为当前版本保证。架构职责以 [Fluss 整体架构与 Kafka 2.7.2 对照]({{ '/knowledge/Fluss-整体架构/' | relative_url }}) 为入口。
 
 ## 3.1 整体架构概览
 
@@ -183,7 +191,7 @@ public class CoordinatorEventProcessor implements Runnable {
     private final TableBucketStateMachine tableBucketStateMachine;
     private final CoordinatorRequestBatch coordinatorRequestBatch;
     private final ZooKeeperClient zooKeeperClient;
-    
+
     // 事件处理方法（switch-case 分发）
     public void process(CoordinatorEvent event) {
         if (event instanceof NewCoordinatorEvent) { handleNewCoordinator(); }
@@ -354,11 +362,11 @@ public class RebalanceManager {
     private final ZooKeeperClient zkClient;
     private final CoordinatorEventProcessor eventProcessor;
     private final EventManager eventManager;
-    
+
     // 进行中的重平衡任务队列
     private final Queue<TableBucket> inProgressRebalanceTasksQueue;
     private final Map<TableBucket, RebalanceResultForBucket> inProgressRebalanceTasks;
-    
+
     // 超时检查（硬编码 2 分钟超时 / 30 秒检查间隔）
     private static final long REBALANCE_TASK_TIMEOUT_MS = 2 * 60 * 1000L;
     private static final long TIMEOUT_CHECK_INTERVAL_MS = 30 * 1000L;
@@ -385,7 +393,7 @@ graph TB
     RDAG --> RDG
     RDAG --> LRG
     GO --> Goal
-    
+
     style GO fill:#ffcc80
     style Goal fill:#e1f5fe
 ```
@@ -473,13 +481,13 @@ stateDiagram-v2
 public class KvSnapshotLeaseManager {
     // Lease ID → Lease Handler 映射
     private final ConcurrentHashMap<String, KvSnapshotLeaseHandler> kvSnapshotLeaseMap;
-    
+
     // (TableBucket + SnapshotId) → 引用计数（多个 Lease 可共享同一快照）
     private final Map<TableBucketSnapshot, AtomicInteger> refCount;
-    
+
     // 定时过期检查
     private final ScheduledExecutorService scheduledExecutor;
-    
+
     // 核心方法
     public String acquireKvSnapshotLease(TableBucket tableBucket, long snapshotId, 
                                           long leaseTimeoutMs);
@@ -576,44 +584,44 @@ public static final class ProducerIdZNode {
 ```mermaid
 graph TB
     ROOT["/"]
-    
+
     ROOT --> METADATA["/metadata/"]
     ROOT --> COORDS["/coordinators/"]
     ROOT --> CLUSTER["/cluster/"]
     ROOT --> PRODUCERS["/producers/"]
     ROOT --> LEASES["/leases/"]
-    
+
     METADATA --> DBS["/metadata/databases/"]
     METADATA --> TSEQ["/metadata/table_seqid"]
     METADATA --> PSEQ["/metadata/partition_seqid"]
     METADATA --> WID["/metadata/writer_id"]
-    
+
     DBS --> DB["/databases/{dbName}/"]
     DB --> TABLES["/tables/"]
     DB --> TABLES2["tables/{tableName}"]
-    
+
     TABLES2 --> SCHEMAS["/schemas/"]
     TABLES2 --> PARTS["/partitions/"]
     TABLES2 --> AUTO["/auto_inc/"]
-    
+
     SCHEMAS --> SCHEMA["/schemas/{schemaId}"]
     PARTS --> PART["/partitions/{partName}"]
-    
+
     COORDS --> CIDS["/coordinators/ids/"]
     COORDS --> CELEC["/coordinators/election"]
     CIDS --> CID["/ids/{serverId}"]
-    
+
     CLUSTER --> TIDS["/cluster/table_ids/"]
     CLUSTER --> PIDS["/cluster/partition_ids/"]
     CLUSTER --> SERVERIDS["/cluster/server_ids/"]
     CLUSTER --> TAGS["/cluster/server_tags/"]
     CLUSTER --> REBAL["/cluster/rebalance"]
     CLUSTER --> REMOTEL["/cluster/remote_logs/"]
-    
+
     TIDS --> TID["/table_ids/{tableId}: TableAssignment"]
     PIDS --> PID["/partition_ids/{partitionId}: PartitionAssignment"]
     SERVERIDS --> SID["/server_ids/{serverId}: TabletServerRegistration"]
-    
+
     PRODUCERS --> PROD["/producers/{producerId}: ProducerOffsets"]
     LEASES --> KVLEASE["/leases/kv_snapshot/{leaseId}: KvSnapshotLeaseMetadata"]
 
@@ -700,12 +708,12 @@ graph TB
         CMS[ServerMetadataCache<br/>interface]
         CSC[ServerSchemaCache]
     end
-    
+
     subgraph "TabletServer 侧"
         TMC[TabletServerMetadataCache<br/>implements TabletServerMetadataProvider]
         TMP[TabletServerMetadataProvider<br/>interface]
     end
-    
+
     subgraph "元数据对象"
         TM[TableMetadata]
         PM[PartitionMetadata]
@@ -713,24 +721,24 @@ graph TB
         SI[ServerInfo]
         CM[ClusterMetadata]
     end
-    
+
     subgraph "数据源"
         ZK[ZooKeeper]
     end
-    
+
     CMC --> CMS
     CMC --> CSC
     TMC --> TMP
-    
+
     CMS --> TM
     CMS --> PM
     CMS --> BM
     CMS --> SI
-    
+
     TMP --> TM
     TMP --> PM
     TMP --> BM
-    
+
     ZK --> CMC
     ZK --> TMC
 
@@ -782,7 +790,7 @@ public class TableBucket implements Serializable {
 public class CoordinatorMetadataCache implements ServerMetadataCache {
     // ReentrantLock 保护的可变快照
     private volatile NodeMetadataSnapshot metadataSnapshot;
-    
+
     // 查询 TabletServer 是否存活
     public boolean isAliveTabletServer(int serverId);
     // 获取特定 TabletServer 的 RPC 地址
@@ -918,10 +926,10 @@ sequenceDiagram
     CS->>CLE: CoordinatorLeaderElection.startup()
     CLE->>ZK: 注册 LeaderLatch (/coordinators/election)
     CS->>CEP: 启动事件处理线程
-    
+
     ZK-->>CLE: isLeader() = true
     CLE->>CLE: CompletableFuture.complete(null)
-    
+
     CEP->>Ctx: 设置 liveCoordinators
     CEP->>ZK: 加载所有 Database / Table / Schema
     CEP->>ZK: 加载所有 Server 注册信息
@@ -933,7 +941,7 @@ sequenceDiagram
     RS->>TS: 发送 NotifyLeaderAndIsrRequest
     TS-->>RS: 响应
     CEP->>TS: 发送 UpdateMetadataRequest (全量元数据)
-    
+
     Note over CEP: 事件循环就绪，开始处理各种事件
 ```
 
