@@ -1,4 +1,10 @@
-{% if page.knowledge_source %}
+{% if page.reading_home %}
+  <nav class="article-context" aria-label="专题阅读">
+    <div class="context-home"><a href="{{ '/library/' | relative_url }}">专题</a><span aria-hidden="true">/</span><a href="{{ page.reading_home.collection_url | relative_url }}">{{ page.reading_home.collection_title }}</a><span aria-hidden="true">/</span><span>{{ page.reading_home.role_title }}</span></div>
+    {% if page.series %}<a href="{{ page.reading_home.collection_url | append: '#chapters' | relative_url }}">查看系列章节 →</a>{% endif %}
+    {% if page.knowledge_status == 'draft' %}<span class="reading-meta">研究笔记 · 初稿</span>{% elsif page.knowledge_status == 'reviewed' %}<span class="reading-meta">研究笔记 · 已审阅</span>{% elsif page.knowledge_status == 'final' %}<span class="reading-meta">研究笔记 · 定稿</span>{% elsif page.knowledge_status == 'pending-source' %}<span class="reading-meta">原文待核验</span>{% endif %}
+  </nav>
+{% elsif page.knowledge_source %}
   <div class="article-context">
     <a href="{{ '/knowledge/' | relative_url }}">← 技术知识库</a>
     <span class="reading-meta">研究笔记{% if page.knowledge_status == 'draft' %} · 初稿{% elsif page.knowledge_status == 'reviewed' %} · 已审阅{% elsif page.knowledge_status == 'final' %} · 定稿{% endif %}</span>
@@ -23,7 +29,7 @@
       </div>
     {% endif %}
   {% endfor %}
-{% elsif page.series %}
+{% elsif page.series and page.reading_home == nil %}
   {% assign series = site.data.editorial.series | where: 'id', page.series | first %}
   <nav class="article-context" aria-label="专题阅读"><a href="{{ '/library/' | append: '#' | append: page.series | relative_url }}">← {{ series.title }} · 完整目录</a></nav>
 {% endif %}

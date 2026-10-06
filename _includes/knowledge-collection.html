@@ -1,0 +1,42 @@
+{% assign collection = page.reading_collection %}
+<div class="content-hub collection-hub" data-collection="{{ collection.id }}">
+  {% assign topic = site.data.editorial.topics | where: 'id', collection.topic | first %}
+  <nav class="collection-breadcrumb" aria-label="阅读位置"><a href="{{ '/library/' | relative_url }}">专题</a><span aria-hidden="true">/</span><a href="{{ '/library/#' | append: collection.topic | relative_url }}">{{ topic.name }}</a><span aria-hidden="true">/</span><span>{{ collection.title }}</span></nav>
+  <p class="hub-intro">{{ collection.description }} <span class="reading-meta">共 {{ collection.count }} 篇内容</span></p>
+  {% if collection.route.size > 0 %}
+  <section class="reading-route" aria-labelledby="route-title">
+    <div class="section-heading"><h2 id="route-title">建议这样读</h2><span class="reading-meta">{{ collection.route.size }} 步建立主线</span></div>
+    <ol class="route-list">
+      {% for step in collection.route %}
+        <li><span class="route-number" aria-hidden="true">{{ forloop.index | prepend: '0' }}</span><div><a href="{{ step.url | relative_url }}">{{ step.title | escape }}</a><p>{{ step.why }}</p></div></li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endif %}
+  <nav class="topic-nav resource-jumps" aria-label="专题内目录">
+    {% if collection.series_items.size > 0 %}<a href="#chapters">系列章节</a>{% endif %}
+    {% for group in collection.sections %}<a href="#{{ group.id }}">{{ group.title }}</a>{% endfor %}
+  </nav>
+  {% if collection.series_items.size > 0 %}
+    <section class="resource-section" id="chapters"><h2>系列章节 <span class="reading-meta">{{ collection.series_items.size }} 篇 · 按顺序阅读</span></h2>
+      <ol class="chapter-list">{% for item in collection.series_items %}<li><a href="{{ item.url | relative_url }}">{{ item.title | escape }}</a></li>{% endfor %}</ol>
+    </section>
+  {% endif %}
+  {% for group in collection.sections %}
+    <section class="resource-section" id="{{ group.id }}">
+      <h2>{{ group.title }} <span class="reading-meta">{{ group.items.size }} 篇{% if group.id == 'paper' %}主文{% endif %}</span></h2>
+      {% if group.id == 'concept' or group.id == 'practice' or group.id == 'pending' %}
+        <details class="resource-details"><summary>展开{{ group.title }}目录 <span aria-hidden="true">↓</span></summary>
+      {% endif %}
+      <ul class="resource-list">
+        {% for item in group.items %}
+          <li><a href="{{ item.url | relative_url }}">{{ item.title | escape }}</a>
+            {% if item.supplements.size > 0 %}<div class="paper-supplements">{% for supplement in item.supplements %}<a href="{{ supplement.url | relative_url }}">配套阅读：{{ supplement.title | escape }} <span aria-hidden="true">↗</span></a>{% endfor %}</div>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      {% if group.id == 'concept' or group.id == 'practice' or group.id == 'pending' %}</details>{% endif %}
+    </section>
+  {% endfor %}
+  <div class="browse-more"><a href="{{ '/library/' | relative_url }}">← 返回专题</a><a href="{{ '/knowledge/?collection=' | append: collection.id | relative_url }}">在此专题中查找 →</a></div>
+</div>

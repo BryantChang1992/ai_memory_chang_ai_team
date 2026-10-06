@@ -1,0 +1,152 @@
+# Ordered rules classify the existing canonical pages; no article URLs move.
+collections:
+  - id: fluss
+    topic: streaming
+    title: Fluss 架构与源码
+    description: 从实时存储架构出发，理解写入、复制、湖仓分层与生产部署。
+    match: 'Fluss|fluss|fresha'
+    series: fluss
+    route:
+      - url: /knowledge/Fluss-流处理平台架构综述/
+        why: 先建立整体架构和模块关系。
+      - url: /posts/fluss-storage-engine/
+        why: 理解 Log 与 KV 两条存储路径。
+      - url: /knowledge/05b-客户端写入流程深度分析/
+        why: 沿一次写入走进客户端实现。
+      - url: /knowledge/Fluss-EKS-生产部署实践-Fresha/
+        why: 最后看部署条件与工程边界。
+  - id: stream-processing
+    topic: streaming
+    title: 流处理模型与容错
+    description: 事件时间、状态、快照与恢复，串起流处理系统的关键设计。
+    match: '流处理|Stream-Processing|SP-Survey|Dataflow|Flink|flink'
+    route:
+      - url: /knowledge/流处理系统演化综述/
+        why: 从系统演化理解主要设计问题。
+      - url: /knowledge/Dataflow-Model/
+        why: 建立事件时间、窗口与触发器的概念。
+      - url: /knowledge/流处理容错模型/
+        why: 区分状态恢复与端到端可见效果。
+      - url: /knowledge/SP-Survey-精读分析/
+        why: 回到综述原文，对照不同实现。
+  - id: kafka
+    topic: streaming
+    title: Kafka 故障处理
+    description: 围绕 JBOD 磁盘故障，区分已有机制、隔离策略与恢复编排。
+    match: 'Kafka|kafka|AutoMQ|JBOD'
+    route:
+      - url: /tech_designs/zk-kafka-jbod-failure-handling.html
+        why: 从实际故障场景阅读现有机制与扩展设计。
+  - id: lsm
+    topic: storage
+    title: LSM 存储引擎
+    description: 从读写放大到 Compaction、过滤器与硬件适配，逐层深入。
+    match: 'LSM|Monkey|ElasticBF|PebblesDB|Lethe|REMIX|WiscKey|Bourbon|Hailstorm|Pacman|Silo|HATS'
+    route:
+      - url: /posts/wiki-synthesis-lsm-tree/
+        why: 先看问题空间和优化之间的取舍。
+      - url: /knowledge/LSM-Tree/
+        why: 掌握写入、读取和合并的基本过程。
+      - url: /knowledge/LSM-Survey-精读分析/
+        why: 按论文证据系统梳理优化方法。
+      - url: /knowledge/LSM-Scheduling-精读分析/
+        why: 以 HATS 为例理解分布式调度的边界。
+  - id: consensus
+    topic: storage
+    title: 共识、复制与一致性
+    description: 从 Raft 与 Paxos 出发，连接租约、快照和跨地域复制。
+    match: 'Raft|Paxos|Consensus|共识|一致性体系|Chandy|Leader|Liveness|Rosé|Rose|Event-Horizon'
+    route:
+      - url: /knowledge/共识协议体系综述/
+        why: 先理清协议家族与各自解决的问题。
+      - url: /knowledge/Raft-Dissertation-精读分析/
+        why: 走通选举、复制与系统接口的因果链。
+      - url: /knowledge/Distributed-Consensus-Revised-精读分析/
+        why: 进一步理解 quorum 和选值条件。
+      - url: /knowledge/CockroachDB-Leader-Leases-精读分析/
+        why: 看理论条件如何进入真实数据库。
+  - id: doris
+    topic: storage
+    title: Doris 与分析引擎
+    description: 从数据模型和列式存储，进入查询优化、执行与架构演进。
+    match: 'Doris|doris|ByteHouse|OLAP'
+    series: doris
+    route:
+      - url: /knowledge/Apache-Doris-OLAP-数据库体系综述/
+        why: 建立分析型数据库的整体视图。
+      - url: /posts/doris-storage-engine/
+        why: 理解数据模型、Rowset 与 Segment。
+      - url: /posts/doris-query-engine/
+        why: 沿 SQL 的规划与执行过程深入。
+      - url: /knowledge/ByteHouse-精读分析/
+        why: 对照另一种实时多模态分析架构。
+  - id: timeseries
+    topic: storage
+    title: InfluxDB 与时序数据
+    description: 分清 TSM、Core 与 Clustered，再讨论数据模型和可用性。
+    match: 'InfluxDB|influx|TSDB|时序'
+    route:
+      - url: /knowledge/InfluxDB-时序数据库体系综述/
+        why: 先区分产品版本和架构边界。
+      - url: /knowledge/InfluxDB-写入与查询路径/
+        why: 跟随数据从写入走到查询。
+      - url: /knowledge/InfluxDB-指标设计与基数管理/
+        why: 将存储特性带回指标建模。
+      - url: /knowledge/InfluxDB-多副本与高可用/
+        why: 按确认边界分析故障和恢复。
+  - id: distributed-databases
+    topic: storage
+    title: 分布式数据库与事务
+    description: 事务协议、存算分离与弹性扩展，连接机制和系统实践。
+    match: '事务|Aurora|Limitless|RaaS|Replay|Tail-Latency|Log-as-the-Database|存储计算|CXL|cxl|CockroachDB-vs-TiDB|cockroachdb-vs-tidb|Bigtable'
+    route:
+      - url: /posts/transaction-model-survey/
+        why: 从事务语义进入实现与恢复机制。
+      - url: /knowledge/Aurora-Limitless-精读分析/
+        why: 理解时间戳事务与二维扩缩容。
+      - url: /posts/raas-paper/
+        why: 分析存算分离带来的尾延迟问题。
+      - url: /knowledge/CockroachDB-vs-TiDB-2026-对比/
+        why: 对照不同系统的架构选择。
+  - id: ai-data
+    topic: ai
+    title: 面向 Agent 的数据系统
+    description: 从数据管道到 Agent 数据接口、分支事务与语义记忆。
+    match: 'Agent-First|Agentic-Memory|营养液|ai-data-pipeline'
+    route:
+      - url: /posts/ai-data-pipeline/
+        why: 从 AI 使用数据的方式切入。
+      - url: /knowledge/Agent-First-Data-精读分析/
+        why: 区分数据系统愿景与已验证机制。
+      - url: /knowledge/Agent-First-Branch-Transactions-分支事务/
+        why: 理解试探性操作与状态分支。
+      - url: /knowledge/Agentic-Memory-语义缓存/
+        why: 讨论结果复用、权限和版本约束。
+  - id: agent-harness
+    topic: ai
+    title: Agent 工程与安全
+    description: 执行环境、工具、记忆、编排、评估与治理的完整阅读路径。
+    match: 'Agent|agent|Harness|harness|Parallax|Anthropic|anthropic|Hermes|hermes|Qwen|qwen|langchain|LangGraph|Model-Neutrality|model-neutrality|关于agent'
+    route:
+      - url: /knowledge/AI-Infra-Agent基础设施体系综述/
+        why: 先认识 Agent 工程的各个组成部分。
+      - url: /knowledge/Agent-Harness-Engineering-Survey-精读分析/
+        why: 通过综述建立结构化比较框架。
+      - url: /knowledge/arxiv-2604.12986-精读/
+        why: 以 Parallax 检查安全设计和实验边界。
+      - url: /knowledge/Agent-Fault-Tolerance-容错设计/
+        why: 将失败、恢复和外部副作用放进实现。
+
+roles:
+  - id: overview
+    title: 综述与入门
+  - id: concept
+    title: 概念卡片
+  - id: paper
+    title: 论文精读
+  - id: practice
+    title: 技术文章与实践
+  - id: translation
+    title: 译文与译述
+  - id: pending
+    title: 待核验材料

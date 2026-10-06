@@ -1,0 +1,21 @@
+<div class="content-hub knowledge-index" data-knowledge-index>
+  <p class="hub-intro">已知关键词时，在这里查找；想系统阅读，可以从<a href="{{ '/library/' | relative_url }}">专题与阅读路径</a>开始。周报按时间收录在<a href="{{ '/weekly/' | relative_url }}">每周动态</a>。</p>
+  <form class="knowledge-filters" role="search" aria-label="查找知识内容">
+    <div class="knowledge-query"><label for="knowledge-query">关键词</label><input id="knowledge-query" type="search" placeholder="例如：Raft、写放大、Agent 安全" autocomplete="off"></div>
+    <div><label for="knowledge-collection">专题</label><select id="knowledge-collection"><option value="">全部专题</option>{% for collection in site.data.knowledge_catalog.collections %}<option value="{{ collection.id }}">{{ collection.title }}</option>{% endfor %}</select></div>
+    <div><label for="knowledge-role">内容类型</label><select id="knowledge-role"><option value="">全部类型</option>{% for role in site.data.knowledge.roles %}<option value="{{ role.id }}">{{ role.title }}</option>{% endfor %}</select></div>
+    <button type="reset">清除筛选</button>
+  </form>
+  <noscript><p>筛选需要 JavaScript；下方保留完整目录，也可以使用浏览器的页面查找。</p></noscript>
+  <p class="knowledge-result-count" aria-live="polite" role="status">共 {{ site.data.knowledge_catalog.count }} 篇内容</p>
+  <ul class="knowledge-results">
+    {% for item in site.data.knowledge_catalog.resources %}
+      <li data-resource data-collection="{{ item.collection_id }}" data-role="{{ item.role }}" data-search="{{ item.title | append: ' ' | append: item.collection_title | escape }}">
+        <a class="resource-title" href="{{ item.url | relative_url }}">{{ item.title | escape }}</a>
+        <div class="reading-meta"><a href="{{ item.collection_url | relative_url }}">{{ item.collection_title }}</a><span aria-hidden="true"> · </span><span>{{ item.role_title }}</span></div>
+      </li>
+    {% endfor %}
+  </ul>
+  <p class="knowledge-empty" hidden>没有匹配的内容。试试缩短关键词，或清除专题、类型筛选。</p>
+</div>
+<script src="{{ '/assets/js/knowledge-index.js' | relative_url }}" defer></script>

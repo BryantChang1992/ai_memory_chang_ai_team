@@ -69,10 +69,10 @@ class ContentCatalogTest < Minitest::Test
   end
 
   def test_evergreen_articles_and_translations_remain_discoverable
-    library_links = urls(page('library/index.html').css('main a[href]'))
+    index_links = urls(page('knowledge/index.html').css('main a[href]'))
     weekly_links = urls(page('weekly/index.html').css('main a[href]'))
     @site.posts.docs.each do |post|
-      assert_includes library_links + weekly_links, post.url, "Article lost from reader entry points: #{post.path}"
+      assert_includes index_links + weekly_links, post.url, "Article lost from reader entry points: #{post.path}"
     end
     assert_equal ['AI 基础设施与数据平台', '数据库与存储', '流式数据与消息系统'].sort, @site.categories.keys.sort
   end

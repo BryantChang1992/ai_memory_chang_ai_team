@@ -1,6 +1,7 @@
 # Build reader-facing views from article metadata. New weekly issues and series
 # chapters join their views automatically; editorial.yml only controls curation.
 require 'date'
+require_relative 'knowledge_catalog'
 
 module ContentCatalog
   # The issue's identity must not change when a post is revised next year.
@@ -25,13 +26,14 @@ module ContentCatalog
       end
       { 'overview' => overview, 'reports' => links.uniq { |link| link['url'] } }
     end
-    { 'weekly' => weekly, 'articles' => posts.reject { |p| ['周报', '周报分稿', '论文翻译'].include?(p.data['content_type']) } }
+    { 'weekly' => weekly, 'articles' => posts.reject { |p| (KnowledgeCatalog::WEEKLY_TYPES + KnowledgeCatalog::TRANSLATION_TYPES).include?(p.data['content_type']) } }
   end
 
   class Generator < Jekyll::Generator
     priority :low
     def generate(site)
       site.data['catalog'] = ContentCatalog.build(site)
+      KnowledgeCatalog.generate(site)
       site.data.fetch('category_aliases', {}).each do |old_name, destination|
         next if site.categories.key?(old_name)
         page = Jekyll::PageWithoutAFile.new(site, site.source, "categories/#{Jekyll::Utils.slugify(old_name)}", 'index.html')
