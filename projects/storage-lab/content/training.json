@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "publicationId": "pub-db6944a3dc8d0637",
+  "publicationId": "pub-47719283e53f3605",
   "updatedAt": "2026-10-07",
-  "stage": "followup_issued",
-  "completedCount": 0,
+  "stage": "completed",
+  "completedCount": 1,
   "confirmedMinutes": null,
   "abilityStatus": "unassessed"
 }

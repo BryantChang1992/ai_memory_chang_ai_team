@@ -3,9 +3,9 @@ import { stageDetails, stageIndex } from "@/lib/training-workflow";
 export function TrainingProgress() {
   const active = stageIndex(progress.stage);
   const steps = [
-    { label: "独立作答", detail: active === 0 ? "等待初稿" : "初稿已保存" },
+    { label: "本人初稿", detail: active === 0 ? "等待初稿" : "初稿已保存" },
     { label: "追问与修订", detail: active < 1 ? "等待实际讨论" : active === 1 ? "正在推进" : "已私有保存" },
-    { label: "核对与复盘", detail: active < 2 ? "尚未核对" : active === 2 ? "待完成核对" : "本轮已完成" },
+    { label: "核对与复盘", detail: active < 2 ? "尚未核对" : active === 2 ? "待完成核对" : "Demo 已完成" },
   ];
   return <section className="conversation-progress" aria-label="当前训练进度">
     <h2>当前进展</h2><p className="workflow-intro">阶段只按真实发生的训练更新，不随日历自动推进。</p>
