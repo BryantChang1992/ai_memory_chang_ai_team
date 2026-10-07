@@ -1,20 +1,21 @@
-import { ArrowUpRight, ArrowRight, CalendarDays, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import Link from "next/link";
+import { ArrowUpRight, CalendarDays, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
-import { TrainingProgress } from "@/components/training-progress";
-import { sessions, schedule, completed, currentSession, sessionPath, statusLabels } from "@/lib/training";
+import { TrainingProgress, TrainingAssessment } from "@/components/training-progress";
+import { progress, schedule, displayDate } from "@/lib/training";
+import { statusLabels } from "@/lib/training-workflow";
 export default function Home() {
-return <div className="site-shell">
-<SiteHeader/>
-<main className="workspace">
-<div className="page-heading"><div><p className="eyebrow">LEARNING IN PUBLIC · 第一轮</p><h1>分布式存储，逐题深入。</h1><p className="intro">从读写路径到千节点系统，记录每一次设计、追问与修订。</p></div><div className="cadence"><CalendarDays size={18}/><span>隔周日 21:00<small>北京时间 · 每期约 2 小时</small></span></div></div>
-<section className="overview-strip" aria-label="训练总览"><div><span className="stat-number">{String(completed.length).padStart(2,"0")}<small> / 12</small></span><span>已完成训练</span></div><div><span className="stat-number">24<small> 周</small></span><span>一轮完整探索</span></div><div><span className="stat-number">03<small> 个维度</small></span><span>规模 · 一致性 · 性能</span></div><div className="total-progress"><span>从第一份设计开始 <b>{Math.round(completed.length/12*100)}%</b></span><Progress value={completed.length/12*100} aria-label={"训练完成度 "+Math.round(completed.length/12*100)+"%"}/></div></section>
-<div className="work-grid"><section className="current-case"><div className="case-top"><span>当前训练 / {String(currentSession.id).padStart(2,"0")}</span><span className="light-badge">{currentSession.date.replaceAll("-",".")} · {statusLabels[currentSession.status]}</span></div><h2>{currentSession.id===1?<>一次写入，<br/>何时才算真正成功？</>:currentSession.title}</h2><p>{currentSession.id===1?"从三副本 KV 的写入承诺切入，沿着内存、磁盘和副本，一步步推演故障后的结果。":currentSession.summary}</p><div className="case-tags"><span>规模</span><span>一致性</span><span>性能</span></div><div className="case-footer"><Button asChild><Link href={sessionPath(currentSession.id)}>查看本期题目 <ArrowRight/></Link></Button><span>第一周设计 · 第二周复盘</span></div></section>
-<aside className="method-card"><p className="eyebrow">每道题，都问三个问题</p>{["规模|数据和节点增长后，哪里先到极限？","一致性|并发与故障中，哪些结果允许发生？","性能|吞吐和尾延迟的代价，花在哪里？"].map((v,i)=><div className="dimension" key={v}><span>0{i+1}</span><div><h3>{v.split("|")[0]}</h3><p>{v.split("|")[1]}</p></div></div>)}</aside></div>
-<TrainingProgress session={currentSession} compact/><section id="training-route" className="route-section"><div className="section-heading"><div><p className="eyebrow">THE LEARNING PATH</p><h2>12 期训练路线</h2></div><span>每两周一题 · 按实际进度推进</span></div><div className="session-grid">{sessions.map(s=><Link href={sessionPath(s.id)} key={s.id} className="session-card"><div className="session-top"><span className="session-index">{String(s.id).padStart(2,"0")}</span><span className={"status-tag status-"+s.status}>{statusLabels[s.status]}</span></div><span className="session-category">{s.category}</span><h3>{s.title}</h3><p>{s.summary}</p><div className="session-bottom"><span>{s.date.slice(5).replace("-"," / ")}</span><ArrowUpRight size={17}/></div></Link>)}</div></section>
-<section className="journal-banner"><BookOpen size={27}/><div><h2>让设计留下推理过程。</h2><p>{completed.length?"已有 "+completed.length+" 期训练完成，进入每期档案阅读设计过程与复盘。":"初稿、评审、修订与复盘会随训练逐步公开。当前尚无已完成的训练记录。"}</p></div><a href={schedule.blogUrl} target="_blank" rel="noreferrer">阅读我的技术博客 <ArrowUpRight size={17}/></a></section>
-</main><footer><span>Bryant · Storage Lab</span><span>持续学习，公开记录。 2026</span></footer>
-</div>;
+  return <div className="site-shell"><SiteHeader/><main className="workspace">
+    <header className="page-heading"><div><p className="eyebrow">STORAGE DESIGN · PROGRESS</p><h1>分布式存储，逐步深入。</h1><p className="intro">在训练对话中推演，在这里查看真实进展。</p></div><div className="cadence"><CalendarDays size={18}/><span>每周约 6 小时<small>按实际进度调整</small></span></div></header>
+    <section className="overview-strip progress-overview" aria-label="训练统计">
+      <div><span className="stat-number">{progress.completedCount}<small> 轮</small></span><span>已完成训练</span></div>
+      <div><span className="stat-number">{progress.confirmedMinutes === null ? "未确认" : progress.confirmedMinutes}<small>{progress.confirmedMinutes === null ? "" : " 分钟"}</small></span><span>本人确认的累计用时</span></div>
+      <div><span className="stat-number">未评估</span><span>当前能力状态</span></div>
+      <div><span className="stat-number">{statusLabels[progress.stage]}</span><span>当前训练阶段</span></div>
+    </section>
+    <div className="work-grid"><section className="current-case"><div className="case-top"><span>当前主线 · 流存储</span><span className="light-badge">{statusLabels[progress.stage]}</span></div><h2>从第一份独立思考开始。</h2><p>这一轮通过独立作答、一次追问和一次修订，逐步检查理解与推理过程。</p><div className="case-tags"><span>独立设计</span><span>真实反馈</span><span>保留修订</span></div><p className="case-footnote">尚未确认的用时保留为未知；计划预算不计入实际投入。</p></section><TrainingAssessment/></div>
+    <TrainingProgress/>
+    <section className="detail-card curriculum-card"><p className="eyebrow">LEARNING PLAN</p><h2>训练方向</h2><p>流存储 → KV → 文件系统 → 表格存储 → 湖存储 → 存储底座 → 综合设计</p><p className="record-caption">计划预算为 28 周、168 小时，每周约 6 小时。必要的共性机制随题学习，存储底座放在湖存储后集中归纳。以上为计划，不代表已完成进度。</p></section>
+    <section className="journal-banner privacy-banner"><ShieldCheck size={27}/><div><h2>训练内容私有保存。</h2><p>题目、回答、追问、修订和评价依据保存在私有训练档案中。这里仅展示本轮允许的进展统计。</p></div><a href={schedule.blogUrl}>阅读技术博客 <ArrowUpRight size={17}/></a></section>
+    <p className="publication-meta">数据更新：<time dateTime={progress.updatedAt}>{displayDate(progress.updatedAt)}</time><span>发布标识：<code data-publication-id={progress.publicationId}>{progress.publicationId}</code></span></p>
+  </main><footer><span>Bryant · Storage Lab</span><span>真实进展，逐步积累。</span></footer></div>;
 }

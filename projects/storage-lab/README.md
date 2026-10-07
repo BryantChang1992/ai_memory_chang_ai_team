@@ -1,60 +1,27 @@
-# Storage Lab · Bryant 的存储设计手记
+# Storage Lab · 训练进展
 
-公开的分布式存储训练档案，属于 [BryantChang · Tech Insights](https://bryantchang1992.github.io/ai_memory_chang_ai_team/index.html)。
+正式地址：https://bryantchang1992.github.io/ai_memory_chang_ai_team/storage-lab/
 
-- 12 期训练，每两周一期，预计 24 周。
-- 北京时间隔周日 21:00，起始日期 2026-09-13。
-- 覆盖单机引擎、KV、块、文件、对象、缓存、分层与跨地域存储。
-- 固定观察规模、一致性和性能，记录初稿、追问、修订和复盘。
-- 起始状态为 0 / 12 完成。未发布内容明确标为待发布，不生成虚构训练记录。
+本项目只展示公开训练统计。题目、原始回答、逐轮追问、修订、复盘、评价依据及来源引用均在独立私有训练档案中保存，不进入此仓库或构建环境。
 
-## 访问与公开记录
+## 当前最小演示
 
-正式地址：[Storage Lab](https://bryantchang1992.github.io/ai_memory_chang_ai_team/storage-lab/)。
+单轮训练在原训练对话中进行。公开页面仅展示阶段、完成数量、本人确认的累计分钟数和发布核验字段；未知用时为 null，能力固定为未评估。真实回答尚未发生时不得补写答案或推进完成状态。
 
-`content/training.json` 是训练记录的权威数据源，随 Git 仓库保存历史，并在网站构建时发布。网站面向访客只读；不会把浏览器缓存当作训练记录，也不会允许匿名访客修改作者的进度。
+训练方向依次为流存储、KV、文件系统、表格存储、湖存储、存储底座和综合设计。28 周、168 小时、每周约 6 小时是计划预算，不是已投入用时。
 
-在当前训练对话完成讨论后，将真实内容写入相应训练记录并提交。只保存需要公开的设计内容，不复制整段聊天或本机配置。计划日期不代表完成日期；顺延训练应保留计划与实际状态的区别。
+## 数据边界
 
-用户已明确选择：所有讨论继续在原训练对话中进行，不要求在网页写作、登录或提交。网站是公开档案和进度回看入口。每期页面提供阶段进度、下一步讨论提示、三个环节的提纲，以及按证据记录的能力观察。提纲不属于已完成的答案。
+content/training.json 是从私有档案导出的公开白名单快照，不是原始训练数据源。scripts/public-schema.mjs 拒绝未列出的字段，并核验 publicationId。公开构建只读取该快照，不能读取私有仓库、私有引用或凭据。
 
-## 更新一份训练记录
+先核验私有保存成功，再导出快照并替换此文件。重复保存不得增加记录或进度；公开失败不回滚私有记录。不要手工把原文、评价依据、来源 URL 或完整对象复制进快照。不要用隐藏页面、CSS、robots 或登录按钮代替数据隔离。
 
-编辑 `content/training.json` 对应的 session：
+旧 sessions/01/ 至 sessions/12/ 链接保留为同一公开统计页面，不再提供旧题目与训练档案。此次只移除当前源码和新构建中的旧内容，不宣称删除 Git 历史、缓存或旧发布产物。
 
-- `status`：`planned` → `drafting` → `review` → `revising` → `completed`，按真实进展更新；允许回到评审。
-- `brief` 与 `questions`：实际发布的题目和约束。未发布的未来题面保持空。
-- `design`：第一份设计，保留原始假设与尚未解决的问题。后续方案变化写入 `revisions`，不覆盖原设计。纯文本按段落渲染，不执行 HTML。
-- `review`：可选的评审概述；逐条问题放入 `reviewQuestions`，避免把多轮讨论压成一段结论。
-- `reviewQuestions`：每个问题保存稳定的 `id`、维度 `dimension`（scale / consistency / performance）、问题 `question`、状态 `status`（open / resolved / deferred）、按时间追加的 `discussion` 与 `conclusion`。每条讨论包含 `role`（bryant / reviewer）、`text`、`date`。只将用户实际回答记为 bryant；AI 建议不能冒充用户作答。
-- `revisions`：按时间追加 `id`、`date`、`before`、`after`、`reason`、`validation`。写清修改前后、对应追问与验证办法；尚未执行的实验明确标记为计划，不能写成通过。
-- `reflection`：实际复盘，包括收获、未解决问题和下一次重点。纯文本，段落间空一行。
-- `takeaways`：从实际讨论得到的结论。
-- `scores`：规模、一致性、性能的 0—3 级观察；未评估为 null，不能用 0 冒充未评估。
-- `scoreEvidence`：同样三个维度，填写对应回答与判断依据。给出分数必须有证据；没有评估时可留空。
-- `updatedAt`：实际更新日期，格式 YYYY-MM-DD。
-- `minutes`：实际投入分钟数，没有记录时为 0。
-- `references`：使用过的一手来源。
+## 检查与发布
 
-标记 completed 前必须有初稿、评审、真实复盘与更新日期；open 问题须继续讨论或明确转为 deferred 并说明原因。resolved 问题须保留用户回答和结论。第 4、8、12 期进行阶段回评。留待验证的问题会持续显示在页面上，不因归档而消失。
+需要 Node.js 22.13 或更新版本。运行 npm ci、npm test、npm run lint、npm run typecheck、npm run build:pages。后者生成 out/，并检查产物只含公开统计。仓库现有 GitHub Actions 会构建并部署 main。
 
-## 本地运行
+源码同步脚本仅复制 public-source-files.json 明确列出的文件。新增公共源码需显式更新清单；原始训练文件永远不得放进此目录。不要提交 node_modules、环境文件、日志或构建缓存。
 
-需要 Node.js 22.13 或更新版本。
-
-```sh
-npm ci
-npm run dev
-```
-
-`npm run validate` 检查记录结构、双周节奏、问答历史、修订依据与完成状态。`npm test` 使用隔离样例检查误标完成、无依据评分等情况，样例不进入网站数据。`npm run lint` 检查代码，`npm run typecheck` 检查 TypeScript。类型检查会先重新生成 Next.js 路由类型，避免切换 Vinext / Next.js 构建后两种框架的生成文件混用。`npm run build:pages` 生成 GitHub Pages 静态输出至 `out/`，每期有独立 URL、页面元数据和 canonical 链接。
-
-## 博客发布
-
-仓库位置：`projects/storage-lab/`。博客的 GitHub Actions 会安装锁定依赖、检查数据、构建训练站，再把 `out/` 复制到最终 Jekyll 产物的 `storage-lab/`，最后检查全站链接并发布。
-
-不要把 node_modules、.env、.wrangler、本地预览状态或构建缓存提交到公开仓库。源代码与公开学习记录保存在 Git；构建产物由 CI 生成。
-
-## Sites 预览
-
-当前开发流程也支持 Vinext / Cloudflare Workers 的 Sites 发布。`npm run build` 生成该目标的产物。GitHub Pages 导出与 Sites 构建使用同一套页面和公开训练数据；canonical 指向博客内的正式栏目，减少重复内容入口。
+上线后核对网页 publicationId 与批准快照一致。Git 提交成功不等于部署成功。
