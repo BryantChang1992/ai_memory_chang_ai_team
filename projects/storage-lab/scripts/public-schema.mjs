@@ -99,6 +99,7 @@ function validateProjects(projects, rounds) {
     requireThat(project.guidedDemoCompleted === linkedRounds.some(round => round.stage === 'completed' && round.mode === 'guided'));
     exactObject(project.practice, ['submissions', 'revisions']);
     requireThat(boundedInteger(project.practice.submissions, 10000) && boundedInteger(project.practice.revisions, 10000));
+    requireThat(project.practice.revisions <= project.practice.submissions);
     requireThat(project.practice.submissions > 0 || project.practice.revisions === 0);
     exactObject(project.independentAssessment, ['attempts', 'passedOnAttempt']);
     const { attempts, passedOnAttempt } = project.independentAssessment;
@@ -140,7 +141,7 @@ function derivedSummary(rounds) {
     rounds.some(round => round.assessments[key] !== 'unassessed') ? 'pending' : 'unassessed',
   ]));
   return {
-    completedDemos: rounds.filter(round => round.stage === 'completed').length,
+    completedDemos: rounds.filter(round => round.stage === 'completed' && round.mode !== 'independent').length,
     confirmedMinutes, estimatedMinutes, unknownTimeRounds,
     currentStage: rounds.at(-1)?.stage ?? 'awaiting_initial', assessments,
   };

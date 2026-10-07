@@ -2,7 +2,7 @@ import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { ProjectList } from "@/components/project-list";
 import { PublicationMeta } from "@/components/publication-meta";
-import { abilityLabel, progress, projectIsPassed, projects, referenceTime, schedule } from "@/lib/training";
+import { overviewAbilityLabel, progress, projectIsPassed, projects, referenceTime, schedule } from "@/lib/training";
 
 export default function Home() {
   const { summary } = progress;
@@ -17,7 +17,7 @@ export default function Home() {
         <section className="project-summary" aria-label="项目概要">
           <p><strong>{completed}</strong> 已完成 <span>/</span> <strong>{projects.length - completed}</strong> 待完成</p>
           <p>累计参考用时 <strong>{referenceTime(summary)}</strong></p>
-          <p className="summary-ability">能力状态：{Object.values(summary.assessments).every((state) => state === "unassessed") ? "未评估，待独立考核" : abilityLabel(summary.assessments)}</p>
+          <p className="summary-ability">能力状态：{overviewAbilityLabel(summary.assessments, projects)}</p>
         </section>
         <ProjectList/>
         <details className="learning-plan">

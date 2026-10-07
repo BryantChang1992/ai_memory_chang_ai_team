@@ -11,7 +11,7 @@ import {
   roundTimeLabel,
   trackLabels,
 } from "@/lib/training";
-import { statusLabels } from "@/lib/training-workflow";
+import { stageLabel } from "@/lib/training-workflow";
 
 export function RoundList() {
   const rounds = recentRounds();
@@ -27,7 +27,7 @@ export function RoundList() {
         <div className="round-grid">
           {rounds.map((round) => (
             <Link className="round-card" href={roundPath(round.id)} key={round.id} aria-label={`查看${roundLabel(round.id)} · ${trackLabels[round.track]}训练明细`}>
-              <div className="round-card-top"><span className="round-number">{roundLabel(round.id)}</span><span className={`status-tag ${round.stage === "completed" ? "status-completed" : ""}`}>{statusLabels[round.stage]}</span></div>
+              <div className="round-card-top"><span className="round-number">{roundLabel(round.id)}</span><span className={`status-tag ${round.stage === "completed" ? "status-completed" : ""}`}>{stageLabel(round.stage, round.mode)}</span></div>
               <h3>{trackLabels[round.track]}</h3>
               <div className="round-card-meta"><span><CalendarDays size={15}/><time dateTime={round.date}>{displayDate(round.date)}</time></span><span>{modeLabels[round.mode]}</span></div>
               <div className="round-time"><Clock3 size={17}/><span>本人用时：<strong>{roundTimeLabel(round.time)}</strong>{round.time.provenance !== "unknown" && <small>（{provenanceLabels[round.time.provenance]}）</small>}</span></div>

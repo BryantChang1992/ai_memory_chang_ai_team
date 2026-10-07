@@ -35,6 +35,7 @@ export type PublicProject = {
   status: ProjectStatus;
   roundIds: string[];
   guidedDemoCompleted: boolean;
+  // Submissions includes every complete practice version; revisions is a subset.
   practice: { submissions: number; revisions: number };
   independentAssessment: { attempts: number; passedOnAttempt: number | null };
   feedback: {
@@ -101,7 +102,7 @@ export const feedbackLabels: Record<StrengthKey | ResolvedIssueKey | OpenIssueKe
 };
 export const modeLabels: Record<TrainingMode, string> = {
   guided: "提示辅助",
-  independent: "独立练习",
+  independent: "无提示独立作答",
   unconfirmed: "方式待确认",
 };
 export const provenanceLabels: Record<TimeProvenance, string> = {
@@ -138,9 +139,14 @@ export function roundTimeLabel(time: RoundTime) {
 }
 export function abilityLabel(assessments: Assessments) {
   const states = Object.values(assessments);
-  if (states.every((state) => state === "assessed")) return "各维度已评估";
-  if (states.some((state) => state === "assessed" || state === "pending")) return "待完成独立评估";
-  return "独立掌握未评估";
+  if (states.every((state) => state === "assessed")) return "三维能力已评估";
+  if (states.some((state) => state === "assessed" || state === "pending")) return "三维能力尚待完成评估";
+  return "三维能力未评估";
+}
+export function overviewAbilityLabel(assessments: Assessments, projectRecords: PublicProject[]) {
+  if (projectRecords.every((project) => project.independentAssessment.attempts === 0)
+    && Object.values(assessments).every((state) => state === "unassessed")) return "未评估，待独立考核";
+  return abilityLabel(assessments);
 }
 export function referenceTime(summary: TimeSummary) {
   const { confirmedMinutes, estimatedMinutes } = summary;
@@ -175,11 +181,11 @@ export function projectIsPassed(project: PublicProject) {
 }
 export function projectProgressLabel(project: PublicProject) {
   if (projectIsPassed(project)) return "已通过项目独立考核";
-  if (project.guidedDemoCompleted) return "引导练习已完成，独立考核待完成";
+  if (project.guidedDemoCompleted && project.status === "practicing") return "引导练习已完成，独立考核待完成";
   return projectStatusLabels[project.status];
 }
 export function independentAssessmentLabel(project: PublicProject) {
   if (projectIsPassed(project)) return `第 ${project.independentAssessment.passedOnAttempt} 次通过`;
-  if (project.independentAssessment.attempts === 0) return "尚未考核";
+  if (project.independentAssessment.attempts === 0) return "尚未交卷";
   return "尚未通过";
 }

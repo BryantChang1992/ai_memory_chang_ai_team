@@ -118,7 +118,7 @@ test('every round maps to exactly one real project and guided completion is deri
     value=>value.projects=[],value=>value.projects[0].roundIds=[],value=>value.projects[0].roundIds.push('round-999'),
     value=>value.projects[0].roundIds.push('round-001'),value=>value.projects.push({...clone(value.projects[0]),id:'project-002'}),
     value=>value.projects[0].guidedDemoCompleted=false,value=>value.projects[0].track='kv',
-    value=>value.projects[0].titleKey='https://private.invalid',value=>value.projects[0].id='STREAM-001',
+    value=>value.projects[0].titleKey='https://private.invalid',value=>value.projects[0].id='PRIVATE-TEST-PROJECT',
   ]) {const value=clone(snapshot);mutate(value);assert.throws(()=>publicationIdFor(fields(value)),/PUBLIC_SCHEMA_INVALID/);}
 });
 test('forged passes, positive exam counts without independent evidence and contradictory states are rejected', () => {
@@ -155,4 +155,19 @@ test('publication hash covers reviewed project enums but no arbitrary narrative 
   const value=clone(snapshot);value.projects[0].feedback.recommendations=[];
   assert.notEqual(publicationIdFor(fields(value)),snapshot.publicationId);
   const legacy=fields(snapshot);legacy.schemaVersion=2;delete legacy.projects;assert.throws(()=>publicationIdFor(legacy),/PUBLIC_SCHEMA_INVALID/);
+});
+
+test('independent passes never inflate completed Demo totals and practice revisions are a subset', () => {
+  const exam = round({ id: 'round-002', mode: 'independent', stage: 'completed' });
+  const mixed = pack([round(), exam]);
+  assert.equal(validatePublic(mixed), true);
+  assert.equal(mixed.summary.completedDemos, 1);
+  assert.equal(pack([exam]).summary.completedDemos, 0);
+  assert.equal(pack([round({ mode: 'unconfirmed' })]).summary.completedDemos, 1);
+  assert.equal(pack([round({ mode: 'unconfirmed', stage: 'reviewed' })]).summary.completedDemos, 0);
+  const bad = clone(snapshot);
+  bad.projects[0].practice = { submissions: 1, revisions: 2 };
+  assert.throws(() => publicationIdFor(fields(bad)), /PUBLIC_SCHEMA_INVALID/);
+  bad.projects[0].practice = { submissions: 2, revisions: 1 };
+  assert.equal(typeof publicationIdFor(fields(bad)), 'string');
 });

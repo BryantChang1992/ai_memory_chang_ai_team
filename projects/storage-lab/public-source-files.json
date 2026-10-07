@@ -114,6 +114,7 @@
   "scripts/sync-blog-source.mjs",
   "scripts/training-schema.mjs",
   "scripts/training-schema.test.mjs",
+  "scripts/training-workflow.test.mjs",
   "scripts/validate-content.mjs",
   "tsconfig.json",
   "vendor/shadcn-tailwind-4.13.0.LICENSE.md",
