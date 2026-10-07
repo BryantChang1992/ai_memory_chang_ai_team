@@ -1,9 +1,35 @@
 {
-  "schemaVersion": 1,
-  "publicationId": "pub-47719283e53f3605",
+  "schemaVersion": 2,
+  "publicationId": "pub-2a790d6eda6f4177",
   "updatedAt": "2026-10-07",
-  "stage": "completed",
-  "completedCount": 1,
-  "confirmedMinutes": null,
-  "abilityStatus": "unassessed"
+  "summary": {
+    "completedDemos": 1,
+    "confirmedMinutes": null,
+    "estimatedMinutes": 110,
+    "unknownTimeRounds": 0,
+    "currentStage": "completed",
+    "assessments": {
+      "scale": "unassessed",
+      "consistency": "unassessed",
+      "performance": "unassessed"
+    }
+  },
+  "rounds": [
+    {
+      "id": "round-001",
+      "date": "2026-10-07",
+      "track": "stream",
+      "stage": "completed",
+      "mode": "guided",
+      "time": {
+        "minutes": 110,
+        "provenance": "conversation_span"
+      },
+      "assessments": {
+        "scale": "unassessed",
+        "consistency": "unassessed",
+        "performance": "unassessed"
+      }
+    }
+  ]
 }
