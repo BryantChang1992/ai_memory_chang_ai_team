@@ -5,11 +5,11 @@ import { schedule } from "@/lib/training";
 export const metadata: Metadata = {
   metadataBase: new URL(schedule.canonicalUrl + "/"),
   title: { default: "Storage Lab · 训练进展", template: "%s · Storage Lab" },
-  description: "分布式存储训练总览与逐轮明细，展示真实进度、本人用时来源和能力评估状态。",
+  description: "按设计项目记录分布式存储训练：引导练习、正式修订、独立考核与真实用时。",
   alternates: { canonical: schedule.canonicalUrl + "/" },
   openGraph: {
     title: "Storage Lab · 训练进展",
-    description: "真实训练进展、分来源用时与逐轮能力评估状态",
+    description: "设计项目进展、练习与独立考核、分来源用时",
     url: schedule.canonicalUrl + "/",
     siteName: "Bryant · Storage Lab",
     locale: "zh_CN",

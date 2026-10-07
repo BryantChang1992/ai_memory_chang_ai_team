@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 2,
-  "publicationId": "pub-2a790d6eda6f4177",
+  "schemaVersion": 3,
+  "publicationId": "pub-1725dd329d793770",
   "updatedAt": "2026-10-07",
   "summary": {
     "completedDemos": 1,
@@ -29,6 +29,43 @@
         "scale": "unassessed",
         "consistency": "unassessed",
         "performance": "unassessed"
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "project-001",
+      "titleKey": "append_log_design",
+      "track": "stream",
+      "status": "practicing",
+      "roundIds": [
+        "round-001"
+      ],
+      "guidedDemoCompleted": true,
+      "practice": {
+        "submissions": 0,
+        "revisions": 0
+      },
+      "independentAssessment": {
+        "attempts": 0,
+        "passedOnAttempt": null
+      },
+      "feedback": {
+        "strengths": [
+          "contract_boundary_awareness"
+        ],
+        "resolvedIssues": [
+          "layer_distinction_clarified"
+        ],
+        "openIssues": [
+          "independent_reconstruction_unverified",
+          "boundary_reasoning_needs_verification"
+        ],
+        "recommendations": [
+          "requirements_first",
+          "structured_revision",
+          "independent_full_submission"
+        ]
       }
     }
   ]

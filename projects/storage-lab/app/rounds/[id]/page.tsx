@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { TrainingAssessment, TrainingProgress } from "@/components/training-progress";
 import { PublicationMeta } from "@/components/publication-meta";
-import { abilityLabel, displayDate, modeLabels, provenanceLabels, roundLabel, roundPath, rounds, roundTimeLabel, schedule, trackLabels } from "@/lib/training";
+import { abilityLabel, displayDate, modeLabels, provenanceLabels, projectForRound, projectPath, projectTitleLabels, roundLabel, roundPath, rounds, roundTimeLabel, schedule, trackLabels } from "@/lib/training";
 import { statusLabels } from "@/lib/training-workflow";
 
 type Props = { params: Promise<{ id: string }> };
@@ -27,6 +27,7 @@ export default async function RoundDetail({ params }: Props) {
   const { id } = await params;
   const round = rounds.find((item) => item.id === id);
   if (!round) notFound();
+  const project = projectForRound(round.id);
   const index = rounds.findIndex((item) => item.id === id);
   const previousRound = rounds[index - 1];
   const nextRound = rounds[index + 1];
@@ -34,16 +35,18 @@ export default async function RoundDetail({ params }: Props) {
     <div className="site-shell">
       <SiteHeader/>
       <main className="workspace detail-workspace">
-        <Link className="back-link" href="/#rounds"><ArrowLeft size={16}/>返回训练总览</Link>
+        <Link className="back-link" href={project ? projectPath(project.id) : "/#projects"}><ArrowLeft size={16}/>{project ? "返回设计项目" : "返回项目总览"}</Link>
         <header className="detail-heading">
           <div>
             <p className="eyebrow">ROUND DETAIL · {round.id.toUpperCase()}</p>
             <h1>{roundLabel(round.id)} · {trackLabels[round.track]}</h1>
-            <p className="intro">本轮训练数据与能力评估状态</p>
+            <p className="intro">本轮实际训练记录与能力评估状态</p>
             <div className="detail-meta"><span><CalendarDays size={16}/><time dateTime={round.date}>{displayDate(round.date)}</time></span><span className={`status-tag ${round.stage === "completed" ? "status-completed" : ""}`}>{statusLabels[round.stage]}</span><span className="mode-tag">{modeLabels[round.mode]}</span></div>
+            {project && <Link className="round-project-link" href={projectPath(project.id)}>所属项目：{projectTitleLabels[project.titleKey]}<ArrowRight size={14}/></Link>}
           </div>
           <span className="large-index" aria-hidden="true">{round.id.slice(6)}</span>
         </header>
+        {project && <p className="round-project-note">本页记录实际训练过程。固定题卷的正式提交、正式修订与独立考核次数在项目页分别统计，对话中的追问和修订不计为考核次数。</p>}
         <div className="detail-grid round-detail-grid">
           <div>
             <section className="detail-card time-detail-card" aria-labelledby="round-time-heading">
@@ -67,12 +70,12 @@ export default async function RoundDetail({ params }: Props) {
         </div>
         <p className="detail-privacy-note">本页仅包含公开统计。训练题目、本人回答、逐轮追问、复盘及评价依据私有保存。</p>
         <nav className="detail-next" aria-label="轮次导航">
-          {previousRound ? <Link href={roundPath(previousRound.id)}><ArrowLeft size={16}/>上一轮：{roundLabel(previousRound.id)}</Link> : <Link href="/#rounds"><ArrowLeft size={16}/>返回全部轮次</Link>}
+          {previousRound ? <Link href={roundPath(previousRound.id)}><ArrowLeft size={16}/>上一轮：{roundLabel(previousRound.id)}</Link> : <Link href={project ? projectPath(project.id) : "/#projects"}><ArrowLeft size={16}/>{project ? "返回所属项目" : "返回设计项目"}</Link>}
           {nextRound && <Link href={roundPath(nextRound.id)}>下一轮：{roundLabel(nextRound.id)}<ArrowRight size={16}/></Link>}
         </nav>
         <PublicationMeta/>
       </main>
-      <footer><span>Bryant · Storage Lab</span><Link href="/">训练总览 <ArrowRight size={15}/></Link></footer>
+      <footer><span>Bryant · Storage Lab</span><Link href="/">项目总览 <ArrowRight size={15}/></Link></footer>
     </div>
   );
 }
