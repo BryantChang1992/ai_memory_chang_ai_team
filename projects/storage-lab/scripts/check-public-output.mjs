@@ -8,8 +8,8 @@ try {
   validatePublic(snapshot);
   const root = resolve(process.argv[2] || 'out');
   if (!existsSync(root)) fail('PUBLIC_OUTPUT_MISSING');
-  const forbidden = /reviewQuestions|scoreEvidence|source_ref|SYNTHETIC_PRIVATE_CANARY|(?:STREAM|DEMO)-\d{3}(?:-R\d+)?|(?:\\?["'])(?:question|answer|reflection|roundId|privateRoundId|publicRoundId|formalActivities|statusEvidence|feedbackBasis|eventHash|eventId|eventIds|sourceId|sourceIds|roundLinks|exerciseId|sourceHash|previousHash|messageTimestamp|requestEventId|privateUrl|evidenceEventIds)(?:\\?["'])\s*:/;
-  // v3 permits the numeric practice.revisions counter. Transcript-like revision
+  const forbidden = /reviewQuestions|scoreEvidence|source_ref|SYNTHETIC_PRIVATE_CANARY|(?:STREAM|DEMO)-(?:[A-Z]+-)*\d{3}(?:-R\d+)?|(?:\\?["'])(?:question|answer|reflection|roundId|privateRoundId|publicRoundId|formalActivities|statusEvidence|feedbackBasis|eventHash|eventId|eventIds|sourceId|sourceIds|roundLinks|exerciseId|sourceHash|previousHash|messageTimestamp|requestEventId|privateUrl|evidenceEventIds|goal|timeBudget|exitCriterion|sourceProof|fullScopeReview|inventorySha256|sourceDocument|sourceDocumentSha256)(?:\\?["'])\s*:/;
+  // v4 permits the numeric practice.revisions counter. Transcript-like revision
   // arrays, objects, strings, booleans or null remain forbidden in serialized output.
   const privateRevisions = /(?:\\?["'])revisions(?:\\?["'])\s*:\s*(?:\[|\{|\\?["']|null\b|true\b|false\b)/;
   let scanned = 0;
@@ -41,7 +41,7 @@ try {
       if (Object.values(snapshot.summary.assessments).includes('unassessed') && !html.includes('未评估')) fail('PUBLIC_OUTPUT_ASSESSMENT_FAILED');
     }
   }
-  console.log(`Public v3 artifact boundary checked: ${scanned} text files.`);
+  console.log(`Public v4 artifact boundary checked: ${scanned} text files.`);
 } catch (error) {
   console.error(/^PUBLIC_(?:OUTPUT|SCHEMA)_[A-Z_]+$/.test(error.message) ? error.message : 'PUBLIC_OUTPUT_CHECK_FAILED');
   process.exitCode = 1;

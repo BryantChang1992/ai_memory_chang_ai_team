@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
+import { PLAN_CATALOG } from './plan-catalog.mjs';
 
 const snapshot = JSON.parse(readFileSync(new URL('../content/training.json', import.meta.url), 'utf8'));
 
@@ -9,7 +10,9 @@ async function loadHelpers(relativePath) {
   const source = readFileSync(new URL(relativePath, import.meta.url), 'utf8');
   // Node does not resolve Next's alias. Inject the unchanged public snapshot only
   // into this in-memory test module; production data and source stay untouched.
-  const executable = stripTypeScriptTypes(source.replace('import data from "@/content/training.json";', `const data = ${JSON.stringify(snapshot)};`));
+  const executable = stripTypeScriptTypes(source
+    .replace('import data from "@/content/training.json";', `const data = ${JSON.stringify(snapshot)};`)
+    .replace('import { PLAN_CATALOG } from "@/scripts/plan-catalog.mjs";', `const PLAN_CATALOG = ${JSON.stringify(PLAN_CATALOG)};`));
   return import(`data:text/javascript;base64,${Buffer.from(executable).toString('base64')}`);
 }
 
@@ -69,7 +72,62 @@ test('legacy estimated time, confirmed zero and unknown time remain distinct', (
   assert.equal(training.roundTimeLabel({ minutes: 0, provenance: 'user_confirmed' }), '0 分钟');
   assert.equal(training.roundTimeLabel({ minutes: null, provenance: 'unknown' }), '待统计');
   assert.equal(training.referenceTime(snapshot.summary), '约 110 分钟');
-  assert.equal(snapshot.publicationId, 'pub-1725dd329d793770');
+  assert.equal(snapshot.schemaVersion, 4);
+  assert.match(snapshot.publicationId, /^pub-[a-f0-9]{16}$/);
   assert.deepEqual(snapshot.projects[0].practice, { submissions: 0, revisions: 0 });
   assert.deepEqual(snapshot.projects[0].independentAssessment, { attempts: 0, passedOnAttempt: null });
+});
+
+test('full curriculum groups cover all 28 relative weeks in the approved order', () => {
+  const groups = training.curriculumGroups();
+  assert.deepEqual(groups.map(({ track, items }) => [track, items.map(({ week }) => week)]), [
+    ['stream', [1, 2, 3, 4, 5, 6]],
+    ['kv', [7, 8, 9]],
+    ['filesystem', [10, 11, 12, 13]],
+    ['table', [14, 15, 16, 17]],
+    ['lake', [18, 19, 20, 21, 22]],
+    ['foundation', [23, 24, 25, 26]],
+    ['capstone', [27, 28]],
+  ]);
+  assert.deepEqual(training.curriculumSummary(), { total: 28, completed: 0, incomplete: 28, inProgress: 1, notStarted: 27 });
+  assert.equal(training.curriculumTitle(snapshot.curriculum[0]), '追加读取与日志布局基线');
+  assert.equal(training.curriculumTitle(snapshot.curriculum[3]), '分层存储设计');
+  assert.equal(training.curriculumTitle(snapshot.curriculum[4]), 'segment 独立调度设计');
+  assert.equal(training.curriculumTitle(snapshot.curriculum[27]), '约束突变与最终答辩');
+  assert.equal(training.plannedWeekLabel(28), '计划第 28 周');
+  assert.throws(() => training.curriculumTitle({ ...snapshot.curriculum[0], titleKey: 'unapproved_topic' }), /Missing approved curriculum title/);
+});
+
+test('one starter remains distinct from its broader weekly topic, including after its own pass', () => {
+  const linked = snapshot.curriculum.map((item) => training.curriculumStarterProject(item)).filter(Boolean);
+  assert.equal(linked.length, 1);
+  assert.equal(linked[0].id, 'project-001');
+  assert.deepEqual(training.projectTime(linked[0]), { confirmedMinutes: null, estimatedMinutes: 110, unknownTimeRounds: 0 });
+  const passedStarter = { ...linked[0], status: 'passed', independentAssessment: { attempts: 1, passedOnAttempt: 1 } };
+  const starter = training.curriculumStarterProject(snapshot.curriculum[0], [passedStarter]);
+  assert.equal(training.projectIsPassed(starter), true);
+  assert.equal(training.curriculumSummary().completed, 0);
+  assert.equal(snapshot.curriculum[0].status, 'in_progress');
+  assert.equal(snapshot.rounds.length, 1);
+  assert.equal(snapshot.summary.unknownTimeRounds, 0);
+  assert.equal(training.curriculumStarterProject(snapshot.curriculum[1]), undefined);
+});
+
+test('only an explicit whole-topic completed state changes completed curriculum totals', () => {
+  const reviewedTopics = snapshot.curriculum.map((item) => item.week === 4 ? { ...item, status: 'completed' } : item);
+  assert.deepEqual(training.curriculumSummary(reviewedTopics), { total: 28, completed: 1, incomplete: 27, inProgress: 1, notStarted: 26 });
+  const completedGroups = training.curriculumGroups(reviewedTopics.filter((item) => item.status === 'completed'));
+  assert.equal(completedGroups.length, 1);
+  assert.equal(completedGroups[0].track, 'stream');
+  assert.deepEqual(completedGroups[0].items.map(({ week }) => week), [4]);
+  assert.deepEqual(training.curriculumSummary([]), { total: 0, completed: 0, incomplete: 0, inProgress: 0, notStarted: 0 });
+  assert.equal(training.referenceTime(snapshot.summary), '约 110 分钟');
+  assert.equal(snapshot.projects.length, 1);
+});
+
+test('reviewed topics do not claim a missing question sheet or an unverified pass', () => {
+  const topic = snapshot.curriculum[3];
+  assert.equal(training.curriculumPreparationLabel(topic), '题卷待准备');
+  assert.equal(training.curriculumPreparationLabel({ ...topic, status: 'in_progress', preparation: 'reviewed' }), '已评审，待完成整周范围核验');
+  assert.equal(training.curriculumPreparationLabel({ ...topic, status: 'completed', preparation: 'reviewed' }), '整周主题已完成范围核验');
 });

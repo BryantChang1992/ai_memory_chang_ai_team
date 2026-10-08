@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, Clock3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clock3, LockKeyhole } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PublicationMeta } from "@/components/publication-meta";
 import {
@@ -98,6 +98,7 @@ export default async function ProjectDetail({ params }: Props) {
           {linkedRounds.length ? <ul className="project-rounds">{linkedRounds.map((round) => <li key={round.id}><Link href={roundPath(round.id)}><div><strong>{roundLabel(round.id)} · {modeLabels[round.mode]}</strong><span><time dateTime={round.date}>{displayDate(round.date)}</time> · {stageLabel(round.stage, round.mode)}</span></div><div><strong>{roundTimeLabel(round.time)}</strong><span>{provenanceLabels[round.time.provenance]}</span></div><ArrowRight size={17}/></Link></li>)}</ul> : <p className="record-empty">暂无实际训练记录，用时待统计。</p>}
           <p className="time-explanation">用时来自以上实际训练区间，每轮只计一次。对话跨度可能包含等待或离开时间，不等同于专注时长；后续评审、文档和站点整理等管理时间不计入。</p>
         </section>
+        <p className="reference-answer-note"><LockKeyhole size={16}/><span><strong>{passed ? "参考答案待整理发布" : "通过后发布参考答案"}</strong>仅在本项目独立考核通过后整理公开参考答案，原始训练记录继续私有保存。</span></p>
         <p className="detail-privacy-note">本页仅包含公开统计与固定措辞的概括性反馈。训练题目、本人回答、逐轮追问、复盘及评价依据私有保存。</p>
         <PublicationMeta/>
       </main>

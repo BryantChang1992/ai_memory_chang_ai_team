@@ -106,6 +106,7 @@
   "scripts/install-ci.mjs",
   "scripts/install-ci.sh",
   "scripts/install-pnpm.sh",
+  "scripts/plan-catalog.mjs",
   "scripts/pnpm-install.mjs",
   "scripts/public-schema.mjs",
   "scripts/run-framework.mjs",

@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 3,
-  "publicationId": "pub-1725dd329d793770",
+  "schemaVersion": 4,
+  "publicationId": "pub-41b402c576b6714e",
   "updatedAt": "2026-10-07",
   "summary": {
     "completedDemos": 1,
@@ -67,6 +67,232 @@
           "independent_full_submission"
         ]
       }
+    }
+  ],
+  "curriculum": [
+    {
+      "week": 1,
+      "titleKey": "append_read_log_baseline",
+      "track": "stream",
+      "status": "in_progress",
+      "preparation": "starter_ready",
+      "starterProjectId": "project-001"
+    },
+    {
+      "week": 2,
+      "titleKey": "replication_failure_diagnosis",
+      "track": "stream",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 3,
+      "titleKey": "consumer_end_to_end_semantics",
+      "track": "stream",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 4,
+      "titleKey": "tiered_storage_design",
+      "track": "stream",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 5,
+      "titleKey": "segment_scheduling_design",
+      "track": "stream",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 6,
+      "titleKey": "stream_combined_defense",
+      "track": "stream",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 7,
+      "titleKey": "kv_engine_baseline",
+      "track": "kv",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 8,
+      "titleKey": "shard_migration_hotspots",
+      "track": "kv",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 9,
+      "titleKey": "kv_end_to_end_defense",
+      "track": "kv",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 10,
+      "titleKey": "namespace_data_layout",
+      "track": "filesystem",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 11,
+      "titleKey": "metadata_concurrency_rename",
+      "track": "filesystem",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 12,
+      "titleKey": "client_cache_concurrent_writes",
+      "track": "filesystem",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 13,
+      "titleKey": "filesystem_recovery_defense",
+      "track": "filesystem",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 14,
+      "titleKey": "structured_model_access_paths",
+      "track": "table",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 15,
+      "titleKey": "index_update_backfill",
+      "track": "table",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 16,
+      "titleKey": "transaction_isolation",
+      "track": "table",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 17,
+      "titleKey": "partition_table_defense",
+      "track": "table",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 18,
+      "titleKey": "lake_table_snapshots",
+      "track": "lake",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 19,
+      "titleKey": "concurrent_writers_commit",
+      "track": "lake",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 20,
+      "titleKey": "file_layout_scan_cost",
+      "track": "lake",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 21,
+      "titleKey": "updates_deletes_stream_batch",
+      "track": "lake",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 22,
+      "titleKey": "lake_maintenance_defense",
+      "track": "lake",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 23,
+      "titleKey": "durability_interfaces",
+      "track": "foundation",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 24,
+      "titleKey": "shared_replication_failover",
+      "track": "foundation",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 25,
+      "titleKey": "placement_scheduling_expansion",
+      "track": "foundation",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 26,
+      "titleKey": "repair_isolation_defense",
+      "track": "foundation",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 27,
+      "titleKey": "independent_capstone_design",
+      "track": "capstone",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
+    },
+    {
+      "week": 28,
+      "titleKey": "changing_constraints_defense",
+      "track": "capstone",
+      "status": "not_started",
+      "preparation": "not_prepared",
+      "starterProjectId": null
     }
   ]
 }

@@ -127,3 +127,38 @@
 @media(max-width:650px){.project-overview .page-heading{margin-bottom:22px}.project-summary{gap:10px 22px;padding:16px 0}.project-summary p{font-size:12px}.project-summary p:first-child strong{font-size:20px}.project-summary .summary-ability{font-size:11px}.project-collection{margin-top:28px}.project-group .section-heading{align-items:flex-start;gap:7px}.project-group .section-heading h2{font-size:19px}.project-group .section-heading>span{font-size:12px}.project-card{padding:21px}.project-card h3{font-size:22px}.project-card-progress{font-size:13px;margin-bottom:17px}.project-card-facts{gap:9px;font-size:12px;flex-direction:column;align-items:flex-start}.project-card-facts small{font-size:11px}.project-card-bottom{font-size:12px;margin-top:17px}.completed-projects{margin-top:26px}.project-empty{font-size:13px;padding:17px 19px}.learning-plan{margin-top:29px}.plan-summary{font-size:11px;margin-left:12px}.learning-plan>div{padding-left:16px;padding-right:8px}.learning-plan>div p{font-size:13px}.project-detail-heading{align-items:flex-start;gap:13px;padding-bottom:25px}.project-detail-heading h1{font-size:27px}.project-detail-heading .intro{font-size:13px;max-width:260px}.project-detail-heading .eyebrow{font-size:10px}.project-detail-status{font-size:11px;padding:4px 8px;margin-top:2px}.project-records{grid-template-columns:1fr;gap:15px}.project-records .detail-card{padding:23px 21px}.practice-status,.exam-status{margin-bottom:18px}.practice-counts dd{font-size:28px}.count-explanation{margin-top:18px;padding-top:14px}.next-step-note{padding:18px;gap:13px;margin-top:19px;margin-bottom:29px}.next-step-number{font-size:9px}.next-step-note h2{font-size:14px}.next-step-note p{font-size:12px}.feedback-section{margin-top:29px}.feedback-section .section-heading h2{font-size:20px}.feedback-grid{grid-template-columns:1fr;gap:13px}.feedback-card{padding:20px}.feedback-card li{font-size:13px}.feedback-note{font-size:11px;margin-bottom:25px}.project-time-card{padding:22px 20px}.project-time-heading{align-items:flex-start;flex-direction:column;gap:10px}.project-time-heading h2{font-size:19px}.project-time-heading>span{font-size:21px}.project-time-sources{margin-top:10px;font-size:11px;gap:5px 17px}.project-rounds a{gap:12px;grid-template-columns:1fr auto 15px}.project-rounds strong{font-size:12px}.project-rounds span{font-size:10px}.project-time-card .time-explanation{font-size:11px}.project-detail .detail-privacy-note{font-size:12px}.round-project-note{font-size:12px}}
 
 .project-time-heading>span>small{font-size:12px;font-weight:400;color:#71859b}
+
+/* Full public curriculum, with the actual starter practice kept in its scope. */
+.plan-budget{font-size:12px;line-height:1.85;color:#73839a;margin:14px 0 0}
+.curriculum-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 27px}
+.curriculum-nav a{font-size:12px;color:#537493;background:#edf2f8;border:1px solid #dce5ef;border-radius:6px;padding:5px 11px;transition:background .16s,border-color .16s}
+.curriculum-nav a:hover{background:#e2eefc;border-color:#97bbdf;color:#1e639a}
+.curriculum-family{scroll-margin-top:25px;margin-top:29px}
+.curriculum-family-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 13px}
+.curriculum-family-heading>div{display:flex;align-items:center;gap:11px}
+.family-number{font-family:var(--font-mono);font-size:12px;color:#6f8ba9;background:#e9eff7;border-radius:5px;padding:2px 7px}
+.curriculum-family-heading h3{font-size:17px;font-weight:600;color:#2c496a;margin:0}
+.curriculum-family-heading>span{font-size:12px;color:#73869d}
+.curriculum-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:0}
+.curriculum-item{min-width:0;background:#fff;border:1px solid #dbe3ee;border-radius:10px;padding:19px 21px}
+.curriculum-item-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#69839d;font-size:12px}
+.curriculum-item .status-tag{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-size:11px;padding:2px 7px}
+.status-not-started{color:#77889c;background:#f4f6f9;border-color:#e6ebf1}
+.curriculum-item h4{color:#2c4563;font-size:17px;font-weight:550;line-height:1.65;margin:11px 0 8px;overflow-wrap:anywhere}
+.curriculum-preparation{font-size:12px;color:#8896a8;margin:0}
+.curriculum-item-active{grid-column:1/-1;border-color:#a9c6e3;background:#f8fbff;padding:23px 25px}
+.curriculum-item-active h4{font-size:22px;margin-top:9px}
+.curriculum-scope-note{font-size:13px;color:#607a96;margin:5px 0 18px;line-height:1.85}
+.starter-project{display:block;padding:19px 22px;background:#fff;border:1px solid #c5d8eb;border-radius:8px;color:inherit;transition:border-color .16s,box-shadow .16s}
+.starter-project:hover{border-color:#5794c7;box-shadow:0 4px 18px #1a3e620d}
+.starter-project-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.starter-project-heading>div{display:flex;gap:11px;align-items:center;flex-wrap:wrap}
+.starter-label{font-size:11px;color:#6983a0;border-right:1px solid #d9e4ef;padding-right:11px}
+.starter-project-heading strong{font-size:16px;color:#2b5279;font-weight:600}
+.starter-project>p{font-size:13px;color:#5b7793;line-height:1.85;margin:12px 0}
+.starter-project .project-card-bottom{margin-top:15px;padding-top:12px;font-size:12px}
+.project-collection .completed-projects{margin-top:37px;padding-top:25px;border-top:1px solid var(--border)}
+.reference-answer-note{display:flex;align-items:flex-start;gap:10px;margin:24px 0;color:#71839a;font-size:12px;line-height:1.85;background:#edf2f8;border:1px solid #dce5ef;border-radius:8px;padding:15px 18px}
+.reference-answer-note svg{flex-shrink:0;margin-top:3px}
+.reference-answer-note strong{display:block;font-size:13px;font-weight:550;color:#476785;margin-bottom:3px}
+@media(max-width:650px){.plan-budget{font-size:11px;margin-top:11px}.curriculum-nav{gap:6px;margin-bottom:22px}.curriculum-nav a{font-size:11px;padding:4px 9px}.curriculum-family{margin-top:25px}.curriculum-family-heading{gap:9px;align-items:center}.curriculum-family-heading h3{font-size:16px}.curriculum-family-heading>span{font-size:11px}.curriculum-family-heading>div{gap:8px}.family-number{font-size:11px;padding:2px 6px}.curriculum-grid{grid-template-columns:1fr;gap:10px}.curriculum-item{padding:17px 18px}.curriculum-item h4{font-size:16px;margin-top:9px}.curriculum-item-active{padding:19px 18px}.curriculum-item-active h4{font-size:20px}.curriculum-scope-note{font-size:12px;margin-bottom:14px}.starter-project{padding:16px}.starter-project-heading{align-items:flex-start;gap:8px}.starter-project-heading>div{display:block}.starter-label{display:block;border:0;padding:0;margin-bottom:3px}.starter-project-heading strong{font-size:15px}.starter-project>p{font-size:12px;margin:10px 0}.starter-project .project-card-facts{gap:7px}.starter-project .project-card-bottom{font-size:11px}.project-collection .completed-projects{margin-top:28px;padding-top:23px}.reference-answer-note{padding:14px;font-size:11px}}

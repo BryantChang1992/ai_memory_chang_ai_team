@@ -1,4 +1,5 @@
 import data from "@/content/training.json";
+import { PLAN_CATALOG } from "@/scripts/plan-catalog.mjs";
 
 export type TrainingStage =
   | "awaiting_initial"
@@ -45,13 +46,21 @@ export type PublicProject = {
     recommendations: RecommendationKey[];
   };
 };
+export type PublicCurriculumItem = {
+  week: number;
+  titleKey: string;
+  track: TrainingTrack;
+  status: "not_started" | "in_progress" | "completed";
+  preparation: "starter_ready" | "not_prepared" | "reviewed";
+  starterProjectId: string | null;
+};
 export type TimeSummary = {
   confirmedMinutes: number | null;
   estimatedMinutes: number | null;
   unknownTimeRounds: number;
 };
 export type PublicProgress = {
-  schemaVersion: 3;
+  schemaVersion: 4;
   publicationId: string;
   updatedAt: string;
   summary: TimeSummary & {
@@ -61,12 +70,14 @@ export type PublicProgress = {
   };
   rounds: PublicRound[];
   projects: PublicProject[];
+  curriculum: PublicCurriculumItem[];
 };
 
 // The build validator checks this public-only snapshot before generating pages.
 export const progress = data as PublicProgress;
 export const rounds = progress.rounds;
 export const projects = progress.projects;
+export const curriculum = progress.curriculum;
 export const schedule = {
   blogUrl: "https://bryantchang1992.github.io/ai_memory_chang_ai_team/index.html",
   canonicalUrl: "https://bryantchang1992.github.io/ai_memory_chang_ai_team/storage-lab",
@@ -81,6 +92,7 @@ export const trackLabels: Record<TrainingTrack, string> = {
   foundation: "存储底座",
   capstone: "综合设计",
 };
+export const trackOrder: TrainingTrack[] = ["stream", "kv", "filesystem", "table", "lake", "foundation", "capstone"];
 export const projectTitleLabels: Record<ProjectTitle, string> = {
   append_log_design: "追加日志设计",
 };
@@ -188,4 +200,40 @@ export function independentAssessmentLabel(project: PublicProject) {
   if (projectIsPassed(project)) return `第 ${project.independentAssessment.passedOnAttempt} 次通过`;
   if (project.independentAssessment.attempts === 0) return "尚未交卷";
   return "尚未通过";
+}
+
+export function curriculumTitle(item: PublicCurriculumItem) {
+  const topic = PLAN_CATALOG.find((entry) => entry.titleKey === item.titleKey);
+  if (!topic) throw new Error("Missing approved curriculum title");
+  return topic.title;
+}
+export function curriculumGroups(items: PublicCurriculumItem[] = curriculum) {
+  return trackOrder.map((track) => ({
+    track,
+    items: items.filter((item) => item.track === track).sort((a, b) => a.week - b.week),
+  })).filter((group) => group.items.length > 0);
+}
+export function curriculumSummary(items: PublicCurriculumItem[] = curriculum) {
+  // Whole-topic completion is a separately verified curriculum state. Never
+  // infer it from the linked starter project's Demo or independent exam pass.
+  const completed = items.filter((item) => item.status === "completed").length;
+  return {
+    total: items.length,
+    completed,
+    incomplete: items.length - completed,
+    inProgress: items.filter((item) => item.status === "in_progress").length,
+    notStarted: items.filter((item) => item.status === "not_started").length,
+  };
+}
+export function curriculumStarterProject(item: PublicCurriculumItem, projectRecords: PublicProject[] = projects) {
+  return projectRecords.find((project) => project.id === item.starterProjectId);
+}
+export function plannedWeekLabel(week: number) {
+  return `计划第 ${week} 周`;
+}
+export function curriculumPreparationLabel(item: PublicCurriculumItem) {
+  if (item.status === "completed") return "整周主题已完成范围核验";
+  if (item.preparation === "reviewed") return "已评审，待完成整周范围核验";
+  if (item.preparation === "starter_ready") return "起步练习已准备";
+  return "题卷待准备";
 }

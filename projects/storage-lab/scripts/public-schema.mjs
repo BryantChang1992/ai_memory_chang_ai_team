@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { PLAN_CATALOG } from './plan-catalog.mjs';
 
 // Shared verbatim by the PRIVATE exporter and the PUBLIC build. This module has
 // no access to private records. All accepted text is an enum, date or public ID.
@@ -25,8 +26,8 @@ const ROUND_KEYS = ['id', 'date', 'track', 'stage', 'mode', 'time', 'assessments
 const SUMMARY_KEYS = ['completedDemos', 'confirmedMinutes', 'estimatedMinutes', 'unknownTimeRounds', 'currentStage', 'assessments'];
 const PROJECT_KEYS = ['id', 'titleKey', 'track', 'status', 'roundIds', 'guidedDemoCompleted', 'practice', 'independentAssessment', 'feedback'];
 const FEEDBACK_KEYS = ['strengths', 'resolvedIssues', 'openIssues', 'recommendations'];
-const FIELD_KEYS = ['schemaVersion', 'updatedAt', 'summary', 'rounds', 'projects'];
-const ROOT_KEYS = ['schemaVersion', 'publicationId', 'updatedAt', 'summary', 'rounds', 'projects'];
+const FIELD_KEYS = ['schemaVersion', 'updatedAt', 'summary', 'rounds', 'projects', 'curriculum'];
+const ROOT_KEYS = ['schemaVersion', 'publicationId', 'updatedAt', 'summary', 'rounds', 'projects', 'curriculum'];
 function invalid() { throw new Error('PUBLIC_SCHEMA_INVALID'); }
 function requireThat(condition) { if (!condition) invalid(); }
 function isDate(value) {
@@ -129,6 +130,25 @@ function validateProjects(projects, rounds) {
   }
   requireThat(assignedRounds.size === rounds.length);
 }
+function validateCurriculum(curriculum, projects) {
+  exactArray(curriculum); requireThat(curriculum.length === PLAN_CATALOG.length);
+  for (let i = 0; i < PLAN_CATALOG.length; i++) {
+    const item = curriculum[i]; const catalog = PLAN_CATALOG[i];
+    exactObject(item, ['week', 'titleKey', 'track', 'status', 'preparation', 'starterProjectId']);
+    requireThat(item.week === catalog.week && item.titleKey === catalog.titleKey && item.track === catalog.track);
+    // Only the explicitly mapped narrower starter is linked. Its pass cannot
+    // complete this full-week plan. Full-scope review evidence stays private.
+    const starter = i === 0 ? projects.find(project => project.id === 'project-001') : undefined;
+    requireThat(!starter || (starter.titleKey === 'append_log_design' && starter.track === 'stream'));
+    requireThat(item.starterProjectId === (starter?.id ?? null));
+    requireThat(['not_started', 'in_progress', 'completed'].includes(item.status));
+    const reviewed = item.preparation === 'reviewed';
+    requireThat(reviewed || item.preparation === (starter ? 'starter_ready' : 'not_prepared'));
+    if (reviewed) requireThat(item.status === 'in_progress' || item.status === 'completed');
+    else requireThat(item.status === (starter && starter.status !== 'not_started' ? 'in_progress' : 'not_started'));
+    if (item.status === 'completed') requireThat(reviewed);
+  }
+}
 function derivedSummary(rounds) {
   let confirmedMinutes = null; let estimatedMinutes = null; let unknownTimeRounds = 0;
   for (const { time } of rounds) {
@@ -171,12 +191,17 @@ function orderedFields(value) {
       independentAssessment: { attempts: project.independentAssessment.attempts, passedOnAttempt: project.independentAssessment.passedOnAttempt },
       feedback: Object.fromEntries(FEEDBACK_KEYS.map(key => [key, [...project.feedback[key]]])),
     })),
+    curriculum: value.curriculum.map(item => ({
+      week: item.week, titleKey: item.titleKey, track: item.track, status: item.status,
+      preparation: item.preparation, starterProjectId: item.starterProjectId,
+    })),
   };
 }
 function validateFields(value) {
-  requireThat(value.schemaVersion === 3 && isDate(value.updatedAt));
+  requireThat(value.schemaVersion === 4 && isDate(value.updatedAt));
   validateRounds(value.rounds);
   validateProjects(value.projects, value.rounds);
+  validateCurriculum(value.curriculum, value.projects);
   requireThat(value.rounds.every(round => round.date <= value.updatedAt));
   exactObject(value.summary, SUMMARY_KEYS); validateAssessments(value.summary.assessments);
   requireThat(boundedInteger(value.summary.completedDemos, MAX_ROUNDS) && boundedInteger(value.summary.unknownTimeRounds, MAX_ROUNDS));

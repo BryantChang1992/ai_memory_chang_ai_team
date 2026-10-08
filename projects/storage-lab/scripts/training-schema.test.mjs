@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
 import { validatePublic, publicationIdFor, summaryForRounds, PUBLIC_STAGES, PUBLIC_TRACKS, PUBLIC_MODES } from './public-schema.mjs';
+import { PLAN_CATALOG } from './plan-catalog.mjs';
 const snapshot = JSON.parse(readFileSync(new URL('../content/training.json', import.meta.url), 'utf8'));
 const CANARY = 'SYNTHETIC_PRIVATE_CANARY';
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -18,15 +19,16 @@ function pack(rounds) {
     roundIds: rounds.map(round => round.id).sort(), guidedDemoCompleted: rounds.some(round => round.mode === 'guided' && round.stage === 'completed'),
     independentAssessment: {attempts:independent.length,passedOnAttempt:firstPass >= 0 ? firstPass+1 : null},
   }] : [];
-  const value={schemaVersion:3,updatedAt:'2026-10-07',summary:summaryForRounds(rounds),rounds,projects};return {...value,publicationId:publicationIdFor(value)};
+  const curriculum=PLAN_CATALOG.map(item=>({week:item.week,titleKey:item.titleKey,track:item.track,status:item.week===1&&projects[0]?.status!=='not_started'&&projects.length?'in_progress':'not_started',preparation:item.week===1&&projects.length?'starter_ready':'not_prepared',starterProjectId:item.week===1&&projects.length?'project-001':null}));
+  const value={schemaVersion:4,updatedAt:'2026-10-07',summary:summaryForRounds(rounds),rounds,projects,curriculum};return {...value,publicationId:publicationIdFor(value)};
 }
-test('published v3 snapshot is allowlisted with one guided estimated demo', () => {
-  assert.equal(validatePublic(snapshot),true);assert.equal(snapshot.schemaVersion,3);
+test('published v4 snapshot is allowlisted with one guided estimated demo', () => {
+  assert.equal(validatePublic(snapshot),true);assert.equal(snapshot.schemaVersion,4);
   assert.deepEqual(snapshot.summary,{completedDemos:1,confirmedMinutes:null,estimatedMinutes:110,unknownTimeRounds:0,currentStage:'completed',assessments:{scale:'unassessed',consistency:'unassessed',performance:'unassessed'}});
   assert.deepEqual(snapshot.rounds[0],{id:'round-001',date:'2026-10-07',track:'stream',stage:'completed',mode:'guided',time:{minutes:110,provenance:'conversation_span'},assessments:{scale:'unassessed',consistency:'unassessed',performance:'unassessed'}});
 });
 test('strict allowlist rejects freeform, scores and private fields at every object level', () => {
-  const paths=[[],['summary'],['summary','assessments'],['rounds',0],['rounds',0,'time'],['rounds',0,'assessments'],['projects',0],['projects',0,'practice'],['projects',0,'independentAssessment'],['projects',0,'feedback']];
+  const paths=[[],['summary'],['summary','assessments'],['rounds',0],['rounds',0,'time'],['rounds',0,'assessments'],['projects',0],['projects',0,'practice'],['projects',0,'independentAssessment'],['projects',0,'feedback'],['curriculum',0]];
   for(const path of paths) for(const key of ['question','answer','review','source_ref','privateUrl','evidence','roundId','score','evaluation','extra']) {
     const value=clone(snapshot);let target=value;for(const segment of path)target=target[segment];target[key]=CANARY;
     assert.throws(()=>validatePublic(value),error=>error.message==='PUBLIC_SCHEMA_INVALID');
@@ -34,7 +36,7 @@ test('strict allowlist rejects freeform, scores and private fields at every obje
   }
 });
 test('missing keys, symbols, nonenumerable fields, getters and altered prototypes are rejected',()=>{
-  const paths=[[],['summary'],['summary','assessments'],['rounds',0],['rounds',0,'time'],['rounds',0,'assessments'],['projects',0],['projects',0,'practice'],['projects',0,'independentAssessment'],['projects',0,'feedback']];
+  const paths=[[],['summary'],['summary','assessments'],['rounds',0],['rounds',0,'time'],['rounds',0,'assessments'],['projects',0],['projects',0,'practice'],['projects',0,'independentAssessment'],['projects',0,'feedback'],['curriculum',0]];
   for(const path of paths){
     const at=value=>path.reduce((target,key)=>target[key],value);const template=at(snapshot);
     for(const key of Object.keys(template)){const value=clone(snapshot);delete at(value)[key];assert.throws(()=>validatePublic(value),/PUBLIC_SCHEMA_INVALID/);}
@@ -104,6 +106,10 @@ test('artifact checker verifies new routes, legacy aliases and synthetic canary 
       assert.equal(run().stderr,'PUBLIC_OUTPUT_BOUNDARY_FAILED\n');
     }
     await fs.unlink(path.join(dir,'rejected.json'));
+    for(const content of ['DEMO-SYNTHETIC-999',JSON.stringify({exitCriterion:CANARY}),JSON.stringify({sourceProof:'private'}),JSON.stringify({timeBudget:'private'})]) {
+      await fs.writeFile(path.join(dir,'plan-private.json'),content);assert.equal(run().stderr,'PUBLIC_OUTPUT_BOUNDARY_FAILED\n');
+    }
+    await fs.unlink(path.join(dir,'plan-private.json'));
     await fs.writeFile(path.join(dir,'canary.js'),CANARY);const leaked=run();assert.equal(leaked.status,1);assert.equal(leaked.stderr,'PUBLIC_OUTPUT_BOUNDARY_FAILED\n');assert.equal((leaked.stdout+leaked.stderr).includes(CANARY),false);
     await fs.unlink(path.join(dir,'canary.js'));await fs.unlink(path.join(dir,`rounds/${snapshot.rounds[0].id}/index.html`));assert.equal(run().stderr,'PUBLIC_OUTPUT_ROUTE_MISSING\n');
     await fs.writeFile(path.join(dir,`rounds/${snapshot.rounds[0].id}/index.html`),'<p>stale-publication 未评估</p>');assert.equal(run().stderr,'PUBLIC_OUTPUT_VERSION_FAILED\n');
@@ -170,4 +176,54 @@ test('independent passes never inflate completed Demo totals and practice revisi
   assert.throws(() => publicationIdFor(fields(bad)), /PUBLIC_SCHEMA_INVALID/);
   bad.projects[0].practice = { submissions: 2, revisions: 1 };
   assert.equal(typeof publicationIdFor(fields(bad)), 'string');
+});
+
+test('all approved weeks are unique, ordered, and in the seven fixed family ranges', () => {
+  assert.equal(snapshot.curriculum.length, 28);
+  assert.deepEqual(snapshot.curriculum.map(item => item.week), Array.from({length:28}, (_,i) => i+1));
+  assert.equal(new Set(snapshot.curriculum.map(item => item.titleKey)).size, 28);
+  const ranges = {stream:[1,6],kv:[7,9],filesystem:[10,13],table:[14,17],lake:[18,22],foundation:[23,26],capstone:[27,28]};
+  for (const [track,[start,end]] of Object.entries(ranges)) {
+    assert.deepEqual(snapshot.curriculum.filter(item => item.track === track).map(item => item.week), Array.from({length:end-start+1}, (_,i) => start+i));
+  }
+  assert.deepEqual(snapshot.curriculum.map(item => [item.week,item.titleKey,item.track]), PLAN_CATALOG.map(item => [item.week,item.titleKey,item.track]));
+  assert.deepEqual(snapshot.curriculum.filter(item => item.starterProjectId !== null).map(item => [item.week,item.starterProjectId]), [[1,'project-001']]);
+  assert.equal(snapshot.curriculum.filter(item => item.status === 'not_started').length, 27);
+  assert.equal(snapshot.curriculum.filter(item => item.status === 'completed').length, 0);
+  assert.equal(snapshot.curriculum.filter(item => item.preparation === 'not_prepared').length, 27);
+  assert.equal(snapshot.projects.length, 1); assert.equal(snapshot.rounds.length, 1);
+});
+
+test('closed curriculum rejects missing weeks, holes, duplicates, arbitrary titles, private fields and fabricated progress', () => {
+  for (const mutate of [
+    value=>value.curriculum.pop(), value=>value.curriculum.reverse(), value=>value.curriculum.push(clone(value.curriculum[0])),
+    value=>delete value.curriculum[1], value=>value.curriculum[1]=clone(value.curriculum[0]),
+    value=>value.curriculum[0].week=0, value=>value.curriculum[0].week='1',
+    value=>value.curriculum[0].titleKey=CANARY, value=>value.curriculum[0].track='kv',
+    value=>value.curriculum[0].status='completed', value=>value.curriculum[1].status='in_progress',
+    value=>value.curriculum[1].preparation='starter_ready', value=>value.curriculum[1].starterProjectId='project-001',
+    value=>value.curriculum[0].starterProjectId='https://private.invalid',
+    value=>value.curriculum.extra=CANARY,
+  ]) { const bad=clone(snapshot); mutate(bad); assert.throws(()=>publicationIdFor(fields(bad)), /PUBLIC_SCHEMA_INVALID/); }
+  for (const key of ['goal','timeBudget','artifact','exitCriterion','sourceProof','fullScopeReview','startDate','examDate','minutes','roundIds','answer','privateUrl','libraryFileId']) {
+    const bad=clone(snapshot); bad.curriculum[0][key]=CANARY;
+    assert.throws(()=>validatePublic(bad), /PUBLIC_SCHEMA_INVALID/);
+    assert.throws(()=>publicationIdFor(fields(bad)), /PUBLIC_SCHEMA_INVALID/);
+  }
+  for (const mutate of [
+    value=>Object.defineProperty(value.curriculum,'0',{get(){throw new Error(CANARY);},enumerable:true}),
+    value=>Object.setPrototypeOf(value.curriculum,{}),
+    value=>value.curriculum[Symbol('private')]=CANARY,
+  ]) { const bad=clone(snapshot); mutate(bad); assert.throws(()=>validatePublic(bad), error=>error.message==='PUBLIC_SCHEMA_INVALID'); }
+  const v3=fields(snapshot);v3.schemaVersion=3;delete v3.curriculum;
+  assert.throws(()=>publicationIdFor(v3),/PUBLIC_SCHEMA_INVALID/);
+});
+
+test('narrower independent exercise pass cannot complete a whole week or double count history', () => {
+  const passed=pack([round(),round({id:'round-002',mode:'independent',stage:'completed',time:{minutes:null,provenance:'unknown'}})]);
+  assert.equal(passed.projects[0].status,'passed'); assert.equal(passed.curriculum[0].status,'in_progress');
+  assert.equal(passed.curriculum.filter(item=>item.status==='completed').length,0);
+  assert.equal(passed.summary.completedDemos,1);assert.equal(passed.summary.estimatedMinutes,110);
+  assert.equal(passed.projects.length,1);assert.equal(passed.rounds.length,2);
+  assert.equal(passed.curriculum.filter(item=>item.starterProjectId!==null).length,1);
 });
