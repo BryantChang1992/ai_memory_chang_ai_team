@@ -4,7 +4,7 @@ import { readFileSync, promises as fs } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
-import { validatePublic, publicationIdFor, summaryForRounds, PUBLIC_STAGES, PUBLIC_TRACKS, PUBLIC_MODES } from './public-schema.mjs';
+import { validatePublic, publicationIdFor, summaryForRounds, PUBLIC_STAGES, PUBLIC_TRACKS, PUBLIC_MODES, PUBLIC_TIME_PROVENANCE } from './public-schema.mjs';
 import { PLAN_CATALOG } from './plan-catalog.mjs';
 const snapshot = JSON.parse(readFileSync(new URL('../content/training.json', import.meta.url), 'utf8'));
 const CANARY = 'SYNTHETIC_PRIVATE_CANARY';
@@ -57,6 +57,38 @@ test('time categories derive separately with null for absent category and real z
 });
 test('invalid time provenance, null mismatches, decimals, negatives and unbounded totals fail',()=>{
   for(const time of [{minutes:null,provenance:'conversation_span'},{minutes:null,provenance:'user_confirmed'},{minutes:0,provenance:'unknown'},{minutes:110,provenance:'focused'},{minutes:-1,provenance:'conversation_span'},{minutes:1.5,provenance:'user_confirmed'},{minutes:525601,provenance:'conversation_span'},{minutes:Infinity,provenance:'user_confirmed'},{minutes:'110',provenance:'conversation_span'}])assert.throws(()=>pack([round({time})]),/PUBLIC_SCHEMA_INVALID/);
+});
+test('signal intervals remain estimates, retain zero and count once in mixed totals',()=>{
+  assert.deepEqual(PUBLIC_TIME_PROVENANCE,['conversation_span','signal_interval','user_confirmed','unknown']);
+  const signal=round({id:'round-002',stage:'initial_submitted',time:{minutes:12,provenance:'signal_interval'}});
+  const zero=round({time:{minutes:0,provenance:'signal_interval'}});
+  const zeroSnapshot=pack([zero]);assert.equal(validatePublic(zeroSnapshot),true);
+  assert.equal(zeroSnapshot.summary.estimatedMinutes,0);assert.equal(zeroSnapshot.summary.confirmedMinutes,null);
+  assert.equal(zeroSnapshot.summary.unknownTimeRounds,0);
+  const confirmed=round({id:'round-003',time:{minutes:8,provenance:'user_confirmed'}});
+  const unknown=round({id:'round-004',time:{minutes:null,provenance:'unknown'}});
+  const mixed=pack([round(),signal,confirmed,unknown]);assert.equal(validatePublic(mixed),true);
+  assert.equal(mixed.summary.estimatedMinutes,122);assert.equal(mixed.summary.confirmedMinutes,8);
+  assert.equal(mixed.summary.unknownTimeRounds,1);assert.equal(mixed.schemaVersion,4);
+  for(const estimatedMinutes of [110,134]){
+    const bad=clone(mixed);bad.summary.estimatedMinutes=estimatedMinutes;
+    assert.throws(()=>publicationIdFor(fields(bad)),/PUBLIC_SCHEMA_INVALID/);
+  }
+});
+test('signal time keeps the closed public boundary and does not allow private interval details',()=>{
+  for(const minutes of [null,-1,1.5,525601,Infinity,'12']){
+    assert.throws(()=>pack([round({time:{minutes,provenance:'signal_interval'}})]),/PUBLIC_SCHEMA_INVALID/);
+  }
+  for(const provenance of ['focused','signal_span',CANARY]){
+    assert.throws(()=>pack([round({time:{minutes:12,provenance}})]),/PUBLIC_SCHEMA_INVALID/);
+  }
+  const signal=round({time:{minutes:12,provenance:'signal_interval'}});
+  for(const key of ['startedAt','completedAt','pauses','source_ref','privateUrl','extra']){
+    assert.throws(()=>pack([{...signal,time:{...signal.time,[key]:CANARY}}]),error=>error.message==='PUBLIC_SCHEMA_INVALID');
+  }
+  assert.throws(()=>pack([round({stage:'awaiting_initial',time:{minutes:0,provenance:'signal_interval'}})]),/PUBLIC_SCHEMA_INVALID/);
+  const bad=pack([signal]);bad.summary.signalMinutes=12;
+  assert.throws(()=>validatePublic(bad),/PUBLIC_SCHEMA_INVALID/);
 });
 test('public identifiers are unique and rounds are chronologically ordered',()=>{
   for(const id of ['round-000','round-1','round-1000','training-record-001','https://private.invalid'])assert.throws(()=>pack([round({id})]),/PUBLIC_SCHEMA_INVALID/);

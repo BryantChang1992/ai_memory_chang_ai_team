@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { PublicationMeta } from "@/components/publication-meta";
 import {
   displayDate,
+  estimatedTimeLabel,
   feedbackLabels,
   independentAssessmentLabel,
   modeLabels,
@@ -22,6 +23,7 @@ import {
   roundsForProject,
   roundTimeLabel,
   schedule,
+  signalTimeNote,
   trackLabels,
 } from "@/lib/training";
 import { stageLabel } from "@/lib/training-workflow";
@@ -94,9 +96,9 @@ export default async function ProjectDetail({ params }: Props) {
 
         <section className="detail-card project-time-card" aria-labelledby="project-time-heading">
           <div className="project-time-heading"><div><p className="eyebrow">TIME & TRAINING RECORDS</p><h2 id="project-time-heading">用时与实际训练记录</h2></div><span><Clock3 size={18}/><small>本人用时</small>{referenceTime(time)}</span></div>
-          <div className="project-time-sources"><span>本人确认：{time.confirmedMinutes === null ? "暂无" : `${time.confirmedMinutes} 分钟`}</span><span>对话跨度估算：{time.estimatedMinutes === null ? "暂无" : `约 ${time.estimatedMinutes} 分钟`}</span>{time.unknownTimeRounds > 0 && <span>{time.unknownTimeRounds} 轮用时待统计</span>}</div>
+          <div className="project-time-sources"><span>本人确认：{time.confirmedMinutes === null ? "暂无" : `${time.confirmedMinutes} 分钟`}</span><span>{estimatedTimeLabel(linkedRounds)}：{time.estimatedMinutes === null ? "暂无" : `约 ${time.estimatedMinutes} 分钟`}</span>{time.unknownTimeRounds > 0 && <span>{time.unknownTimeRounds} 轮用时待统计</span>}</div>
           {linkedRounds.length ? <ul className="project-rounds">{linkedRounds.map((round) => <li key={round.id}><Link href={roundPath(round.id)}><div><strong>{roundLabel(round.id)} · {modeLabels[round.mode]}</strong><span><time dateTime={round.date}>{displayDate(round.date)}</time> · {stageLabel(round.stage, round.mode)}</span></div><div><strong>{roundTimeLabel(round.time)}</strong><span>{provenanceLabels[round.time.provenance]}</span></div><ArrowRight size={17}/></Link></li>)}</ul> : <p className="record-empty">暂无实际训练记录，用时待统计。</p>}
-          <p className="time-explanation">用时来自以上实际训练区间，每轮只计一次。对话跨度可能包含等待或离开时间，不等同于专注时长；后续评审、文档和站点整理等管理时间不计入。</p>
+          <p className="time-explanation">用时来自以上实际训练区间，每轮只计一次。对话跨度可能包含等待或离开时间，不等同于专注时长；后续评审、文档和站点整理等管理时间不计入。{signalTimeNote(linkedRounds)}</p>
         </section>
         <p className="reference-answer-note"><LockKeyhole size={16}/><span><strong>{passed ? "参考答案待整理发布" : "通过后发布参考答案"}</strong>仅在本项目独立考核通过后整理公开参考答案，原始训练记录继续私有保存。</span></p>
         <p className="detail-privacy-note">本页仅包含公开统计与固定措辞的概括性反馈。训练题目、本人回答、逐轮追问、复盘及评价依据私有保存。</p>

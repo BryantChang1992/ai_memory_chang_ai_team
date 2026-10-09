@@ -6,12 +6,12 @@ import { PLAN_CATALOG } from './plan-catalog.mjs';
 
 const snapshot = JSON.parse(readFileSync(new URL('../content/training.json', import.meta.url), 'utf8'));
 
-async function loadHelpers(relativePath) {
+async function loadHelpers(relativePath, fixture = snapshot) {
   const source = readFileSync(new URL(relativePath, import.meta.url), 'utf8');
-  // Node does not resolve Next's alias. Inject the unchanged public snapshot only
-  // into this in-memory test module; production data and source stay untouched.
+  // Node does not resolve Next's alias. Inject public or synthetic fixture data
+  // only into this in-memory test module; production data and source stay untouched.
   const executable = stripTypeScriptTypes(source
-    .replace('import data from "@/content/training.json";', `const data = ${JSON.stringify(snapshot)};`)
+    .replace('import data from "@/content/training.json";', `const data = ${JSON.stringify(fixture)};`)
     .replace('import { PLAN_CATALOG } from "@/scripts/plan-catalog.mjs";', `const PLAN_CATALOG = ${JSON.stringify(PLAN_CATALOG)};`));
   return import(`data:text/javascript;base64,${Buffer.from(executable).toString('base64')}`);
 }
@@ -76,6 +76,38 @@ test('legacy estimated time, confirmed zero and unknown time remain distinct', (
   assert.match(snapshot.publicationId, /^pub-[a-f0-9]{16}$/);
   assert.deepEqual(snapshot.projects[0].practice, { submissions: 0, revisions: 0 });
   assert.deepEqual(snapshot.projects[0].independentAssessment, { attempts: 0, passedOnAttempt: null });
+});
+
+test('signal intervals display an honest method while preserving conversation estimates', () => {
+  const signal = { ...snapshot.rounds[0], time: { minutes: 0, provenance: 'signal_interval' } };
+  assert.equal(training.roundTimeLabel(signal.time), '约 0 分钟');
+  assert.equal(training.roundTimeLabel({ ...signal.time, minutes: 12 }), '约 12 分钟');
+  assert.equal(training.provenanceLabels.signal_interval, '通知区间计时（扣除已知暂停）');
+  assert.match(training.timeExplanations.signal_interval, /观察到的开始与完成／提交通知/);
+  assert.match(training.timeExplanations.signal_interval, /扣除已知暂停/);
+  assert.match(training.timeExplanations.signal_interval, /不是专注时长或本人确认值/);
+  assert.equal(training.estimatedTimeLabel(snapshot.rounds), '对话跨度估算');
+  assert.equal(training.signalTimeNote(snapshot.rounds), '');
+  assert.equal(training.estimatedTimeLabel([signal]), '通知区间计时（扣除已知暂停）');
+  assert.equal(training.estimatedTimeLabel([...snapshot.rounds, signal]), '区间用时估算');
+  assert.match(training.signalTimeNote([signal]), /未通知的暂停仍可能计入/);
+});
+
+test('project totals count mixed interval estimates, confirmed time and unknowns separately', async () => {
+  const fixtures = [snapshot.rounds[0],
+    { ...snapshot.rounds[0], id: 'round-002', time: { minutes: 12, provenance: 'signal_interval' } },
+    { ...snapshot.rounds[0], id: 'round-003', time: { minutes: 8, provenance: 'user_confirmed' } },
+    { ...snapshot.rounds[0], id: 'round-004', time: { minutes: null, provenance: 'unknown' } },
+    { ...snapshot.rounds[0], id: 'round-005', time: { minutes: 0, provenance: 'signal_interval' } },
+  ];
+  const mixed = await loadHelpers('../lib/training.ts', { ...snapshot, rounds: fixtures });
+  const project = { ...snapshot.projects[0], roundIds: fixtures.map(({ id }) => id) };
+  const total = mixed.projectTime(project);
+  assert.deepEqual(total, { confirmedMinutes: 8, estimatedMinutes: 122, unknownTimeRounds: 1 });
+  assert.equal(mixed.referenceTime(total), '约 130 分钟');
+  assert.deepEqual(mixed.projectTime({ ...project, roundIds: ['round-005'] }), { confirmedMinutes: null, estimatedMinutes: 0, unknownTimeRounds: 0 });
+  assert.deepEqual(mixed.projectTime({ ...project, roundIds: ['round-004'] }), { confirmedMinutes: null, estimatedMinutes: null, unknownTimeRounds: 1 });
+  assert.deepEqual(mixed.projectTime({ ...project, roundIds: ['round-003'] }), { confirmedMinutes: 8, estimatedMinutes: null, unknownTimeRounds: 0 });
 });
 
 test('full curriculum groups cover all 28 relative weeks in the approved order', () => {

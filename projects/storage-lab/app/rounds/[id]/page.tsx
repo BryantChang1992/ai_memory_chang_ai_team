@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { TrainingAssessment, TrainingProgress } from "@/components/training-progress";
 import { PublicationMeta } from "@/components/publication-meta";
-import { abilityLabel, displayDate, modeLabels, provenanceLabels, projectForRound, projectPath, projectTitleLabels, roundLabel, roundPath, rounds, roundTimeLabel, schedule, trackLabels } from "@/lib/training";
+import { abilityLabel, displayDate, modeLabels, provenanceLabels, projectForRound, projectPath, projectTitleLabels, roundLabel, roundPath, rounds, roundTimeLabel, schedule, timeExplanations, trackLabels } from "@/lib/training";
 import { stageLabel } from "@/lib/training-workflow";
 
 type Props = { params: Promise<{ id: string }> };
@@ -53,13 +53,7 @@ export default async function RoundDetail({ params }: Props) {
               <p className="eyebrow">TIME RECORD</p>
               <h2 id="round-time-heading">本人用时：<span className="detail-time-value">{roundTimeLabel(round.time)}</span>{round.time.provenance !== "unknown" && <small>（{provenanceLabels[round.time.provenance]}）</small>}</h2>
               <dl className="round-facts"><div><dt>记录日期</dt><dd><time dateTime={round.date}>{displayDate(round.date)}</time></dd></div><div><dt>训练方式</dt><dd>{modeLabels[round.mode]}</dd></div><div><dt>用时来源</dt><dd>{provenanceLabels[round.time.provenance]}</dd></div></dl>
-              <p className="time-explanation">
-                {round.time.provenance === "conversation_span"
-                  ? "按本轮实际训练区间的对话跨度估算，可能包含等待或离开时间，不等同于精确专注时长。后续评审、文档和站点整理等管理时间不计入。"
-                  : round.time.provenance === "user_confirmed"
-                    ? "本轮实际训练用时由本人确认，不含后续评审、文档和站点整理等管理时间。累计参考用时只计入这一份记录，不与本轮对话估算重复累计。"
-                    : "本轮用时尚待统计，暂不计入累计参考用时。未知用时不会按 0 分钟展示。"}
-              </p>
+              <p className="time-explanation">{timeExplanations[round.time.provenance]}</p>
             </section>
             <TrainingProgress stage={round.stage} mode={round.mode}/>
           </div>

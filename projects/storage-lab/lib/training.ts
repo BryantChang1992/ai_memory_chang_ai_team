@@ -10,7 +10,7 @@ export type TrainingStage =
   | "completed";
 export type TrainingTrack = "stream" | "kv" | "filesystem" | "table" | "lake" | "foundation" | "capstone";
 export type TrainingMode = "guided" | "independent" | "unconfirmed";
-export type TimeProvenance = "conversation_span" | "user_confirmed" | "unknown";
+export type TimeProvenance = "conversation_span" | "signal_interval" | "user_confirmed" | "unknown";
 export type AssessmentState = "unassessed" | "pending" | "assessed";
 export type Assessments = Record<"scale" | "consistency" | "performance", AssessmentState>;
 export type RoundTime = { minutes: number | null; provenance: TimeProvenance };
@@ -119,8 +119,15 @@ export const modeLabels: Record<TrainingMode, string> = {
 };
 export const provenanceLabels: Record<TimeProvenance, string> = {
   conversation_span: "对话跨度估算",
+  signal_interval: "通知区间计时（扣除已知暂停）",
   user_confirmed: "本人确认",
   unknown: "待统计",
+};
+export const timeExplanations: Record<TimeProvenance, string> = {
+  conversation_span: "按本轮实际训练区间的对话跨度估算，可能包含等待或离开时间，不等同于精确专注时长。后续评审、文档和站点整理等管理时间不计入。",
+  signal_interval: "按观察到的开始与完成／提交通知之间的区间计时，扣除已知暂停并按分钟取整；未通知的暂停或离开仍可能计入。这是通知区间估算，不是专注时长或本人确认值。",
+  user_confirmed: "本轮实际训练用时由本人确认，不含后续评审、文档和站点整理等管理时间。累计参考用时只计入这一份记录，不与本轮其他用时估算重复累计。",
+  unknown: "本轮用时尚待统计，暂不计入累计参考用时。未知用时不会按 0 分钟展示。",
 };
 export const assessmentLabels: Record<AssessmentState, string> = {
   unassessed: "未评估",
@@ -147,7 +154,18 @@ export function projectPath(id: string) {
 }
 export function roundTimeLabel(time: RoundTime) {
   if (time.minutes === null || time.provenance === "unknown") return "待统计";
-  return `${time.provenance === "conversation_span" ? "约 " : ""}${time.minutes} 分钟`;
+  return `${time.provenance === "conversation_span" || time.provenance === "signal_interval" ? "约 " : ""}${time.minutes} 分钟`;
+}
+export function estimatedTimeLabel(roundRecords: PublicRound[]) {
+  if (!roundRecords.some((round) => round.time.provenance === "signal_interval")) return provenanceLabels.conversation_span;
+  return roundRecords.some((round) => round.time.provenance === "conversation_span")
+    ? "区间用时估算"
+    : provenanceLabels.signal_interval;
+}
+export function signalTimeNote(roundRecords: PublicRound[]) {
+  return roundRecords.some((round) => round.time.provenance === "signal_interval")
+    ? "通知区间按开始与完成／提交通知计时，扣除已知暂停；未通知的暂停仍可能计入，不等同于专注时长或本人确认值。"
+    : "";
 }
 export function abilityLabel(assessments: Assessments) {
   const states = Object.values(assessments);
@@ -177,13 +195,13 @@ export function projectForRound(id: string) {
 }
 export function projectTime(project: PublicProject): TimeSummary {
   const linkedRounds = roundsForProject(project);
-  const sum = (provenance: TimeProvenance) => {
-    const values = linkedRounds.filter((round) => round.time.provenance === provenance && round.time.minutes !== null);
+  const sum = (...provenances: TimeProvenance[]) => {
+    const values = linkedRounds.filter((round) => provenances.includes(round.time.provenance) && round.time.minutes !== null);
     return values.length ? values.reduce((total, round) => total + (round.time.minutes ?? 0), 0) : null;
   };
   return {
     confirmedMinutes: sum("user_confirmed"),
-    estimatedMinutes: sum("conversation_span"),
+    estimatedMinutes: sum("conversation_span", "signal_interval"),
     unknownTimeRounds: linkedRounds.filter((round) => round.time.provenance === "unknown").length,
   };
 }

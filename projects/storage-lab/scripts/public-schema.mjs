@@ -10,7 +10,7 @@ export const PUBLIC_STAGES = Object.freeze([
 export const PUBLIC_TRACKS = Object.freeze(['stream', 'kv', 'filesystem', 'table', 'lake', 'foundation', 'capstone']);
 export const PUBLIC_MODES = Object.freeze(['guided', 'independent', 'unconfirmed']);
 export const PUBLIC_ASSESSMENTS = Object.freeze(['unassessed', 'pending', 'assessed']);
-export const PUBLIC_TIME_PROVENANCE = Object.freeze(['conversation_span', 'user_confirmed', 'unknown']);
+export const PUBLIC_TIME_PROVENANCE = Object.freeze(['conversation_span', 'signal_interval', 'user_confirmed', 'unknown']);
 export const PUBLIC_PROJECT_TITLES = Object.freeze(['append_log_design']);
 export const PUBLIC_PROJECT_STATUSES = Object.freeze(['not_started', 'practicing', 'awaiting_independent_assessment', 'passed']);
 export const PUBLIC_FEEDBACK = Object.freeze({
@@ -153,7 +153,7 @@ function derivedSummary(rounds) {
   let confirmedMinutes = null; let estimatedMinutes = null; let unknownTimeRounds = 0;
   for (const { time } of rounds) {
     if (time.provenance === 'user_confirmed') confirmedMinutes = (confirmedMinutes ?? 0) + time.minutes;
-    else if (time.provenance === 'conversation_span') estimatedMinutes = (estimatedMinutes ?? 0) + time.minutes;
+    else if (time.provenance === 'conversation_span' || time.provenance === 'signal_interval') estimatedMinutes = (estimatedMinutes ?? 0) + time.minutes;
     else unknownTimeRounds++;
   }
   const assessments = Object.fromEntries(ASSESSMENT_KEYS.map(key => [key,

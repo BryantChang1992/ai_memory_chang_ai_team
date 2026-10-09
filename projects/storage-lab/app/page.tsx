@@ -2,7 +2,7 @@ import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { ProjectList } from "@/components/project-list";
 import { PublicationMeta } from "@/components/publication-meta";
-import { curriculumSummary, overviewAbilityLabel, progress, projects, referenceTime, schedule } from "@/lib/training";
+import { curriculumSummary, estimatedTimeLabel, overviewAbilityLabel, progress, projects, referenceTime, rounds, schedule, signalTimeNote } from "@/lib/training";
 
 export default function Home() {
   const { summary } = progress;
@@ -22,7 +22,7 @@ export default function Home() {
         <p className="plan-budget">计划预算：28 周 · 168 小时 · 每周约 6 小时。周次表示学习顺序，按实际进度调整。</p>
         <ProjectList/>
         <div className="overview-footnotes">
-          <p>参考用时来自已记录训练，每轮只计一次。当前{summary.estimatedMinutes !== null ? `包含约 ${summary.estimatedMinutes} 分钟对话跨度估算` : "暂无对话跨度估算"}，可能含等待或离开时间。
+          <p>参考用时来自已记录训练，每轮只计一次。当前{summary.estimatedMinutes !== null ? `包含约 ${summary.estimatedMinutes} 分钟${estimatedTimeLabel(rounds)}` : "暂无对话跨度估算"}，可能含等待或离开时间。{signalTimeNote(rounds)}
             {summary.confirmedMinutes !== null ? `本人确认用时为 ${summary.confirmedMinutes} 分钟。` : "尚无本人确认用时。"}
             {summary.unknownTimeRounds > 0 ? `${summary.unknownTimeRounds} 轮用时待统计，未计入合计。` : ""}</p>
           <p><ShieldCheck size={15}/>这里只展示计划、公开进展与概括性反馈。原始题目、回答和评价依据私有保存；参考答案通过后再整理发布。</p>
