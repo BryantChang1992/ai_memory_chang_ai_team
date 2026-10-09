@@ -12,6 +12,7 @@ permalink: /library/
     <p>每个专题提供推荐阅读顺序，并将综述、概念卡、论文和工程文章放回各自的位置。</p>
     <div class="browse-more"><a href="{{ '/knowledge/' | relative_url }}">查找具体文章 →</a><a href="{{ '/weekly/' | relative_url }}">按时间阅读周报 →</a></div>
   </div>
+  <p><a href="{{ '/stream-storage-observer/' | relative_url }}">流存储技术观察 →</a> · 每周追踪 Kafka、Fluss 与 AutoMQ 的社区开发和讨论。</p>
   <nav class="topic-nav" aria-label="专题方向">
     {% for topic in site.data.editorial.topics %}<a href="#{{ topic.id }}">{{ topic.name }}</a>{% endfor %}
   </nav>

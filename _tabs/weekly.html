@@ -6,7 +6,7 @@ order: 3
 permalink: /weekly/
 ---
 <div class="content-hub weekly-hub">
-  <p class="hub-intro">按期阅读技术动态与趋势观察。</p>
+  <p class="hub-intro">技术调研周报：围绕数据湖、流存储、分布式存储与 AI Infra，阅读相关顶会论文和技术博客。自 2026 年 10 月 9 日起，Kafka、Fluss 与 AutoMQ 的社区 Issue、PR 和讨论独立归入<a href="{{ '/stream-storage-observer/' | relative_url }}">流存储技术观察</a>；既有历史周报保留。</p>
   {% for issue in site.data.catalog.weekly %}
     {% assign post = issue.overview %}
     <section class="weekly-issue" id="week-{{ post.issue_date | date: '%Y' }}-{{ post.issue }}" data-weekly-issue="{{ post.issue }}">

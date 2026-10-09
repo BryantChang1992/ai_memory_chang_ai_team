@@ -79,11 +79,24 @@ class ContentCatalogTest < Minitest::Test
 
   def test_home_and_navigation_use_the_curated_views
     home = page('index.html')
-    assert_equal %w[首页 专题 存储训练 周报 关于], home.css('#sidebar .nav-link span').map { |e| e.text.strip }
+    assert_equal %w[首页 专题 存储训练 周报 流存储技术观察 关于], home.css('#sidebar .nav-link span').map { |e| e.text.strip }
     assert_equal @site.data['editorial']['featured'], urls(home.css('.featured-list .reading-link'))
     latest_issues = @catalog['weekly'].first(3).map { |item| item['overview'].data['issue'] }
     assert_equal latest_issues, home.css('main [data-weekly-issue]').map { |e| e['data-weekly-issue'].to_i }
     assert_equal 3, home.css('main .hub-section').size
+  end
+
+  def test_stream_observer_is_an_independent_topic
+    observer = page('stream-storage-observer/index.html')
+    entry = '/stream-storage-observer/2026-10-09/'
+    assert_includes urls(observer.css('main a[href]')), entry
+    assert_includes urls(page('index.html').css('main a[href]')), '/stream-storage-observer/'
+    assert_includes urls(page('library/index.html').css('main a[href]')), '/stream-storage-observer/'
+    refute_includes urls(page('weekly/index.html').css('main .weekly-issue a[href]')), entry
+    assert_equal 1, observer.css('[data-observer-issue="2026-10-09"]').size
+    article = page('stream-storage-observer/2026-10-09/index.html')
+    %w[Kafka Fluss AutoMQ].each { |name| assert_includes article.css('main h2').text, name }
+    assert_includes article.at_css('title').text, '第 1 期'
   end
 
   def test_duplicates_are_compatibility_pages_and_search_has_one_main_reading

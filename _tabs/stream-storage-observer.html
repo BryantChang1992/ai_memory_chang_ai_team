@@ -1,0 +1,20 @@
+---
+layout: page
+title: stream-storage-observer
+icon: fas fa-stream
+order: 3.5
+permalink: /stream-storage-observer/
+---
+<div class="content-hub">
+  <p class="hub-intro">每周五晚八点，回看 Kafka、Fluss 与 AutoMQ 过去一周的 Issue、PR 和社区讨论。从问题背景、工程挑战、方案取舍到当前阶段，追踪流存储的真实演进。</p>
+  <p>本专题独立于技术调研周报。<a href="{{ '/weekly/' | relative_url }}">技术调研周报</a>继续关注相关顶会论文与技术博客。</p>
+  {% assign observer_issues = site.pages | where: 'observer_issue', true | sort: 'issue_date' | reverse %}
+  {% for issue in observer_issues %}
+  <section class="weekly-issue" data-observer-issue="{{ issue.issue_date }}">
+    <div class="reading-meta">{{ issue.issue_date }} · 第 {{ issue.observer_number }} 期</div>
+    <h2><a href="{{ issue.url | relative_url }}">{{ issue.title }}</a></h2>
+    <p>{{ issue.description }}</p>
+    <a href="{{ issue.url | relative_url }}">阅读本期 →</a>
+  </section>
+  {% endfor %}
+</div>

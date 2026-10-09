@@ -22,6 +22,10 @@ layout: default
           <h3>{{ series.title }}</h3><p>{{ series.description }}</p><span class="series-action">开始阅读 <span aria-hidden="true">→</span></span>
         </a>
       {% endfor %}
+      <a class="series-card" href="{{ '/stream-storage-observer/' | relative_url }}">
+        <i class="fas fa-stream" aria-hidden="true"></i><span class="reading-meta">每周五 · 独立专题</span>
+        <h3>流存储技术观察</h3><p>Kafka、Fluss、AutoMQ 的社区讨论、核心特性与开发进展。</p><span class="series-action">阅读观察 →</span>
+      </a>
       <a class="series-card" href="{{ '/library/#engineering' | relative_url }}">
         <i class="fas fa-code" aria-hidden="true"></i><span class="reading-meta">{{ site.data.editorial.engineering.size }} 篇</span>
         <h3>工程方案</h3><p>故障处理与 Agent 可观测性的具体设计。</p><span class="series-action">查看方案 <span aria-hidden="true">→</span></span>
