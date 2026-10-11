@@ -1,0 +1,696 @@
+{
+  "issue": 14,
+  "issue_date": "2026-10-11",
+  "window": {
+    "start": "2026-10-04T08:00:00+08:00",
+    "end": "2026-10-11T08:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "checked_at": "2026-10-11T00:24:15Z",
+    "note": "Access occurred after the editorial cutoff. Publication/issue dates, rather than crawl or access dates, determine inclusion. Date-only blog stamps do not establish a precise publication instant."
+  },
+  "scope": "Conference papers and original author/project technical blogs only; no issue, PR, release or community-development roundup",
+  "sources": [
+    {
+      "id": "adl-vldb-2026",
+      "title": "Active Data Lakes: Regaining Physical Data Independence Without Losing Interoperability",
+      "authors": [
+        "Pascal Ginter",
+        "Viktor Leis"
+      ],
+      "publisher": "PVLDB",
+      "source_type": "conference_research_paper",
+      "url": "https://www.vldb.org/pvldb/vol19/p1372-ginter.pdf",
+      "doi": "10.14778/3797919.3797941",
+      "publication_date": "2026-02",
+      "publication_date_precision": "month",
+      "publication_date_evidence": "Official Volume 19 No.6 front matter says February 2026; paper front page establishes volume/pages/DOI. Exact first-online date not verified. Search aggregators supplied conflicting dates and were not used.",
+      "venue": "PVLDB 19(6):1372–1385; VLDB 2026 Research 44, Lakehouse and Open Table Formats",
+      "window_classification": "older_supplementary_reading",
+      "checked_at": "2026-10-11T00:24:15Z",
+      "read_scope": "Full 14-page final publication PDF extracted locally; main text §§1–8.4 read. Page 1378 Figure 5 and experimental setup visually rendered and checked. References inspected for context, not treated as additional independently read sources.",
+      "mechanisms": [
+        "Active service virtualizes the on-wire Parquet interface over a different physical format (BtrBlocks), preserving legacy Parquet range readers.",
+        "Footer and range offsets must be predictable before conversion; the prototype forgoes general-purpose compression and retains suitable dictionary/bit-packed encodings.",
+        "The article focuses on the file-virtualization experiment. Separate prefetching and trickling-insert prototypes were read but their results are deliberately not combined."
+      ],
+      "performance_scope": {
+        "experiment": "§4.3 and Figure 5, lineitem full scan",
+        "dataset": "TPC-H lineitem SF10",
+        "engine": "DuckDB v1.2.1, 1 worker thread",
+        "hosts": "Separate AWS c5n.9xlarge machines for DuckDB and HTTP service, same availability zone; paper reports 50 Gib/s network",
+        "comparison": "Virtualized Parquet over BtrBlocks versus Zstd-compressed native Parquet",
+        "results": {
+          "data_fetched_from_s3": "1.3% slower than Zstd Parquet",
+          "data_already_in_service_memory": "22% slower than Zstd Parquet",
+          "stored_btrblocks_size_gib": 1.58,
+          "virtualized_transfer_with_dictionary_gib": 4.3,
+          "virtualized_transfer_without_dictionary_gib": 6
+        }
+      },
+      "limitations": [
+        "Author measurements, not independently reproduced.",
+        "No generalized end-to-end benchmark claim for all Iceberg/Paimon workloads. Paimon was not evaluated.",
+        "Additional active service and greater wire volume must be budgeted.",
+        "§8.4 states optimizations were evaluated separately and a distributed implementation addressing scalability and availability remains future work."
+      ],
+      "access_gaps": [
+        "Web PDF open failed with Internal Error; exact official PDF downloaded successfully over HTTPS and all pages were available locally.",
+        "No prototype execution or failure testing was performed."
+      ]
+    },
+    {
+      "id": "adl-issue-date",
+      "title": "PVLDB Volume 19 No.6 Front Matter",
+      "publisher": "VLDB Endowment",
+      "source_type": "publication_metadata",
+      "url": "https://www.vldb.org/pvldb/vol19/FrontMatterVol19No6.pdf",
+      "publication_date": "2026-02",
+      "publication_date_precision": "month",
+      "checked_at": "2026-10-11T00:24:15Z",
+      "claims": [
+        "Official cover and copyright page both identify February 2026; relevant pages range 1088–1426."
+      ],
+      "access_notes": "Official PDF downloaded; first page rendered and visually checked. Metadata only, not an additional mechanism source.",
+      "access_gaps": []
+    },
+    {
+      "id": "adl-conference-program",
+      "title": "VLDB 2026 Conference Program",
+      "publisher": "VLDB",
+      "source_type": "conference_program",
+      "url": "https://vldb.org/2026/program.html",
+      "publication_date": null,
+      "checked_at": "2026-10-11T00:24:15Z",
+      "claims": [
+        "Lists Active Data Lakes as regular research in Research 44, Lakehouse and Open Table Formats."
+      ],
+      "access_notes": "Official program fully searchable; used only to confirm conference inclusion, not date of first publication or mechanism claims.",
+      "access_gaps": [
+        "Program page has no verified original publication timestamp."
+      ]
+    },
+    {
+      "id": "fluss-streamhouse-lakestream-20261005",
+      "title": "The Streamhouse And Lakestream With Apache Fluss",
+      "authors": [
+        "Giannis Polyzos",
+        "Anton Borisov"
+      ],
+      "publisher": "Apache Fluss",
+      "author_affiliation": "Both identified on article as Fluss PMC members",
+      "source_type": "original_project_technical_blog",
+      "url": "https://fluss.apache.org/blog/streamhouse-lakestream-fluss/",
+      "publication_date": "2026-10-05",
+      "publication_date_precision": "day; timezone not stated",
+      "window_classification": "in_window",
+      "checked_at": "2026-10-11T00:24:15Z",
+      "read_scope": "All article sections, including read/write scope and responsibility boundaries; relevant fragment IDs verified against HTML.",
+      "mechanisms": [
+        "One logical table coordinates lake snapshots and stream progress; supported union readers must respect table semantics rather than concatenate all rows.",
+        "Open lake-file compatibility is insufficient for a union reader; managed writes and schema changes need supported coordination.",
+        "Reusable table storage does not replace transformation engines, specialized indexes or all transactional requirements."
+      ],
+      "performance_scope": {
+        "benchmarks": null,
+        "note": "Architecture argument; no measured end-to-end speedup or universal copy-elimination count. Publication is new, not necessarily every described capability."
+      },
+      "limitations": [
+        "No universal simultaneous snapshot across every engine and table.",
+        "Arbitrary independent writes to the lake layer are not promised.",
+        "Supported integration, table type and release determine behavior."
+      ],
+      "access_gaps": []
+    },
+    {
+      "id": "fluss-tiering-mental-20260604",
+      "title": "Tiering Service Deep Dive Part 1: The Mental Model",
+      "authors": [
+        "Giannis Polyzos"
+      ],
+      "publisher": "Apache Fluss",
+      "source_type": "original_project_technical_blog",
+      "url": "https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part1/",
+      "publication_date": "2026-06-04",
+      "publication_date_precision": "day; timezone not stated",
+      "window_classification": "older_supplementary_reading",
+      "checked_at": "2026-10-11T00:24:15Z",
+      "read_scope": "Whole mechanism article, especially heartbeat, frozen stopping offsets and ordered commit reporting.",
+      "mechanisms": [
+        "Planner freezes per-bucket stopping offsets; data files and corresponding progress belong to the lake commit.",
+        "After lake snapshot durability, lake offsets are recorded in Fluss metadata; task-completion heartbeat is triggered immediately.",
+        "New attempts carry new epochs so old completion reports can be ignored."
+      ],
+      "performance_scope": {
+        "benchmarks": null,
+        "note": "Worked walkthrough uses illustrative time/offset values. Draft uses its own explicitly labeled 100/140 example, not measured input."
+      },
+      "limitations": [
+        "Blog is a mechanism explanation, not a pinned-version code audit.",
+        "Do not turn the pedagogical state-machine labels into source-code enum names.",
+        "The June 4 sentence claiming lake lag always includes a full freshness interval is too broad; the June 9 timing explanation distinguishes best/worst arrival positions. Draft uses only the qualified June 9 timing model."
+      ],
+      "access_gaps": [
+        "No release-specific implementation verification."
+      ]
+    },
+    {
+      "id": "fluss-tiering-tuning-20260609",
+      "title": "Tiering Service Deep Dive Part 2: Tuning",
+      "authors": [
+        "Giannis Polyzos"
+      ],
+      "publisher": "Apache Fluss",
+      "source_type": "original_project_technical_blog",
+      "url": "https://fluss.apache.org/blog/fluss-tiering-service-deep-dive-part2/",
+      "publication_date": "2026-06-09",
+      "publication_date_precision": "day; timezone not stated",
+      "window_classification": "older_supplementary_reading",
+      "checked_at": "2026-10-11T00:24:15Z",
+      "read_scope": "Table kinds, scheduling/freshness, force-finish exception, multi-table reads/serialized commits, scaling-out qualifications.",
+      "mechanisms": [
+        "Normal next-round eligibility is measured from completion, so start-to-start cadence includes the preceding round duration.",
+        "Log splits can force-finish, but an existing-KV-snapshot bootstrap must complete to establish the incremental offset.",
+        "Queue delay and serialized commits affect observable lake freshness beyond the configured interval."
+      ],
+      "performance_scope": {
+        "benchmarks": null,
+        "illustrative_model": "5-minute freshness plus stable 90-second rounds gives approximately 6.5-minute start cadence and a record just missing cutoff can wait about 8 minutes.",
+        "assumptions": [
+          "One table or no additional queue waiting",
+          "Stable round duration",
+          "No force-finish or failures"
+        ],
+        "note": "Timing illustration, not author benchmark or SLA."
+      },
+      "limitations": [
+        "PK startup without an existing KV snapshot instead uses log splits and has different force-finish behavior.",
+        "Do not apply the simple cadence model to multi-table backlog or first snapshot bootstrap."
+      ],
+      "access_gaps": [
+        "No runtime metrics or independent performance reproduction."
+      ]
+    },
+    {
+      "id": "storage-less-paper",
+      "title": "LESS is More for I/O-Efficient Repairs in Erasure-Coded Storage",
+      "source_type": "conference_paper_full_text",
+      "authors": [
+        "Keyun Cheng",
+        "Guodong Li",
+        "Xiaolu Li",
+        "Sihuang Hu",
+        "Patrick P. C. Lee"
+      ],
+      "venue": "FAST 2026",
+      "url": "https://www.usenix.org/system/files/fast26-cheng.pdf",
+      "landing_url": "https://www.usenix.org/conference/fast26/presentation/cheng",
+      "publication_date": {
+        "value": "2026-02",
+        "precision": "month",
+        "evidence": "Official BibTeX month=feb, year=2026; PDF cover gives conference February 24–26."
+      },
+      "public_by": {
+        "value": "2026-02-24",
+        "evidence_url": "https://www.usenix.org/conference/fast26/technical-sessions",
+        "evidence": "Official session page says papers available to everyone beginning Tuesday, February 24. Earliest prepublication upload not established."
+      },
+      "accessed_at": "2026-10-11T08:22:43+08:00",
+      "window_class": "older_supplementary_reading",
+      "read_scope": "Original 12-page proceedings PDF: main text sections 1–5, MDS proof appendix and artifact appendix. Original PDF table 2 and figures 3–5 visually checked in cloud browser, printed pages 636–637.",
+      "claims": [
+        {
+          "claim": "Small configurable sub-packetization and overlapping extended RS sub-stripes permit single-block repair within one extended sub-stripe; MDS retained with suitable coefficients.",
+          "support": "§3.1–3.4, Figure 1, Theorem 1 and Appendix A."
+        },
+        {
+          "claim": "For (n,k)=(14,10), LESS alpha=4 reads 4.64 blocks on average with 13 seeks; Clay alpha=256 reads 3.25 with 286 average seeks.",
+          "support": "Table 2, printed p.636; numerical analysis, not a throughput measurement."
+        },
+        {
+          "claim": "LESS alpha=4 reduces default single-block repair time by 50.8% versus RS and 33.9% versus Clay.",
+          "support": "§4.2 Exp#B1 and Figure 4(a)."
+        },
+        {
+          "claim": "Single-thread 256 KiB packet encoding throughput: RS 2.8 GiB/s; LESS alpha=4 1.6 GiB/s.",
+          "support": "§4.2 Exp#B3 and Figure 4(c)."
+        },
+        {
+          "claim": "Full-node recovery experiment repairs 20 blocks from different stripes, one failed block per stripe.",
+          "support": "§4.2 Methodology, printed p.636."
+        }
+      ],
+      "benchmark_context": {
+        "software": "OpenEC atop Hadoop 3.3.4 HDFS; Jerasure coding; Ubuntu 22.04",
+        "cluster": "15 machines: one NameNode, 14 DataNodes",
+        "hardware": "Each machine: quad-core Intel i5-7500 at 3.4 GHz, 16 GiB RAM, 7200 RPM 1 TB SATA HDD",
+        "network": "10 Gbps Ethernet switch; default per-machine bandwidth limited to 1 Gbps with Wondershaper",
+        "default_coding": "(14,10), 64 MiB blocks, 256 KiB packets",
+        "baseline": "RS, Clay, Hitchhiker, HashTag, ET",
+        "statistical_method": "Mean of 10 runs; 95% confidence intervals using Student t distribution",
+        "encoding_microbenchmark": "One in-memory stripe with random bytes; single-thread throughput; distinct from disk/network repair"
+      },
+      "limitations": [
+        "Controlled HDD cluster; no NVMe result is claimed.",
+        "20-block recovery is much smaller than a production full disk.",
+        "Encoding throughput penalty must be counted alongside repair benefit.",
+        "Efficient multi-block repair is conditional on failed blocks belonging to the same block group and sufficient sub-stripe redundancy; not a blanket faster arbitrary multi-failure claim.",
+        "No independently reproduced result in this task."
+      ],
+      "editorial_inference": [
+        "Suggested foreground-tail-latency and full-capacity rebuild experiments are our engineering recommendations, not completed paper experiments."
+      ],
+      "gaps": [
+        "Earliest online/prepublication day unknown.",
+        "No production-scale measurement supplied for full-capacity node rebuild."
+      ]
+    },
+    {
+      "id": "ai-deepseek-blog",
+      "title": "DeepSeek-V4.1-Flash on vLLM: 5x Agentic Throughput Since Day 0",
+      "source_type": "original_project_technical_blog",
+      "authors": [
+        "Inferact",
+        "vLLM Team"
+      ],
+      "url": "https://vllm.ai/blog/2026-10-07-deepseek-v41-flash",
+      "publication_date": {
+        "value": "2026-10-07",
+        "precision": "day",
+        "timezone": null,
+        "evidence": "Article dateline and chronological official blog archive both say October 7, 2026."
+      },
+      "accessed_at": "2026-10-11T08:18:24+08:00",
+      "window_class": "new_article_in_window_about_cumulative_older_optimizations",
+      "read_scope": "Complete original article including bounded replay, CUDA graphs, accuracy/performance, kernels, AgentX evaluation; linked original plot and interactive data table inspected.",
+      "claims": [
+        {
+          "claim": "Cache only global KV, recompute last 128 tokens of SWA state on prefix hit; decoder layer 20 handles full prompt, layers 21–39 last 128 tokens.",
+          "support": "SWA bounded replay; Encoder side; Decoder side."
+        },
+        {
+          "claim": "Bounded replay truncates attention windows and is not bit-exact.",
+          "support": "SWA bounded replay; Accuracy and performance results."
+        },
+        {
+          "claim": "Separate graph capture handles the full and trimmed batches; kernel-launch overhead can outweigh saved work without it.",
+          "support": "CUDA graphs for the trimmed layers; original Figure 4 and linked table."
+        },
+        {
+          "claim": "GSM8K and GPQA observed accuracy gaps within about 1.5 standard errors.",
+          "support": "Accuracy and performance results. No unrestricted quality equivalence is asserted."
+        },
+        {
+          "claim": "Headline AgentX gains combine multiple optimization families.",
+          "support": "Intro, Kernels, Agentic performance; Figure 1/6 dates."
+        }
+      ],
+      "limitations": [
+        "Publication this week does not establish implementation landed this week.",
+        "Quality statement covers cited tests, not all agent workloads.",
+        "Global KV/state structure and layer truncation are model-specific.",
+        "Kernel improvements and end-to-end AgentX improvements cannot be interchanged."
+      ],
+      "gaps": [
+        "Blog only supplies day-level publication date without timezone.",
+        "No independent reproduction or confidence intervals for AgentX throughput comparison in this task."
+      ]
+    },
+    {
+      "id": "ai-deepseek-prefill-table",
+      "title": "Prefill TTFT with SWA bounded replay",
+      "source_type": "original_blog_interactive_figure",
+      "url": "https://vllm.ai/blog-assets/interactive_pages/dsv41-prefill-ttft.html",
+      "parent_source": "ai-deepseek-blog",
+      "publication_date": {
+        "value": null,
+        "precision": null,
+        "evidence": "No separate publication dateline; embedded in October 7 article."
+      },
+      "accessed_at": "2026-10-11T08:22:03+08:00",
+      "window_class": "supporting_figure_of_in_window_blog",
+      "read_scope": "Expanded Show Table in cloud browser; checked all 10 TP4/DEP2 rows.",
+      "benchmark_context": {
+        "model": "DeepSeek-V4.1-Flash",
+        "hardware": "NVIDIA GB200",
+        "request_count": "single request",
+        "prefix_caching": "off",
+        "aggregation": "median of 3 runs",
+        "configs": [
+          "TP4",
+          "DEP2"
+        ],
+        "prompt_sizes": [
+          "1K",
+          "4K",
+          "8K",
+          "32K",
+          "128K"
+        ]
+      },
+      "claims": [
+        {
+          "claim": "DEP2 1K: replay off 103.8 ms; replay with eager decoder 116.2 ms (+11.9%); replay with decoder CUDA Graph 72.5 ms (-30.2%).",
+          "support": "Expanded table row DEP2 / 1K."
+        }
+      ],
+      "limitations": [
+        "Single-request prefill comparison is not an online concurrent service SLO.",
+        "The control disables prefix caching, so improvement should not be called a cache-hit effect."
+      ]
+    },
+    {
+      "id": "ai-deepseek-agentx-figure",
+      "title": "DeepSeek V4.1 Flash 552B Agentic GB300 NVL72 vLLM comparison",
+      "source_type": "original_blog_figure",
+      "url": "https://vllm.ai/blog-assets/figures/2026-10-07-deepseek-v41-flash/agentx-results.png",
+      "parent_source": "ai-deepseek-blog",
+      "publication_date": {
+        "value": null,
+        "precision": null,
+        "evidence": "Image is embedded in October 7 article, not separately dated as a publication."
+      },
+      "event_dates": [
+        "2026-09-11",
+        "2026-10-02"
+      ],
+      "accessed_at": "2026-10-11T08:20:05+08:00",
+      "window_class": "pre_window_measurement_series_described_in_new_blog",
+      "read_scope": "Viewed original image pixels in cloud browser.",
+      "claims": [
+        {
+          "claim": "5.3x at 155 tok/s/user P90 interactivity; approximately 27K to 144K tok/s/chip.",
+          "support": "Orange annotation and x/y-axis labels."
+        },
+        {
+          "claim": "Compares optimal GB300 NVL72 configurations on September 11 and October 2; point labels include TP4 and DEP2.",
+          "support": "Title, subtitle, legend and point labels."
+        }
+      ],
+      "limitations": [
+        "Article prose says 150 TPS constraint while chart annotation says 155; draft quotes the more specific figure point explicitly.",
+        "Optimized configurations differ; not a one-switch controlled ablation.",
+        "Throughput includes cached tokens, based on linked September 8 method definition."
+      ]
+    },
+    {
+      "id": "ai-rubin-blog",
+      "title": "vLLM Support for NVIDIA Vera Rubin NVL72: 7.8x Throughput over GB200 NVL72",
+      "source_type": "original_project_technical_blog",
+      "authors": [
+        "vLLM Team",
+        "Inferact",
+        "Red Hat",
+        "NVIDIA"
+      ],
+      "url": "https://vllm.ai/blog/2026-10-09-vera-rubin-preview",
+      "publication_date": {
+        "value": "2026-10-09",
+        "precision": "day",
+        "timezone": null,
+        "evidence": "Article dateline and official blog archive."
+      },
+      "accessed_at": "2026-10-11T08:18:24+08:00",
+      "window_class": "new_article_in_window",
+      "read_scope": "Complete original article including locality design, support status, performance, next steps and configuration appendix; linked locality table and AgentX plot inspected.",
+      "claims": [
+        {
+          "claim": "Split-N shards FC1/FC2 MoE weights column-wise across locality domains, using Green Contexts/streams to place corresponding SM work near the shard.",
+          "support": "Locality domain support, Figure 3."
+        },
+        {
+          "claim": "Locality microbenchmark does not include communication; full locality enablement remains listed as future work.",
+          "support": "Figure 4 caption and Next Steps."
+        },
+        {
+          "claim": "7.84x and 5.18x are different operating points of MiniMax M3 AgentX comparison against GB200, while the cited 3.7x VLM result uses Qwen3-VL and a GB300 baseline.",
+          "support": "Performance. Draft omits VLM multiplier to avoid mixing baselines."
+        }
+      ],
+      "limitations": [
+        "Early platform preview.",
+        "Locality experiment does not isolate hardware-generation effect.",
+        "No power/energy or cost-saving percentage is claimed in the draft.",
+        "Feature demonstration and full framework enablement are distinct."
+      ],
+      "gaps": [
+        "No fixed-run manifest/commit or independent end-to-end reproduction obtained.",
+        "Blog day-level date has no explicit timezone."
+      ]
+    },
+    {
+      "id": "ai-rubin-locality-table",
+      "title": "Locality-aware MoE latency on MiniMax M3",
+      "source_type": "original_blog_interactive_figure",
+      "url": "https://vllm.ai/blog-assets/interactive_pages/vera-rubin-moe-locality-latency.html",
+      "parent_source": "ai-rubin-blog",
+      "publication_date": {
+        "value": null,
+        "precision": null,
+        "evidence": "No independent dateline; linked from October 9 blog."
+      },
+      "accessed_at": "2026-10-11T08:20:35+08:00",
+      "window_class": "supporting_figure_of_in_window_blog",
+      "read_scope": "Expanded original table in cloud browser for TP2, 212/212 SM backfill mode.",
+      "benchmark_context": {
+        "model_shapes": "MiniMax M3 MoE FC1+FC2",
+        "hardware": "Rubin, HBM 4752 MHz",
+        "mode": "TP2, all 212 SMs in backfill mode",
+        "routing": "balanced",
+        "kernel_configurations": "fixed",
+        "aggregation": "mean of 5 repeats per latency; CUDA Graph timing; geometric mean of 12 speedups",
+        "token_counts": [
+          32,
+          64,
+          96,
+          128,
+          160,
+          192,
+          224,
+          256,
+          512,
+          1024,
+          2048,
+          4096
+        ],
+        "communication": "excluded per parent blog Figure 4 caption",
+        "control": "Both arms include FC2 asynchronous-reduction completion fix, per table caption"
+      },
+      "claims": [
+        {
+          "claim": "TP2 table average speedup is 1.18x.",
+          "support": "Expanded table avg row; mean defined as geometric mean in figure legend."
+        }
+      ],
+      "limitations": [
+        "Layer-local fixed-shape balanced-routing microbenchmark, not an end-to-end serving throughput claim.",
+        "No expert-skew or network-communication result asserted."
+      ]
+    },
+    {
+      "id": "ai-rubin-agentx-figure",
+      "title": "MiniMax M3 428B Agentic Token Throughput per Chip vs. P90 Interactivity",
+      "source_type": "original_blog_figure",
+      "url": "https://vllm.ai/blog-assets/figures/2026-10-09-vera-rubin-preview/agentx-results.png",
+      "parent_source": "ai-rubin-blog",
+      "publication_date": {
+        "value": null,
+        "precision": null,
+        "evidence": "No separate publication date; embedded in October 9 article."
+      },
+      "event_date": {
+        "value": "2026-10-08",
+        "kind": "image_updated_date"
+      },
+      "accessed_at": "2026-10-11T08:20:20+08:00",
+      "window_class": "in_window_preview_measurement_figure",
+      "read_scope": "Original image pixels inspected in cloud browser.",
+      "claims": [
+        {
+          "claim": "5.18x per-chip token throughput at P90 interactivity 150 tok/s/user, Vera Rubin NVL72 versus GB200 NVL72; both labelled Dynamo vLLM.",
+          "support": "Vertical comparison at x=150, chart legend and axes."
+        },
+        {
+          "claim": "Highest 7.84x annotation is at a different interactivity point; configurations differ across curves.",
+          "support": "Second vertical comparison near x=430 and TP2/TP4/TP8/disaggregated point labels."
+        },
+        {
+          "claim": "Results may change as validation/publication continue.",
+          "support": "Preview note at top of plot."
+        }
+      ],
+      "limitations": [
+        "Hardware generations and optimal configurations differ.",
+        "Cannot attribute 5.18x to locality domains alone.",
+        "Preview plot rather than a fixed independently reproduced measurement in this task."
+      ]
+    },
+    {
+      "id": "ai-agentx-method",
+      "title": "vLLM x AgentX: Optimizing for Real-World Agentic Serving",
+      "source_type": "original_project_technical_blog",
+      "url": "https://vllm.ai/blog/2026-09-08-vllm-agentx",
+      "publication_date": {
+        "value": "2026-09-08",
+        "precision": "day",
+        "evidence": "Original article dateline."
+      },
+      "accessed_at": "2026-10-11T08:19:20+08:00",
+      "window_class": "older_supporting_method_definition",
+      "read_scope": "Original article, focusing on workload characteristics and Performance footnote 1.",
+      "claims": [
+        {
+          "claim": "Total tokens per GPU-second counts input, output and cached tokens.",
+          "support": "Performance table footnote 1."
+        }
+      ],
+      "limitations": [
+        "Used solely to clarify metric semantics, not as this week's news."
+      ]
+    }
+  ],
+  "domain_evidence": {
+    "lakehouse_streaming": {
+      "selection": {
+        "lakehouse": "Active Data Lakes, one paper; older supplementary reading, not a new Iceberg/Paimon feature",
+        "streaming": "Fluss Streamhouse/Lakestream author blog published inside the window, with two explicitly dated supplementary mechanism articles",
+        "duplicates_checked": [
+          "2026-10-04-tech-research-week-12-13.md",
+          "stream-storage-observer/2026-10-09.md"
+        ],
+        "excluded_categories": [
+          "issue",
+          "pull request",
+          "release roundup",
+          "community-development roundup"
+        ],
+        "independent_reproduction": false
+      },
+      "coverage_and_access_gaps": [
+        {
+          "project": "Iceberg",
+          "url": "https://iceberg.apache.org/blog/",
+          "checked_at": "2026-10-11T00:23:06Z",
+          "result": "Index searched. October 5 material was a release article and deliberately excluded. August 12 original Variant post and June 15 Snowflake implementation benchmark were read as alternative candidates but not used in the chosen section.",
+          "scope_caution": "Not an exhaustive finding that no eligible article exists anywhere."
+        },
+        {
+          "project": "Paimon",
+          "url": "https://paimon.apache.org/blog/",
+          "checked_at": "2026-10-11T00:23:06Z",
+          "result": "Searches for original project/author technical writing and papers did not establish an in-window candidate. Blog route returned an Angular application shell to static fetching and no readable article listing through web extraction.",
+          "scope_caution": "Static-index access gap; do not infer no project activity or no new articles."
+        },
+        {
+          "project": "Kafka",
+          "url": "https://kafka.apache.org/blog/",
+          "checked_at": "2026-10-11T00:23:06Z",
+          "result": "Official visible index showed release announcements; these are excluded from the research section. Did not import KIP/PR material from October 9 observer.",
+          "scope_caution": "Does not exhaust the author/company blog ecosystem."
+        },
+        {
+          "project": "AutoMQ",
+          "url": "https://www.automq.com/blog",
+          "checked_at": "2026-10-11T00:23:06Z",
+          "result": "Index extraction was inconsistent: search cache displayed older posts, direct extraction displayed no available posts. Targeted site searches surfaced earlier 2026 originals but no verified in-window main topic.",
+          "scope_caution": "Dynamic index coverage gap. No claim that AutoMQ had no activity."
+        }
+      ]
+    },
+    "storage_ai": {
+      "schema_version": 1,
+      "issue_date": "2026-10-11",
+      "timezone": "Asia/Shanghai",
+      "reporting_window": {
+        "start_inclusive": "2026-10-04T08:00:00+08:00",
+        "end_exclusive": "2026-10-11T08:00:00+08:00"
+      },
+      "research_access_interval": {
+        "start": "2026-10-11T08:17:46+08:00",
+        "end": "2026-10-11T08:24:18+08:00"
+      },
+      "policy": {
+        "accepted_sources": [
+          "conference_paper_full_text",
+          "original_author_or_project_technical_blog",
+          "official_conference_metadata_for_dates_and_scope"
+        ],
+        "excluded_sources": [
+          "issue_roundup",
+          "pull_request_roundup",
+          "release_roundup",
+          "secondary_news"
+        ],
+        "publication_date_is_not_access_date": true,
+        "independent_reproduction": false
+      },
+      "editorial_results": {
+        "storage": "One older FAST 2026 paper, LESS, retained as explicit supplementary reading. No verified in-window publication claim is made. DPA-Store was considered but omitted to keep the section focused.",
+        "ai": "Two in-window original technical blog publications retained. DeepSeek performance series ends October 2, before the reporting window; the new event is the October 7 explanatory article. Rubin October 9 article reports early preview results, with the AgentX image updated October 8.",
+        "deduplication": "Read previous issue at _posts/2026-10-04-tech-research-week-12-13.md. Avoided repeating its SOSP papers, role switching, cache event replay, and generic near-position cache accuracy article.",
+        "atc_scope": "USENIX ATC ended after ATC 2025; ACM SIGOPS ATC 2026 exists and has an official accepted-paper list. Its November conference date is not evidence that its papers were first published this week."
+      },
+      "coverage_audit": [
+        {
+          "venue": "FAST",
+          "url": "https://www.usenix.org/conference/fast26/technical-sessions",
+          "status": "Official sessions metadata and selected paper full text checked. LESS clearly predates window. Subsequent direct listing reopens timed out; original paper remained readable.",
+          "exhaustive": false
+        },
+        {
+          "venue": "OSDI",
+          "url": "https://www.usenix.org/conference/osdi26/technical-sessions",
+          "status": "Official listing search result supplies July 13 opening/public-access date. DPA-Store landing and PDF opened; omitted from draft rather than represented as an in-window paper.",
+          "candidate_url": "https://www.usenix.org/conference/osdi26/presentation/schimmelpfennig",
+          "exhaustive": false
+        },
+        {
+          "venue": "SOSP",
+          "url": "https://sigops.org/s/conferences/sosp/2026/accepted.html",
+          "schedule_url": "https://sigops.org/s/conferences/sosp/2026/schedule.html",
+          "status": "Official accepted list and schedule checked against previous issue. No repeat of prior SOSP coverage. List presence is not new publication evidence.",
+          "exhaustive": false
+        },
+        {
+          "venue": "ATC",
+          "url": "https://sigops.org/s/conferences/atc/2026/",
+          "accepted_url": "https://sigops.org/s/conferences/atc/2026/accepted.html",
+          "conference_dates": [
+            "2026-11-15",
+            "2026-11-18"
+          ],
+          "location": "Hyatt Hotel, Shatin, Hong Kong",
+          "status": "Official ACM SIGOPS site and 135-paper accepted list confirmed; list lacks a first-publication timestamp. Do not infer this week publication.",
+          "historical_context_url": "https://www.usenix.org/blog/usenix-atc-announcement",
+          "historical_context": "USENIX announcement dated 2025-05-06 ends its series after July 2025, not the ACM SIGOPS successor.",
+          "exhaustive": false
+        },
+        {
+          "venue": "SIGMOD",
+          "url": "https://2026.sigmod.org/sigmod_papers.shtml",
+          "status": "Official accepted-paper list inspected; it points to PACMMOD 2025/3/4, 2025/3/6, 2026/4/1, 2026/4/3. Listing alone cannot establish a first-publication date in this week.",
+          "exhaustive": false
+        },
+        {
+          "venue": "VLDB/PVLDB",
+          "url": "https://www.vldb.org/pvldb/",
+          "attempted_issue_url": "https://www.vldb.org/pvldb/vol20/FrontMatterVol20No1.pdf",
+          "status": "Official homepage opened and confirms Volume 20 exists. Issue front matter and volume page were not retrievable in this run; no month or day is invented from these failures.",
+          "exhaustive": false
+        },
+        {
+          "venue": "Original AI project blogs",
+          "url": "https://vllm.ai/blog/archive",
+          "other_index": "https://www.lmsys.org/blog/",
+          "status": "vLLM chronological archive confirms October 7/9 dates. LMSYS original index inspected; no item from this week retained.",
+          "exhaustive": false
+        }
+      ],
+      "global_gaps": [
+        "Search coverage is bounded and cannot support a universal claim that no storage research was published in the window.",
+        "Some official indexes timed out; no inaccessible full text is used for technical claims.",
+        "No benchmark was run locally.",
+        "No issue, PR, or release page is used as a technical source for the drafts."
+      ]
+    }
+  }
+}
