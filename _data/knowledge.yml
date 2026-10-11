@@ -122,6 +122,14 @@ collections:
         why: 理解试探性操作与状态分支。
       - url: /knowledge/Agentic-Memory-语义缓存/
         why: 讨论结果复用、权限和版本约束。
+  - id: observability
+    topic: ai
+    title: 云系统可观测性 · 论文精读
+    description: 围绕日志、指标与追踪的关联查询，分析数据布局、资源开销与故障边界。
+    match: 'DiTing|diting'
+    route:
+      - url: /posts/diting-observability-paper/
+        why: 从统一查询与资源借用的取舍切入，区分机制、实验和生产条件。
   - id: agent-harness
     topic: ai
     title: Agent 工程与安全

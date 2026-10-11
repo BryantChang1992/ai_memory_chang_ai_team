@@ -70,6 +70,18 @@ class KnowledgeCatalogTest < Minitest::Test
     end
   end
 
+  def test_diting_reading_has_a_dedicated_home_without_a_translation
+    url = '/posts/diting-observability-paper/'
+    resource = @catalog['resources'].find { |r| r['url'] == url }
+    assert_equal 'paper', resource['role']
+    assert_equal 'observability', resource['collection_id']
+    collection = @catalog['collections'].find { |c| c['id'] == 'observability' }
+    assert_equal [url], collection['route'].map { |r| r['url'] }
+    assert_includes urls(page('/library/observability/').css('main a[href]')), url
+    assert_empty page(url).css('.paper-supplements')
+    assert_includes urls(page(url).css('.article-context a')), '/library/observability/'
+  end
+
   def test_search_index_keeps_each_resource_once_and_excludes_weekly_reports
     index = page('/knowledge/')
     assert_equal @catalog['resources'].map { |r| r['url'] }.sort, urls(index.css('[data-resource] .resource-title')).sort
