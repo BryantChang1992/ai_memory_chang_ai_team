@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from public_sync_scope import validate_public_scope
 
 
 def digest(path):
@@ -16,7 +17,7 @@ def digest(path):
 
 def check(root, vault=None):
     manifest = json.loads((root / 'docs/obsidian-sync-manifest.json').read_text())
-    errors = []
+    errors = validate_public_scope(manifest)
     paths, urls = set(), set()
     for entry in manifest['entries']:
         relative = entry['blog_path']
