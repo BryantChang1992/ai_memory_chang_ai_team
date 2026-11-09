@@ -38,3 +38,32 @@
 - 同步前同时核对概念卡、精读、综述、索引和别名。旧 HTML 指向已维护的新版入口，避免继续显示过时结论。
 - reviewed / source_checked 表示人工复核日期；created 和既有审核状态保留。不能按笔记年龄自动提高或降低置信度。
 - 哈希校验只证明对应关系；技术正确性仍需要原论文或相应版本官方文档的证据。
+
+## 检查范围与固定版本发布门槛
+
+`check_knowledge_sync.py` 是只读检查器，不更新清单、正文、哈希或权限，不执行同步或发布。清单中的历史 `blog_base_commit` / `wiki_base_commit` 不代表本次验证的实际提交。
+
+- 默认运行 `python3 scripts/check_knowledge_sync.py` 仅检查站点现有映射与附件。成功不表示知识库没有新增报告，也不认证完整同步。现有 Pages 工作流保持此范围，不能把这一项成功当成双库发布完成。
+- 运行 `python3 scripts/check_knowledge_sync.py --vault /path/to/ai_wikis` 检查两边清单、文章、别名和附件，以及 `技术文章/博客同步` 目录内递归发现的 Markdown 报告。新增未映射报告使检查失败；此目录之外的笔记不会自动入列。覆盖检查是待办发现机制，不是公开授权。
+- 使用完整发布门槛时，显式提供两个仓库根目录和已经审阅的完整 commit ID：
+
+```bash
+python3 scripts/check_knowledge_sync.py \
+  --site /path/to/ai_memory_chang_ai_team \
+  --vault /path/to/ai_wikis \
+  --site-commit "$SITE_COMMIT" \
+  --vault-commit "$WIKI_COMMIT" \
+  --require-complete --json
+```
+
+`SITE_COMMIT` 和 `WIKI_COMMIT` 必须是这次发布候选的完整、小写 commit ID，不能用分支名、短 SHA 或旧清单中的基准字段代替。工具不 fetch、不 checkout、不创建凭据。
+
+固定版本模式要求输入路径是两个不同的真实 Git checkout 根目录，HEAD 与指定提交一致。检查前后均验证 Git 状态，并按提交树逐一核对受控文件的实际 blob 哈希和执行位，避免 `assume-unchanged` / `skip-worktree` 隐藏变更。所有同步输入必须受 Git 跟踪。无关、被忽略的构建产物可以存在；不忽略的未跟踪文件、受控文件缺失或变化、未映射报告都不能通过。当前不支持包含 gitlink/submodule 的严格核验。运行期间应保持两个 checkout 静止，检查本身不会加写锁或提供跨库原子事务。
+
+无 `.git` 的导出快照可以做双库诊断，不能通过固定版本门槛。只有版本核验、已有映射和指定报告目录覆盖全部通过，JSON 的 `sync_complete` 才为 true；这个字段只认证上述范围，不证明技术事实、全库链接、分类、构建、部署或线上呈现。没有输入对端时明确输出 site-only，而不是“完整同步”。
+
+回归测试：`python3 tests/knowledge_sync_test.py`。Pages 工作流在构建前运行此回归测试及 `python3 scripts/test_public_sync_scope.py`，随后继续运行原有 `python3 tests/content_source_test.py`、Ruby 分类/入口测试、Storage Lab 测试与构建、全站链接检查。CI 的真实内容检查仍为 site-only；增加只读 wiki checkout 并固定该次 wiki commit，需要独立审阅。现有未同步报告仍须解决后才能通过双库完整发布门槛，不能以 CI 站点构建成功代替。
+
+任何未同步报告都应保留为显式待办，不能通过移出覆盖目录、删旧映射、修改哈希掩盖差异或生成空白映射让检查变绿。两份清单仍须通过原有授权与审核流程；检查器不会解除或绕过发布阻塞。
+
+清单解析拒绝重复 JSON 键以及 NaN、Infinity、-Infinity 等非标准数值常量。文章固定 URL 不接受 query/fragment 分隔符，即使 `?` 或 `#` 后没有内容也拒绝，避免把等价地址当作不同映射。

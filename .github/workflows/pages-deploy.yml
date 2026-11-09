@@ -29,6 +29,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Test synchronization validation
+        run: |
+          python3 tests/knowledge_sync_test.py
+          python3 scripts/test_public_sync_scope.py
+
       - name: Setup Pages
         if: github.event_name != 'pull_request'
         id: pages
