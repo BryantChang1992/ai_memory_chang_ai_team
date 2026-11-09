@@ -1,0 +1,18 @@
+---
+layout: page
+title: Kafka Issue 周报
+permalink: /kafka-issues/
+---
+<div class="content-hub">
+  <p class="hub-intro">按原观察窗口回看 Apache Kafka 官方 JIRA 问题、修复、回移与发行证据。问题关闭、代码合并和正式发行分别核对。</p>
+  <p>本专题独立于<a href="{{ '/weekly/' | relative_url }}">技术调研周报</a>和<a href="{{ '/stream-storage-observer/' | relative_url }}">流存储技术观察</a>。</p>
+  {% assign kafka_issues = site.pages | where: 'kafka_issue', true | sort: 'issue_date' | reverse %}
+  {% for issue in kafka_issues %}
+  <section class="weekly-issue" data-kafka-issue="{{ issue.issue_date }}">
+    <div class="reading-meta">{{ issue.issue_date }} · 第 {{ issue.kafka_number }} 期</div>
+    <h2><a href="{{ issue.url | relative_url }}">{{ issue.title }}</a></h2>
+    <p>{{ issue.description }}</p>
+    <a href="{{ issue.url | relative_url }}">阅读本期 →</a>
+  </section>
+  {% endfor %}
+</div>
