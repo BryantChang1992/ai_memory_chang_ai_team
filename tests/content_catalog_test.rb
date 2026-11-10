@@ -118,8 +118,10 @@ class ContentCatalogTest < Minitest::Test
     assert_equal 13, combined.first['overview'].data['issue']
     assert_equal [12, 13], combined.first['overview'].data['covered_issues']
     assert_empty combined.first['reports']
-    assert_includes page('index.html').at_css('main [data-weekly-issue="13"]').text, 'W12–13'
+    # Older combined issues remain in the full index as the homepage shows newer issues.
     weekly = page('weekly/index.html')
+    assert_equal 1, weekly.css('[data-weekly-issue="13"]').size
+    assert_equal [combined_url], urls(weekly.css('[data-weekly-issue="13"] h2 a[href]'))
     assert_includes weekly.at_css('[data-weekly-issue="13"] .reading-meta').text, 'Week 12–13'
     assert_empty weekly.css('[data-weekly-issue="12"]')
 
@@ -156,4 +158,27 @@ class ContentCatalogTest < Minitest::Test
       assert_equal %w[首页 专题 周报 关于], page(path).css('.global-nav .nav-link').map(&:text)
     end
   end
+  def test_backlog_reports_have_independent_navigation_and_search
+    kafka_dates = %w[2026-10-17 2026-10-24 2026-10-31]
+    observer_dates = %w[2026-10-23 2026-10-30 2026-11-06]
+    kafka = page('kafka-issues/index.html')
+    observer = page('stream-storage-observer/index.html')
+    weekly_links = urls(page('weekly/index.html').css('main .weekly-issue a[href]'))
+    search = JSON.parse(File.read(File.join(@destination, 'assets/js/data/search.json')))
+    searchable = search.map { |item| item['url'].delete_prefix(@site.config.fetch('baseurl', '')) }
+    expected = kafka_dates.map { |date| "/kafka-issues/#{date}/" } + observer_dates.map { |date| "/stream-storage-observer/#{date}/" } + (15..17).map { |issue| "/posts/tech-research/week-#{issue}/" }
+    expected.each do |url|
+      assert_equal 1, searchable.count(url), "Report must appear in search exactly once: #{url}"
+      assert page(url.delete_prefix('/') + 'index.html').at_css('main'), url
+    end
+    kafka_dates.each do |date|
+      assert_includes urls(kafka.css('main a[href]')), "/kafka-issues/#{date}/"
+      assert_equal 1, kafka.css("[data-kafka-issue='#{date}']").size
+      refute_includes weekly_links, "/kafka-issues/#{date}/"
+    end
+    observer_dates.each { |date| assert_includes urls(observer.css('main a[href]')), "/stream-storage-observer/#{date}/" }
+    (15..17).each { |issue| assert_includes weekly_links, "/posts/tech-research/week-#{issue}/" }
+    %w[index.html library/index.html].each { |path| assert_includes urls(page(path).css('main a[href]')), '/kafka-issues/' }
+  end
+
 end
