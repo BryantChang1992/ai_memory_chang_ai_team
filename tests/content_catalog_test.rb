@@ -118,8 +118,10 @@ class ContentCatalogTest < Minitest::Test
     assert_equal 13, combined.first['overview'].data['issue']
     assert_equal [12, 13], combined.first['overview'].data['covered_issues']
     assert_empty combined.first['reports']
-    assert_includes page('index.html').at_css('main [data-weekly-issue="13"]').text, 'W12–13'
+    # Older combined issues remain in the full index as the homepage shows newer issues.
     weekly = page('weekly/index.html')
+    assert_equal 1, weekly.css('[data-weekly-issue="13"]').size
+    assert_equal [combined_url], urls(weekly.css('[data-weekly-issue="13"] h2 a[href]'))
     assert_includes weekly.at_css('[data-weekly-issue="13"] .reading-meta').text, 'Week 12–13'
     assert_empty weekly.css('[data-weekly-issue="12"]')
 
